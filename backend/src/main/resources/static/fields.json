@@ -6,49 +6,47 @@
       "TEXT_FIELD_01": {
         "label": "Text Field 01",
         "type": "text",
-        "valueSources": ["value"],
         "preferWidgets": ["text"]
       },
       "TEXT_FIELD_02": {
         "label": "Text Field 02",
         "type": "text",
-        "valueSources": ["value"],
         "preferWidgets": ["text"]
       },
       "NUMBER_FIELD_01": {
         "label": "Number Field 01",
         "type": "number",
-        "valueSources": ["value"],
-        "preferWidgets": ["number"]
+        "preferWidgets": ["number"],
+        "fieldSettings": {
+          "min": 0
+        }
       },
       "NUMBER_FIELD_02": {
         "label": "Number Field 02",
         "type": "number",
-        "valueSources": ["value"],
-        "preferWidgets": ["number"]
+        "preferWidgets": ["number"],
+        "fieldSettings": {
+          "min": 0
+        }
       },
       "DATE_FIELD_01": {
         "label": "Date Field 01",
         "type": "date",
-        "valueSources": ["value"],
         "preferWidgets": ["date"]
       },
       "DATE_FIELD_02": {
         "label": "Date Field 02",
         "type": "date",
-        "valueSources": ["value"],
         "preferWidgets": ["date"]
       },
       "BOOLEAN_FIELD_01": {
         "label": "Boolean Field 01",
         "type": "boolean",
-        "valueSources": ["value"],
         "preferWidgets": ["boolean"]
       },
       "BOOLEAN_FIELD_02": {
         "label": "Boolean Field 02",
         "type": "boolean",
-        "valueSources": ["value"],
         "preferWidgets": ["boolean"]
       }
     }
@@ -60,49 +58,47 @@
       "TEXT_FIELD_01": {
         "label": "Text Field 01",
         "type": "text",
-        "valueSources": ["value"],
         "preferWidgets": ["text"]
       },
       "TEXT_FIELD_02": {
         "label": "Text Field 02",
         "type": "text",
-        "valueSources": ["value"],
         "preferWidgets": ["text"]
       },
       "NUMBER_FIELD_01": {
         "label": "Number Field 01",
         "type": "number",
-        "valueSources": ["value"],
-        "preferWidgets": ["number"]
+        "preferWidgets": ["number"],
+        "fieldSettings": {
+          "min": 0
+        }
       },
       "NUMBER_FIELD_02": {
         "label": "Number Field 02",
         "type": "number",
-        "valueSources": ["value"],
-        "preferWidgets": ["number"]
+        "preferWidgets": ["number"],
+        "fieldSettings": {
+          "min": 0
+        }
       },
       "DATE_FIELD_01": {
         "label": "Date Field 01",
         "type": "date",
-        "valueSources": ["value"],
         "preferWidgets": ["date"]
       },
       "DATE_FIELD_02": {
         "label": "Date Field 02",
         "type": "date",
-        "valueSources": ["value"],
         "preferWidgets": ["date"]
       },
       "BOOLEAN_FIELD_01": {
         "label": "Boolean Field 01",
         "type": "boolean",
-        "valueSources": ["value"],
         "preferWidgets": ["boolean"]
       },
       "BOOLEAN_FIELD_02": {
         "label": "Boolean Field 02",
         "type": "boolean",
-        "valueSources": ["value"],
         "preferWidgets": ["boolean"]
       }
     }

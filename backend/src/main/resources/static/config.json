@@ -1,12 +1,12 @@
 {
   "conjunctions": {
     "AND": {
-      "label": "And",
+      "label": "AND",
       "formatConj": "AND",
       "reversedConj": "OR"
     },
     "OR": {
-      "label": "Or",
+      "label": "OR",
       "formatConj": "OR",
       "reversedConj": "AND"
     }
@@ -14,217 +14,268 @@
   "operators": {
     "equal": {
       "label": "==",
-      "reversedOp": "not_equal",
       "labelForFormat": "==",
-      "cardinality": 1,
-      "formatOp": "==",
-      "jsonLogic": "=="
+      "reversedOp": "not_equal",
+      "cardinality": 1
     },
     "not_equal": {
       "label": "!=",
-      "reversedOp": "equal",
       "labelForFormat": "!=",
-      "cardinality": 1,
-      "formatOp": "!=",
-      "jsonLogic": "!="
+      "reversedOp": "equal",
+      "cardinality": 1
     },
     "less": {
       "label": "<",
-      "reversedOp": "greater_or_equal",
       "labelForFormat": "<",
-      "cardinality": 1,
-      "formatOp": "<",
-      "jsonLogic": "<"
+      "reversedOp": "greater_or_equal",
+      "cardinality": 1
     },
     "less_or_equal": {
       "label": "<=",
-      "reversedOp": "greater",
       "labelForFormat": "<=",
-      "cardinality": 1,
-      "formatOp": "<=",
-      "jsonLogic": "<="
+      "reversedOp": "greater",
+      "cardinality": 1
     },
     "greater": {
       "label": ">",
-      "reversedOp": "less_or_equal",
       "labelForFormat": ">",
-      "cardinality": 1,
-      "formatOp": ">",
-      "jsonLogic": ">"
+      "reversedOp": "less_or_equal",
+      "cardinality": 1
     },
     "greater_or_equal": {
       "label": ">=",
-      "reversedOp": "less",
       "labelForFormat": ">=",
-      "cardinality": 1,
-      "formatOp": ">=",
-      "jsonLogic": ">="
+      "reversedOp": "less",
+      "cardinality": 1
     },
-    "like": {
+    "contains": {
       "label": "Contains",
-      "reversedOp": "not_like",
-      "labelForFormat": "LIKE",
-      "cardinality": 1,
-      "formatOp": "LIKE",
-      "jsonLogic": "in"
+      "labelForFormat": "Contains",
+      "reversedOp": "not_contains",
+      "cardinality": 1
     },
-    "not_like": {
-      "label": "Not contains",
-      "reversedOp": "like",
-      "labelForFormat": "NOT LIKE",
-      "cardinality": 1,
-      "formatOp": "NOT LIKE"
+    "not_contains": {
+      "label": "Not Contains",
+      "labelForFormat": "Not Contains",
+      "reversedOp": "contains",
+      "cardinality": 1
     },
     "starts_with": {
-      "label": "Starts with",
-      "labelForFormat": "STARTS WITH",
-      "cardinality": 1,
-      "formatOp": "STARTS WITH"
+      "label": "Starts With",
+      "labelForFormat": "Starts With",
+      "cardinality": 1
     },
     "ends_with": {
-      "label": "Ends with",
-      "labelForFormat": "ENDS WITH",
-      "cardinality": 1,
-      "formatOp": "ENDS WITH"
+      "label": "Ends With",
+      "labelForFormat": "Ends With",
+      "cardinality": 1
     },
     "is_empty": {
-      "label": "Is empty",
-      "labelForFormat": "IS EMPTY",
-      "cardinality": 0,
-      "formatOp": "IS EMPTY",
-      "reversedOp": "is_not_empty"
+      "label": "Is Empty",
+      "labelForFormat": "Is Empty",
+      "reversedOp": "is_not_empty",
+      "cardinality": 0
     },
     "is_not_empty": {
-      "label": "Is not empty",
-      "labelForFormat": "IS NOT EMPTY",
-      "cardinality": 0,
-      "formatOp": "IS NOT EMPTY",
-      "reversedOp": "is_empty"
+      "label": "Is Not Empty",
+      "labelForFormat": "Is Not Empty",
+      "reversedOp": "is_empty",
+      "cardinality": 0
     }
   },
   "widgets": {
     "text": {
       "type": "text",
-      "valueSrc": "value",
-      "factory": "materialui"
+      "valueSrc": "value"
     },
     "number": {
       "type": "number",
-      "valueSrc": "value",
-      "factory": "materialui"
+      "valueSrc": "value"
     },
     "date": {
       "type": "date",
       "valueSrc": "value",
-      "factory": "materialui",
       "dateFormat": "YYYY-MM-DD",
       "valueFormat": "YYYY-MM-DD"
     },
     "boolean": {
       "type": "boolean",
-      "valueSrc": "value",
-      "factory": "materialui"
+      "valueSrc": "value"
     },
     "select": {
       "type": "select",
-      "valueSrc": "value",
-      "factory": "materialui"
+      "valueSrc": "value"
     },
     "multiselect": {
       "type": "multiselect",
-      "valueSrc": "value",
-      "factory": "materialui"
+      "valueSrc": "value"
     }
   },
   "types": {
     "text": {
+      "defaultOperator": "equal",
       "widgets": {
         "text": {
-          "operators": [
-            "equal",
-            "not_equal",
-            "like",
-            "not_like",
-            "starts_with",
-            "ends_with",
-            "is_empty",
-            "is_not_empty"
-          ]
+          "operators": ["equal", "not_equal", "contains", "not_contains", "starts_with", "ends_with", "is_empty", "is_not_empty"],
+          "widgetProps": {},
+          "opProps": {}
         }
       }
     },
     "number": {
+      "defaultOperator": "equal",
       "widgets": {
         "number": {
-          "operators": [
-            "equal",
-            "not_equal",
-            "less",
-            "less_or_equal",
-            "greater",
-            "greater_or_equal",
-            "is_empty",
-            "is_not_empty"
-          ]
+          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "is_empty", "is_not_empty"],
+          "widgetProps": {},
+          "opProps": {}
         }
       }
     },
     "date": {
+      "defaultOperator": "equal",
       "widgets": {
         "date": {
-          "operators": [
-            "equal",
-            "not_equal",
-            "less",
-            "less_or_equal",
-            "greater",
-            "greater_or_equal",
-            "is_empty",
-            "is_not_empty"
-          ]
+          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "is_empty", "is_not_empty"],
+          "widgetProps": {},
+          "opProps": {}
         }
       }
     },
     "boolean": {
+      "defaultOperator": "equal",
       "widgets": {
         "boolean": {
-          "operators": [
-            "equal",
-            "not_equal"
-          ]
+          "operators": ["equal", "not_equal"],
+          "widgetProps": {},
+          "opProps": {}
+        }
+      }
+    }
+  },
+  "funcs": {
+    "TEXT.CONCAT": {
+      "label": "TEXT.CONCAT",
+      "returnType": "text",
+      "args": {
+        "text1": {
+          "label": "Text 1",
+          "type": "text",
+          "valueSources": ["value", "field", "func"]
+        },
+        "text2": {
+          "label": "Text 2",
+          "type": "text",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "TEXT.MID": {
+      "label": "TEXT.MID",
+      "returnType": "text",
+      "args": {
+        "text": {
+          "label": "Text",
+          "type": "text",
+          "valueSources": ["value", "field", "func"]
+        },
+        "start": {
+          "label": "Start Position",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        },
+        "length": {
+          "label": "Length",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "TEXT.LEN": {
+      "label": "TEXT.LEN",
+      "returnType": "number",
+      "args": {
+        "text": {
+          "label": "Text",
+          "type": "text",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "MATH.ROUND": {
+      "label": "MATH.ROUND",
+      "returnType": "number",
+      "args": {
+        "number": {
+          "label": "Number",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        },
+        "decimals": {
+          "label": "Decimals",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "MATH.ABS": {
+      "label": "MATH.ABS",
+      "returnType": "number",
+      "args": {
+        "number": {
+          "label": "Number",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "DATE.DIFF": {
+      "label": "DATE.DIFF",
+      "returnType": "number",
+      "args": {
+        "date1": {
+          "label": "Date 1",
+          "type": "date",
+          "valueSources": ["value", "field", "func"]
+        },
+        "date2": {
+          "label": "Date 2",
+          "type": "date",
+          "valueSources": ["value", "field", "func"]
         }
       }
     }
   },
   "settings": {
-    "locale": {
-      "moment": "en"
+    "valueLabel": "Value",
+    "valuePlaceholder": "Value",
+    "fieldLabel": "Field",
+    "operatorLabel": "Operator",
+    "funcLabel": "Function",
+    "fieldPlaceholder": "Select field",
+    "funcPlaceholder": "Select function",
+    "operatorPlaceholder": "Select operator",
+    "deleteLabel": null,
+    "addGroupLabel": "Add group",
+    "addRuleLabel": "Add Condition",
+    "delGroupLabel": null,
+    "notLabel": "NOT",
+    "valueSourcesPopupTitle": "Select value source",
+    "removeRuleConfirmOptions": {
+      "title": "Are you sure delete this rule?",
+      "okText": "Yes",
+      "okType": "danger"
     },
-    "maxNesting": 10,
+    "removeGroupConfirmOptions": {
+      "title": "Are you sure delete this group?",
+      "okText": "Yes",
+      "okType": "danger"
+    },
     "canReorder": true,
     "canRegroup": true,
     "showNot": true,
     "showLabels": true,
-    "setOpOnChangeField": ["keep", "default"],
-    "clearValueOnChangeField": false,
-    "clearValueOnChangeOp": false,
-    "canLeaveEmptyGroup": true,
-    "formatReverse": true,
-    "formatField": "field",
-    "valueSourcesInfo": {
-      "value": {
-        "label": "Value"
-      },
-      "field": {
-        "label": "Field",
-        "widget": "field"
-      }
-    },
-    "canShortMongoQuery": true,
-    "removeEmptyGroupsOnLoad": true,
-    "removeEmptyRulesOnLoad": true,
-    "removeIncompleteRulesOnLoad": false,
-    "groupActionsPosition": "topRight",
-    "setDefaultFieldAndOp": false
+    "maxNesting": 5,
+    "canLeaveEmptyGroup": true
   }
 }

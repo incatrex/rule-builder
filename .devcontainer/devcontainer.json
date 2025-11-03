@@ -1,13 +1,13 @@
 {
   "name": "Rule Builder Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/java:21",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "installMaven": "true"
+    },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
-    },
-    "ghcr.io/devcontainers/features/java:1": {
-      "version": "21",
-      "installMaven": "true"
     }
   },
   "customizations": {
@@ -15,17 +15,13 @@
       "extensions": [
         "vscjava.vscode-java-pack",
         "vscjava.vscode-spring-boot-dashboard",
-        "vmware.vscode-boot-dev-pack",
+        "pivotal.vscode-spring-boot",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode"
-      ],
-      "settings": {
-        "java.server.launchMode": "Standard",
-        "java.configuration.updateBuildConfiguration": "automatic"
-      }
+      ]
     }
   },
   "forwardPorts": [8080, 3000],
-  "postCreateCommand": "cd backend && mvn clean install && cd ../frontend && npm install",
+  "postCreateCommand": "echo '\n\n========================================\nWelcome to Rule Builder Dev Container!\n========================================\n\nTo install dependencies and build the project, run:\n  ./scripts/install.sh\n\nTo start the backend (port 8080):\n  ./scripts/start-backend.sh\n\nTo start the frontend (port 3000):\n  ./scripts/start-frontend.sh\n\nFor more information, see README.md\n========================================\n\n'",
   "remoteUser": "vscode"
 }
