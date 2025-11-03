@@ -1,19 +1,39 @@
 import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { Card, Collapse, Button, Input, Space, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
 import ExpressionBuilder from './ExpressionBuilder';
+import ConditionGroup from './ConditionGroup';
 
 const { Panel } = Collapse;
 const { Text } = Typography;
 
-const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
+const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
+  // Generate unique ID
+  const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
   const [whenClauses, setWhenClauses] = useState([
     {
-      id: QbUtils.uuid(),
+      id: generateId(),
       name: 'Condition 1',
       resultName: 'Result 1',
-      condition: QbUtils.loadTree({ id: QbUtils.uuid(), type: 'group' }),
+      condition: { 
+        type: 'group', 
+        id: generateId(),
+        name: 'Group 1',
+        conjunction: 'AND', 
+        not: false, 
+        children: [
+          // Initialize with one empty condition
+          {
+            type: 'rule',
+            id: generateId(),
+            left: { type: 'value', valueType: 'text', value: '' },
+            operator: 'equal',
+            right: { type: 'value', valueType: 'text', value: '' }
+          }
+        ],
+        isExpanded: true
+      },
       result: { type: 'value', valueType: 'text', value: '' },
       expanded: true,
       editingName: false,
@@ -34,7 +54,7 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         whenClauses: whenClauses.map(clause => ({
           name: clause.name,
           resultName: clause.resultName,
-          condition: QbUtils.getTree(clause.condition),
+          condition: clause.condition,
           result: clause.result
         })),
         else: elseResult,
@@ -44,16 +64,45 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
     },
     loadCaseData: (caseData) => {
       if (caseData && caseData.type === 'case') {
-        const loadedClauses = caseData.whenClauses.map((clause, index) => ({
-          id: QbUtils.uuid(),
-          name: clause.name || `Condition ${index + 1}`,
-          resultName: clause.resultName || `Result ${index + 1}`,
-          condition: QbUtils.loadTree(clause.condition),
-          result: clause.result || { type: 'value', valueType: 'text', value: '' },
-          expanded: false,
-          editingName: false,
-          editingResultName: false
-        }));
+        const loadedClauses = caseData.whenClauses.map((clause, index) => {
+          // Ensure condition has at least one child if empty
+          let condition = clause.condition || { 
+            type: 'group', 
+            id: generateId(),
+            name: `Group ${index + 1}`,
+            conjunction: 'AND', 
+            not: false, 
+            children: [],
+            isExpanded: true
+          };
+          
+          // If the condition group has no children, add an empty condition
+          if (!condition.children || condition.children.length === 0) {
+            condition = {
+              ...condition,
+              children: [
+                {
+                  type: 'rule',
+                  id: generateId(),
+                  left: { type: 'value', valueType: 'text', value: '' },
+                  operator: 'equal',
+                  right: { type: 'value', valueType: 'text', value: '' }
+                }
+              ]
+            };
+          }
+          
+          return {
+            id: generateId(),
+            name: clause.name || `Condition ${index + 1}`,
+            resultName: clause.resultName || `Result ${index + 1}`,
+            condition: condition,
+            result: clause.result || { type: 'value', valueType: 'text', value: '' },
+            expanded: false,
+            editingName: false,
+            editingResultName: false
+          };
+        });
         setWhenClauses(loadedClauses);
         setElseResult(caseData.else || { type: 'value', valueType: 'text', value: '' });
         setElseResultName(caseData.elseResultName || 'Default');
@@ -65,10 +114,27 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
 
   const addWhenClause = () => {
     const newClause = {
-      id: QbUtils.uuid(),
+      id: generateId(),
       name: `Condition ${whenClauses.length + 1}`,
       resultName: `Result ${whenClauses.length + 1}`,
-      condition: QbUtils.loadTree({ id: QbUtils.uuid(), type: 'group' }),
+      condition: { 
+        type: 'group', 
+        id: generateId(),
+        name: `Group ${whenClauses.length + 1}`,
+        conjunction: 'AND', 
+        not: false, 
+        children: [
+          // Initialize with one empty condition
+          {
+            type: 'rule',
+            id: generateId(),
+            left: { type: 'value', valueType: 'text', value: '' },
+            operator: 'equal',
+            right: { type: 'value', valueType: 'text', value: '' }
+          }
+        ],
+        isExpanded: true
+      },
       result: { type: 'value', valueType: 'text', value: '' },
       expanded: true,
       editingName: false,
@@ -89,8 +155,8 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
     setWhenClauses(newClauses);
   };
 
-  const handleConditionChange = (index, tree) => {
-    updateWhenClause(index, { condition: tree });
+  const handleConditionChange = (index, condition) => {
+    updateWhenClause(index, { condition });
   };
 
   const handleResultChange = (index, result) => {
@@ -101,26 +167,24 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
     updateWhenClause(index, { editingName: !whenClauses[index].editingName });
   };
 
-  const updateName = (index, name) => {
-    updateWhenClause(index, { name, editingName: false });
-  };
-
   const getCaseOutput = () => {
     const caseStructure = {
       type: 'case',
       whenClauses: whenClauses.map(clause => ({
         name: clause.name,
-        condition: QbUtils.getTree(clause.condition),
+        resultName: clause.resultName,
+        condition: clause.condition,
         result: clause.result
       })),
-      else: elseResult
+      else: elseResult,
+      elseResultName: elseResultName
     };
     return caseStructure;
   };
 
   return (
     <Card 
-      title="CASE Statement Builder"
+      title="Custom CASE Statement Builder"
     >
       <Space direction="vertical" style={{ width: '100%' }} size="large">
         {/* WHEN Clauses */}
@@ -183,28 +247,18 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
             >
               <Space direction="vertical" style={{ width: '100%' }} size="middle">
                 {/* Condition Group */}
-                <div>
-                  <Text strong style={{ marginBottom: '8px', display: 'block' }}>
-                    Condition:
-                  </Text>
-                  <div style={{ 
-                    padding: '16px', 
-                    background: darkMode ? '#2a2a2a' : '#f9f9f9',
-                    borderRadius: '4px'
-                  }}>
-                    {config && (
-                      <Query
-                        {...config}
-                        value={clause.condition}
-                        onChange={(tree) => handleConditionChange(index, tree)}
-                        renderBuilder={(props) => (
-                          <div className="query-builder qb-lite">
-                            <Builder {...props} />
-                          </div>
-                        )}
-                      />
-                    )}
-                  </div>
+                <div style={{ 
+                  padding: '16px', 
+                  background: darkMode ? '#2a2a2a' : '#f9f9f9',
+                  borderRadius: '4px'
+                }}>
+                  <ConditionGroup
+                    value={clause.condition}
+                    onChange={(condition) => handleConditionChange(index, condition)}
+                    config={config}
+                    level={0}
+                    darkMode={darkMode}
+                  />
                 </div>
 
                 {/* THEN Result */}
@@ -319,6 +373,6 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
   );
 });
 
-CaseBuilder.displayName = 'CaseBuilder';
+CustomCaseBuilder.displayName = 'CustomCaseBuilder';
 
-export default CaseBuilder;
+export default CustomCaseBuilder;
