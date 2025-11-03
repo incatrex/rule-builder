@@ -232,7 +232,11 @@ const App = () => {
               result
             });
             return result;
-          }
+          },
+          // Customize button text
+          addRuleLabel: 'Add Condition',
+          addGroupLabel: 'Add Group',
+          delGroupLabel: 'Delete Group'
         },
         fields: fields,
         funcs: customFuncs
@@ -264,6 +268,46 @@ const App = () => {
     setTree(immutableTree);
   };
 
+  // Transform rule type to condition type recursively
+  const transformRuleToCondition = (node) => {
+    if (!node) return node;
+    
+    const transformed = { ...node };
+    
+    // Change "rule" to "condition"
+    if (transformed.type === 'rule') {
+      transformed.type = 'condition';
+    }
+    
+    // Recursively transform children and rename children1 to conditions
+    if (transformed.children1 && Array.isArray(transformed.children1)) {
+      transformed.conditions = transformed.children1.map(child => transformRuleToCondition(child));
+      delete transformed.children1;
+    }
+    
+    return transformed;
+  };
+
+  // Transform condition type back to rule type recursively
+  const transformConditionToRule = (node) => {
+    if (!node) return node;
+    
+    const transformed = { ...node };
+    
+    // Change "condition" back to "rule"
+    if (transformed.type === 'condition') {
+      transformed.type = 'rule';
+    }
+    
+    // Recursively transform children and rename conditions back to children1
+    if (transformed.conditions && Array.isArray(transformed.conditions)) {
+      transformed.children1 = transformed.conditions.map(child => transformConditionToRule(child));
+      delete transformed.conditions;
+    }
+    
+    return transformed;
+  };
+
   const handleSaveRule = async () => {
     if (!ruleId || !version) {
       message.warning('Please enter both Rule ID and Version');
@@ -272,11 +316,11 @@ const App = () => {
 
     try {
       const jsonTree = QbUtils.getTree(tree);
-      const response = await axios.post(`/api/rules/${ruleId}/${version}`, jsonTree);
+      // Transform "rule" to "condition" before saving
+      const transformedTree = transformRuleToCondition(jsonTree);
+      const response = await axios.post(`/api/rules/${ruleId}/${version}`, transformedTree);
       
-      if (response.data.success) {
-        message.success(`Rule saved: ${ruleId} v${version}`);
-      }
+      message.success(`Rule saved: ${ruleId} v${version}`);
     } catch (error) {
       console.error('Error saving rule:', error);
       message.error('Failed to save rule');
@@ -291,7 +335,9 @@ const App = () => {
 
     try {
       const response = await axios.get(`/api/rules/${ruleId}/${version}`);
-      const loadedTree = QbUtils.checkTree(QbUtils.loadTree(response.data), config);
+      // Transform "condition" back to "rule" before loading
+      const transformedData = transformConditionToRule(response.data);
+      const loadedTree = QbUtils.checkTree(QbUtils.loadTree(transformedData), config);
       setTree(loadedTree);
       message.success(`Rule loaded: ${ruleId} v${version}`);
     } catch (error) {
