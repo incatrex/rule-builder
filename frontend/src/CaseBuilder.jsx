@@ -1,150 +1,11 @@
 import React, { useState, useImperativeHandle, forwardRef } from 'react';
-import { Card, Collapse, Button, Input, Space, Select, TreeSelect, InputNumber, DatePicker, Typography } from 'antd';
+import { Card, Collapse, Button, Input, Space, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
+import ExpressionBuilder from './ExpressionBuilder';
 
 const { Panel } = Collapse;
 const { Text } = Typography;
-
-const ExpressionSelector = ({ value, onChange, config, fields, funcs }) => {
-  const [expressionType, setExpressionType] = useState(value?.type || 'value');
-  const [expressionValue, setExpressionValue] = useState(value?.value || '');
-
-  const handleTypeChange = (type) => {
-    setExpressionType(type);
-    onChange({ type, value: '' });
-  };
-
-  const handleValueChange = (val) => {
-    setExpressionValue(val);
-    onChange({ type: expressionType, value: val });
-  };
-
-  const renderValueInput = () => {
-    // Simple value input - could be enhanced to detect type
-    return (
-      <Input
-        placeholder="Enter value"
-        value={expressionValue}
-        onChange={(e) => handleValueChange(e.target.value)}
-        style={{ width: '200px' }}
-      />
-    );
-  };
-
-  const renderFieldSelect = () => {
-    // Convert hierarchical fields to TreeSelect format
-    const buildTreeData = (fieldsObj, parentKey = '') => {
-      const treeData = [];
-      Object.keys(fieldsObj || {}).forEach(key => {
-        const field = fieldsObj[key];
-        const fullKey = parentKey ? `${parentKey}.${key}` : key;
-        
-        if (field.type === '!struct' && field.subfields) {
-          // Parent node (not selectable)
-          treeData.push({
-            title: field.label || key,
-            value: fullKey,
-            selectable: false,
-            children: buildTreeData(field.subfields, fullKey)
-          });
-        } else {
-          // Leaf field (selectable)
-          treeData.push({
-            title: field.label || key,
-            value: fullKey
-          });
-        }
-      });
-      return treeData;
-    };
-
-    const treeData = buildTreeData(fields);
-
-    return (
-      <TreeSelect
-        placeholder="Select field"
-        value={expressionValue}
-        onChange={handleValueChange}
-        style={{ width: '250px' }}
-        showSearch
-        treeDefaultExpandAll
-        filterTreeNode={(input, treeNode) =>
-          treeNode.title.toLowerCase().includes(input.toLowerCase())
-        }
-        treeData={treeData}
-      />
-    );
-  };
-
-  const renderFuncSelect = () => {
-    // Convert hierarchical functions to TreeSelect format
-    const buildFuncTreeData = (funcsObj, parentKey = '') => {
-      const treeData = [];
-      Object.keys(funcsObj || {}).forEach(key => {
-        const func = funcsObj[key];
-        const fullKey = parentKey ? `${parentKey}.${key}` : key;
-        
-        if (func.type === '!struct' && func.subfields) {
-          // Parent node (not selectable)
-          treeData.push({
-            title: func.label || key,
-            value: fullKey,
-            selectable: false,
-            children: buildFuncTreeData(func.subfields, fullKey)
-          });
-        } else {
-          // Leaf function (selectable)
-          treeData.push({
-            title: func.label || key,
-            value: fullKey
-          });
-        }
-      });
-      return treeData;
-    };
-
-    const treeData = buildFuncTreeData(funcs);
-
-    return (
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <TreeSelect
-          placeholder="Select function"
-          value={expressionValue}
-          onChange={handleValueChange}
-          style={{ width: '250px' }}
-          showSearch
-          treeDefaultExpandAll
-          filterTreeNode={(input, treeNode) =>
-            treeNode.title.toLowerCase().includes(input.toLowerCase())
-          }
-          treeData={treeData}
-        />
-        <Text type="secondary" style={{ fontSize: '12px' }}>
-          Note: Function arguments would need to be configured separately
-        </Text>
-      </Space>
-    );
-  };
-
-  return (
-    <Space>
-      <Select
-        value={expressionType}
-        onChange={handleTypeChange}
-        style={{ width: '100px' }}
-        options={[
-          { label: 'Value', value: 'value' },
-          { label: 'Field', value: 'field' },
-          { label: 'Func', value: 'func' }
-        ]}
-      />
-      {expressionType === 'value' && renderValueInput()}
-      {expressionType === 'field' && renderFieldSelect()}
-      {expressionType === 'func' && renderFuncSelect()}
-    </Space>
-  );
-};
 
 const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
   const [whenClauses, setWhenClauses] = useState([
@@ -152,12 +13,12 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
       id: QbUtils.uuid(),
       name: 'Condition 1',
       condition: QbUtils.loadTree({ id: QbUtils.uuid(), type: 'group' }),
-      result: { type: 'value', value: '' },
+      result: { type: 'value', valueType: 'text', value: '' },
       expanded: true,
       editingName: false
     }
   ]);
-  const [elseResult, setElseResult] = useState({ type: 'value', value: '' });
+  const [elseResult, setElseResult] = useState({ type: 'value', valueType: 'text', value: '' });
   const [activeKeys, setActiveKeys] = useState(['0']);
 
   // Expose methods to parent via ref
@@ -180,12 +41,12 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
           id: QbUtils.uuid(),
           name: clause.name || `Condition ${index + 1}`,
           condition: QbUtils.loadTree(clause.condition),
-          result: clause.result || { type: 'value', value: '' },
+          result: clause.result || { type: 'value', valueType: 'text', value: '' },
           expanded: false,
           editingName: false
         }));
         setWhenClauses(loadedClauses);
-        setElseResult(caseData.else || { type: 'value', value: '' });
+        setElseResult(caseData.else || { type: 'value', valueType: 'text', value: '' });
         setActiveKeys([]);
       }
     }
@@ -196,7 +57,7 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
       id: QbUtils.uuid(),
       name: `Condition ${whenClauses.length + 1}`,
       condition: QbUtils.loadTree({ id: QbUtils.uuid(), type: 'group' }),
-      result: { type: 'value', value: '' },
+      result: { type: 'value', valueType: 'text', value: '' },
       expanded: true,
       editingName: false
     };
@@ -329,12 +190,10 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
                   <Text strong style={{ marginBottom: '8px', display: 'block' }}>
                     THEN Result:
                   </Text>
-                  <ExpressionSelector
+                  <ExpressionBuilder
                     value={clause.result}
                     onChange={(result) => handleResultChange(index, result)}
                     config={config}
-                    fields={config?.fields}
-                    funcs={config?.funcs}
                   />
                 </div>
               </Space>
@@ -360,12 +219,10 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
             background: darkMode ? '#1a1a1a' : '#fafafa'
           }}
         >
-          <ExpressionSelector
+          <ExpressionBuilder
             value={elseResult}
             onChange={setElseResult}
             config={config}
-            fields={config?.fields}
-            funcs={config?.funcs}
           />
         </Card>
 
