@@ -6,6 +6,7 @@ import { NumberOutlined, FieldTimeOutlined, FunctionOutlined } from '@ant-design
 import '@react-awesome-query-builder/antd/css/styles.css';
 import axios from 'axios';
 import CaseBuilder from './CaseBuilder';
+import CustomCaseBuilder from './CustomCaseBuilder';
 
 const { Header, Content } = Layout;
 const { Panel } = Collapse;
@@ -79,6 +80,7 @@ const App = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState('1');
   const caseBuilderRef = useRef(null);
+  const customCaseBuilderRef = useRef(null);
 
   useEffect(() => {
     loadConfiguration();
@@ -486,12 +488,20 @@ const App = () => {
         // Save Condition Builder rule
         const jsonTree = QbUtils.getTree(tree);
         dataToSave = transformRuleToCondition(jsonTree);
-      } else {
-        // Save CASE Builder rule
+      } else if (activeTab === '2') {
+        // Save CASE Builder rule (RAQB-based)
         if (caseBuilderRef.current) {
           dataToSave = caseBuilderRef.current.getCaseOutput();
         } else {
           message.error('CASE Builder not initialized');
+          return;
+        }
+      } else if (activeTab === '3') {
+        // Save Custom CASE Builder rule
+        if (customCaseBuilderRef.current) {
+          dataToSave = customCaseBuilderRef.current.getCaseOutput();
+        } else {
+          message.error('Custom CASE Builder not initialized');
           return;
         }
       }
@@ -516,14 +526,30 @@ const App = () => {
 
       // Check if it's a CASE rule or Condition rule
       if (loadedData.type === 'case') {
-        // Load into CASE Builder
-        setActiveTab('2');
-        setTimeout(() => {
-          if (caseBuilderRef.current) {
-            caseBuilderRef.current.loadCaseData(loadedData);
-            message.success(`CASE rule loaded: ${ruleId} v${version}`);
-          }
-        }, 100);
+        // Check if it has custom structure (children array) vs RAQB structure (children1 object)
+        const hasCustomStructure = loadedData.whenClauses?.some(
+          clause => clause.condition?.children && Array.isArray(clause.condition.children)
+        );
+        
+        if (hasCustomStructure) {
+          // Load into Custom CASE Builder
+          setActiveTab('3');
+          setTimeout(() => {
+            if (customCaseBuilderRef.current) {
+              customCaseBuilderRef.current.loadCaseData(loadedData);
+              message.success(`Custom CASE rule loaded: ${ruleId} v${version}`);
+            }
+          }, 100);
+        } else {
+          // Load into CASE Builder (RAQB)
+          setActiveTab('2');
+          setTimeout(() => {
+            if (caseBuilderRef.current) {
+              caseBuilderRef.current.loadCaseData(loadedData);
+              message.success(`CASE rule loaded: ${ruleId} v${version}`);
+            }
+          }, 100);
+        }
       } else {
         // Load into Condition Builder
         setActiveTab('1');
@@ -663,6 +689,11 @@ const App = () => {
                 key: '2',
                 label: 'CASE Builder',
                 children: config ? <CaseBuilder ref={caseBuilderRef} config={config} darkMode={darkMode} /> : <Spin />
+              },
+              {
+                key: '3',
+                label: 'Custom CASE Builder',
+                children: config ? <CustomCaseBuilder ref={customCaseBuilderRef} config={config} darkMode={darkMode} /> : <Spin />
               }
             ]}
           />
