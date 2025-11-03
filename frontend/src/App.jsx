@@ -166,6 +166,120 @@ const App = () => {
             }
           }
         },
+        MATH_ADD: {
+          label: 'MATH.ADD',
+          sqlFunc: 'ADD',
+          mongoFunc: '$add',
+          jsonLogic: ({num1, num2, num3, num4, num5}) => {
+            // Filter out null/undefined values to only add provided numbers
+            const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
+            return { '+': values };
+          },
+          returnType: 'number',
+          args: {
+            num1: {
+              label: '①',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num2: {
+              label: '②',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num3: {
+              label: '③',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num4: {
+              label: '④',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num5: {
+              label: '⑤',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            }
+          }
+        },
+        MATH_SUM: {
+          label: 'MATH.SUM',
+          sqlFunc: 'ADD',
+          mongoFunc: '$add',
+          jsonLogic: ({num1, num2, num3, num4, num5}) => {
+            // Filter out null/undefined values to only add provided numbers
+            const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
+            return { '+': values };
+          },
+          returnType: 'number',
+          args: {
+            num1: {
+              label: '①',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num2: {
+              label: '②',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num3: {
+              label: '③',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num4: {
+              label: '④',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num5: {
+              label: '⑤',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            }
+          }
+        },
+        MATH_PLUS: {
+          label: 'MATH.PLUS',
+          sqlFunc: 'ADD',
+          mongoFunc: '$add',
+          jsonLogic: ({num1, num2, num3, num4, num5}) => {
+            // Filter out null/undefined values to only add provided numbers
+            const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
+            return { '+': values };
+          },
+          returnType: 'number',
+          args: {
+            num1: {
+              label: '①',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num2: {
+              label: '②',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num3: {
+              label: '③',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num4: {
+              label: '④',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            },
+            num5: {
+              label: '⑤',
+              type: 'number',
+              valueSources: ['value', 'field', 'func']
+            }
+          }
+        },
         DATE_DIFF: {
           label: 'DATE.DIFF',
           sqlFunc: 'DATEDIFF',
