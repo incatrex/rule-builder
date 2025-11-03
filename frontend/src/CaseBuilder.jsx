@@ -12,10 +12,12 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
     {
       id: QbUtils.uuid(),
       name: 'Condition 1',
+      resultName: 'Result 1',
       condition: QbUtils.loadTree({ id: QbUtils.uuid(), type: 'group' }),
       result: { type: 'value', valueType: 'text', value: '' },
       expanded: true,
-      editingName: false
+      editingName: false,
+      editingResultName: false
     }
   ]);
   const [elseResult, setElseResult] = useState({ type: 'value', valueType: 'text', value: '' });
@@ -28,6 +30,7 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         type: 'case',
         whenClauses: whenClauses.map(clause => ({
           name: clause.name,
+          resultName: clause.resultName,
           condition: QbUtils.getTree(clause.condition),
           result: clause.result
         })),
@@ -40,10 +43,12 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         const loadedClauses = caseData.whenClauses.map((clause, index) => ({
           id: QbUtils.uuid(),
           name: clause.name || `Condition ${index + 1}`,
+          resultName: clause.resultName || `Result ${index + 1}`,
           condition: QbUtils.loadTree(clause.condition),
           result: clause.result || { type: 'value', valueType: 'text', value: '' },
           expanded: false,
-          editingName: false
+          editingName: false,
+          editingResultName: false
         }));
         setWhenClauses(loadedClauses);
         setElseResult(caseData.else || { type: 'value', valueType: 'text', value: '' });
@@ -56,10 +61,12 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
     const newClause = {
       id: QbUtils.uuid(),
       name: `Condition ${whenClauses.length + 1}`,
+      resultName: `Result ${whenClauses.length + 1}`,
       condition: QbUtils.loadTree({ id: QbUtils.uuid(), type: 'group' }),
       result: { type: 'value', valueType: 'text', value: '' },
       expanded: true,
-      editingName: false
+      editingName: false,
+      editingResultName: false
     };
     setWhenClauses([...whenClauses, newClause]);
     setActiveKeys([...activeKeys, String(whenClauses.length)]);
@@ -187,9 +194,29 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
 
                 {/* THEN Result */}
                 <div>
-                  <Text strong style={{ marginBottom: '8px', display: 'block' }}>
-                    THEN Result:
-                  </Text>
+                  <Space style={{ marginBottom: '8px' }}>
+                    <Text strong>THEN</Text>
+                    {clause.editingResultName ? (
+                      <Input
+                        size="small"
+                        value={clause.resultName}
+                        onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
+                        onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
+                        onBlur={() => updateWhenClause(index, { editingResultName: false })}
+                        autoFocus
+                        style={{ width: '150px' }}
+                      />
+                    ) : (
+                      <>
+                        <Text code>{clause.resultName}</Text>
+                        <EditOutlined 
+                          style={{ fontSize: '12px', cursor: 'pointer' }}
+                          onClick={() => updateWhenClause(index, { editingResultName: true })}
+                        />
+                      </>
+                    )}
+                    <Text strong>:</Text>
+                  </Space>
                   <ExpressionBuilder
                     value={clause.result}
                     onChange={(result) => handleResultChange(index, result)}
