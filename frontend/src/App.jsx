@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
-import { Layout, Card, Button, Input, Space, message, Spin, Select, Switch, ConfigProvider, theme } from 'antd';
+import { Layout, Card, Button, Input, Space, message, Spin, Select, Switch, ConfigProvider, theme, Tabs } from 'antd';
 import { AntdConfig } from '@react-awesome-query-builder/antd';
 import '@react-awesome-query-builder/antd/css/styles.css';
 import axios from 'axios';
+import CaseBuilder from './CaseBuilder';
 
 const { Header, Content } = Layout;
 
@@ -40,6 +41,8 @@ const App = () => {
   const [version, setVersion] = useState('1');
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('1');
+  const caseBuilderRef = useRef(null);
 
   useEffect(() => {
     loadConfiguration();
@@ -459,11 +462,23 @@ const App = () => {
     }
 
     try {
-      const jsonTree = QbUtils.getTree(tree);
-      // Transform "rule" to "condition" before saving
-      const transformedTree = transformRuleToCondition(jsonTree);
-      const response = await axios.post(`/api/rules/${ruleId}/${version}`, transformedTree);
+      let dataToSave;
       
+      if (activeTab === '1') {
+        // Save Condition Builder rule
+        const jsonTree = QbUtils.getTree(tree);
+        dataToSave = transformRuleToCondition(jsonTree);
+      } else {
+        // Save CASE Builder rule
+        if (caseBuilderRef.current) {
+          dataToSave = caseBuilderRef.current.getCaseOutput();
+        } else {
+          message.error('CASE Builder not initialized');
+          return;
+        }
+      }
+
+      await axios.post(`/api/rules/${ruleId}/${version}`, dataToSave);
       message.success(`Rule saved: ${ruleId} v${version}`);
     } catch (error) {
       console.error('Error saving rule:', error);
@@ -479,11 +494,26 @@ const App = () => {
 
     try {
       const response = await axios.get(`/api/rules/${ruleId}/${version}`);
-      // Transform "condition" back to "rule" before loading
-      const transformedData = transformConditionToRule(response.data);
-      const loadedTree = QbUtils.checkTree(QbUtils.loadTree(transformedData), config);
-      setTree(loadedTree);
-      message.success(`Rule loaded: ${ruleId} v${version}`);
+      const loadedData = response.data;
+
+      // Check if it's a CASE rule or Condition rule
+      if (loadedData.type === 'case') {
+        // Load into CASE Builder
+        setActiveTab('2');
+        setTimeout(() => {
+          if (caseBuilderRef.current) {
+            caseBuilderRef.current.loadCaseData(loadedData);
+            message.success(`CASE rule loaded: ${ruleId} v${version}`);
+          }
+        }, 100);
+      } else {
+        // Load into Condition Builder
+        setActiveTab('1');
+        const transformedData = transformConditionToRule(loadedData);
+        const loadedTree = QbUtils.checkTree(QbUtils.loadTree(transformedData), config);
+        setTree(loadedTree);
+        message.success(`Condition rule loaded: ${ruleId} v${version}`);
+      }
     } catch (error) {
       if (error.response?.status === 404) {
         message.error('Rule not found');
@@ -546,55 +576,77 @@ const App = () => {
           </Space>
         </Header>
         <Content style={{ padding: '50px' }}>
-        <Card 
-          title="Rule Management" 
-          style={{ marginBottom: '20px' }}
-          extra={
-            <Space>
-              <Input
-                placeholder="Rule ID"
-                value={ruleId}
-                onChange={(e) => setRuleId(e.target.value)}
-                style={{ width: '150px' }}
-              />
-              <Input
-                placeholder="Version"
-                value={version}
-                onChange={(e) => setVersion(e.target.value)}
-                style={{ width: '100px' }}
-              />
-              <Button type="primary" onClick={handleSaveRule}>
-                Save Rule
-              </Button>
-              <Button onClick={handleLoadRule}>
-                Load Rule
-              </Button>
-            </Space>
-          }
-        >
-          {config && tree && (
-            <Query
-              {...config}
-              value={tree}
-              onChange={handleTreeChange}
-              renderBuilder={renderBuilder}
-            />
-          )}
-        </Card>
+          {/* Rule Management Card - shown for both tabs */}
+          <Card 
+            title="Rule Management" 
+            style={{ marginBottom: '20px' }}
+            extra={
+              <Space>
+                <Input
+                  placeholder="Rule ID"
+                  value={ruleId}
+                  onChange={(e) => setRuleId(e.target.value)}
+                  style={{ width: '150px' }}
+                />
+                <Input
+                  placeholder="Version"
+                  value={version}
+                  onChange={(e) => setVersion(e.target.value)}
+                  style={{ width: '100px' }}
+                />
+                <Button type="primary" onClick={handleSaveRule}>
+                  Save Rule
+                </Button>
+                <Button onClick={handleLoadRule}>
+                  Load Rule
+                </Button>
+              </Space>
+            }
+          />
 
-        <Card title="Rule Output (JSON)" style={{ marginTop: '20px' }}>
-          <pre style={{ 
-            background: darkMode ? '#1f1f1f' : '#f5f5f5', 
-            padding: '16px', 
-            borderRadius: '4px',
-            overflow: 'auto',
-            maxHeight: '400px',
-            color: darkMode ? '#d4d4d4' : 'inherit'
-          }}>
-            {tree ? JSON.stringify(QbUtils.getTree(tree), null, 2) : 'No rule defined yet'}
-          </pre>
-        </Card>
-      </Content>
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            items={[
+              {
+                key: '1',
+                label: 'Condition Builder',
+                children: (
+                  <>
+                    <Card style={{ marginBottom: '20px' }}>
+                      {config && tree && (
+                        <Query
+                          {...config}
+                          value={tree}
+                          onChange={handleTreeChange}
+                          renderBuilder={renderBuilder}
+                        />
+                      )}
+                    </Card>
+
+                    <Card title="Rule Output (JSON)">
+                      <pre style={{ 
+                        background: darkMode ? '#1f1f1f' : '#f5f5f5', 
+                        padding: '16px', 
+                        borderRadius: '4px',
+                        overflow: 'auto',
+                        maxHeight: '400px',
+                        color: darkMode ? '#d4d4d4' : 'inherit'
+                      }}>
+                        {tree ? JSON.stringify(QbUtils.getTree(tree), null, 2) : 'No rule defined yet'}
+                      </pre>
+                    </Card>
+                  </>
+                )
+              },
+              {
+                key: '2',
+                label: 'CASE Builder',
+                children: config ? <CaseBuilder ref={caseBuilderRef} config={config} darkMode={darkMode} /> : <Spin />
+              }
+            ]}
+          />
+        </Content>
     </Layout>
     </ConfigProvider>
   );
