@@ -251,8 +251,9 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
                     {/* Show conjunction between children (except before first child) */}
                     {index > 0 && (
                       <div style={{ 
-                        textAlign: 'center', 
+                        textAlign: 'left', 
                         margin: '4px 0 8px 0',
+                        paddingLeft: '8px',
                         color: '#1890ff',
                         fontWeight: 'bold'
                       }}>
