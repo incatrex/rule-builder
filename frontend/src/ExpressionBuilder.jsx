@@ -480,6 +480,8 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
     { label: 'Field', value: 'field', icon: <FieldTimeOutlined /> },
     { label: 'Func', value: 'func', icon: <FunctionOutlined /> }
   ];
+  
+  const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
 
   return (
     <Space size="small" style={{ width: '100%', flexWrap: 'wrap' }}>
@@ -487,14 +489,26 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
       <Select
         value={expressionType}
         onChange={handleTypeChange}
-        style={{ width: compact ? 80 : 100 }}
-        size={compact ? 'small' : 'middle'}
-        options={compact ? 
-          typeOptions.map(opt => ({ ...opt, label: opt.value })) : 
-          typeOptions
-        }
-        optionRender={compact ? undefined : (option) => (
-          <Space>
+        style={{ width: isTypeDropdownOpen ? 100 : 50, minWidth: 50, transition: 'width 0.2s' }}
+        size="small"
+        onDropdownVisibleChange={setIsTypeDropdownOpen}
+        // When closed, show only icon
+        labelRender={(props) => {
+          const option = typeOptions.find(opt => opt.value === props.value);
+          return isTypeDropdownOpen ? (
+            <Space size={4}>
+              {option?.icon}
+              <span>{option?.label}</span>
+            </Space>
+          ) : (
+            <span style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              {option?.icon}
+            </span>
+          );
+        }}
+        options={typeOptions}
+        optionRender={(option) => (
+          <Space size={4}>
             {option.data.icon}
             <span>{option.data.label}</span>
           </Space>

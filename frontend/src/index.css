@@ -15,3 +15,23 @@ code {
 #root {
   min-height: 100vh;
 }
+
+/* Force query builder controls to always be visible (not just on hover) */
+/* Except for conjunctions and NOT button which will show on hover */
+.query-builder .group--actions,
+.query-builder .rule--header,
+.query-builder .rule--operator,
+.query-builder .rule--value,
+.query-builder .rule--field,
+.query-builder .rule--fieldsrc,
+.query-builder .rule--field--func,
+.query-builder .rule--func--wrapper,
+.query-builder .widget--valuesrc,
+.query-builder .widget--widget {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Keep conjunctions and NOT button with default hover behavior */
+/* Remove the forced visibility so they show on hover only */
+

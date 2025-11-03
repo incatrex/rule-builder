@@ -2,19 +2,37 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
 import { Layout, Card, Button, Input, Space, message, Spin, Select, Switch, ConfigProvider, theme, Tabs } from 'antd';
 import { AntdConfig } from '@react-awesome-query-builder/antd';
+import { NumberOutlined, FieldTimeOutlined, FunctionOutlined } from '@ant-design/icons';
 import '@react-awesome-query-builder/antd/css/styles.css';
 import axios from 'axios';
 import CaseBuilder from './CaseBuilder';
 
 const { Header, Content } = Layout;
 
-// Custom ValueSources component using Select dropdown instead of three-dots popover
+// Custom ValueSources component using Select dropdown with icons
+// Shows only icon when closed (compact), shows icon + label when open
 const ValueSourcesSelect = ({ config, valueSources, valueSrc, setValueSrc, readonly, title }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Map source keys to icons
+  const getIcon = (srcKey) => {
+    switch(srcKey) {
+      case 'value': return <NumberOutlined />;
+      case 'field': return <FieldTimeOutlined />;
+      case 'func': return <FunctionOutlined />;
+      default: return null;
+    }
+  };
+  
   // Abbreviate labels to save space
   const abbreviateLabel = (label) => {
     if (label === 'Function') return 'Func';
     return label;
   };
+  
+  // Get current source info for label rendering
+  const currentSource = valueSources.find(([key]) => key === (valueSrc || 'value'));
+  const currentLabel = currentSource ? abbreviateLabel(currentSource[1].label) : '';
 
   return (
     <Select
@@ -22,12 +40,29 @@ const ValueSourcesSelect = ({ config, valueSources, valueSrc, setValueSrc, reado
       onChange={setValueSrc}
       disabled={readonly}
       size="small"
-      style={{ width: 70, minWidth: 70 }}
+      style={{ width: isOpen ? 100 : 50, minWidth: 50, transition: 'width 0.2s' }}
       placeholder={title}
+      onDropdownVisibleChange={setIsOpen}
+      // When closed, show only icon
+      labelRender={(props) => {
+        return isOpen ? (
+          <Space size={4}>
+            {getIcon(props.value)}
+            <span>{currentLabel}</span>
+          </Space>
+        ) : (
+          <span style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            {getIcon(props.value)}
+          </span>
+        );
+      }}
     >
       {valueSources.map(([srcKey, info]) => (
         <Select.Option key={srcKey} value={srcKey}>
-          {abbreviateLabel(info.label)}
+          <Space size={4}>
+            {getIcon(srcKey)}
+            <span>{abbreviateLabel(info.label)}</span>
+          </Space>
         </Select.Option>
       ))}
     </Select>
@@ -336,6 +371,7 @@ const App = () => {
         types: AntdConfig.types,
         settings: {
           ...AntdConfig.settings,
+          renderSize: 'medium', // Show all controls immediately (not just on hover)
           fieldSources: ['field', 'func'],  // Left side: only field and func (no value)
           // Use custom Select dropdown instead of three-dots popover for value source selection
           renderValueSources: (props) => <ValueSourcesSelect {...props} />,

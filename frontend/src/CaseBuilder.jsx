@@ -21,6 +21,9 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
     }
   ]);
   const [elseResult, setElseResult] = useState({ type: 'value', valueType: 'text', value: '' });
+  const [elseResultName, setElseResultName] = useState('Default');
+  const [editingElseResultName, setEditingElseResultName] = useState(false);
+  const [elseExpanded, setElseExpanded] = useState(true);
   const [activeKeys, setActiveKeys] = useState(['0']);
 
   // Expose methods to parent via ref
@@ -34,7 +37,8 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
           condition: QbUtils.getTree(clause.condition),
           result: clause.result
         })),
-        else: elseResult
+        else: elseResult,
+        elseResultName: elseResultName
       };
       return caseStructure;
     },
@@ -52,6 +56,8 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         }));
         setWhenClauses(loadedClauses);
         setElseResult(caseData.else || { type: 'value', valueType: 'text', value: '' });
+        setElseResultName(caseData.elseResultName || 'Default');
+        setElseExpanded(false); // Collapse ELSE when loading a rule
         setActiveKeys([]);
       }
     }
@@ -123,7 +129,10 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
           onChange={setActiveKeys}
           style={{ marginBottom: '16px' }}
         >
-          {whenClauses.map((clause, index) => (
+          {whenClauses.map((clause, index) => {
+            const isExpanded = activeKeys.includes(String(index));
+            
+            return (
             <Panel
               key={String(index)}
               header={
@@ -151,6 +160,12 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
                             toggleNameEdit(index);
                           }}
                         />
+                      </>
+                    )}
+                    {!isExpanded && (
+                      <>
+                        <Text strong style={{ marginLeft: '16px' }}>THEN</Text>
+                        <Text code>{clause.resultName}</Text>
                       </>
                     )}
                   </Space>
@@ -225,7 +240,8 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
                 </div>
               </Space>
             </Panel>
-          ))}
+            );
+          })}
         </Collapse>
 
         {/* Add WHEN Button */}
@@ -239,19 +255,48 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         </Button>
 
         {/* ELSE Clause */}
-        <Card 
-          size="small" 
-          title={<Text strong>ELSE</Text>}
-          style={{ 
-            background: darkMode ? '#1a1a1a' : '#fafafa'
-          }}
+        <Collapse 
+          activeKey={elseExpanded ? ['else'] : []} 
+          onChange={(keys) => setElseExpanded(keys.includes('else'))}
         >
-          <ExpressionBuilder
-            value={elseResult}
-            onChange={setElseResult}
-            config={config}
-          />
-        </Card>
+          <Panel
+            key="else"
+            header={
+              <Space>
+                <Text strong>ELSE</Text>
+                {editingElseResultName ? (
+                  <Input
+                    size="small"
+                    value={elseResultName}
+                    onChange={(e) => setElseResultName(e.target.value)}
+                    onPressEnter={() => setEditingElseResultName(false)}
+                    onBlur={() => setEditingElseResultName(false)}
+                    autoFocus
+                    style={{ width: '150px' }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <>
+                    <Text code>{elseResultName}</Text>
+                    <EditOutlined 
+                      style={{ fontSize: '12px', cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingElseResultName(true);
+                      }}
+                    />
+                  </>
+                )}
+              </Space>
+            }
+          >
+            <ExpressionBuilder
+              value={elseResult}
+              onChange={setElseResult}
+              config={config}
+            />
+          </Panel>
+        </Collapse>
 
         {/* Output Preview */}
         <Card title="CASE Output (JSON)" size="small">
