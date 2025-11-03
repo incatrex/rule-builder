@@ -18,14 +18,14 @@ const { Text } = Typography;
  * - Type-aware widgets (text input, number input, date picker, boolean switch)
  * - Hierarchical TreeSelect for fields and functions
  * - Each function argument is itself an ExpressionBuilder (recursive)
- * - Compatible with react-awesome-query-builder config structure
+ * - Compatible with standard config structure (operators, fields, funcs)
  * 
  * Usage Example:
  * ```jsx
  * <ExpressionBuilder
  *   value={expressionValue}
  *   onChange={(newValue) => setExpressionValue(newValue)}
- *   config={queryBuilderConfig}
+ *   config={customConfig}
  *   expectedType="number"  // Optional: filter fields/funcs by type
  *   compact={false}        // Optional: compact mode
  * />
@@ -69,7 +69,7 @@ const { Text } = Typography;
  * 
  * @param {Object} value - Current expression value { type: 'value'|'field'|'func', ... }
  * @param {Function} onChange - Callback when expression changes
- * @param {Object} config - Query builder config with fields and funcs
+ * @param {Object} config - Config object with fields and funcs
  * @param {string} expectedType - Expected return type (text, number, date, boolean) for type validation
  * @param {boolean} compact - Compact mode with smaller type selector
  * @param {boolean} darkMode - Whether dark mode is enabled

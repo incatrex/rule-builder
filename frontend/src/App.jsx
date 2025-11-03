@@ -73,6 +73,7 @@ const ValueSourcesSelect = ({ config, valueSources, valueSrc, setValueSrc, reado
 
 const App = () => {
   const [config, setConfig] = useState(null);
+  const [customConfig, setCustomConfig] = useState(null); // Separate config for CustomCaseBuilder without RAQB
   const [tree, setTree] = useState(null);
   const [ruleId, setRuleId] = useState('rule1');
   const [version, setVersion] = useState('1');
@@ -91,6 +92,10 @@ const App = () => {
       setLoading(true);
       const fieldsResponse = await axios.get('/api/fields');
       const fieldsData = fieldsResponse.data;
+      
+      // Load custom config.json for CustomCaseBuilder (without RAQB dependencies)
+      const customConfigResponse = await axios.get('/api/config');
+      const customConfigData = customConfigResponse.data;
 
       // Recursively add valueSources to all fields (except !struct parents)
       const updateFieldsWithFuncs = (fieldsObj) => {
@@ -415,6 +420,43 @@ const App = () => {
 
       setConfig(mergedConfig);
       
+      // Build separate custom config for CustomCaseBuilder without RAQB operators
+      // Convert flat funcs structure (TEXT.CONCAT) to hierarchical (TEXT -> CONCAT)
+      const buildHierarchicalFuncs = (flatFuncs) => {
+        const hierarchical = {};
+        
+        Object.keys(flatFuncs).forEach(key => {
+          const parts = key.split('.');
+          if (parts.length === 1) {
+            // No dot - keep as is
+            hierarchical[key] = flatFuncs[key];
+          } else {
+            // Has dot - create hierarchy
+            const [category, ...rest] = parts;
+            if (!hierarchical[category]) {
+              hierarchical[category] = {
+                label: category + ' Functions',
+                type: '!struct',
+                subfields: {}
+              };
+            }
+            const funcName = rest.join('.');
+            hierarchical[category].subfields[funcName] = flatFuncs[key];
+          }
+        });
+        
+        return hierarchical;
+      };
+      
+      const pureCustomConfig = {
+        operators: customConfigData.operators, // Use only our custom operators
+        fields: fields,
+        funcs: buildHierarchicalFuncs(customConfigData.funcs) // Convert flat to hierarchical
+      };
+      
+      console.log('Custom Config for CustomCaseBuilder:', pureCustomConfig);
+      setCustomConfig(pureCustomConfig);
+      
       // Initialize tree with the new config
       const initialTree = QbUtils.checkTree(
         QbUtils.loadTree({ id: QbUtils.uuid(), type: 'group' }), 
@@ -693,7 +735,7 @@ const App = () => {
               {
                 key: '3',
                 label: 'Custom CASE Builder',
-                children: config ? <CustomCaseBuilder ref={customCaseBuilderRef} config={config} darkMode={darkMode} /> : <Spin />
+                children: customConfig ? <CustomCaseBuilder ref={customCaseBuilderRef} config={customConfig} darkMode={darkMode} /> : <Spin />
               }
             ]}
           />
