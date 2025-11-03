@@ -27,8 +27,8 @@ public class RuleBuilderService {
     }
 
     public void saveRule(String ruleId, String version, JsonNode rule) throws IOException {
-        // Get the rules directory path
-        String rulesDir = "backend/src/main/resources/static/rules";
+        // Get the rules directory path - use absolute path from project root
+        String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
         File directory = new File(rulesDir);
         
         // Create directory if it doesn't exist
@@ -43,7 +43,7 @@ public class RuleBuilderService {
     }
 
     public JsonNode getRule(String ruleId, String version) throws IOException {
-        String rulesDir = "backend/src/main/resources/static/rules";
+        String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
         String filename = String.format("%s.%s.json", ruleId, version);
         Path filePath = Paths.get(rulesDir, filename);
 
