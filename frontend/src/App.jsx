@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
-import { Layout, Card, Button, Input, Space, message, Spin, Select } from 'antd';
+import { Layout, Card, Button, Input, Space, message, Spin, Select, Switch, ConfigProvider, theme } from 'antd';
 import { AntdConfig } from '@react-awesome-query-builder/antd';
 import '@react-awesome-query-builder/antd/css/styles.css';
 import axios from 'axios';
@@ -39,6 +39,7 @@ const App = () => {
   const [ruleId, setRuleId] = useState('rule1');
   const [version, setVersion] = useState('1');
   const [loading, setLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     loadConfiguration();
@@ -503,28 +504,48 @@ const App = () => {
 
   if (loading) {
     return (
-      <Layout style={{ minHeight: '100vh' }}>
-        <Content style={{ padding: '50px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <Spin size="large" tip="Loading configuration..." />
-        </Content>
-      </Layout>
+      <ConfigProvider
+        theme={{
+          algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        }}
+      >
+        <Layout style={{ minHeight: '100vh' }}>
+          <Content style={{ padding: '50px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Spin size="large" tip="Loading configuration..." />
+          </Content>
+        </Layout>
+      </ConfigProvider>
     );
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ 
-        background: '#001529', 
-        color: 'white', 
-        fontSize: '24px', 
-        fontWeight: 'bold',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 50px'
-      }}>
-        Rule Builder
-      </Header>
-      <Content style={{ padding: '50px' }}>
+    <ConfigProvider
+      theme={{
+        algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      }}
+    >
+      <Layout style={{ minHeight: '100vh' }}>
+        <Header style={{ 
+          background: darkMode ? '#141414' : '#001529', 
+          color: 'white', 
+          fontSize: '24px', 
+          fontWeight: 'bold',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 50px'
+        }}>
+          <div>Rule Builder</div>
+          <Space>
+            <span style={{ fontSize: '14px', fontWeight: 'normal' }}>Dark Mode</span>
+            <Switch 
+              checked={darkMode} 
+              onChange={setDarkMode}
+              style={{ marginLeft: '8px' }}
+            />
+          </Space>
+        </Header>
+        <Content style={{ padding: '50px' }}>
         <Card 
           title="Rule Management" 
           style={{ marginBottom: '20px' }}
@@ -563,17 +584,19 @@ const App = () => {
 
         <Card title="Rule Output (JSON)" style={{ marginTop: '20px' }}>
           <pre style={{ 
-            background: '#f5f5f5', 
+            background: darkMode ? '#1f1f1f' : '#f5f5f5', 
             padding: '16px', 
             borderRadius: '4px',
             overflow: 'auto',
-            maxHeight: '400px'
+            maxHeight: '400px',
+            color: darkMode ? '#d4d4d4' : 'inherit'
           }}>
             {tree ? JSON.stringify(QbUtils.getTree(tree), null, 2) : 'No rule defined yet'}
           </pre>
         </Card>
       </Content>
     </Layout>
+    </ConfigProvider>
   );
 };
 
