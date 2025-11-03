@@ -78,19 +78,47 @@ const ExpressionSelector = ({ value, onChange, config, fields, funcs }) => {
   };
 
   const renderFuncSelect = () => {
-    const funcOptions = Object.keys(funcs || {}).map(key => ({
-      label: funcs[key].label,
-      value: key
-    }));
+    // Convert hierarchical functions to TreeSelect format
+    const buildFuncTreeData = (funcsObj, parentKey = '') => {
+      const treeData = [];
+      Object.keys(funcsObj || {}).forEach(key => {
+        const func = funcsObj[key];
+        const fullKey = parentKey ? `${parentKey}.${key}` : key;
+        
+        if (func.type === '!struct' && func.subfields) {
+          // Parent node (not selectable)
+          treeData.push({
+            title: func.label || key,
+            value: fullKey,
+            selectable: false,
+            children: buildFuncTreeData(func.subfields, fullKey)
+          });
+        } else {
+          // Leaf function (selectable)
+          treeData.push({
+            title: func.label || key,
+            value: fullKey
+          });
+        }
+      });
+      return treeData;
+    };
+
+    const treeData = buildFuncTreeData(funcs);
 
     return (
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Select
+        <TreeSelect
           placeholder="Select function"
           value={expressionValue}
           onChange={handleValueChange}
           style={{ width: '250px' }}
-          options={funcOptions}
+          showSearch
+          treeDefaultExpandAll
+          filterTreeNode={(input, treeNode) =>
+            treeNode.title.toLowerCase().includes(input.toLowerCase())
+          }
+          treeData={treeData}
         />
         <Text type="secondary" style={{ fontSize: '12px' }}>
           Note: Function arguments would need to be configured separately

@@ -78,228 +78,246 @@ const App = () => {
 
       const fields = updateFieldsWithFuncs(fieldsData);
 
-      // Define custom functions exactly like the working demo
+      // Define custom functions in hierarchical structure
       const customFuncs = {
-        TEXT_CONCAT: {
-          label: 'TEXT.CONCAT',
-          sqlFunc: 'CONCAT',
-          mongoFunc: '$concat',
-          jsonLogic: 'concat',
-          returnType: 'text',
-          args: {
-            text1: {
-              label: 'Text 1',
-              type: 'text',
-              valueSources: ['value', 'field', 'func']
+        TEXT: {
+          label: 'Text Functions',
+          type: '!struct',
+          subfields: {
+            CONCAT: {
+              label: 'CONCAT',
+              sqlFunc: 'CONCAT',
+              mongoFunc: '$concat',
+              jsonLogic: 'concat',
+              returnType: 'text',
+              args: {
+                text1: {
+                  label: 'Text 1',
+                  type: 'text',
+                  valueSources: ['value', 'field', 'func']
+                },
+                text2: {
+                  label: 'Text 2',
+                  type: 'text',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
             },
-            text2: {
-              label: 'Text 2',
-              type: 'text',
-              valueSources: ['value', 'field', 'func']
+            MID: {
+              label: 'MID',
+              sqlFunc: 'SUBSTRING',
+              mongoFunc: '$substr',
+              jsonLogic: 'substr',
+              returnType: 'text',
+              args: {
+                text: {
+                  label: 'Text',
+                  type: 'text',
+                  valueSources: ['value', 'field', 'func']
+                },
+                start: {
+                  label: 'Start Position',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                length: {
+                  label: 'Length',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
+            },
+            LEN: {
+              label: 'LEN',
+              sqlFunc: 'LENGTH',
+              mongoFunc: '$strLenCP',
+              jsonLogic: 'length',
+              returnType: 'number',
+              args: {
+                text: {
+                  label: 'Text',
+                  type: 'text',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
             }
           }
         },
-        TEXT_MID: {
-          label: 'TEXT.MID',
-          sqlFunc: 'SUBSTRING',
-          mongoFunc: '$substr',
-          jsonLogic: 'substr',
-          returnType: 'text',
-          args: {
-            text: {
-              label: 'Text',
-              type: 'text',
-              valueSources: ['value', 'field', 'func']
+        MATH: {
+          label: 'Math Functions',
+          type: '!struct',
+          subfields: {
+            ROUND: {
+              label: 'ROUND',
+              sqlFunc: 'ROUND',
+              mongoFunc: '$round',
+              jsonLogic: 'round',
+              returnType: 'number',
+              args: {
+                number: {
+                  label: 'Number',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                decimals: {
+                  label: 'Decimal Places',
+                  type: 'number',
+                  valueSources: ['value']
+                }
+              }
             },
-            start: {
-              label: 'Start Position',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
+            ABS: {
+              label: 'ABS',
+              sqlFunc: 'ABS',
+              mongoFunc: '$abs',
+              jsonLogic: 'abs',
+              returnType: 'number',
+              args: {
+                number: {
+                  label: 'Number',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
             },
-            length: {
-              label: 'Length',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
+            ADD: {
+              label: 'ADD',
+              sqlFunc: 'ADD',
+              mongoFunc: '$add',
+              jsonLogic: ({num1, num2, num3, num4, num5}) => {
+                // Filter out null/undefined values to only add provided numbers
+                const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
+                return { '+': values };
+              },
+              returnType: 'number',
+              args: {
+                num1: {
+                  label: '①',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num2: {
+                  label: '②',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num3: {
+                  label: '③',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num4: {
+                  label: '④',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num5: {
+                  label: '⑤',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
+            },
+            SUM: {
+              label: 'SUM',
+              sqlFunc: 'ADD',
+              mongoFunc: '$add',
+              jsonLogic: ({num1, num2, num3, num4, num5}) => {
+                // Filter out null/undefined values to only add provided numbers
+                const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
+                return { '+': values };
+              },
+              returnType: 'number',
+              args: {
+                num1: {
+                  label: '①',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num2: {
+                  label: '②',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num3: {
+                  label: '③',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num4: {
+                  label: '④',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num5: {
+                  label: '⑤',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
+            },
+            PLUS: {
+              label: 'PLUS',
+              sqlFunc: 'ADD',
+              mongoFunc: '$add',
+              jsonLogic: ({num1, num2, num3, num4, num5}) => {
+                // Filter out null/undefined values to only add provided numbers
+                const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
+                return { '+': values };
+              },
+              returnType: 'number',
+              args: {
+                num1: {
+                  label: '①',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num2: {
+                  label: '②',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num3: {
+                  label: '③',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num4: {
+                  label: '④',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num5: {
+                  label: '⑤',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
             }
           }
         },
-        TEXT_LEN: {
-          label: 'TEXT.LEN',
-          sqlFunc: 'LENGTH',
-          mongoFunc: '$strLenCP',
-          jsonLogic: 'length',
-          returnType: 'number',
-          args: {
-            text: {
-              label: 'Text',
-              type: 'text',
-              valueSources: ['value', 'field', 'func']
-            }
-          }
-        },
-        MATH_ROUND: {
-          label: 'MATH.ROUND',
-          sqlFunc: 'ROUND',
-          mongoFunc: '$round',
-          jsonLogic: 'round',
-          returnType: 'number',
-          args: {
-            number: {
-              label: 'Number',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            decimals: {
-              label: 'Decimal Places',
-              type: 'number',
-              valueSources: ['value']
-            }
-          }
-        },
-        MATH_ABS: {
-          label: 'MATH.ABS',
-          sqlFunc: 'ABS',
-          mongoFunc: '$abs',
-          jsonLogic: 'abs',
-          returnType: 'number',
-          args: {
-            number: {
-              label: 'Number',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            }
-          }
-        },
-        MATH_ADD: {
-          label: 'MATH.ADD',
-          sqlFunc: 'ADD',
-          mongoFunc: '$add',
-          jsonLogic: ({num1, num2, num3, num4, num5}) => {
-            // Filter out null/undefined values to only add provided numbers
-            const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
-            return { '+': values };
-          },
-          returnType: 'number',
-          args: {
-            num1: {
-              label: '①',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num2: {
-              label: '②',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num3: {
-              label: '③',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num4: {
-              label: '④',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num5: {
-              label: '⑤',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            }
-          }
-        },
-        MATH_SUM: {
-          label: 'MATH.SUM',
-          sqlFunc: 'ADD',
-          mongoFunc: '$add',
-          jsonLogic: ({num1, num2, num3, num4, num5}) => {
-            // Filter out null/undefined values to only add provided numbers
-            const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
-            return { '+': values };
-          },
-          returnType: 'number',
-          args: {
-            num1: {
-              label: '①',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num2: {
-              label: '②',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num3: {
-              label: '③',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num4: {
-              label: '④',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num5: {
-              label: '⑤',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            }
-          }
-        },
-        MATH_PLUS: {
-          label: 'MATH.PLUS',
-          sqlFunc: 'ADD',
-          mongoFunc: '$add',
-          jsonLogic: ({num1, num2, num3, num4, num5}) => {
-            // Filter out null/undefined values to only add provided numbers
-            const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
-            return { '+': values };
-          },
-          returnType: 'number',
-          args: {
-            num1: {
-              label: '①',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num2: {
-              label: '②',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num3: {
-              label: '③',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num4: {
-              label: '④',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            },
-            num5: {
-              label: '⑤',
-              type: 'number',
-              valueSources: ['value', 'field', 'func']
-            }
-          }
-        },
-        DATE_DIFF: {
-          label: 'DATE.DIFF',
-          sqlFunc: 'DATEDIFF',
-          mongoFunc: '$dateDiff',
-          jsonLogic: 'date_diff',
-          returnType: 'number',
-          args: {
-            date1: {
-              label: 'Date 1',
-              type: 'date',
-              valueSources: ['value', 'field', 'func']
-            },
-            date2: {
-              label: 'Date 2', 
-              type: 'date',
-              valueSources: ['value', 'field', 'func']
+        DATE: {
+          label: 'Date Functions',
+          type: '!struct',
+          subfields: {
+            DIFF: {
+              label: 'DIFF',
+              sqlFunc: 'DATEDIFF',
+              mongoFunc: '$dateDiff',
+              jsonLogic: 'date_diff',
+              returnType: 'number',
+              args: {
+                date1: {
+                  label: 'Date 1',
+                  type: 'date',
+                  valueSources: ['value', 'field', 'func']
+                },
+                date2: {
+                  label: 'Date 2', 
+                  type: 'date',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
             }
           }
         }
