@@ -84,7 +84,7 @@ const DraggableItem = ({ id, children, darkMode }) => {
  * @param {Object} value - Group data: { type: 'group', id, name, conjunction, not, children: [], isExpanded: true }
  * @param {Function} onChange - Callback when group changes
  * @param {Function} onRemove - Callback to remove this group (only for nested groups)
- * @param {Object} config - RAQB config with operators, fields, and funcs
+ * @param {Object} config - Config object with operators, fields, and funcs
  * @param {number} level - Nesting depth (0 = root, 1+ = nested)
  * @param {boolean} darkMode - Whether dark mode is enabled
  */
