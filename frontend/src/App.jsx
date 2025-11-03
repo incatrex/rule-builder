@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
-import { Layout, Card, Button, Input, Space, message, Spin, Select, Switch, ConfigProvider, theme, Tabs } from 'antd';
+import { Layout, Card, Button, Input, Space, message, Spin, Select, Switch, ConfigProvider, theme, Tabs, Collapse } from 'antd';
 import { AntdConfig } from '@react-awesome-query-builder/antd';
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined } from '@ant-design/icons';
 import '@react-awesome-query-builder/antd/css/styles.css';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import CaseBuilder from './CaseBuilder';
 
 const { Header, Content } = Layout;
+const { Panel } = Collapse;
 
 // Custom ValueSources component using Select dropdown with icons
 // Shows only icon when closed (compact), shows icon + label when open
@@ -125,6 +126,7 @@ const App = () => {
               mongoFunc: '$concat',
               jsonLogic: 'concat',
               returnType: 'text',
+              allowSelfNesting: true,
               args: {
                 text1: {
                   label: 'Text 1',
@@ -144,6 +146,7 @@ const App = () => {
               mongoFunc: '$substr',
               jsonLogic: 'substr',
               returnType: 'text',
+              allowSelfNesting: true,
               args: {
                 text: {
                   label: 'Text',
@@ -168,6 +171,7 @@ const App = () => {
               mongoFunc: '$strLenCP',
               jsonLogic: 'length',
               returnType: 'number',
+              allowSelfNesting: true,
               args: {
                 text: {
                   label: 'Text',
@@ -182,12 +186,45 @@ const App = () => {
           label: 'Math Functions',
           type: '!struct',
           subfields: {
+            ADD: {
+              label: 'ADD',
+              sqlFunc: 'ADD',
+              mongoFunc: '$add',
+              jsonLogic: (args) => {
+                // Filter out null/undefined values to only add provided numbers
+                const values = Object.values(args).filter(v => v != null && v !== '');
+                return { '+': values };
+              },
+              returnType: 'number',
+              allowSelfNesting: true,
+              // Special property for ExpressionBuilder to enable dynamic args
+              dynamicArgs: {
+                argType: 'number',
+                minArgs: 2,
+                maxArgs: 10,
+                defaultValue: null
+              },
+              // Placeholder args for RAQB compatibility (won't be used in ExpressionBuilder)
+              args: {
+                num1: {
+                  label: '①',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                },
+                num2: {
+                  label: '②',
+                  type: 'number',
+                  valueSources: ['value', 'field', 'func']
+                }
+              }
+            },
             ROUND: {
               label: 'ROUND',
               sqlFunc: 'ROUND',
               mongoFunc: '$round',
               jsonLogic: 'round',
               returnType: 'number',
+              allowSelfNesting: true,
               args: {
                 number: {
                   label: 'Number',
@@ -207,47 +244,10 @@ const App = () => {
               mongoFunc: '$abs',
               jsonLogic: 'abs',
               returnType: 'number',
+              allowSelfNesting: true,
               args: {
                 number: {
                   label: 'Number',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                }
-              }
-            },
-            ADD: {
-              label: 'ADD',
-              sqlFunc: 'ADD',
-              mongoFunc: '$add',
-              jsonLogic: ({num1, num2, num3, num4, num5}) => {
-                // Filter out null/undefined values to only add provided numbers
-                const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
-                return { '+': values };
-              },
-              returnType: 'number',
-              args: {
-                num1: {
-                  label: '①',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                },
-                num2: {
-                  label: '②',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                },
-                num3: {
-                  label: '③',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                },
-                num4: {
-                  label: '④',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                },
-                num5: {
-                  label: '⑤',
                   type: 'number',
                   valueSources: ['value', 'field', 'func']
                 }
@@ -263,44 +263,7 @@ const App = () => {
                 return { '+': values };
               },
               returnType: 'number',
-              args: {
-                num1: {
-                  label: '①',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                },
-                num2: {
-                  label: '②',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                },
-                num3: {
-                  label: '③',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                },
-                num4: {
-                  label: '④',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                },
-                num5: {
-                  label: '⑤',
-                  type: 'number',
-                  valueSources: ['value', 'field', 'func']
-                }
-              }
-            },
-            PLUS: {
-              label: 'PLUS',
-              sqlFunc: 'ADD',
-              mongoFunc: '$add',
-              jsonLogic: ({num1, num2, num3, num4, num5}) => {
-                // Filter out null/undefined values to only add provided numbers
-                const values = [num1, num2, num3, num4, num5].filter(v => v != null && v !== '');
-                return { '+': values };
-              },
-              returnType: 'number',
+              allowSelfNesting: true,
               args: {
                 num1: {
                   label: '①',
@@ -341,6 +304,7 @@ const App = () => {
               mongoFunc: '$dateDiff',
               jsonLogic: 'date_diff',
               returnType: 'number',
+              allowSelfNesting: true,
               args: {
                 date1: {
                   label: 'Date 1',
@@ -678,18 +642,20 @@ const App = () => {
                       )}
                     </Card>
 
-                    <Card title="Rule Output (JSON)">
-                      <pre style={{ 
-                        background: darkMode ? '#1f1f1f' : '#f5f5f5', 
-                        padding: '16px', 
-                        borderRadius: '4px',
-                        overflow: 'auto',
-                        maxHeight: '400px',
-                        color: darkMode ? '#d4d4d4' : 'inherit'
-                      }}>
-                        {tree ? JSON.stringify(QbUtils.getTree(tree), null, 2) : 'No rule defined yet'}
-                      </pre>
-                    </Card>
+                    <Collapse defaultActiveKey={[]} style={{ marginTop: '20px' }}>
+                      <Panel header="Rule Output (JSON)" key="ruleOutput">
+                        <pre style={{ 
+                          background: darkMode ? '#1f1f1f' : '#f5f5f5', 
+                          padding: '16px', 
+                          borderRadius: '4px',
+                          overflow: 'auto',
+                          maxHeight: '400px',
+                          color: darkMode ? '#d4d4d4' : 'inherit'
+                        }}>
+                          {tree ? JSON.stringify(QbUtils.getTree(tree), null, 2) : 'No rule defined yet'}
+                        </pre>
+                      </Panel>
+                    </Collapse>
                   </>
                 )
               },

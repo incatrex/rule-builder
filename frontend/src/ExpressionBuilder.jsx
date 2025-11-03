@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Tag, Button } from 'antd';
-import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
+import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, DownOutlined, RightOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 const { Text } = Typography;
@@ -262,6 +262,13 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
         return `${funcName}()`;
       }
       
+      // Handle dynamic args
+      if (funcDef.dynamicArgs && expr.args.dynamicArgs) {
+        const argTexts = expr.args.dynamicArgs.map(argValue => getExpressionText(argValue));
+        return `${funcName}(${argTexts.join(', ')})`;
+      }
+      
+      // Handle standard args
       const argTexts = Object.keys(funcDef.args || {}).map(argKey => {
         const argValue = expr.args[argKey];
         return getExpressionText(argValue);
@@ -380,10 +387,23 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
             value={expressionData.func}
             onChange={(funcPath) => {
               const newFuncDef = getFuncDef(funcPath);
-              const args = {};
+              let args = {};
               
-              // Initialize args with empty expressions based on arg types
-              if (newFuncDef?.args) {
+              // Check if this function uses dynamic args
+              if (newFuncDef?.dynamicArgs) {
+                // Initialize with minimum number of dynamic arguments
+                const minArgs = newFuncDef.dynamicArgs.minArgs || 2;
+                const dynamicArgs = [];
+                for (let i = 0; i < minArgs; i++) {
+                  dynamicArgs.push({
+                    type: 'value',
+                    valueType: newFuncDef.dynamicArgs.argType,
+                    value: newFuncDef.dynamicArgs.defaultValue ?? ''
+                  });
+                }
+                args = { dynamicArgs };
+              } else if (newFuncDef?.args) {
+                // Initialize standard args with empty expressions based on arg types
                 Object.keys(newFuncDef.args).forEach(argKey => {
                   const argDef = newFuncDef.args[argKey];
                   args[argKey] = {
@@ -424,40 +444,110 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
             style={{ marginTop: '8px', background: '#fafafa' }}
           >
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              {Object.keys(funcDef.args).map((argKey) => {
-                const argDef = funcDef.args[argKey];
-                const argValue = expressionData.args?.[argKey] || { 
-                  type: 'value', 
-                  valueType: argDef.type, 
-                  value: '' 
-                };
-                
-                return (
-                  <div key={argKey} style={{ paddingLeft: '12px', borderLeft: '2px solid #d9d9d9' }}>
-                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                      <Text type="secondary" style={{ fontSize: '12px' }}>
-                        {argDef.label || argKey}
-                        {argDef.type && (
-                          <Tag color="blue" style={{ marginLeft: '8px', fontSize: '10px' }}>
-                            {argDef.type}
-                          </Tag>
-                        )}
-                      </Text>
-                      {/* Recursive ExpressionBuilder for each argument */}
-                      <ExpressionBuilder
-                        value={argValue}
-                        onChange={(newArgValue) => {
-                          const newArgs = { ...expressionData.args, [argKey]: newArgValue };
-                          handleValueChange({ args: newArgs });
-                        }}
-                        config={config}
-                        expectedType={argDef.type}
-                        compact={true}
-                      />
-                    </Space>
-                  </div>
-                );
-              })}
+              {/* Check if this function supports dynamic args */}
+              {funcDef.dynamicArgs ? (
+                <>
+                  {/* Dynamic arguments rendering */}
+                  {(expressionData.args?.dynamicArgs || []).map((argValue, index) => (
+                    <div key={index} style={{ paddingLeft: '12px', borderLeft: '2px solid #d9d9d9' }}>
+                      <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                        <Space>
+                          <Text type="secondary" style={{ fontSize: '12px' }}>
+                            Arg {index + 1}
+                            <Tag color="blue" style={{ marginLeft: '8px', fontSize: '10px' }}>
+                              {funcDef.dynamicArgs.argType}
+                            </Tag>
+                          </Text>
+                          {/* Remove button - only show if more than minArgs */}
+                          {(expressionData.args?.dynamicArgs?.length || 0) > (funcDef.dynamicArgs.minArgs || 1) && (
+                            <Button
+                              type="text"
+                              size="small"
+                              danger
+                              icon={<CloseOutlined />}
+                              onClick={() => {
+                                const newDynamicArgs = [...(expressionData.args?.dynamicArgs || [])];
+                                newDynamicArgs.splice(index, 1);
+                                handleValueChange({ args: { dynamicArgs: newDynamicArgs } });
+                              }}
+                              title="Remove argument"
+                            />
+                          )}
+                        </Space>
+                        {/* Recursive ExpressionBuilder for each argument */}
+                        <ExpressionBuilder
+                          value={argValue}
+                          onChange={(newArgValue) => {
+                            const newDynamicArgs = [...(expressionData.args?.dynamicArgs || [])];
+                            newDynamicArgs[index] = newArgValue;
+                            handleValueChange({ args: { dynamicArgs: newDynamicArgs } });
+                          }}
+                          config={config}
+                          expectedType={funcDef.dynamicArgs.argType}
+                          compact={true}
+                        />
+                      </Space>
+                    </div>
+                  ))}
+                  {/* Add argument button */}
+                  {(!funcDef.dynamicArgs.maxArgs || 
+                    (expressionData.args?.dynamicArgs?.length || 0) < funcDef.dynamicArgs.maxArgs) && (
+                    <Button
+                      type="dashed"
+                      size="small"
+                      icon={<PlusOutlined />}
+                      onClick={() => {
+                        const newDynamicArgs = [...(expressionData.args?.dynamicArgs || [])];
+                        newDynamicArgs.push({
+                          type: 'value',
+                          valueType: funcDef.dynamicArgs.argType,
+                          value: funcDef.dynamicArgs.defaultValue ?? ''
+                        });
+                        handleValueChange({ args: { dynamicArgs: newDynamicArgs } });
+                      }}
+                      style={{ width: '100%' }}
+                    >
+                      Add Argument
+                    </Button>
+                  )}
+                </>
+              ) : (
+                /* Standard fixed arguments rendering */
+                Object.keys(funcDef.args).map((argKey) => {
+                  const argDef = funcDef.args[argKey];
+                  const argValue = expressionData.args?.[argKey] || { 
+                    type: 'value', 
+                    valueType: argDef.type, 
+                    value: '' 
+                  };
+                  
+                  return (
+                    <div key={argKey} style={{ paddingLeft: '12px', borderLeft: '2px solid #d9d9d9' }}>
+                      <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                          {argDef.label || argKey}
+                          {argDef.type && (
+                            <Tag color="blue" style={{ marginLeft: '8px', fontSize: '10px' }}>
+                              {argDef.type}
+                            </Tag>
+                          )}
+                        </Text>
+                        {/* Recursive ExpressionBuilder for each argument */}
+                        <ExpressionBuilder
+                          value={argValue}
+                          onChange={(newArgValue) => {
+                            const newArgs = { ...expressionData.args, [argKey]: newArgValue };
+                            handleValueChange({ args: newArgs });
+                          }}
+                          config={config}
+                          expectedType={argDef.type}
+                          compact={true}
+                        />
+                      </Space>
+                    </div>
+                  );
+                })
+              )}
             </Space>
           </Card>
         )}

@@ -299,19 +299,21 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         </Collapse>
 
         {/* Output Preview */}
-        <Card title="CASE Output (JSON)" size="small">
-          <pre style={{ 
-            background: darkMode ? '#1f1f1f' : '#f5f5f5',
-            padding: '12px',
-            borderRadius: '4px',
-            overflow: 'auto',
-            maxHeight: '300px',
-            fontSize: '12px',
-            color: darkMode ? '#d4d4d4' : 'inherit'
-          }}>
-            {JSON.stringify(getCaseOutput(), null, 2)}
-          </pre>
-        </Card>
+        <Collapse defaultActiveKey={[]} style={{ marginTop: '16px' }}>
+          <Panel header="CASE Output (JSON)" key="caseOutput">
+            <pre style={{ 
+              background: darkMode ? '#1f1f1f' : '#f5f5f5',
+              padding: '12px',
+              borderRadius: '4px',
+              overflow: 'auto',
+              maxHeight: '300px',
+              fontSize: '12px',
+              color: darkMode ? '#d4d4d4' : 'inherit'
+            }}>
+              {JSON.stringify(getCaseOutput(), null, 2)}
+            </pre>
+          </Panel>
+        </Collapse>
       </Space>
     </Card>
   );
