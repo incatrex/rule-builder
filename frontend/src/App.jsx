@@ -671,12 +671,12 @@ const App = () => {
                     <Collapse defaultActiveKey={[]} style={{ marginTop: '20px' }}>
                       <Panel header="Rule Output (JSON)" key="ruleOutput">
                         <pre style={{ 
-                          background: darkMode ? '#1f1f1f' : '#f5f5f5', 
+                          background: darkMode ? '#2a2a2a' : '#f5f5f5', 
                           padding: '16px', 
                           borderRadius: '4px',
                           overflow: 'auto',
                           maxHeight: '400px',
-                          color: darkMode ? '#d4d4d4' : 'inherit'
+                          color: darkMode ? '#e0e0e0' : 'inherit'
                         }}>
                           {tree ? JSON.stringify(QbUtils.getTree(tree), null, 2) : 'No rule defined yet'}
                         </pre>

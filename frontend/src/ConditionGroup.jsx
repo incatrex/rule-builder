@@ -25,7 +25,7 @@ const { Panel } = Collapse;
 /**
  * DraggableItem - Wrapper component to make children draggable
  */
-const DraggableItem = ({ id, children }) => {
+const DraggableItem = ({ id, children, darkMode }) => {
   const {
     attributes,
     listeners,
@@ -54,13 +54,13 @@ const DraggableItem = ({ id, children }) => {
             display: 'flex',
             alignItems: 'center',
             padding: '4px',
-            background: '#f0f0f0',
+            background: darkMode ? '#3a3a3a' : '#f0f0f0',
             borderRadius: '4px',
-            border: '1px solid #d9d9d9',
+            border: darkMode ? '1px solid #555555' : '1px solid #d9d9d9',
           }}
           title="Drag to reorder"
         >
-          <MenuOutlined style={{ fontSize: '14px', color: '#8c8c8c' }} />
+          <MenuOutlined style={{ fontSize: '14px', color: darkMode ? '#b0b0b0' : '#8c8c8c' }} />
         </div>
         {/* Original content */}
         <div style={{ flex: 1 }}>
@@ -86,8 +86,9 @@ const DraggableItem = ({ id, children }) => {
  * @param {Function} onRemove - Callback to remove this group (only for nested groups)
  * @param {Object} config - RAQB config with operators, fields, and funcs
  * @param {number} level - Nesting depth (0 = root, 1+ = nested)
+ * @param {boolean} darkMode - Whether dark mode is enabled
  */
-const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
+const ConditionGroup = ({ value, onChange, onRemove, config, level = 0, darkMode = false }) => {
   
   // Local state for name editing
   const [isEditingName, setIsEditingName] = useState(false);
@@ -142,7 +143,7 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
     });
   };
   
-  // Add a new nested group
+  // Add a new nested group (with an initial empty condition)
   const handleAddGroup = () => {
     const childGroupCount = (value.children || []).filter(c => c.type === 'group').length;
     const newGroup = {
@@ -151,7 +152,16 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
       name: `Group ${level + 2}.${childGroupCount + 1}`,
       conjunction: 'AND',
       not: false,
-      children: [],
+      children: [
+        // Auto-add an empty condition to the new group
+        {
+          type: 'rule',
+          id: generateId(),
+          left: { type: 'value', valueType: 'text', value: '' },
+          operator: 'equal',
+          right: { type: 'value', valueType: 'text', value: '' }
+        }
+      ],
       isExpanded: true
     };
     
@@ -176,8 +186,15 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
   
   // Background colors based on nesting level
   const getBackgroundColor = (lvl) => {
-    const colors = ['#ffffff', '#f0f5ff', '#e6f7ff', '#d6e4ff', '#bae7ff'];
-    return colors[Math.min(lvl, colors.length - 1)];
+    if (darkMode) {
+      // Darker grays for dark mode, getting slightly lighter at each level
+      const colors = ['#1f1f1f', '#252525', '#2a2a2a', '#2f2f2f', '#333333'];
+      return colors[Math.min(lvl, colors.length - 1)];
+    } else {
+      // Light blues for light mode
+      const colors = ['#ffffff', '#f0f5ff', '#e6f7ff', '#d6e4ff', '#bae7ff'];
+      return colors[Math.min(lvl, colors.length - 1)];
+    }
   };
   
   return (
@@ -235,8 +252,19 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
         }
       >
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          {/* Group Controls - Conjunction, NOT, and Action Buttons */}
+          {/* Group Controls - Conjunction and NOT */}
           <Space wrap>
+            {/* NOT Toggle */}
+            <Switch
+              checked={value.not || false}
+              onChange={(not) => onChange({ ...value, not })}
+              checkedChildren="NOT"
+              unCheckedChildren="NOT"
+              size="small"
+            />
+            
+            <Text strong style={{ marginLeft: '8px', marginRight: '4px' }}>Conjunction:</Text>
+            
             {/* Conjunction Selector */}
             <Select
               value={value.conjunction || 'AND'}
@@ -247,33 +275,6 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
               <Select.Option value="AND">AND</Select.Option>
               <Select.Option value="OR">OR</Select.Option>
             </Select>
-            
-            {/* NOT Toggle */}
-            <Switch
-              checked={value.not || false}
-              onChange={(not) => onChange({ ...value, not })}
-              checkedChildren="NOT"
-              unCheckedChildren="NOT"
-              size="small"
-            />
-            
-            {/* Action Buttons */}
-            <Button
-              type="primary"
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={handleAddCondition}
-            >
-              Add Condition
-            </Button>
-            
-            <Button
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={handleAddGroup}
-            >
-              Add Group
-            </Button>
           </Space>
           
           {/* Children - Conditions and Nested Groups */}
@@ -289,7 +290,7 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
             >
               <Space direction="vertical" size="small" style={{ width: '100%' }}>
                 {value.children.map((child, index) => (
-                  <DraggableItem key={child.id} id={child.id}>
+                  <DraggableItem key={child.id} id={child.id} darkMode={darkMode}>
                     {/* Show conjunction between children (except before first child) */}
                     {index > 0 && (
                       <div style={{ 
@@ -299,7 +300,7 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
                         color: '#1890ff',
                         fontWeight: 'bold'
                       }}>
-                        {value.not && index === 1 ? `NOT ${value.conjunction}` : value.conjunction}
+                        {value.conjunction}
                       </div>
                     )}
                     
@@ -310,6 +311,7 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
                         onChange={(newChild) => updateChild(index, newChild)}
                         onRemove={() => removeChild(index)}
                         config={config}
+                        darkMode={darkMode}
                       />
                     ) : (
                       <ConditionGroup
@@ -318,6 +320,7 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
                         onRemove={() => removeChild(index)}
                         config={config}
                         level={level + 1}
+                        darkMode={darkMode}
                       />
                     )}
                   </DraggableItem>
@@ -325,11 +328,27 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
               </Space>
             </SortableContext>
           </DndContext>
-        ) : (
-          <Text type="secondary" style={{ textAlign: 'center', display: 'block', padding: '16px' }}>
-            No conditions yet. Click "Add Condition" or "Add Group" to start building.
-          </Text>
-        )}
+        ) : null}
+        
+        {/* Action Buttons - Add Condition and Add Group */}
+        <Space wrap style={{ marginTop: value.children && value.children.length > 0 ? '8px' : '0' }}>
+          <Button
+            type="primary"
+            size="small"
+            icon={<PlusOutlined />}
+            onClick={handleAddCondition}
+          >
+            Add Condition
+          </Button>
+          
+          <Button
+            size="small"
+            icon={<PlusOutlined />}
+            onClick={handleAddGroup}
+          >
+            Add Group
+          </Button>
+        </Space>
         </Space>
       </Panel>
     </Collapse>

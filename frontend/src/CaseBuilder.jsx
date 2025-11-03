@@ -189,7 +189,7 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
                   </Text>
                   <div style={{ 
                     padding: '16px', 
-                    background: darkMode ? '#1a1a1a' : '#f9f9f9',
+                    background: darkMode ? '#2a2a2a' : '#f9f9f9',
                     borderRadius: '4px'
                   }}>
                     {config && (
@@ -302,13 +302,13 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         <Collapse defaultActiveKey={[]} style={{ marginTop: '16px' }}>
           <Panel header="CASE Output (JSON)" key="caseOutput">
             <pre style={{ 
-              background: darkMode ? '#1f1f1f' : '#f5f5f5',
+              background: darkMode ? '#2a2a2a' : '#f5f5f5',
               padding: '12px',
               borderRadius: '4px',
               overflow: 'auto',
               maxHeight: '300px',
               fontSize: '12px',
-              color: darkMode ? '#d4d4d4' : 'inherit'
+              color: darkMode ? '#e0e0e0' : 'inherit'
             }}>
               {JSON.stringify(getCaseOutput(), null, 2)}
             </pre>

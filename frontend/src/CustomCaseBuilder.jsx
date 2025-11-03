@@ -22,7 +22,16 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         name: 'Group 1',
         conjunction: 'AND', 
         not: false, 
-        children: [],
+        children: [
+          // Initialize with one empty condition
+          {
+            type: 'rule',
+            id: generateId(),
+            left: { type: 'value', valueType: 'text', value: '' },
+            operator: 'equal',
+            right: { type: 'value', valueType: 'text', value: '' }
+          }
+        ],
         isExpanded: true
       },
       result: { type: 'value', valueType: 'text', value: '' },
@@ -55,11 +64,9 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
     },
     loadCaseData: (caseData) => {
       if (caseData && caseData.type === 'case') {
-        const loadedClauses = caseData.whenClauses.map((clause, index) => ({
-          id: generateId(),
-          name: clause.name || `Condition ${index + 1}`,
-          resultName: clause.resultName || `Result ${index + 1}`,
-          condition: clause.condition || { 
+        const loadedClauses = caseData.whenClauses.map((clause, index) => {
+          // Ensure condition has at least one child if empty
+          let condition = clause.condition || { 
             type: 'group', 
             id: generateId(),
             name: `Group ${index + 1}`,
@@ -67,12 +74,35 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
             not: false, 
             children: [],
             isExpanded: true
-          },
-          result: clause.result || { type: 'value', valueType: 'text', value: '' },
-          expanded: false,
-          editingName: false,
-          editingResultName: false
-        }));
+          };
+          
+          // If the condition group has no children, add an empty condition
+          if (!condition.children || condition.children.length === 0) {
+            condition = {
+              ...condition,
+              children: [
+                {
+                  type: 'rule',
+                  id: generateId(),
+                  left: { type: 'value', valueType: 'text', value: '' },
+                  operator: 'equal',
+                  right: { type: 'value', valueType: 'text', value: '' }
+                }
+              ]
+            };
+          }
+          
+          return {
+            id: generateId(),
+            name: clause.name || `Condition ${index + 1}`,
+            resultName: clause.resultName || `Result ${index + 1}`,
+            condition: condition,
+            result: clause.result || { type: 'value', valueType: 'text', value: '' },
+            expanded: false,
+            editingName: false,
+            editingResultName: false
+          };
+        });
         setWhenClauses(loadedClauses);
         setElseResult(caseData.else || { type: 'value', valueType: 'text', value: '' });
         setElseResultName(caseData.elseResultName || 'Default');
@@ -93,7 +123,16 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         name: `Group ${whenClauses.length + 1}`,
         conjunction: 'AND', 
         not: false, 
-        children: [],
+        children: [
+          // Initialize with one empty condition
+          {
+            type: 'rule',
+            id: generateId(),
+            left: { type: 'value', valueType: 'text', value: '' },
+            operator: 'equal',
+            right: { type: 'value', valueType: 'text', value: '' }
+          }
+        ],
         isExpanded: true
       },
       result: { type: 'value', valueType: 'text', value: '' },
@@ -208,22 +247,18 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
             >
               <Space direction="vertical" style={{ width: '100%' }} size="middle">
                 {/* Condition Group */}
-                <div>
-                  <Text strong style={{ marginBottom: '8px', display: 'block' }}>
-                    Condition:
-                  </Text>
-                  <div style={{ 
-                    padding: '16px', 
-                    background: darkMode ? '#1a1a1a' : '#f9f9f9',
-                    borderRadius: '4px'
-                  }}>
-                    <ConditionGroup
-                      value={clause.condition}
-                      onChange={(condition) => handleConditionChange(index, condition)}
-                      config={config}
-                      level={0}
-                    />
-                  </div>
+                <div style={{ 
+                  padding: '16px', 
+                  background: darkMode ? '#2a2a2a' : '#f9f9f9',
+                  borderRadius: '4px'
+                }}>
+                  <ConditionGroup
+                    value={clause.condition}
+                    onChange={(condition) => handleConditionChange(index, condition)}
+                    config={config}
+                    level={0}
+                    darkMode={darkMode}
+                  />
                 </div>
 
                 {/* THEN Result */}
@@ -321,13 +356,13 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
         <Collapse defaultActiveKey={[]} style={{ marginTop: '16px' }}>
           <Panel header="CASE Output (JSON)" key="caseOutput">
             <pre style={{ 
-              background: darkMode ? '#1f1f1f' : '#f5f5f5',
+              background: darkMode ? '#2a2a2a' : '#f5f5f5',
               padding: '12px',
               borderRadius: '4px',
               overflow: 'auto',
               maxHeight: '300px',
               fontSize: '12px',
-              color: darkMode ? '#d4d4d4' : 'inherit'
+              color: darkMode ? '#e0e0e0' : 'inherit'
             }}>
               {JSON.stringify(getCaseOutput(), null, 2)}
             </pre>

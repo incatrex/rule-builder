@@ -12,8 +12,9 @@ import ExpressionBuilder from './ExpressionBuilder';
  * @param {Function} onChange - Callback when condition changes
  * @param {Function} onRemove - Callback to remove this condition
  * @param {Object} config - RAQB config with operators, fields, and funcs
+ * @param {boolean} darkMode - Whether dark mode is enabled
  */
-const Condition = ({ value, onChange, onRemove, config }) => {
+const Condition = ({ value, onChange, onRemove, config, darkMode = false }) => {
   
   // Get the current operator definition
   const operatorDef = config?.operators?.[value.operator];
@@ -45,7 +46,7 @@ const Condition = ({ value, onChange, onRemove, config }) => {
     <Card 
       size="small" 
       style={{ 
-        background: '#fafafa',
+        background: darkMode ? '#2a2a2a' : '#fafafa',
         borderLeft: '3px solid #1890ff'
       }}
     >
