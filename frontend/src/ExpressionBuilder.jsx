@@ -72,8 +72,9 @@ const { Text } = Typography;
  * @param {Object} config - Query builder config with fields and funcs
  * @param {string} expectedType - Expected return type (text, number, date, boolean) for type validation
  * @param {boolean} compact - Compact mode with smaller type selector
+ * @param {boolean} darkMode - Whether dark mode is enabled
  */
-const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = false }) => {
+const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = false, darkMode = false }) => {
   const [expressionType, setExpressionType] = useState(value?.type || 'value');
   const [expressionData, setExpressionData] = useState(value || { type: 'value', valueType: 'text', value: '' });
   const [isExpanded, setIsExpanded] = useState(true); // For collapsing functions
@@ -441,7 +442,7 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
           <Card 
             size="small" 
             title={<Text strong style={{ fontSize: '12px' }}>Arguments</Text>}
-            style={{ marginTop: '8px', background: '#fafafa' }}
+            style={{ marginTop: '8px', background: darkMode ? '#2a2a2a' : '#fafafa' }}
           >
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
               {/* Check if this function supports dynamic args */}
@@ -449,7 +450,7 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
                 <>
                   {/* Dynamic arguments rendering */}
                   {(expressionData.args?.dynamicArgs || []).map((argValue, index) => (
-                    <div key={index} style={{ paddingLeft: '12px', borderLeft: '2px solid #d9d9d9' }}>
+                    <div key={index} style={{ paddingLeft: '12px', borderLeft: darkMode ? '2px solid #555555' : '2px solid #d9d9d9' }}>
                       <Space direction="vertical" size={4} style={{ width: '100%' }}>
                         <Space>
                           <Text type="secondary" style={{ fontSize: '12px' }}>
@@ -485,6 +486,7 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
                           config={config}
                           expectedType={funcDef.dynamicArgs.argType}
                           compact={true}
+                          darkMode={darkMode}
                         />
                       </Space>
                     </div>
@@ -522,7 +524,7 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
                   };
                   
                   return (
-                    <div key={argKey} style={{ paddingLeft: '12px', borderLeft: '2px solid #d9d9d9' }}>
+                    <div key={argKey} style={{ paddingLeft: '12px', borderLeft: darkMode ? '2px solid #555555' : '2px solid #d9d9d9' }}>
                       <Space direction="vertical" size={4} style={{ width: '100%' }}>
                         <Text type="secondary" style={{ fontSize: '12px' }}>
                           {argDef.label || argKey}
@@ -542,6 +544,7 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
                           config={config}
                           expectedType={argDef.type}
                           compact={true}
+                          darkMode={darkMode}
                         />
                       </Space>
                     </div>

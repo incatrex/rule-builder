@@ -236,6 +236,7 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
                     value={clause.result}
                     onChange={(result) => handleResultChange(index, result)}
                     config={config}
+                    darkMode={darkMode}
                   />
                 </div>
               </Space>
@@ -294,6 +295,7 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
               value={elseResult}
               onChange={setElseResult}
               config={config}
+              darkMode={darkMode}
             />
           </Panel>
         </Collapse>

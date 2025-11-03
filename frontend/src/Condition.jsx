@@ -57,6 +57,7 @@ const Condition = ({ value, onChange, onRemove, config, darkMode = false }) => {
             value={value.left || { type: 'value', valueType: 'text', value: '' }}
             onChange={(left) => onChange({ ...value, left })}
             config={config}
+            darkMode={darkMode}
           />
         </div>
         
@@ -84,6 +85,7 @@ const Condition = ({ value, onChange, onRemove, config, darkMode = false }) => {
               value={value.right || { type: 'value', valueType: 'text', value: '' }}
               onChange={(right) => onChange({ ...value, right })}
               config={config}
+              darkMode={darkMode}
             />
           </div>
         )}
