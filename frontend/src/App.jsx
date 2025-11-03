@@ -1,11 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
-import { Layout, Card, Button, Input, Space, message, Spin } from 'antd';
+import { Layout, Card, Button, Input, Space, message, Spin, Select } from 'antd';
 import { AntdConfig } from '@react-awesome-query-builder/antd';
 import '@react-awesome-query-builder/antd/css/styles.css';
 import axios from 'axios';
 
 const { Header, Content } = Layout;
+
+// Custom ValueSources component using Select dropdown instead of three-dots popover
+const ValueSourcesSelect = ({ config, valueSources, valueSrc, setValueSrc, readonly, title }) => {
+  // Abbreviate labels to save space
+  const abbreviateLabel = (label) => {
+    if (label === 'Function') return 'Func';
+    return label;
+  };
+
+  return (
+    <Select
+      value={valueSrc || 'value'}
+      onChange={setValueSrc}
+      disabled={readonly}
+      size="small"
+      style={{ width: 70, minWidth: 70 }}
+      placeholder={title}
+    >
+      {valueSources.map(([srcKey, info]) => (
+        <Select.Option key={srcKey} value={srcKey}>
+          {abbreviateLabel(info.label)}
+        </Select.Option>
+      ))}
+    </Select>
+  );
+};
 
 const App = () => {
   const [config, setConfig] = useState(null);
@@ -175,6 +201,9 @@ const App = () => {
         settings: {
           ...AntdConfig.settings,
           fieldSources: ['field', 'func'],  // Left side: only field and func (no value)
+          // Use custom Select dropdown instead of three-dots popover for value source selection
+          renderValueSources: (props) => <ValueSourcesSelect {...props} />,
+          renderFieldSources: (props) => <ValueSourcesSelect {...props} />,
           valueSourcesInfo: {
             value: {
               label: 'Value',
