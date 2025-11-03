@@ -1,5 +1,5 @@
 import React, { useState, useImperativeHandle, forwardRef } from 'react';
-import { Card, Collapse, Button, Input, Space, Select, InputNumber, DatePicker, Typography } from 'antd';
+import { Card, Collapse, Button, Input, Space, Select, TreeSelect, InputNumber, DatePicker, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
 
@@ -33,22 +33,46 @@ const ExpressionSelector = ({ value, onChange, config, fields, funcs }) => {
   };
 
   const renderFieldSelect = () => {
-    const fieldOptions = Object.keys(fields || {}).map(key => ({
-      label: fields[key].label,
-      value: key
-    }));
+    // Convert hierarchical fields to TreeSelect format
+    const buildTreeData = (fieldsObj, parentKey = '') => {
+      const treeData = [];
+      Object.keys(fieldsObj || {}).forEach(key => {
+        const field = fieldsObj[key];
+        const fullKey = parentKey ? `${parentKey}.${key}` : key;
+        
+        if (field.type === '!struct' && field.subfields) {
+          // Parent node (not selectable)
+          treeData.push({
+            title: field.label || key,
+            value: fullKey,
+            selectable: false,
+            children: buildTreeData(field.subfields, fullKey)
+          });
+        } else {
+          // Leaf field (selectable)
+          treeData.push({
+            title: field.label || key,
+            value: fullKey
+          });
+        }
+      });
+      return treeData;
+    };
+
+    const treeData = buildTreeData(fields);
 
     return (
-      <Select
+      <TreeSelect
         placeholder="Select field"
         value={expressionValue}
         onChange={handleValueChange}
         style={{ width: '250px' }}
         showSearch
-        filterOption={(input, option) =>
-          option.label.toLowerCase().includes(input.toLowerCase())
+        treeDefaultExpandAll
+        filterTreeNode={(input, treeNode) =>
+          treeNode.title.toLowerCase().includes(input.toLowerCase())
         }
-        options={fieldOptions}
+        treeData={treeData}
       />
     );
   };
