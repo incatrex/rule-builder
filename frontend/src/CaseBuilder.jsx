@@ -165,7 +165,29 @@ const CaseBuilder = forwardRef(({ config, darkMode }, ref) => {
                     {!isExpanded && (
                       <>
                         <Text strong style={{ marginLeft: '16px' }}>THEN</Text>
-                        <Text code>{clause.resultName}</Text>
+                        {clause.editingResultName ? (
+                          <Input
+                            size="small"
+                            value={clause.resultName}
+                            onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
+                            onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
+                            onBlur={() => updateWhenClause(index, { editingResultName: false })}
+                            autoFocus
+                            style={{ width: '150px' }}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <>
+                            <Text code>{clause.resultName}</Text>
+                            <EditOutlined 
+                              style={{ fontSize: '12px', cursor: 'pointer' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateWhenClause(index, { editingResultName: true });
+                              }}
+                            />
+                          </>
+                        )}
                       </>
                     )}
                   </Space>
