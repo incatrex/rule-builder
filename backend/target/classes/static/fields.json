@@ -1,110 +1,110 @@
 {
-  "TABLE1": {
-    "label": "Table 1",
-    "type": "!struct",
-    "subfields": {
-      "TEXT_FIELD_01": {
-        "label": "Text Field 01",
-        "type": "text",
-        "valueSources": ["value"],
-        "preferWidgets": ["text"]
-      },
-      "TEXT_FIELD_02": {
-        "label": "Text Field 02",
-        "type": "text",
-        "valueSources": ["value"],
-        "preferWidgets": ["text"]
-      },
-      "NUMBER_FIELD_01": {
-        "label": "Number Field 01",
-        "type": "number",
-        "valueSources": ["value"],
-        "preferWidgets": ["number"]
-      },
-      "NUMBER_FIELD_02": {
-        "label": "Number Field 02",
-        "type": "number",
-        "valueSources": ["value"],
-        "preferWidgets": ["number"]
-      },
-      "DATE_FIELD_01": {
-        "label": "Date Field 01",
-        "type": "date",
-        "valueSources": ["value"],
-        "preferWidgets": ["date"]
-      },
-      "DATE_FIELD_02": {
-        "label": "Date Field 02",
-        "type": "date",
-        "valueSources": ["value"],
-        "preferWidgets": ["date"]
-      },
-      "BOOLEAN_FIELD_01": {
-        "label": "Boolean Field 01",
-        "type": "boolean",
-        "valueSources": ["value"],
-        "preferWidgets": ["boolean"]
-      },
-      "BOOLEAN_FIELD_02": {
-        "label": "Boolean Field 02",
-        "type": "boolean",
-        "valueSources": ["value"],
-        "preferWidgets": ["boolean"]
-      }
+  "TABLE1.TEXT_FIELD_01": {
+    "label": "Table 1 Text Field 01",
+    "type": "text",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["text"]
+  },
+  "TABLE1.TEXT_FIELD_02": {
+    "label": "Table 1 Text Field 02",
+    "type": "text",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["text"]
+  },
+  "TABLE1.NUMBER_FIELD_01": {
+    "label": "Table 1 Number Field 01",
+    "type": "number",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["number"],
+    "fieldSettings": {
+      "min": 0
     }
   },
-  "TABLE2": {
-    "label": "Table 2",
-    "type": "!struct",
-    "subfields": {
-      "TEXT_FIELD_01": {
-        "label": "Text Field 01",
-        "type": "text",
-        "valueSources": ["value"],
-        "preferWidgets": ["text"]
-      },
-      "TEXT_FIELD_02": {
-        "label": "Text Field 02",
-        "type": "text",
-        "valueSources": ["value"],
-        "preferWidgets": ["text"]
-      },
-      "NUMBER_FIELD_01": {
-        "label": "Number Field 01",
-        "type": "number",
-        "valueSources": ["value"],
-        "preferWidgets": ["number"]
-      },
-      "NUMBER_FIELD_02": {
-        "label": "Number Field 02",
-        "type": "number",
-        "valueSources": ["value"],
-        "preferWidgets": ["number"]
-      },
-      "DATE_FIELD_01": {
-        "label": "Date Field 01",
-        "type": "date",
-        "valueSources": ["value"],
-        "preferWidgets": ["date"]
-      },
-      "DATE_FIELD_02": {
-        "label": "Date Field 02",
-        "type": "date",
-        "valueSources": ["value"],
-        "preferWidgets": ["date"]
-      },
-      "BOOLEAN_FIELD_01": {
-        "label": "Boolean Field 01",
-        "type": "boolean",
-        "valueSources": ["value"],
-        "preferWidgets": ["boolean"]
-      },
-      "BOOLEAN_FIELD_02": {
-        "label": "Boolean Field 02",
-        "type": "boolean",
-        "valueSources": ["value"],
-        "preferWidgets": ["boolean"]
-      }
+  "TABLE1.NUMBER_FIELD_02": {
+    "label": "Table 1 Number Field 02",
+    "type": "number",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["number"],
+    "fieldSettings": {
+      "min": 0
     }
+  },
+  "TABLE1.DATE_FIELD_01": {
+    "label": "Table 1 Date Field 01",
+    "type": "date",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["date"]
+  },
+  "TABLE1.DATE_FIELD_02": {
+    "label": "Table 1 Date Field 02",
+    "type": "date",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["date"]
+  },
+  "TABLE1.BOOLEAN_FIELD_01": {
+    "label": "Table 1 Boolean Field 01",
+    "type": "boolean",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["boolean"]
+  },
+  "TABLE1.BOOLEAN_FIELD_02": {
+    "label": "Table 1 Boolean Field 02",
+    "type": "boolean",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["boolean"]
+  },
+  "TABLE2.TEXT_FIELD_01": {
+    "label": "Table 2 Text Field 01",
+    "type": "text",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["text"]
+  },
+  "TABLE2.TEXT_FIELD_02": {
+    "label": "Table 2 Text Field 02",
+    "type": "text",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["text"]
+  },
+  "TABLE2.NUMBER_FIELD_01": {
+    "label": "Table 2 Number Field 01",
+    "type": "number",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["number"],
+    "fieldSettings": {
+      "min": 0
+    }
+  },
+  "TABLE2.NUMBER_FIELD_02": {
+    "label": "Table 2 Number Field 02",
+    "type": "number",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["number"],
+    "fieldSettings": {
+      "min": 0
+    }
+  },
+  "TABLE2.DATE_FIELD_01": {
+    "label": "Table 2 Date Field 01",
+    "type": "date",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["date"]
+  },
+  "TABLE2.DATE_FIELD_02": {
+    "label": "Table 2 Date Field 02",
+    "type": "date",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["date"]
+  },
+  "TABLE2.BOOLEAN_FIELD_01": {
+    "label": "Table 2 Boolean Field 01",
+    "type": "boolean",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["boolean"]
+  },
+  "TABLE2.BOOLEAN_FIELD_02": {
+    "label": "Table 2 Boolean Field 02",
+    "type": "boolean",
+    "valueSources": ["value", "field", "func"],
+    "preferWidgets": ["boolean"]
   }
 }

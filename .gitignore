@@ -138,3 +138,26 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .DS_Store
+
+# Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/
+mvnw
+mvnw.cmd
+
+# Frontend build
+frontend/build/
+
+# Saved rules
+backend/src/main/resources/static/rules/
+!backend/src/main/resources/static/rules/.gitkeep
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
