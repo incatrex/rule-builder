@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Space, Select, Switch, Button, Typography } from 'antd';
-import { PlusOutlined, DeleteOutlined, MenuOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Card, Space, Select, Switch, Button, Typography, Collapse, Input } from 'antd';
+import { PlusOutlined, DeleteOutlined, MenuOutlined, EditOutlined } from '@ant-design/icons';
 import {
   DndContext,
   closestCenter,
@@ -20,6 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 import Condition from './Condition';
 
 const { Text } = Typography;
+const { Panel } = Collapse;
 
 /**
  * DraggableItem - Wrapper component to make children draggable
@@ -74,11 +75,13 @@ const DraggableItem = ({ id, children }) => {
  * ConditionGroup Component - Recursive component for building condition groups
  * 
  * A group contains:
+ * - Name (editable)
  * - Conjunction (AND/OR)
  * - Optional NOT toggle
  * - Children array of conditions or nested groups
+ * - Collapsible/expandable
  * 
- * @param {Object} value - Group data: { type: 'group', id, conjunction, not, children: [] }
+ * @param {Object} value - Group data: { type: 'group', id, name, conjunction, not, children: [], isExpanded: true }
  * @param {Function} onChange - Callback when group changes
  * @param {Function} onRemove - Callback to remove this group (only for nested groups)
  * @param {Object} config - RAQB config with operators, fields, and funcs
@@ -86,8 +89,15 @@ const DraggableItem = ({ id, children }) => {
  */
 const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
   
+  // Local state for name editing
+  const [isEditingName, setIsEditingName] = useState(false);
+  
   // Generate unique ID
   const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Get or initialize group name
+  const groupName = value.name || `Group ${level + 1}`;
+  const isExpanded = value.isExpanded !== false; // Default to expanded
   
   // Setup drag-and-drop sensors
   const sensors = useSensors(
@@ -134,12 +144,15 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
   
   // Add a new nested group
   const handleAddGroup = () => {
+    const childGroupCount = (value.children || []).filter(c => c.type === 'group').length;
     const newGroup = {
       type: 'group',
       id: generateId(),
+      name: `Group ${level + 2}.${childGroupCount + 1}`,
       conjunction: 'AND',
       not: false,
-      children: []
+      children: [],
+      isExpanded: true
     };
     
     onChange({
@@ -168,74 +181,103 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
   };
   
   return (
-    <Card
-      size="small"
+    <Collapse
+      activeKey={isExpanded ? ['group'] : []}
+      onChange={(keys) => onChange({ ...value, isExpanded: keys.includes('group') })}
       style={{
         background: getBackgroundColor(level),
         border: level === 0 ? '2px solid #1890ff' : '1px solid #d9d9d9',
         marginLeft: level > 0 ? '20px' : '0'
       }}
     >
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        {/* Group Header - Conjunction, NOT, and Action Buttons */}
-        <Space wrap>
-          <Text strong style={{ marginRight: '8px' }}>
-            Group
-          </Text>
-          
-          {/* Conjunction Selector */}
-          <Select
-            value={value.conjunction || 'AND'}
-            onChange={(conjunction) => onChange({ ...value, conjunction })}
-            style={{ width: 80 }}
-            size="small"
-          >
-            <Select.Option value="AND">AND</Select.Option>
-            <Select.Option value="OR">OR</Select.Option>
-          </Select>
-          
-          {/* NOT Toggle */}
-          <Switch
-            checked={value.not || false}
-            onChange={(not) => onChange({ ...value, not })}
-            checkedChildren="NOT"
-            unCheckedChildren="NOT"
-            size="small"
-          />
-          
-          {/* Action Buttons */}
-          <Button
-            type="primary"
-            size="small"
-            icon={<PlusOutlined />}
-            onClick={handleAddCondition}
-          >
-            Add Condition
-          </Button>
-          
-          <Button
-            size="small"
-            icon={<PlusOutlined />}
-            onClick={handleAddGroup}
-          >
-            Add Group
-          </Button>
-          
-          {/* Delete Group button (only for nested groups) */}
-          {level > 0 && onRemove && (
-            <Button
-              danger
+      <Panel
+        key="group"
+        header={
+          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Space>
+              <Text strong>Condition Group:</Text>
+              {isEditingName ? (
+                <Input
+                  size="small"
+                  value={groupName}
+                  onChange={(e) => onChange({ ...value, name: e.target.value })}
+                  onPressEnter={() => setIsEditingName(false)}
+                  onBlur={() => setIsEditingName(false)}
+                  autoFocus
+                  style={{ width: '200px' }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <>
+                  <Text code>{groupName}</Text>
+                  <EditOutlined 
+                    style={{ fontSize: '12px', cursor: 'pointer' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditingName(true);
+                    }}
+                  />
+                </>
+              )}
+            </Space>
+          </Space>
+        }
+        extra={
+          level > 0 && onRemove ? (
+            <DeleteOutlined
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              style={{ color: 'red' }}
+            />
+          ) : null
+        }
+      >
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          {/* Group Controls - Conjunction, NOT, and Action Buttons */}
+          <Space wrap>
+            {/* Conjunction Selector */}
+            <Select
+              value={value.conjunction || 'AND'}
+              onChange={(conjunction) => onChange({ ...value, conjunction })}
+              style={{ width: 80 }}
               size="small"
-              icon={<DeleteOutlined />}
-              onClick={onRemove}
             >
-              Delete Group
+              <Select.Option value="AND">AND</Select.Option>
+              <Select.Option value="OR">OR</Select.Option>
+            </Select>
+            
+            {/* NOT Toggle */}
+            <Switch
+              checked={value.not || false}
+              onChange={(not) => onChange({ ...value, not })}
+              checkedChildren="NOT"
+              unCheckedChildren="NOT"
+              size="small"
+            />
+            
+            {/* Action Buttons */}
+            <Button
+              type="primary"
+              size="small"
+              icon={<PlusOutlined />}
+              onClick={handleAddCondition}
+            >
+              Add Condition
             </Button>
-          )}
-        </Space>
-        
-        {/* Children - Conditions and Nested Groups */}
-        {value.children && value.children.length > 0 ? (
+            
+            <Button
+              size="small"
+              icon={<PlusOutlined />}
+              onClick={handleAddGroup}
+            >
+              Add Group
+            </Button>
+          </Space>
+          
+          {/* Children - Conditions and Nested Groups */}
+          {value.children && value.children.length > 0 ? (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -288,8 +330,9 @@ const ConditionGroup = ({ value, onChange, onRemove, config, level = 0 }) => {
             No conditions yet. Click "Add Condition" or "Add Group" to start building.
           </Text>
         )}
-      </Space>
-    </Card>
+        </Space>
+      </Panel>
+    </Collapse>
   );
 };
 

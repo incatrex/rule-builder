@@ -19,9 +19,11 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
       condition: { 
         type: 'group', 
         id: generateId(),
+        name: 'Group 1',
         conjunction: 'AND', 
         not: false, 
-        children: [] 
+        children: [],
+        isExpanded: true
       },
       result: { type: 'value', valueType: 'text', value: '' },
       expanded: true,
@@ -60,9 +62,11 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
           condition: clause.condition || { 
             type: 'group', 
             id: generateId(),
+            name: `Group ${index + 1}`,
             conjunction: 'AND', 
             not: false, 
-            children: [] 
+            children: [],
+            isExpanded: true
           },
           result: clause.result || { type: 'value', valueType: 'text', value: '' },
           expanded: false,
@@ -86,9 +90,11 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
       condition: { 
         type: 'group', 
         id: generateId(),
+        name: `Group ${whenClauses.length + 1}`,
         conjunction: 'AND', 
         not: false, 
-        children: [] 
+        children: [],
+        isExpanded: true
       },
       result: { type: 'value', valueType: 'text', value: '' },
       expanded: true,
