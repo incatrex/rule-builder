@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Tag } from 'antd';
-import { NumberOutlined, FieldTimeOutlined, FunctionOutlined } from '@ant-design/icons';
+import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Tag, Button } from 'antd';
+import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 const { Text } = Typography;
@@ -76,6 +76,7 @@ const { Text } = Typography;
 const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = false }) => {
   const [expressionType, setExpressionType] = useState(value?.type || 'value');
   const [expressionData, setExpressionData] = useState(value || { type: 'value', valueType: 'text', value: '' });
+  const [isExpanded, setIsExpanded] = useState(true); // For collapsing functions
 
   // Sync with external value changes
   useEffect(() => {
@@ -214,6 +215,64 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
     return current;
   };
 
+  // Get field label by path
+  const getFieldLabel = (fieldPath) => {
+    if (!fieldPath || !config?.fields) return fieldPath;
+    
+    const parts = fieldPath.split('.');
+    let current = config.fields;
+    let label = '';
+    
+    for (const part of parts) {
+      if (!current[part]) return fieldPath;
+      current = current[part];
+      
+      if (current.type === '!struct' && current.subfields) {
+        current = current.subfields;
+      } else {
+        label = current.label || part;
+      }
+    }
+    
+    return label;
+  };
+
+  // Generate text representation of an expression
+  const getExpressionText = (expr) => {
+    if (!expr) return '';
+    
+    if (expr.type === 'value') {
+      if (expr.value === '' || expr.value === null || expr.value === undefined) {
+        return '""';
+      }
+      return String(expr.value);
+    }
+    
+    if (expr.type === 'field') {
+      return getFieldLabel(expr.value);
+    }
+    
+    if (expr.type === 'func') {
+      const funcDef = getFuncDef(expr.func);
+      if (!funcDef) return expr.func || 'FUNC';
+      
+      const funcName = funcDef.label || expr.func?.split('.').pop() || 'FUNC';
+      
+      if (!expr.args || Object.keys(expr.args).length === 0) {
+        return `${funcName}()`;
+      }
+      
+      const argTexts = Object.keys(funcDef.args || {}).map(argKey => {
+        const argValue = expr.args[argKey];
+        return getExpressionText(argValue);
+      });
+      
+      return `${funcName}(${argTexts.join(', ')})`;
+    }
+    
+    return '';
+  };
+
   // Render value input based on type
   const renderValueWidget = () => {
     const valueType = expressionData.valueType || expectedType || 'text';
@@ -290,37 +349,73 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
     const treeData = buildFuncTreeData(config?.funcs);
     const funcDef = getFuncDef(expressionData.func);
     
+    // If collapsed, show text representation in an input box
+    if (!isExpanded && expressionData.func) {
+      const funcText = getExpressionText(expressionData);
+      
+      return (
+        <Space style={{ width: '100%' }}>
+          <Input
+            value={funcText}
+            readOnly
+            style={{ width: '300px', fontFamily: 'monospace' }}
+            addonBefore={
+              <Button
+                type="text"
+                size="small"
+                icon={<RightOutlined />}
+                onClick={() => setIsExpanded(true)}
+                style={{ padding: '0 4px' }}
+              />
+            }
+          />
+        </Space>
+      );
+    }
+    
     return (
       <Space direction="vertical" style={{ width: '100%' }} size="small">
-        <TreeSelect
-          value={expressionData.func}
-          onChange={(funcPath) => {
-            const newFuncDef = getFuncDef(funcPath);
-            const args = {};
-            
-            // Initialize args with empty expressions based on arg types
-            if (newFuncDef?.args) {
-              Object.keys(newFuncDef.args).forEach(argKey => {
-                const argDef = newFuncDef.args[argKey];
-                args[argKey] = {
-                  type: 'value',
-                  valueType: argDef.type,
-                  value: ''
-                };
-              });
+        <Space>
+          <TreeSelect
+            value={expressionData.func}
+            onChange={(funcPath) => {
+              const newFuncDef = getFuncDef(funcPath);
+              const args = {};
+              
+              // Initialize args with empty expressions based on arg types
+              if (newFuncDef?.args) {
+                Object.keys(newFuncDef.args).forEach(argKey => {
+                  const argDef = newFuncDef.args[argKey];
+                  args[argKey] = {
+                    type: 'value',
+                    valueType: argDef.type,
+                    value: ''
+                  };
+                });
+              }
+              
+              handleValueChange({ func: funcPath, args });
+              setIsExpanded(true); // Expand when function changes
+            }}
+            placeholder="Select function"
+            style={{ width: '250px' }}
+            showSearch
+            treeDefaultExpandAll
+            filterTreeNode={(input, treeNode) =>
+              treeNode.title?.toLowerCase().includes(input.toLowerCase())
             }
-            
-            handleValueChange({ func: funcPath, args });
-          }}
-          placeholder="Select function"
-          style={{ width: '250px' }}
-          showSearch
-          treeDefaultExpandAll
-          filterTreeNode={(input, treeNode) =>
-            treeNode.title?.toLowerCase().includes(input.toLowerCase())
-          }
-          treeData={treeData}
-        />
+            treeData={treeData}
+          />
+          {expressionData.func && funcDef && funcDef.args && (
+            <Button
+              type="text"
+              size="small"
+              icon={<DownOutlined />}
+              onClick={() => setIsExpanded(false)}
+              title="Collapse function"
+            />
+          )}
+        </Space>
         
         {funcDef && funcDef.args && (
           <Card 
