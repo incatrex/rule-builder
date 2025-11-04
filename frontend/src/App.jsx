@@ -667,25 +667,36 @@ const App = () => {
             title="Rule Management" 
             style={{ marginBottom: '20px' }}
             extra={
-              <Space>
-                <Input
-                  placeholder="Rule ID"
-                  value={ruleId}
-                  onChange={(e) => setRuleId(e.target.value)}
-                  style={{ width: '150px' }}
-                />
-                <Input
-                  placeholder="Version"
-                  value={version}
-                  onChange={(e) => setVersion(e.target.value)}
-                  style={{ width: '100px' }}
-                />
-                <Button type="primary" onClick={handleSaveRule}>
-                  Save Rule
-                </Button>
-                <Button onClick={handleLoadRule}>
-                  Load Rule
-                </Button>
+              <Space size="middle">
+                <Space direction="vertical" size={0}>
+                  <label style={{ fontSize: '12px', color: darkMode ? '#d0d0d0' : '#666' }}>Rule ID:</label>
+                  <Input
+                    placeholder="Rule ID"
+                    value={ruleId}
+                    onChange={(e) => setRuleId(e.target.value)}
+                    style={{ width: '150px' }}
+                  />
+                </Space>
+                <Space direction="vertical" size={0}>
+                  <label style={{ fontSize: '12px', color: darkMode ? '#d0d0d0' : '#666' }}>Version:</label>
+                  <Input
+                    placeholder="Version"
+                    value={version}
+                    onChange={(e) => setVersion(e.target.value)}
+                    style={{ width: '100px' }}
+                  />
+                </Space>
+                <Space direction="vertical" size={0}>
+                  <div style={{ height: '20px' }}></div>
+                  <Space>
+                    <Button type="primary" onClick={handleSaveRule}>
+                      Save Rule
+                    </Button>
+                    <Button onClick={handleLoadRule}>
+                      Load Rule
+                    </Button>
+                  </Space>
+                </Space>
               </Space>
             }
           />
