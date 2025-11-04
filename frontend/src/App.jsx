@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Query, Builder, Utils as QbUtils } from '@react-awesome-query-builder/ui';
-import { Layout, Card, Button, Input, Space, message, Spin, Select, Switch, ConfigProvider, theme, Tabs, Collapse } from 'antd';
+import { Layout, Card, Button, Input, Space, message, Spin, Select, Switch, ConfigProvider, theme, Tabs, Collapse, Row, Col } from 'antd';
 import { AntdConfig } from '@react-awesome-query-builder/antd';
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined } from '@ant-design/icons';
 import '@react-awesome-query-builder/antd/css/styles.css';
 import axios from 'axios';
 import CaseBuilder from './CaseBuilder';
 import CustomCaseBuilder from './CustomCaseBuilder';
+import RuleBuilder from './RuleBuilder';
+import JsonEditor from './JsonEditor';
+import ResizablePanels from './ResizablePanels';
 
 const { Header, Content } = Layout;
 const { Panel } = Collapse;
@@ -74,6 +77,7 @@ const ValueSourcesSelect = ({ config, valueSources, valueSrc, setValueSrc, reado
 const App = () => {
   const [config, setConfig] = useState(null);
   const [customConfig, setCustomConfig] = useState(null); // Separate config for CustomCaseBuilder without RAQB
+  const [ruleConfig, setRuleConfig] = useState(null); // Config for new RuleBuilder (same structure as customConfig)
   const [tree, setTree] = useState(null);
   const [ruleId, setRuleId] = useState('rule1');
   const [version, setVersion] = useState('1');
@@ -82,6 +86,8 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('1');
   const caseBuilderRef = useRef(null);
   const customCaseBuilderRef = useRef(null);
+  const ruleBuilderRef = useRef(null);
+  const [ruleBuilderData, setRuleBuilderData] = useState(null); // State for RuleBuilder JSON output
 
   useEffect(() => {
     loadConfiguration();
@@ -457,6 +463,15 @@ const App = () => {
       console.log('Custom Config for CustomCaseBuilder:', pureCustomConfig);
       setCustomConfig(pureCustomConfig);
       
+      // Create ruleConfig with same structure as customConfig for new RuleBuilder
+      const ruleConfigData = {
+        operators: customConfigData.operators,
+        fields: fields,
+        funcs: buildHierarchicalFuncs(customConfigData.funcs)
+      };
+      console.log('Rule Config for RuleBuilder:', ruleConfigData);
+      setRuleConfig(ruleConfigData);
+      
       // Initialize tree with the new config
       const initialTree = QbUtils.checkTree(
         QbUtils.loadTree({ id: QbUtils.uuid(), type: 'group' }), 
@@ -546,6 +561,14 @@ const App = () => {
           message.error('Custom CASE Builder not initialized');
           return;
         }
+      } else if (activeTab === '4') {
+        // Save Rule Builder rule
+        if (ruleBuilderRef.current) {
+          dataToSave = ruleBuilderRef.current.getRuleOutput();
+        } else {
+          message.error('Rule Builder not initialized');
+          return;
+        }
       }
 
       await axios.post(`/api/rules/${ruleId}/${version}`, dataToSave);
@@ -566,8 +589,17 @@ const App = () => {
       const response = await axios.get(`/api/rules/${ruleId}/${version}`);
       const loadedData = response.data;
 
-      // Check if it's a CASE rule or Condition rule
-      if (loadedData.type === 'case') {
+      // Check if it's a new RuleBuilder structure (has structure, uuId fields)
+      if (loadedData.structure && loadedData.uuId) {
+        // Load into Rule Builder (Tab 4)
+        setActiveTab('4');
+        setTimeout(() => {
+          if (ruleBuilderRef.current) {
+            ruleBuilderRef.current.loadRuleData(loadedData);
+            message.success(`Rule loaded: ${ruleId} v${version}`);
+          }
+        }, 100);
+      } else if (loadedData.type === 'case') {
         // Check if it has custom structure (children array) vs RAQB structure (children1 object)
         const hasCustomStructure = loadedData.whenClauses?.some(
           clause => clause.condition?.children && Array.isArray(clause.condition.children)
@@ -667,25 +699,36 @@ const App = () => {
             title="Rule Management" 
             style={{ marginBottom: '20px' }}
             extra={
-              <Space>
-                <Input
-                  placeholder="Rule ID"
-                  value={ruleId}
-                  onChange={(e) => setRuleId(e.target.value)}
-                  style={{ width: '150px' }}
-                />
-                <Input
-                  placeholder="Version"
-                  value={version}
-                  onChange={(e) => setVersion(e.target.value)}
-                  style={{ width: '100px' }}
-                />
-                <Button type="primary" onClick={handleSaveRule}>
-                  Save Rule
-                </Button>
-                <Button onClick={handleLoadRule}>
-                  Load Rule
-                </Button>
+              <Space size="middle">
+                <Space direction="vertical" size={0}>
+                  <label style={{ fontSize: '12px', color: darkMode ? '#d0d0d0' : '#666' }}>Rule ID:</label>
+                  <Input
+                    placeholder="Rule ID"
+                    value={ruleId}
+                    onChange={(e) => setRuleId(e.target.value)}
+                    style={{ width: '150px' }}
+                  />
+                </Space>
+                <Space direction="vertical" size={0}>
+                  <label style={{ fontSize: '12px', color: darkMode ? '#d0d0d0' : '#666' }}>Version:</label>
+                  <Input
+                    placeholder="Version"
+                    value={version}
+                    onChange={(e) => setVersion(e.target.value)}
+                    style={{ width: '100px' }}
+                  />
+                </Space>
+                <Space direction="vertical" size={0}>
+                  <div style={{ height: '20px' }}></div>
+                  <Space>
+                    <Button type="primary" onClick={handleSaveRule}>
+                      Save Rule
+                    </Button>
+                    <Button onClick={handleLoadRule}>
+                      Load Rule
+                    </Button>
+                  </Space>
+                </Space>
               </Space>
             }
           />
@@ -736,6 +779,40 @@ const App = () => {
                 key: '3',
                 label: 'Custom CASE Builder',
                 children: customConfig ? <CustomCaseBuilder ref={customCaseBuilderRef} config={customConfig} darkMode={darkMode} /> : <Spin />
+              },
+              {
+                key: '4',
+                label: 'Rule Builder',
+                children: ruleConfig ? (
+                  <div style={{ height: 'calc(100vh - 300px)' }}>
+                    <ResizablePanels
+                      leftPanel={
+                        <RuleBuilder
+                          ref={ruleBuilderRef}
+                          config={ruleConfig}
+                          darkMode={darkMode}
+                          onRuleChange={(data) => setRuleBuilderData(data)}
+                        />
+                      }
+                      rightPanel={
+                        <JsonEditor
+                          data={ruleBuilderData}
+                          onChange={(newData) => {
+                            if (ruleBuilderRef.current) {
+                              ruleBuilderRef.current.loadRuleData(newData);
+                            }
+                          }}
+                          darkMode={darkMode}
+                          title="Rule JSON"
+                        />
+                      }
+                      darkMode={darkMode}
+                      defaultLeftWidth={50}
+                      minLeftWidth={30}
+                      maxLeftWidth={80}
+                    />
+                  </div>
+                ) : <Spin />
               }
             ]}
           />

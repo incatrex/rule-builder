@@ -1,148 +1,223 @@
-import React from 'react';
-import { Card, Space, Select, Button, Typography } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
-import ExpressionBuilder from './ExpressionBuilder';
+import React, { useState, useEffect } from 'react';
+import { Card, Select, Space, Typography, Input, Button } from 'antd';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import Expression from './Expression';
 
 const { Text } = Typography;
 
 /**
- * Condition Component - Represents a single rule in a condition group
+ * Condition Component
  * 
- * Structure: [Left Expression] [Operator] [Right Expression(s)] [Remove Button]
+ * Represents a single condition with left expression, operator, and right expression.
+ * Follows structure: <condition returnType="boolean">
+ *   <left>:<expression>
+ *   <operator>
+ *   <right>:<expression>
  * 
- * @param {Object} value - Condition data: { type: 'rule', id, left, operator, right }
- *                         For cardinality > 1, right is an array of expressions
- * @param {Function} onChange - Callback when condition changes
- * @param {Function} onRemove - Callback to remove this condition
- * @param {Object} config - Config object with operators, fields, and funcs
- * @param {boolean} darkMode - Whether dark mode is enabled
+ * Props:
+ * - value: Condition object { name, left, operator, right }
+ * - onChange: Callback when condition changes
+ * - config: Config with operators, fields, funcs
+ * - darkMode: Dark mode styling
+ * - onRemove: Callback to remove this condition
  */
-const Condition = ({ value, onChange, onRemove, config, darkMode = false }) => {
-  
-  // Get the current operator definition
-  const operatorDef = config?.operators?.[value.operator];
-  const operatorCardinality = operatorDef?.cardinality ?? 1;
-  
-  // Determine available operators (could filter by type in the future)
-  const availableOperators = config?.operators ? Object.keys(config.operators) : [];
-  
-  const handleOperatorChange = (newOperator) => {
-    const newOpDef = config.operators[newOperator];
-    const newCardinality = newOpDef?.cardinality ?? 1;
-    const newValue = { ...value, operator: newOperator };
+const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
+  const [conditionData, setConditionData] = useState(value || {
+    returnType: 'boolean',
+    name: 'New Condition',
+    left: { source: 'field', returnType: 'text', field: null },
+    operator: null,
+    right: { source: 'value', returnType: 'text', value: '' }
+  });
+  const [editingName, setEditingName] = useState(false);
+
+  useEffect(() => {
+    if (value) {
+      setConditionData(value);
+    }
+  }, [value]);
+
+  const handleChange = (updates) => {
+    const updated = { ...conditionData, ...updates };
+    setConditionData(updated);
+    onChange(updated);
+  };
+
+  // Get available operators based on left expression return type
+  const getAvailableOperators = () => {
+    if (!config?.operators) return [];
     
-    // If cardinality is 0 (like "is_empty"), remove right side
-    if (newCardinality === 0) {
-      delete newValue.right;
-    } else if (newCardinality === 1) {
-      // Single value - ensure right is not an array
-      if (!value.right || Array.isArray(value.right)) {
-        newValue.right = { 
-          type: 'value', 
-          valueType: 'text', 
-          value: '' 
-        };
-      }
-    } else if (newCardinality > 1) {
-      // Multiple values - ensure right is an array with correct length
-      if (!Array.isArray(value.right)) {
-        newValue.right = Array(newCardinality).fill(null).map(() => ({ 
-          type: 'value', 
-          valueType: 'text', 
-          value: '' 
-        }));
-      } else if (value.right.length !== newCardinality) {
-        // Adjust array length
-        const adjusted = [...value.right];
-        while (adjusted.length < newCardinality) {
-          adjusted.push({ type: 'value', valueType: 'text', value: '' });
-        }
-        newValue.right = adjusted.slice(0, newCardinality);
-      }
+    const leftType = conditionData.left?.returnType;
+    if (!leftType) return [];
+
+    return Object.keys(config.operators)
+      .filter(opKey => {
+        const op = config.operators[opKey];
+        // Filter operators that are applicable to the left type
+        return op.types?.includes(leftType);
+      })
+      .map(opKey => ({
+        value: opKey,
+        label: config.operators[opKey].label || opKey
+      }));
+  };
+
+  // Get operator definition
+  const getOperatorDef = (operatorKey) => {
+    if (!operatorKey || !config?.operators) return null;
+    return config.operators[operatorKey];
+  };
+
+  // Handle operator change and adjust right side based on cardinality
+  const handleOperatorChange = (operatorKey) => {
+    const operatorDef = getOperatorDef(operatorKey);
+    const cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
+    
+    let newRight;
+    if (cardinality === 0) {
+      // No right side value needed
+      newRight = null;
+    } else if (cardinality === 1) {
+      // Single right side value
+      newRight = { 
+        source: 'value', 
+        returnType: conditionData.left?.returnType || 'text', 
+        value: '' 
+      };
+    } else {
+      // Multiple right side values (array)
+      newRight = Array(cardinality).fill(null).map(() => ({
+        source: 'value',
+        returnType: conditionData.left?.returnType || 'text',
+        value: ''
+      }));
     }
     
-    onChange(newValue);
+    handleChange({ operator: operatorKey, right: newRight });
   };
-  
+
+  // Handle left expression change
+  const handleLeftChange = (newLeft) => {
+    // When left side changes type, update right side to match if operator exists
+    const operatorDef = getOperatorDef(conditionData.operator);
+    const cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
+    
+    let newRight = conditionData.right;
+    if (cardinality === 1 && newRight && newRight.returnType !== newLeft.returnType) {
+      newRight = { ...newRight, returnType: newLeft.returnType };
+    } else if (cardinality > 1 && Array.isArray(newRight)) {
+      newRight = newRight.map(r => ({ ...r, returnType: newLeft.returnType }));
+    }
+    
+    handleChange({ left: newLeft, right: newRight });
+  };
+
+  const availableOperators = getAvailableOperators();
+  const operatorDef = getOperatorDef(conditionData.operator);
+  const cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
+
   return (
-    <Card 
-      size="small" 
-      style={{ 
+    <Card
+      size="small"
+      style={{
         background: darkMode ? '#2a2a2a' : '#fafafa',
-        borderLeft: '3px solid #1890ff'
+        borderLeft: '3px solid #1890ff',
+        marginBottom: '8px'
       }}
+      title={
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space size="small">
+            {editingName ? (
+              <Input
+                size="small"
+                value={conditionData.name || ''}
+                onChange={(e) => handleChange({ name: e.target.value })}
+                onPressEnter={() => setEditingName(false)}
+                onBlur={() => setEditingName(false)}
+                autoFocus
+                style={{ 
+                  width: '200px',
+                  fontWeight: 'bold'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <>
+                <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
+                  {conditionData.name || 'Unnamed Condition'}
+                </Text>
+                <EditOutlined 
+                  style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
+                  onClick={() => setEditingName(true)}
+                />
+              </>
+            )}
+          </Space>
+          {onRemove && (
+            <Button
+              danger
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={onRemove}
+              title="Remove condition"
+            />
+          )}
+        </Space>
+      }
     >
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
         <div style={{ minWidth: '200px' }}>
-          <ExpressionBuilder
-            value={value.left || { type: 'value', valueType: 'text', value: '' }}
-            onChange={(left) => onChange({ ...value, left })}
+          <Expression
+            value={conditionData.left}
+            onChange={handleLeftChange}
             config={config}
             darkMode={darkMode}
           />
         </div>
-        
-        {/* Operator Selector */}
+
+        {/* Operator */}
         <Select
-          value={value.operator}
+          value={conditionData.operator}
           onChange={handleOperatorChange}
+          placeholder="Select operator"
           style={{ width: 140 }}
           size="small"
-        >
-          {availableOperators.map(opKey => {
-            const op = config.operators[opKey];
-            return (
-              <Select.Option key={opKey} value={opKey}>
-                {op.label || opKey}
-              </Select.Option>
-            );
-          })}
-        </Select>
-        
-        {/* Right Expression(s) - handle cardinality > 0 */}
-        {operatorCardinality === 1 && (
+          options={availableOperators}
+        />
+
+        {/* Right Expression(s) */}
+        {cardinality === 1 && (
           <div style={{ minWidth: '200px' }}>
-            <ExpressionBuilder
-              value={value.right || { type: 'value', valueType: 'text', value: '' }}
-              onChange={(right) => onChange({ ...value, right })}
+            <Expression
+              value={conditionData.right}
+              onChange={(newRight) => handleChange({ right: newRight })}
               config={config}
+              expectedType={conditionData.left?.returnType}
               darkMode={darkMode}
             />
           </div>
         )}
-        
+
         {/* Multiple Right Expressions for cardinality > 1 (e.g., between) */}
-        {operatorCardinality > 1 && (
-          <>
-            {Array.isArray(value.right) && value.right.map((rightValue, index) => (
-              <React.Fragment key={index}>
-                {index > 0 && <Text strong style={{ color: '#1890ff' }}>AND</Text>}
-                <div style={{ minWidth: '200px' }}>
-                  <ExpressionBuilder
-                    value={rightValue || { type: 'value', valueType: 'text', value: '' }}
-                    onChange={(newRightValue) => {
-                      const newRight = [...value.right];
-                      newRight[index] = newRightValue;
-                      onChange({ ...value, right: newRight });
-                    }}
-                    config={config}
-                    darkMode={darkMode}
-                  />
-                </div>
-              </React.Fragment>
-            ))}
-          </>
-        )}
-        
-        {/* Remove Button */}
-        <Button 
-          danger 
-          size="small" 
-          icon={<DeleteOutlined />}
-          onClick={onRemove}
-          title="Remove condition"
-        />
+        {cardinality > 1 && Array.isArray(conditionData.right) && conditionData.right.map((rightVal, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && <Text strong style={{ color: '#1890ff' }}>AND</Text>}
+            <div style={{ minWidth: '200px' }}>
+              <Expression
+                value={rightVal}
+                onChange={(newVal) => {
+                  const updatedRight = [...conditionData.right];
+                  updatedRight[index] = newVal;
+                  handleChange({ right: updatedRight });
+                }}
+                config={config}
+                expectedType={conditionData.left?.returnType}
+                darkMode={darkMode}
+              />
+            </div>
+          </React.Fragment>
+        ))}
       </Space>
     </Card>
   );

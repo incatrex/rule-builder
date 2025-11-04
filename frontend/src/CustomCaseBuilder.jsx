@@ -2,7 +2,7 @@ import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { Card, Collapse, Button, Input, Space, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import ExpressionBuilder from './ExpressionBuilder';
-import ConditionGroup from './ConditionGroup';
+import CustomConditionGroup from './CustomConditionGroup';
 
 const { Panel } = Collapse;
 const { Text } = Typography;
@@ -274,7 +274,7 @@ const CustomCaseBuilder = forwardRef(({ config, darkMode }, ref) => {
                   background: darkMode ? '#2a2a2a' : '#f9f9f9',
                   borderRadius: '4px'
                 }}>
-                  <ConditionGroup
+                  <CustomConditionGroup
                     value={clause.condition}
                     onChange={(condition) => handleConditionChange(index, condition)}
                     config={config}
