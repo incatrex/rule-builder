@@ -33,6 +33,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   const [editingElseResultName, setEditingElseResultName] = useState(false);
   const [activeKeys, setActiveKeys] = useState([]);
   const [elseExpanded, setElseExpanded] = useState(true); // UI state only
+  const [editingStates, setEditingStates] = useState({}); // Track editing state for each clause
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
@@ -51,9 +52,12 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
     const updated = { ...caseData, ...updates };
     setCaseData(updated);
     
-    // Remove UI-only properties before persisting
-    const { elseExpanded: _, ...persistedData } = updated;
-    onChange(persistedData);
+    // Remove UI-only properties but keep the internal structure intact for components
+    const { elseExpanded: _, ...cleanData } = updated;
+    
+    // Pass the data through without transformation for internal component use
+    // JSON transformation should only happen at final export stage
+    onChange(cleanData);
   };
 
   const addWhenClause = () => {
@@ -67,7 +71,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
         name: `Condition ${caseData.whenClauses.length + 1}`,
         conjunction: 'AND',
         not: false,
-        children: [
+        conditions: [
           // Auto-add an empty condition to the new group
           {
             type: 'condition',
@@ -85,9 +89,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
         returnType: 'text',
         value: ''
       },
-      resultName: `Result ${caseData.whenClauses.length + 1}`,
-      editingName: false,
-      editingResultName: false
+      resultName: `Result ${caseData.whenClauses.length + 1}`
     };
     handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });
     setActiveKeys([...activeKeys, String(caseData.whenClauses.length)]);
@@ -122,13 +124,13 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Space>
                     <Text strong>WHEN</Text>
-                    {clause.editingName ? (
+                    {editingStates[`${index}_name`] ? (
                       <Input
                         size="small"
                         value={clause.when?.name || `Condition ${index + 1}`}
                         onChange={(e) => updateWhenClause(index, { when: { ...clause.when, name: e.target.value } })}
-                        onPressEnter={() => updateWhenClause(index, { editingName: false })}
-                        onBlur={() => updateWhenClause(index, { editingName: false })}
+                        onPressEnter={() => setEditingStates(prev => ({ ...prev, [`${index}_name`]: false }))}
+                        onBlur={() => setEditingStates(prev => ({ ...prev, [`${index}_name`]: false }))}
                         autoFocus
                         style={{ width: '200px' }}
                         onClick={(e) => e.stopPropagation()}
@@ -140,7 +142,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                           style={{ fontSize: '12px', cursor: 'pointer' }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            updateWhenClause(index, { editingName: true });
+                            setEditingStates(prev => ({ ...prev, [`${index}_name`]: true }));
                           }}
                         />
                       </>
@@ -148,13 +150,13 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                     {!isExpanded && (
                       <>
                         <Text strong style={{ marginLeft: '16px' }}>THEN</Text>
-                        {clause.editingResultName ? (
+                        {editingStates[`${index}_result`] ? (
                           <Input
                             size="small"
                             value={clause.resultName || `Result ${index + 1}`}
                             onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
-                            onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
-                            onBlur={() => updateWhenClause(index, { editingResultName: false })}
+                            onPressEnter={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
+                            onBlur={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
                             autoFocus
                             style={{ width: '150px' }}
                             onClick={(e) => e.stopPropagation()}
@@ -166,7 +168,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                               style={{ fontSize: '12px', cursor: 'pointer' }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                updateWhenClause(index, { editingResultName: true });
+                                setEditingStates(prev => ({ ...prev, [`${index}_result`]: true }));
                               }}
                             />
                           </>
@@ -205,13 +207,13 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                 <div>
                   <Space style={{ marginBottom: '8px' }}>
                     <Text strong>THEN</Text>
-                    {clause.editingResultName ? (
+                    {editingStates[`${index}_result`] ? (
                       <Input
                         size="small"
                         value={clause.resultName || `Result ${index + 1}`}
                         onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
-                        onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
-                        onBlur={() => updateWhenClause(index, { editingResultName: false })}
+                        onPressEnter={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
+                        onBlur={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
                         autoFocus
                         style={{ width: '150px' }}
                       />
@@ -220,7 +222,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                         <Text code>{clause.resultName || `Result ${index + 1}`}</Text>
                         <EditOutlined 
                           style={{ fontSize: '12px', cursor: 'pointer' }}
-                          onClick={() => updateWhenClause(index, { editingResultName: true })}
+                          onClick={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: true }))}
                         />
                       </>
                     )}

@@ -212,6 +212,8 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
             <span>{option.data.label}</span>
           </Space>
         )}
+        onClick={(e) => e.stopPropagation()}
+        onFocus={(e) => e.stopPropagation()}
       />
     );
   };
@@ -223,7 +225,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
       case 'number':
         return (
           <InputNumber
-            value={expressionData.value}
+            value={expressionData.value || 0}
             onChange={(val) => handleValueChange({ value: val })}
             style={{ width: '100%' }}
             placeholder="Enter number"
@@ -248,7 +250,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
       default:
         return (
           <Input
-            value={expressionData.value}
+            value={expressionData.value || ''}
             onChange={(e) => handleValueChange({ value: e.target.value })}
             placeholder="Enter text"
             style={{ width: '100%' }}
@@ -262,7 +264,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
     
     return (
       <TreeSelect
-        value={expressionData.field}
+        value={expressionData.field || null}
         onChange={(fieldPath) => {
           const fieldDef = getFieldDef(fieldPath);
           handleValueChange({ 
@@ -277,13 +279,15 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
         treeIcon={false}
         showSearch
         treeDefaultExpandAll
+        onClick={(e) => e.stopPropagation()}
+        onFocus={(e) => e.stopPropagation()}
       />
     );
   };
 
   const renderFunctionBuilder = () => {
     const funcTreeData = buildFuncTreeData(config?.funcs || {});
-    const funcDef = getFuncDef(expressionData.name);
+    const funcDef = getFuncDef(expressionData.function?.name);
     
     return (
       <Card
@@ -296,7 +300,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
         <Space direction="vertical" style={{ width: '100%' }} size="small">
           {/* Function selector */}
           <TreeSelect
-            value={expressionData.name}
+            value={expressionData.function?.name || null}
             onChange={(funcPath) => {
               const funcDef = getFuncDef(funcPath);
               let initialArgs = [];
@@ -327,9 +331,11 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
               }
               
               handleValueChange({ 
-                name: funcPath,
                 returnType: funcDef?.returnType || expectedType || 'text',
-                args: initialArgs
+                function: {
+                  name: funcPath,
+                  args: initialArgs
+                }
               });
             }}
             treeData={funcTreeData}
@@ -339,10 +345,12 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
             treeDefaultExpandAll
             dropdownClassName="compact-tree-select"
             treeIcon={false}
+            onClick={(e) => e.stopPropagation()}
+            onFocus={(e) => e.stopPropagation()}
           />
 
           {/* Function arguments */}
-          {funcDef && expressionData.args && expressionData.args.length > 0 && (
+          {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && (
             <Card
               size="small"
               title={
@@ -351,7 +359,10 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                     type="text"
                     size="small"
                     icon={isExpanded ? <DownOutlined /> : <RightOutlined />}
-                    onClick={() => setIsExpanded(!isExpanded)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsExpanded(!isExpanded);
+                    }}
                     style={{ padding: 0, color: darkMode ? '#e0e0e0' : 'inherit' }}
                   />
                   <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
@@ -366,7 +377,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
             >
               {isExpanded && (
                 <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                  {expressionData.args.map((arg, index) => {
+                  {expressionData.function.args.map((arg, index) => {
                     const isDynamicArgs = funcDef?.dynamicArgs;
                     const argDef = isDynamicArgs ? null : funcDef.args[arg.name];
                     const expectedArgType = isDynamicArgs ? funcDef.dynamicArgs.argType : argDef?.type;
@@ -386,16 +397,17 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                                 </Tag>
                               )}
                             </Text>
-                            {isDynamicArgs && expressionData.args.length > (funcDef.dynamicArgs.minArgs || 2) && (
+                            {isDynamicArgs && expressionData.function.args.length > (funcDef.dynamicArgs.minArgs || 2) && (
                               <Button
                                 type="text"
                                 size="small"
                                 danger
                                 icon={<CloseOutlined />}
-                                onClick={() => {
-                                  const updatedArgs = [...expressionData.args];
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const updatedArgs = [...expressionData.function.args];
                                   updatedArgs.splice(index, 1);
-                                  handleValueChange({ args: updatedArgs });
+                                  handleValueChange({ function: { ...expressionData.function, args: updatedArgs } });
                                 }}
                                 title="Remove argument"
                               />
@@ -404,9 +416,9 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                           <Expression
                             value={arg.value}
                             onChange={(newValue) => {
-                              const updatedArgs = [...expressionData.args];
+                              const updatedArgs = [...expressionData.function.args];
                               updatedArgs[index] = { ...arg, value: newValue };
-                              handleValueChange({ args: updatedArgs });
+                              handleValueChange({ function: { ...expressionData.function, args: updatedArgs } });
                             }}
                             config={config}
                             expectedType={expectedArgType}
@@ -419,13 +431,14 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                   })}
                   {/* Add argument button for dynamic args */}
                   {funcDef?.dynamicArgs && (!funcDef.dynamicArgs.maxArgs || 
-                    expressionData.args.length < funcDef.dynamicArgs.maxArgs) && (
+                    expressionData.function.args.length < funcDef.dynamicArgs.maxArgs) && (
                     <Button
                       type="dashed"
                       size="small"
                       icon={<PlusOutlined />}
-                      onClick={() => {
-                        const newArgs = [...expressionData.args];
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newArgs = [...expressionData.function.args];
                         newArgs.push({
                           name: `arg${newArgs.length + 1}`,
                           value: { 
@@ -434,7 +447,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                             value: funcDef.dynamicArgs.defaultValue ?? ''
                           }
                         });
-                        handleValueChange({ args: newArgs });
+                        handleValueChange({ function: { ...expressionData.function, args: newArgs } });
                       }}
                       style={{ width: '100%' }}
                     >

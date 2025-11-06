@@ -176,7 +176,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
               name: 'Condition 1',
               conjunction: 'AND',
               not: false,
-              children: [
+              conditions: [
                 // Auto-add an empty condition to the new group
                 {
                   type: 'condition',
@@ -194,9 +194,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
               returnType: 'text',
               value: ''
             },
-            resultName: 'Result 1',
-            editingName: false,
-            editingResultName: false
+            resultName: 'Result 1'
           }
         ],
         elseClause: { source: 'value', returnType: 'text', value: '' },
@@ -209,7 +207,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
         name: 'Main Condition',
         conjunction: 'AND',
         not: false,
-        children: [
+        conditions: [
           // Auto-add an empty condition
           {
             type: 'condition',
@@ -241,10 +239,54 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
     initializeContent(newStructure);
   };
 
+  // Clean JSON transformation for final output
+  const cleanForOutput = (data) => {
+    if (!data || typeof data !== 'object') return data;
+    
+    // Handle arrays
+    if (Array.isArray(data)) {
+      return data.map(cleanForOutput);
+    }
+    
+    const cleaned = { ...data };
+    
+    // Remove type fields used for component rendering
+    delete cleaned.type;
+    
+    // Transform THEN/ELSE clauses to {name, value} structure
+    if (cleaned.then && typeof cleaned.then === 'object' && !cleaned.then.name) {
+      cleaned.then = {
+        name: 'Result 1', // or extract from the expression if available
+        value: cleaned.then
+      };
+    }
+    
+    if (cleaned.else && typeof cleaned.else === 'object' && !cleaned.else.name) {
+      cleaned.else = {
+        name: 'Result 2', // or extract from the expression if available  
+        value: cleaned.else
+      };
+    }
+    
+    // Rename 'children' to 'conditions' for ConditionGroups
+    if (cleaned.children && Array.isArray(cleaned.children)) {
+      cleaned.conditions = cleaned.children.map(cleanForOutput);
+      delete cleaned.children;
+    }
+    
+    // Recursively clean nested objects
+    Object.keys(cleaned).forEach(key => {
+      if (typeof cleaned[key] === 'object') {
+        cleaned[key] = cleanForOutput(cleaned[key]);
+      }
+    });
+    
+    return cleaned;
+  };
+
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
     getRuleOutput: () => {
-      // Use 'content' key for consistency with editing
       return {
         structure: ruleData.structure,
         returnType: ruleData.returnType,
@@ -252,7 +294,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
         uuId: ruleData.uuId,
         version: ruleData.version,
         metadata: ruleData.metadata,
-        content: ruleData.content
+        content: cleanForOutput(ruleData.content)
       };
     },
     loadRuleData: (data) => {

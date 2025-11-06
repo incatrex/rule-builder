@@ -81,7 +81,7 @@ const DraggableItem = ({ id, children, darkMode }) => {
  *   [<condition> | <conditionGroup>]
  * 
  * Props:
- * - value: ConditionGroup object { name, returnType, conjunction, children }
+ * - value: ConditionGroup object { name, returnType, conjunction, conditions }
  * - onChange: Callback when group changes
  * - config: Config with operators, fields, funcs
  * - darkMode: Dark mode styling
@@ -94,8 +94,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     returnType: 'boolean',
     name: 'Main Condition',
     conjunction: 'AND',
-    not: false,
-    children: []
+    conditions: []
   });
   const [editingName, setEditingName] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // UI state only
@@ -126,12 +125,13 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = (groupData.children || []).findIndex(child => child.id === active.id);
-      const newIndex = (groupData.children || []).findIndex(child => child.id === over.id);
+      const conditions = groupData.conditions || [];
+      const oldIndex = conditions.findIndex(child => child.id === active.id);
+      const newIndex = conditions.findIndex(child => child.id === over.id);
       
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newChildren = arrayMove(groupData.children, oldIndex, newIndex);
-        handleChange({ children: newChildren });
+        const newConditions = arrayMove(conditions, oldIndex, newIndex);
+        handleChange({ conditions: newConditions });
       }
     }
   };
@@ -140,33 +140,35 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     const updated = { ...groupData, ...updates };
     setGroupData(updated);
     
-    // Remove UI-only properties before persisting
-    const { isExpanded: _, ...persistedData } = updated;
-    onChange(persistedData);
+    // Keep the structure intact for internal component communication
+    // Only clean at the final JSON output stage
+    onChange(updated);
   };
 
   const addCondition = () => {
+    const conditions = groupData.conditions || [];
     const newCondition = {
       type: 'condition',
       id: generateId(),
       returnType: 'boolean',
-      name: `Condition ${groupData.children.length + 1}`,
+      name: `Condition ${conditions.length + 1}`,
       left: { source: 'field', returnType: 'text', field: null },
       operator: null,
       right: { source: 'value', returnType: 'text', value: '' }
     };
-    handleChange({ children: [...groupData.children, newCondition] });
+    handleChange({ conditions: [...conditions, newCondition] });
   };
 
   const addConditionGroup = () => {
+    const conditions = groupData.conditions || [];
     const newGroup = {
       type: 'conditionGroup',
       id: generateId(),
       returnType: 'boolean',
-      name: `Group ${depth + 2}.${groupData.children.filter(c => c.type === 'conditionGroup').length + 1}`,
+      name: `Group ${depth + 2}.${conditions.filter(c => c.type === 'conditionGroup').length + 1}`,
       conjunction: 'AND',
       not: false,
-      children: [
+      conditions: [
         // Auto-add an empty condition to the new group
         {
           type: 'condition',
@@ -179,18 +181,20 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
         }
       ]
     };
-    handleChange({ children: [...groupData.children, newGroup] });
+    handleChange({ conditions: [...conditions, newGroup] });
   };
 
   const removeChild = (index) => {
-    const updatedChildren = groupData.children.filter((_, i) => i !== index);
-    handleChange({ children: updatedChildren });
+    const conditions = groupData.conditions || [];
+    const updatedConditions = conditions.filter((_, i) => i !== index);
+    handleChange({ conditions: updatedConditions });
   };
 
   const updateChild = (index, newValue) => {
-    const updatedChildren = [...groupData.children];
-    updatedChildren[index] = newValue;
-    handleChange({ children: updatedChildren });
+    const conditions = groupData.conditions || [];
+    const updatedConditions = [...conditions];
+    updatedConditions[index] = newValue;
+    handleChange({ conditions: updatedConditions });
   };
 
   // Background colors for different depths
@@ -284,19 +288,19 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
             />
           </Space>
 
-          {/* Children - with drag-and-drop */}
-          {groupData.children && groupData.children.length > 0 ? (
+          {/* Conditions - with drag-and-drop */}
+          {groupData.conditions && groupData.conditions.length > 0 ? (
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={(groupData.children || []).map(c => c.id || c.type + Math.random())}
+                items={(groupData.conditions || []).map(c => c.id || c.type + Math.random())}
                 strategy={verticalListSortingStrategy}
               >
                 <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                  {groupData.children.map((child, index) => {
+                  {(groupData.conditions || []).map((child, index) => {
                     // Ensure child has an ID
                     if (!child.id) {
                       child.id = generateId();
@@ -359,7 +363,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
           )}
 
           {/* Add Buttons */}
-          <Space wrap style={{ marginTop: groupData.children && groupData.children.length > 0 ? '8px' : '0' }}>
+          <Space wrap style={{ marginTop: groupData.conditions && groupData.conditions.length > 0 ? '8px' : '0' }}>
             <Button
               type="primary"
               size="small"

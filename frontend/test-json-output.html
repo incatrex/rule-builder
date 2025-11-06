@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test JSON Output</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .json-output { background: #f5f5f5; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
+        button { padding: 10px 20px; margin: 10px 0; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>JSON Schema Test</h1>
+    <p>This page tests if our naming conventions are consistent between components and JSON output.</p>
+    
+    <button onclick="testConditionGroupStructure()">Test ConditionGroup Structure</button>
+    <button onclick="testExpressionStructure()">Test Expression Structure</button>
+    <button onclick="testCaseStructure()">Test Case Structure</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function testConditionGroupStructure() {
+            // Simulate a ConditionGroup with conditions
+            const conditionGroup = {
+                name: "Test Group",
+                conjunction: "AND",
+                not: false,
+                conditions: [
+                    {
+                        name: "Condition 1", 
+                        left: { source: "field", field: "age" },
+                        operator: "greater_than",
+                        right: { source: "value", value: 18 }
+                    },
+                    {
+                        name: "Nested Group",
+                        conjunction: "OR",
+                        not: false,
+                        conditions: [
+                            {
+                                name: "Nested Condition",
+                                left: { source: "field", field: "status" },
+                                operator: "equals", 
+                                right: { source: "value", value: "active" }
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            displayResult('ConditionGroup Structure', conditionGroup);
+        }
+        
+        function testExpressionStructure() {
+            // Test function expression with clean structure
+            const functionExpression = {
+                source: "function",
+                returnType: "number",
+                function: {
+                    name: "calculateAge",
+                    args: [
+                        { name: "birthDate", value: { source: "field", field: "birth_date" } },
+                        { name: "currentDate", value: { source: "value", value: "2024-01-01" } }
+                    ]
+                }
+            };
+            
+            displayResult('Function Expression Structure', functionExpression);
+        }
+        
+        function testCaseStructure() {
+            // Test Case with WhenClause structure
+            const caseStatement = {
+                name: "Risk Level",
+                returnType: "text",
+                whenClauses: [
+                    {
+                        when: {
+                            name: "High Risk Condition",
+                            conjunction: "AND",
+                            conditions: [
+                                {
+                                    name: "Age Check",
+                                    left: { source: "field", field: "age" },
+                                    operator: "greater_than",
+                                    right: { source: "value", value: 65 }
+                                }
+                            ]
+                        },
+                        then: {
+                            name: "High Risk Result",
+                            value: { source: "value", value: "HIGH" }
+                        }
+                    }
+                ],
+                else: {
+                    name: "Default Risk",
+                    value: { source: "value", value: "LOW" }
+                }
+            };
+            
+            displayResult('Case Statement Structure', caseStatement);
+        }
+        
+        function displayResult(title, structure) {
+            const results = document.getElementById('results');
+            results.innerHTML += `
+                <h3>${title}</h3>
+                <div class="json-output">${JSON.stringify(structure, null, 2)}</div>
+            `;
+        }
+    </script>
+</body>
+</html>
