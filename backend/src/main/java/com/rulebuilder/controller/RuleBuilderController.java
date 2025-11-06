@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3003"})
+@CrossOrigin(origins = "*")
 public class RuleBuilderController {
 
     @Autowired
@@ -29,6 +29,16 @@ public class RuleBuilderController {
         try {
             JsonNode config = ruleBuilderService.getConfig();
             return ResponseEntity.ok(config);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/ruleTypes")
+    public ResponseEntity<JsonNode> getRuleTypes() {
+        try {
+            JsonNode ruleTypes = ruleBuilderService.getRuleTypes();
+            return ResponseEntity.ok(ruleTypes);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

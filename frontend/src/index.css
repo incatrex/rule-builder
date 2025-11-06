@@ -59,3 +59,37 @@ code {
   margin-right: 2px !important;
 }
 
+/* Operator dropdown styling */
+.operator-select .ant-select-selector {
+  background-color: #f0f8ff !important;
+  border-color: #91caff !important;
+  box-shadow: 0 0 0 2px rgba(145, 202, 255, 0.1) !important;
+}
+
+.operator-select:hover .ant-select-selector {
+  border-color: #69b7ff !important;
+  box-shadow: 0 0 0 2px rgba(105, 183, 255, 0.2) !important;
+}
+
+.operator-select.ant-select-focused .ant-select-selector {
+  border-color: #40a9ff !important;
+  box-shadow: 0 0 0 2px rgba(64, 169, 255, 0.2) !important;
+}
+
+/* Dark mode operator dropdown styling */
+.dark-mode .operator-select .ant-select-selector {
+  background-color: #2d2d2d !important;
+  border-color: #505050 !important;
+  box-shadow: 0 0 0 2px rgba(80, 80, 80, 0.1) !important;
+}
+
+.dark-mode .operator-select:hover .ant-select-selector {
+  border-color: #707070 !important;
+  box-shadow: 0 0 0 2px rgba(112, 112, 112, 0.2) !important;
+}
+
+.dark-mode .operator-select.ant-select-focused .ant-select-selector {
+  border-color: #909090 !important;
+  box-shadow: 0 0 0 2px rgba(144, 144, 144, 0.2) !important;
+}
+
