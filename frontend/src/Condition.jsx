@@ -48,18 +48,39 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
     if (!config?.operators) return [];
     
     const leftType = conditionData.left?.returnType;
-    if (!leftType) return [];
-
-    return Object.keys(config.operators)
-      .filter(opKey => {
-        const op = config.operators[opKey];
-        // Filter operators that are applicable to the left type
-        return op.types?.includes(leftType);
-      })
-      .map(opKey => ({
+    if (!leftType) {
+      // If no left type, return all operators
+      return Object.keys(config.operators).map(opKey => ({
         value: opKey,
         label: config.operators[opKey].label || opKey
       }));
+    }
+
+    // Check if config has types mapping (from backend config)
+    if (config.types && config.types[leftType] && config.types[leftType].widgets) {
+      const widgets = config.types[leftType].widgets;
+      const availableOps = new Set();
+      
+      // Collect operators from all widgets for this type
+      Object.values(widgets).forEach(widget => {
+        if (widget.operators) {
+          widget.operators.forEach(op => availableOps.add(op));
+        }
+      });
+      
+      return Array.from(availableOps)
+        .filter(opKey => config.operators[opKey]) // Make sure operator exists
+        .map(opKey => ({
+          value: opKey,
+          label: config.operators[opKey].label || opKey
+        }));
+    }
+
+    // Fallback: return all operators if no type mapping
+    return Object.keys(config.operators).map(opKey => ({
+      value: opKey,
+      label: config.operators[opKey].label || opKey
+    }));
   };
 
   // Get operator definition

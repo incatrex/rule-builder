@@ -214,6 +214,82 @@
         }
       }
     },
+    "MATH.ADD": {
+      "label": "MATH.ADD",
+      "returnType": "number",
+      "args": {
+        "num1": {
+          "label": "Number 1",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        },
+        "num2": {
+          "label": "Number 2",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "MATH.SUBTRACT": {
+      "label": "MATH.SUBTRACT",
+      "returnType": "number",
+      "args": {
+        "num1": {
+          "label": "Number 1",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        },
+        "num2": {
+          "label": "Number 2",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "MATH.MULTIPLY": {
+      "label": "MATH.MULTIPLY",
+      "returnType": "number",
+      "args": {
+        "num1": {
+          "label": "Number 1",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        },
+        "num2": {
+          "label": "Number 2",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "MATH.DIVIDE": {
+      "label": "MATH.DIVIDE",
+      "returnType": "number",
+      "args": {
+        "dividend": {
+          "label": "Dividend",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        },
+        "divisor": {
+          "label": "Divisor",
+          "type": "number",
+          "valueSources": ["value", "field", "func"]
+        }
+      }
+    },
+    "MATH.SUM": {
+      "label": "MATH.SUM",
+      "returnType": "number",
+      "args": {
+        "numbers": {
+          "label": "Numbers",
+          "type": "number",
+          "valueSources": ["value", "field", "func"],
+          "isVariadic": true
+        }
+      }
+    },
     "MATH.ROUND": {
       "label": "MATH.ROUND",
       "returnType": "number",

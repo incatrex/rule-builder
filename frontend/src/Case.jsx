@@ -28,7 +28,8 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
     elseClause: { source: 'value', returnType: 'text', value: '' },
-    elseResultName: 'Default'
+    elseResultName: 'Default',
+    elseExpanded: true
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
   const [activeKeys, setActiveKeys] = useState([]);
@@ -36,8 +37,19 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   useEffect(() => {
     if (value) {
       setCaseData(value);
+      // Expand all WHEN clauses when new data is loaded
+      const keys = value.whenClauses ? value.whenClauses.map((_, index) => String(index)) : [];
+      setActiveKeys(keys);
     }
   }, [value]);
+
+  // Initialize activeKeys for existing whenClauses when component mounts
+  useEffect(() => {
+    if (caseData.whenClauses && caseData.whenClauses.length > 0 && activeKeys.length === 0) {
+      const keys = caseData.whenClauses.map((_, index) => String(index));
+      setActiveKeys(keys);
+    }
+  }, [caseData.whenClauses, activeKeys.length]);
 
   const handleChange = (updates) => {
     const updated = { ...caseData, ...updates };
@@ -46,31 +58,38 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   };
 
   const addWhenClause = () => {
+    const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     const newWhen = {
       when: {
         type: 'conditionGroup',
+        id: generateId(),
         returnType: 'boolean',
         name: `Condition ${caseData.whenClauses.length + 1}`,
         conjunction: 'AND',
+        not: false,
         children: [
           // Auto-add an empty condition to the new group
           {
             type: 'condition',
-            id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: generateId(),
             returnType: 'boolean',
             name: 'Condition 1',
             left: { source: 'field', returnType: 'text', field: null },
             operator: null,
             right: { source: 'value', returnType: 'text', value: '' }
           }
-        ]
+        ],
+        isExpanded: true
       },
       then: {
         source: 'value',
         returnType: 'text',
         value: ''
       },
-      resultName: `Result ${caseData.whenClauses.length + 1}`
+      resultName: `Result ${caseData.whenClauses.length + 1}`,
+      editingName: false,
+      editingResultName: false
     };
     handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });
     setActiveKeys([...activeKeys, String(caseData.whenClauses.length)]);
@@ -88,211 +107,201 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   };
 
   return (
-    <Card
+    <Card 
+      title="CASE Statement Builder"
       style={{
         background: darkMode ? '#1f1f1f' : '#ffffff',
         border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
       }}
     >
       <Space direction="vertical" style={{ width: '100%' }} size="large">
-        {/* WHEN/THEN Clauses */}
-        <div>
-          <Text 
-            strong 
-            style={{ 
-              display: 'block', 
-              marginBottom: '16px',
-              fontSize: '16px',
-              color: darkMode ? '#e0e0e0' : 'inherit'
-            }}
-          >
-            WHEN/THEN Clauses:
-          </Text>
-          
-          {caseData.whenClauses && caseData.whenClauses.length > 0 ? (
-            <Collapse
-              activeKey={activeKeys}
-              onChange={setActiveKeys}
-              style={{ marginBottom: '16px' }}
-            >
-              {caseData.whenClauses.map((clause, index) => {
-                const isExpanded = activeKeys.includes(String(index));
-                
-                return (
-                  <Panel
-                    header={
-                      <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                        <Space size="small">
-                          <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>WHEN</Text>
-                          <Text code>{clause.when?.name || `Condition ${index + 1}`}</Text>
-                          {!isExpanded && (
-                            <>
-                              <Text strong style={{ marginLeft: '16px', color: darkMode ? '#e0e0e0' : 'inherit' }}>THEN</Text>
-                              {clause.editingResultName ? (
-                                <Input
-                                  size="small"
-                                  value={clause.resultName || `Result ${index + 1}`}
-                                  onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
-                                  onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
-                                  onBlur={() => updateWhenClause(index, { editingResultName: false })}
-                                  autoFocus
-                                  style={{ width: '150px' }}
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              ) : (
-                                <>
-                                  <Text code>{clause.resultName || `Result ${index + 1}`}</Text>
-                                  <EditOutlined 
-                                    style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      updateWhenClause(index, { editingResultName: true });
-                                    }}
-                                  />
-                                </>
-                              )}
-                            </>
-                          )}
-                        </Space>
-                      </Space>
-                    }
-                    key={String(index)}
-                    style={{
-                      background: darkMode ? '#2a2a2a' : '#fafafa',
-                      marginBottom: '8px'
-                    }}
-                    extra={
-                      <DeleteOutlined
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeWhenClause(index);
-                        }}
-                        style={{ color: 'red' }}
+        {/* WHEN Clauses */}
+        <Collapse 
+          activeKey={activeKeys} 
+          onChange={setActiveKeys}
+          style={{ marginBottom: '16px' }}
+        >
+          {caseData.whenClauses.map((clause, index) => {
+            const isExpanded = activeKeys.includes(String(index));
+            
+            return (
+            <Panel
+              key={String(index)}
+              header={
+                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                  <Space>
+                    <Text strong>WHEN</Text>
+                    {clause.editingName ? (
+                      <Input
+                        size="small"
+                        value={clause.when?.name || `Condition ${index + 1}`}
+                        onChange={(e) => updateWhenClause(index, { when: { ...clause.when, name: e.target.value } })}
+                        onPressEnter={() => updateWhenClause(index, { editingName: false })}
+                        onBlur={() => updateWhenClause(index, { editingName: false })}
+                        autoFocus
+                        style={{ width: '200px' }}
+                        onClick={(e) => e.stopPropagation()}
                       />
-                    }
-                  >
-                    <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                      {/* WHEN Condition */}
-                      <div>
-                        <Text 
-                          strong 
-                          style={{ 
-                            display: 'block', 
-                            marginBottom: '8px',
-                            color: darkMode ? '#e0e0e0' : 'inherit'
+                    ) : (
+                      <>
+                        <Text code>{clause.when?.name || `Condition ${index + 1}`}</Text>
+                        <EditOutlined 
+                          style={{ fontSize: '12px', cursor: 'pointer' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateWhenClause(index, { editingName: true });
                           }}
-                        >
-                          WHEN (Condition):
-                        </Text>
-                        <ConditionGroup
-                          value={clause.when}
-                          onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
-                          config={config}
-                          darkMode={darkMode}
                         />
-                      </div>
-
-                      {/* THEN Result */}
-                      <div>
-                        <Space style={{ marginBottom: '8px' }}>
-                          <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>THEN</Text>
-                          {clause.editingResultName ? (
-                            <Input
-                              size="small"
-                              value={clause.resultName || `Result ${index + 1}`}
-                              onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
-                              onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
-                              onBlur={() => updateWhenClause(index, { editingResultName: false })}
-                              autoFocus
-                              style={{ width: '150px' }}
+                      </>
+                    )}
+                    {!isExpanded && (
+                      <>
+                        <Text strong style={{ marginLeft: '16px' }}>THEN</Text>
+                        {clause.editingResultName ? (
+                          <Input
+                            size="small"
+                            value={clause.resultName || `Result ${index + 1}`}
+                            onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
+                            onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
+                            onBlur={() => updateWhenClause(index, { editingResultName: false })}
+                            autoFocus
+                            style={{ width: '150px' }}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <>
+                            <Text code>{clause.resultName || `Result ${index + 1}`}</Text>
+                            <EditOutlined 
+                              style={{ fontSize: '12px', cursor: 'pointer' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateWhenClause(index, { editingResultName: true });
+                              }}
                             />
-                          ) : (
-                            <>
-                              <Text code>{clause.resultName || `Result ${index + 1}`}</Text>
-                              <EditOutlined 
-                                style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
-                                onClick={() => updateWhenClause(index, { editingResultName: true })}
-                              />
-                            </>
-                          )}
-                          <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>:</Text>
-                        </Space>
-                        <Expression
-                          value={clause.then}
-                          onChange={(newThen) => updateWhenClause(index, { then: newThen })}
-                          config={config}
-                          darkMode={darkMode}
-                        />
-                      </div>
-                    </Space>
-                  </Panel>
-                );
-              })}
-            </Collapse>
-          ) : (
-            <Text 
-              type="secondary" 
-              style={{ 
-                display: 'block', 
-                textAlign: 'center',
-                padding: '16px',
-                color: darkMode ? '#888888' : '#999999'
-              }}
+                          </>
+                        )}
+                      </>
+                    )}
+                  </Space>
+                </Space>
+              }
+              extra={
+                <DeleteOutlined
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeWhenClause(index);
+                  }}
+                  style={{ color: 'red' }}
+                />
+              }
             >
-              No WHEN/THEN clauses yet. Add one below.
-            </Text>
-          )}
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                {/* Condition Group */}
+                <div style={{ 
+                  padding: '16px', 
+                  background: darkMode ? '#2a2a2a' : '#f9f9f9',
+                  borderRadius: '4px'
+                }}>
+                  <ConditionGroup
+                    value={clause.when}
+                    onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
+                    config={config}
+                    darkMode={darkMode}
+                  />
+                </div>
 
-          <Button
-            type="dashed"
-            icon={<PlusOutlined />}
-            onClick={addWhenClause}
-            block
-          >
-            Add WHEN/THEN Clause
-          </Button>
-        </div>
+                {/* THEN Result */}
+                <div>
+                  <Space style={{ marginBottom: '8px' }}>
+                    <Text strong>THEN</Text>
+                    {clause.editingResultName ? (
+                      <Input
+                        size="small"
+                        value={clause.resultName || `Result ${index + 1}`}
+                        onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
+                        onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
+                        onBlur={() => updateWhenClause(index, { editingResultName: false })}
+                        autoFocus
+                        style={{ width: '150px' }}
+                      />
+                    ) : (
+                      <>
+                        <Text code>{clause.resultName || `Result ${index + 1}`}</Text>
+                        <EditOutlined 
+                          style={{ fontSize: '12px', cursor: 'pointer' }}
+                          onClick={() => updateWhenClause(index, { editingResultName: true })}
+                        />
+                      </>
+                    )}
+                    <Text strong>:</Text>
+                  </Space>
+                  <Expression
+                    value={clause.then}
+                    onChange={(newThen) => updateWhenClause(index, { then: newThen })}
+                    config={config}
+                    darkMode={darkMode}
+                  />
+                </div>
+              </Space>
+            </Panel>
+            );
+          })}
+        </Collapse>
+
+        {/* Add WHEN Button */}
+        <Button 
+          type="dashed" 
+          onClick={addWhenClause} 
+          icon={<PlusOutlined />}
+          block
+        >
+          Add WHEN Clause
+        </Button>
 
         {/* ELSE Clause */}
-        <div>
-          <Space style={{ marginBottom: '8px' }}>
-            <Text 
-              strong 
-              style={{ 
-                fontSize: '16px',
-                color: darkMode ? '#e0e0e0' : 'inherit'
-              }}
-            >
-              ELSE
-            </Text>
-            {editingElseResultName ? (
-              <Input
-                size="small"
-                value={caseData.elseResultName || 'Default'}
-                onChange={(e) => handleChange({ elseResultName: e.target.value })}
-                onPressEnter={() => setEditingElseResultName(false)}
-                onBlur={() => setEditingElseResultName(false)}
-                autoFocus
-                style={{ width: '150px' }}
-              />
-            ) : (
-              <>
-                <Text code>{caseData.elseResultName || 'Default'}</Text>
-                <EditOutlined 
-                  style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
-                  onClick={() => setEditingElseResultName(true)}
-                />
-              </>
-            )}
-            <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>:</Text>
-          </Space>
-          <Expression
-            value={caseData.elseClause}
-            onChange={(newElse) => handleChange({ elseClause: newElse })}
-            config={config}
-            darkMode={darkMode}
-          />
-        </div>
+        <Collapse 
+          activeKey={caseData.elseExpanded ? ['else'] : []} 
+          onChange={(keys) => handleChange({ elseExpanded: keys.includes('else') })}
+        >
+          <Panel
+            key="else"
+            header={
+              <Space>
+                <Text strong>ELSE</Text>
+                {editingElseResultName ? (
+                  <Input
+                    size="small"
+                    value={caseData.elseResultName || 'Default'}
+                    onChange={(e) => handleChange({ elseResultName: e.target.value })}
+                    onPressEnter={() => setEditingElseResultName(false)}
+                    onBlur={() => setEditingElseResultName(false)}
+                    autoFocus
+                    style={{ width: '150px' }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <>
+                    <Text code>{caseData.elseResultName || 'Default'}</Text>
+                    <EditOutlined 
+                      style={{ fontSize: '12px', cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingElseResultName(true);
+                      }}
+                    />
+                  </>
+                )}
+              </Space>
+            }
+          >
+            <Expression
+              value={caseData.elseClause}
+              onChange={(newElse) => handleChange({ elseClause: newElse })}
+              config={config}
+              darkMode={darkMode}
+            />
+          </Panel>
+        </Collapse>
       </Space>
     </Card>
   );

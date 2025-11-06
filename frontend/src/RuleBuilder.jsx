@@ -73,10 +73,46 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
     let content = null;
     
     if (structure === 'case') {
+      const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       content = {
-        whenClauses: [],
+        whenClauses: [
+          // Start with one default WHEN clause like CustomCaseBuilder
+          {
+            when: {
+              type: 'conditionGroup',
+              id: generateId(),
+              returnType: 'boolean',
+              name: 'Condition 1',
+              conjunction: 'AND',
+              not: false,
+              children: [
+                // Auto-add an empty condition to the new group
+                {
+                  type: 'condition',
+                  id: generateId(),
+                  returnType: 'boolean',
+                  name: 'Condition 1',
+                  left: { source: 'field', returnType: 'text', field: null },
+                  operator: null,
+                  right: { source: 'value', returnType: 'text', value: '' }
+                }
+              ],
+              isExpanded: true
+            },
+            then: {
+              source: 'value',
+              returnType: 'text',
+              value: ''
+            },
+            resultName: 'Result 1',
+            editingName: false,
+            editingResultName: false
+          }
+        ],
         elseClause: { source: 'value', returnType: 'text', value: '' },
-        elseResultName: 'Default'
+        elseResultName: 'Default',
+        elseExpanded: true
       };
     } else if (structure === 'condition') {
       content = {

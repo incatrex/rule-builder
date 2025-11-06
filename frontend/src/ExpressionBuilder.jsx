@@ -348,6 +348,8 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
           treeNode.title?.toLowerCase().includes(input.toLowerCase())
         }
         treeData={treeData}
+        dropdownClassName="compact-tree-select"
+        treeIcon={false}
       />
     );
   };
@@ -426,6 +428,8 @@ const ExpressionBuilder = ({ value, onChange, config, expectedType, compact = fa
               treeNode.title?.toLowerCase().includes(input.toLowerCase())
             }
             treeData={treeData}
+            dropdownClassName="compact-tree-select"
+            treeIcon={false}
           />
           {expressionData.func && funcDef && funcDef.args && (
             <Button
