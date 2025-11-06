@@ -35,3 +35,27 @@ code {
 /* Keep conjunctions and NOT button with default hover behavior */
 /* Remove the forced visibility so they show on hover only */
 
+/* Compact TreeSelect indentation */
+.compact-tree-select .ant-select-tree .ant-select-tree-treenode {
+  padding-left: 0 !important;
+}
+
+.compact-tree-select .ant-select-tree .ant-select-tree-indent {
+  width: 8px !important;
+}
+
+.compact-tree-select .ant-select-tree .ant-select-tree-indent-unit {
+  width: 8px !important;
+}
+
+.compact-tree-select .ant-select-tree .ant-select-tree-node-content-wrapper {
+  padding-left: 4px !important;
+}
+
+.compact-tree-select .ant-select-tree .ant-select-tree-switcher {
+  width: 16px !important;
+  height: 16px !important;
+  line-height: 16px !important;
+  margin-right: 2px !important;
+}
+

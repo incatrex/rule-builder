@@ -433,12 +433,14 @@ const App = () => {
         
         Object.keys(flatFuncs).forEach(key => {
           const parts = key.split('.');
+          
           if (parts.length === 1) {
             // No dot - keep as is
             hierarchical[key] = flatFuncs[key];
           } else {
             // Has dot - create hierarchy
             const [category, ...rest] = parts;
+            
             if (!hierarchical[category]) {
               hierarchical[category] = {
                 label: category + ' Functions',
@@ -447,7 +449,18 @@ const App = () => {
               };
             }
             const funcName = rest.join('.');
-            hierarchical[category].subfields[funcName] = flatFuncs[key];
+            const originalFunc = flatFuncs[key];
+            
+            // Create the hierarchical function with clean label but preserve original function definition
+            hierarchical[category].subfields[funcName] = {
+              ...originalFunc,
+              // Use just the function name part for the label (e.g., "ADD" instead of "MATH.ADD")
+              label: originalFunc.label ? 
+                originalFunc.label.startsWith(`${category}.`) ? 
+                  originalFunc.label.substring(`${category}.`.length) : 
+                  originalFunc.label :
+                funcName
+            };
           }
         });
         
@@ -457,7 +470,8 @@ const App = () => {
       const pureCustomConfig = {
         operators: customConfigData.operators, // Use only our custom operators
         fields: fields,
-        funcs: buildHierarchicalFuncs(customConfigData.funcs) // Convert flat to hierarchical
+        funcs: buildHierarchicalFuncs(customConfigData.funcs), // Convert flat to hierarchical
+        types: customConfigData.types // Include type-to-operator mapping
       };
       
       console.log('Custom Config for CustomCaseBuilder:', pureCustomConfig);
@@ -467,7 +481,8 @@ const App = () => {
       const ruleConfigData = {
         operators: customConfigData.operators,
         fields: fields,
-        funcs: buildHierarchicalFuncs(customConfigData.funcs)
+        funcs: buildHierarchicalFuncs(customConfigData.funcs),
+        types: customConfigData.types // Include type-to-operator mapping
       };
       console.log('Rule Config for RuleBuilder:', ruleConfigData);
       setRuleConfig(ruleConfigData);
@@ -807,7 +822,7 @@ const App = () => {
                         />
                       }
                       darkMode={darkMode}
-                      defaultLeftWidth={50}
+                      defaultLeftWidth={70}
                       minLeftWidth={30}
                       maxLeftWidth={80}
                     />
