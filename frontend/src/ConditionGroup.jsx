@@ -90,14 +90,15 @@ const DraggableItem = ({ id, children, darkMode }) => {
  */
 const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, depth = 0 }) => {
   const [groupData, setGroupData] = useState(value || {
+    type: 'conditionGroup',
     returnType: 'boolean',
-    name: 'New Group',
+    name: 'Main Condition',
     conjunction: 'AND',
     not: false,
-    children: [],
-    isExpanded: true
+    children: []
   });
   const [editingName, setEditingName] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true); // UI state only
 
   useEffect(() => {
     if (value) {
@@ -138,7 +139,10 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
   const handleChange = (updates) => {
     const updated = { ...groupData, ...updates };
     setGroupData(updated);
-    onChange(updated);
+    
+    // Remove UI-only properties before persisting
+    const { isExpanded: _, ...persistedData } = updated;
+    onChange(persistedData);
   };
 
   const addCondition = () => {
@@ -173,8 +177,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
           operator: null,
           right: { source: 'value', returnType: 'text', value: '' }
         }
-      ],
-      isExpanded: true
+      ]
     };
     handleChange({ children: [...groupData.children, newGroup] });
   };
@@ -196,12 +199,11 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     : ['#ffffff', '#f0f5ff', '#e6f7ff', '#d6e4ff', '#bae7ff'];
   
   const backgroundColor = backgroundColors[Math.min(depth, backgroundColors.length - 1)];
-  const isExpanded = groupData.isExpanded !== false; // Default to expanded
 
   return (
     <Collapse
       activeKey={isExpanded ? ['group'] : []}
-      onChange={(keys) => handleChange({ isExpanded: keys.includes('group') })}
+      onChange={(keys) => setIsExpanded(keys.includes('group'))}
       style={{
         background: backgroundColor,
         border: depth === 0 ? '2px solid #1890ff' : '1px solid #d9d9d9',

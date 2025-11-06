@@ -175,33 +175,46 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
     return current;
   };
 
-  const renderSourceSelector = () => (
-    <Select
-      value={source}
-      onChange={handleSourceChange}
-      size="small"
-      style={{ width: compact ? 50 : 100 }}
-    >
-      <Select.Option value="value">
-        <Space size={4}>
-          <NumberOutlined />
-          {!compact && <span>Value</span>}
-        </Space>
-      </Select.Option>
-      <Select.Option value="field">
-        <Space size={4}>
-          <FieldTimeOutlined />
-          {!compact && <span>Field</span>}
-        </Space>
-      </Select.Option>
-      <Select.Option value="function">
-        <Space size={4}>
-          <FunctionOutlined />
-          {!compact && <span>Function</span>}
-        </Space>
-      </Select.Option>
-    </Select>
-  );
+  const renderSourceSelector = () => {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    
+    const sourceOptions = [
+      { label: 'Value', value: 'value', icon: <NumberOutlined /> },
+      { label: 'Field', value: 'field', icon: <FieldTimeOutlined /> },
+      { label: 'Function', value: 'function', icon: <FunctionOutlined /> }
+    ];
+    
+    return (
+      <Select
+        value={source}
+        onChange={handleSourceChange}
+        style={{ width: isDropdownOpen ? 100 : 50, minWidth: 50, transition: 'width 0.2s' }}
+        size="small"
+        onDropdownVisibleChange={setIsDropdownOpen}
+        // When closed, show only icon
+        labelRender={(props) => {
+          const option = sourceOptions.find(opt => opt.value === props.value);
+          return isDropdownOpen ? (
+            <Space size={4}>
+              {option?.icon}
+              <span>{option?.label}</span>
+            </Space>
+          ) : (
+            <span style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              {option?.icon}
+            </span>
+          );
+        }}
+        options={sourceOptions}
+        optionRender={(option) => (
+          <Space size={4}>
+            {option.data.icon}
+            <span>{option.data.label}</span>
+          </Space>
+        )}
+      />
+    );
+  };
 
   const renderValueInput = () => {
     const returnType = expressionData.returnType || 'text';

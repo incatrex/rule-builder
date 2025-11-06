@@ -187,8 +187,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
                   operator: null,
                   right: { source: 'value', returnType: 'text', value: '' }
                 }
-              ],
-              isExpanded: true
+              ]
             },
             then: {
               source: 'value',
@@ -201,8 +200,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
           }
         ],
         elseClause: { source: 'value', returnType: 'text', value: '' },
-        elseResultName: 'Default',
-        elseExpanded: true
+        elseResultName: 'Default'
       };
     } else if (structure === 'condition') {
       content = {
@@ -222,13 +220,12 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
             operator: null,
             right: { source: 'value', returnType: 'text', value: '' }
           }
-        ],
-        isExpanded: true
+        ]
       };
     } else if (structure === 'expression') {
       content = {
         source: 'value',
-        returnType: 'text',
+        returnType: 'number',
         value: ''
       };
     }
@@ -239,7 +236,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
   const handleStructureChange = (newStructure) => {
     handleChange({ 
       structure: newStructure,
-      returnType: newStructure === 'case' || newStructure === 'condition' ? 'boolean' : 'text'
+      returnType: newStructure === 'case' || newStructure === 'condition' ? 'boolean' : 'number'
     });
     initializeContent(newStructure);
   };

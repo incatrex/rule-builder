@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Button, Space, Typography, Collapse, Input } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
@@ -28,33 +28,32 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
     elseClause: { source: 'value', returnType: 'text', value: '' },
-    elseResultName: 'Default',
-    elseExpanded: true
+    elseResultName: 'Default'
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
   const [activeKeys, setActiveKeys] = useState([]);
+  const [elseExpanded, setElseExpanded] = useState(true); // UI state only
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     if (value) {
       setCaseData(value);
-      // Expand all WHEN clauses when new data is loaded
-      const keys = value.whenClauses ? value.whenClauses.map((_, index) => String(index)) : [];
-      setActiveKeys(keys);
+      // Only auto-expand on initial load, not on subsequent updates
+      if (isInitialLoad.current && value.whenClauses && value.whenClauses.length > 0) {
+        const keys = value.whenClauses.map((_, index) => String(index));
+        setActiveKeys(keys);
+        isInitialLoad.current = false;
+      }
     }
   }, [value]);
-
-  // Initialize activeKeys for existing whenClauses when component mounts
-  useEffect(() => {
-    if (caseData.whenClauses && caseData.whenClauses.length > 0 && activeKeys.length === 0) {
-      const keys = caseData.whenClauses.map((_, index) => String(index));
-      setActiveKeys(keys);
-    }
-  }, [caseData.whenClauses, activeKeys.length]);
 
   const handleChange = (updates) => {
     const updated = { ...caseData, ...updates };
     setCaseData(updated);
-    onChange(updated);
+    
+    // Remove UI-only properties before persisting
+    const { elseExpanded: _, ...persistedData } = updated;
+    onChange(persistedData);
   };
 
   const addWhenClause = () => {
@@ -79,8 +78,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
             operator: null,
             right: { source: 'value', returnType: 'text', value: '' }
           }
-        ],
-        isExpanded: true
+        ]
       },
       then: {
         source: 'value',
@@ -107,14 +105,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   };
 
   return (
-    <Card 
-      title="CASE Statement Builder"
-      style={{
-        background: darkMode ? '#1f1f1f' : '#ffffff',
-        border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
-      }}
-    >
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
+    <Space direction="vertical" style={{ width: '100%' }} size="large">
         {/* WHEN Clauses */}
         <Collapse 
           activeKey={activeKeys} 
@@ -260,8 +251,8 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
 
         {/* ELSE Clause */}
         <Collapse 
-          activeKey={caseData.elseExpanded ? ['else'] : []} 
-          onChange={(keys) => handleChange({ elseExpanded: keys.includes('else') })}
+          activeKey={elseExpanded ? ['else'] : []} 
+          onChange={(keys) => setElseExpanded(keys.includes('else'))}
         >
           <Panel
             key="else"
@@ -303,7 +294,6 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
           </Panel>
         </Collapse>
       </Space>
-    </Card>
   );
 };
 
