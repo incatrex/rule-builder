@@ -88,7 +88,7 @@ const DraggableItem = ({ id, children, darkMode }) => {
  * - onRemove: Callback to remove this group
  * - depth: Nesting depth for styling
  */
-const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, depth = 0, isLoadedRule = false }) => {
+const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, depth = 0, isLoadedRule = false, isSimpleCondition = false }) => {
   const [groupData, setGroupData] = useState(value || {
     type: 'conditionGroup',
     returnType: 'boolean',
@@ -97,14 +97,16 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     conditions: []
   });
   const [editingName, setEditingName] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
+  const [isExpanded, setIsExpanded] = useState(!isLoadedRule || (isLoadedRule && isSimpleCondition)); // UI state only - start collapsed for loaded rules, except simple conditions
 
   // Update expansion state when isLoadedRule changes
   useEffect(() => {
-    if (isLoadedRule) {
-      setIsExpanded(false); // Collapse when rule is loaded
+    if (isLoadedRule && !isSimpleCondition) {
+      setIsExpanded(false); // Collapse when rule is loaded, unless it's a simple condition
+    } else if (isLoadedRule && isSimpleCondition) {
+      setIsExpanded(true); // Keep expanded for simple condition structure
     }
-  }, [isLoadedRule]);
+  }, [isLoadedRule, isSimpleCondition]);
 
   useEffect(() => {
     if (value) {

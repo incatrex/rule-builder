@@ -538,6 +538,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
               config={config}
               darkMode={darkMode}
               isLoadedRule={isLoadedRule}
+              isSimpleCondition={true}
             />
           )}
 
