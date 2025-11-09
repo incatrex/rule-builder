@@ -94,8 +94,8 @@ const App = () => {
   const handleNewRule = () => {
     setSelectedRuleUuid(null);
     if (ruleBuilderRef.current) {
-      // Load an empty rule
-      ruleBuilderRef.current.loadRuleData({
+      // Create a new rule
+      ruleBuilderRef.current.newRule({
         structure: 'condition',
         returnType: 'boolean',
         ruleType: 'Reporting',

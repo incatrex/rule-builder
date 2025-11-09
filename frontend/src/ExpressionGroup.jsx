@@ -39,8 +39,15 @@ const { Text } = Typography;
  * - darkMode: Dark mode styling
  * - compact: Compact mode
  */
-const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false }) => {
+  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
+  
+  // Update expansion state when isLoadedRule changes
+  useEffect(() => {
+    if (isLoadedRule) {
+      setIsExpanded(false); // Collapse when rule is loaded
+    }
+  }, [isLoadedRule]);
   
   // Normalize the value to ensure it's a proper ExpressionGroup structure
   const normalizeValue = (val) => {
@@ -180,6 +187,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           expectedType={expectedType}
           darkMode={darkMode}
           compact={true}
+          isLoadedRule={isLoadedRule}
         />
       );
     }
@@ -285,6 +293,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                 expectedType={hasMultipleExpressions() ? 'number' : expectedType}
                 darkMode={darkMode}
                 compact={compact}
+                isLoadedRule={isLoadedRule}
               />
             </div>
             
@@ -333,6 +342,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                   expectedType="number"
                   darkMode={darkMode}
                   compact={compact}
+                  isLoadedRule={isLoadedRule}
                 />
               </div>
 
@@ -372,6 +382,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         expectedType={expectedType}
         darkMode={darkMode}
         compact={compact}
+        isLoadedRule={isLoadedRule}
       />
     );
   }
@@ -403,16 +414,23 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
  * Handles the basic expression types: value, field, function
  * This is what used to be the core of the Expression component
  */
-const BaseExpression = ({ value, onChange, config, expectedType, darkMode = false, compact = false }) => {
+const BaseExpression = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false }) => {
   const [source, setSource] = useState(value?.source || 'value');
   const [expressionData, setExpressionData] = useState(value || { 
     source: 'value', 
     returnType: expectedType || 'number', 
     value: expectedType === 'number' || !expectedType ? 0 : '' 
   });
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isUpdatingFromProps = useRef(false);
+
+  // Update expansion state when isLoadedRule changes
+  useEffect(() => {
+    if (isLoadedRule) {
+      setIsExpanded(false); // Collapse when rule is loaded
+    }
+  }, [isLoadedRule]);
 
   // Sync with external changes
   useEffect(() => {
@@ -978,6 +996,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                       expectedType={argDef?.type}
                       darkMode={darkMode}
                       compact={true}
+                      isLoadedRule={isLoadedRule}
                     />
                   </Space>
                 </div>

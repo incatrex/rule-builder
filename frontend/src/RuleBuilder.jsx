@@ -58,6 +58,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   const [availableVersions, setAvailableVersions] = useState([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
   const [ruleTypes, setRuleTypes] = useState(['Reporting', 'Validation', 'Calculation', 'Business']); // Default values
+  const [isLoadedRule, setIsLoadedRule] = useState(false);
 
   useEffect(() => {
     // Initialize content based on structure
@@ -297,12 +298,34 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         content: content
       });
       
+      setIsLoadedRule(true); // Signal that this is a loaded rule (should be collapsed)
+      
       // If content is null, initialize it based on structure
       if (!content) {
         setTimeout(() => {
           initializeContent(structure);
         }, 0);
       }
+    },
+    newRule: (data = {}) => {
+      const structure = data.structure || 'condition';
+      
+      setRuleData({
+        structure,
+        returnType: data.returnType || 'boolean',
+        ruleType: data.ruleType || 'Reporting',
+        uuId: generateUUID(),
+        version: 1,
+        metadata: data.metadata || { id: '', description: '' },
+        content: null
+      });
+      
+      setIsLoadedRule(false); // Signal that this is a new rule (should be expanded)
+      
+      // Initialize content based on structure
+      setTimeout(() => {
+        initializeContent(structure);
+      }, 0);
     }
   }));
 
@@ -504,6 +527,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
               onChange={(content) => handleChange({ content })}
               config={config}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           )}
 
@@ -513,6 +537,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
               onChange={(content) => handleChange({ content })}
               config={config}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           )}
 
@@ -523,6 +548,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
               config={config}
               expectedType={ruleData.returnType}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           )}
         </Card>

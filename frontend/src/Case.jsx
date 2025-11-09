@@ -24,7 +24,7 @@ const { Panel } = Collapse;
  * - config: Config with operators, fields, funcs
  * - darkMode: Dark mode styling
  */
-const Case = ({ value, onChange, config, darkMode = false }) => {
+const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false }) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
     elseClause: { 
@@ -37,19 +37,27 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
   const [activeKeys, setActiveKeys] = useState([]);
-  const [elseExpanded, setElseExpanded] = useState(true); // UI state only
+  const [elseExpanded, setElseExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
   const [editingStates, setEditingStates] = useState({}); // Track editing state for each clause
   const isInitialLoad = useRef(true);
+
+  // Update expansion state when isLoadedRule changes
+  useEffect(() => {
+    if (isLoadedRule) {
+      setElseExpanded(false); // Collapse when rule is loaded
+      setActiveKeys([]); // Collapse all when clauses when rule is loaded
+    }
+  }, [isLoadedRule]);
 
   useEffect(() => {
     if (value) {
       setCaseData(value);
-      // Only auto-expand on initial load, not on subsequent updates
-      if (isInitialLoad.current && value.whenClauses && value.whenClauses.length > 0) {
+      // Only auto-expand on initial load for new rules, not loaded rules
+      if (isInitialLoad.current && value.whenClauses && value.whenClauses.length > 0 && !isLoadedRule) {
         const keys = value.whenClauses.map((_, index) => String(index));
         setActiveKeys(keys);
-        isInitialLoad.current = false;
       }
+      isInitialLoad.current = false;
     }
   }, [value]);
 
@@ -216,6 +224,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                     onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
                     config={config}
                     darkMode={darkMode}
+                    isLoadedRule={isLoadedRule}
                   />
                 </div>
 
@@ -249,6 +258,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                     onChange={(newThen) => updateWhenClause(index, { then: newThen })}
                     config={config}
                     darkMode={darkMode}
+                    isLoadedRule={isLoadedRule}
                   />
                 </div>
               </Space>
@@ -308,6 +318,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
               onChange={(newElse) => handleChange({ elseClause: newElse })}
               config={config}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           </Panel>
         </Collapse>

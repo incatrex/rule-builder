@@ -21,7 +21,7 @@ const { Text } = Typography;
  * - darkMode: Dark mode styling
  * - onRemove: Callback to remove this condition
  */
-const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
+const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoadedRule = false }) => {
   const [conditionData, setConditionData] = useState(value || {
     returnType: 'boolean',
     name: 'New Condition',
@@ -205,6 +205,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
             onChange={handleLeftChange}
             config={config}
             darkMode={darkMode}
+            isLoadedRule={isLoadedRule}
           />
         </div>
 
@@ -228,6 +229,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
               config={config}
               expectedType={conditionData.left?.returnType}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           </div>
         )}
@@ -247,6 +249,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
                 config={config}
                 expectedType={conditionData.left?.returnType}
                 darkMode={darkMode}
+                isLoadedRule={isLoadedRule}
               />
             </div>
           </React.Fragment>
