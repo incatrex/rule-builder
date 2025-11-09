@@ -1,5 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { Card, Space, Input, Select, Typography, Button } from 'antd';
+import { Card, Space, Input, Select, Typography, Button, message } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
+import axios from 'axios';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
 import Expression from './Expression';
@@ -24,12 +26,13 @@ const { TextArea } = Input;
  * - config: Config with operators, fields, funcs
  * - darkMode: Dark mode styling
  * - onRuleChange: Callback when rule changes
+ * - selectedRuleUuid: UUID of currently selected rule
  * 
  * Exposed Methods (via ref):
  * - getRuleOutput(): Returns the complete rule JSON
  * - loadRuleData(data): Loads rule data from JSON
  */
-const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref) => {
+const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, selectedRuleUuid }, ref) => {
   // Generate a UUID
   const generateUUID = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -40,16 +43,20 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
   };
 
   const [ruleData, setRuleData] = useState({
-    structure: 'case',
+    structure: 'condition',
     returnType: 'boolean',
     uuId: generateUUID(),
     version: 1,
+    ruleType: 'Reporting',
     metadata: {
       id: '',
       description: ''
     },
     content: null
   });
+
+  const [availableVersions, setAvailableVersions] = useState([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
 
   useEffect(() => {
     // Initialize content based on structure
@@ -59,11 +66,35 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
   }, []);
 
   useEffect(() => {
+    // Load versions when selectedRuleUuid changes
+    if (selectedRuleUuid) {
+      loadVersionsForRule(selectedRuleUuid);
+    }
+  }, [selectedRuleUuid]);
+
+  useEffect(() => {
     // Notify parent of changes
     if (onRuleChange) {
       onRuleChange(ruleData);
     }
   }, [ruleData]);
+
+  const loadVersionsForRule = async (uuid) => {
+    try {
+      setLoadingVersions(true);
+      const response = await axios.get(`/api/rules/versions/${uuid}`);
+      const versions = response.data.map(v => ({
+        value: v.version,
+        label: `Version ${v.version}`
+      }));
+      setAvailableVersions(versions);
+    } catch (error) {
+      console.error('Error loading versions:', error);
+      setAvailableVersions([]);
+    } finally {
+      setLoadingVersions(false);
+    }
+  };
 
   const handleChange = (updates) => {
     setRuleData(prev => ({ ...prev, ...updates }));
@@ -154,21 +185,44 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
     initializeContent(newStructure);
   };
 
+  const handleSaveRule = async () => {
+    if (!ruleData.metadata.id) {
+      message.warning('Please enter a Rule ID');
+      return;
+    }
+
+    try {
+      const ruleOutput = getRuleOutput();
+      await axios.post(`/api/rules/${ruleData.metadata.id}/${ruleData.version}`, ruleOutput);
+      
+      // Auto-increment version for next save
+      handleChange({ version: ruleData.version + 1 });
+      
+      message.success(`Rule saved: ${ruleData.metadata.id} v${ruleData.version}`);
+    } catch (error) {
+      console.error('Error saving rule:', error);
+      message.error('Failed to save rule');
+    }
+  };
+
+  const getRuleOutput = () => {
+    // Use 'content' key for consistency with editing
+    return {
+      structure: ruleData.structure,
+      returnType: ruleData.returnType,
+      ruleType: ruleData.ruleType,
+      uuId: ruleData.uuId,
+      version: ruleData.version,
+      metadata: ruleData.metadata,
+      content: ruleData.content
+    };
+  };
+
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
-    getRuleOutput: () => {
-      // Use 'content' key for consistency with editing
-      return {
-        structure: ruleData.structure,
-        returnType: ruleData.returnType,
-        uuId: ruleData.uuId,
-        version: ruleData.version,
-        metadata: ruleData.metadata,
-        content: ruleData.content
-      };
-    },
+    getRuleOutput,
     loadRuleData: (data) => {
-      const structure = data.structure || 'case';
+      const structure = data.structure || 'condition';
       
       // Support both formats:
       // 1. Content format (new): { structure: "case", content: {...} }
@@ -178,6 +232,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
       setRuleData({
         structure,
         returnType: data.returnType || 'boolean',
+        ruleType: data.ruleType || 'Reporting',
         uuId: data.uuId || generateUUID(),
         version: data.version || 1,
         metadata: data.metadata || { id: '', description: '' },
@@ -194,7 +249,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
   }));
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
       <Space direction="vertical" style={{ width: '100%' }} size="large">
         {/* Metadata Card */}
         <Card
@@ -205,48 +260,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
           }}
         >
           <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            <div>
-              <Text 
-                strong 
-                style={{ 
-                  display: 'block', 
-                  marginBottom: '8px',
-                  color: darkMode ? '#e0e0e0' : 'inherit'
-                }}
-              >
-                Rule ID:
-              </Text>
-              <Input
-                value={ruleData.metadata.id}
-                onChange={(e) => handleChange({ 
-                  metadata: { ...ruleData.metadata, id: e.target.value } 
-                })}
-                placeholder="Enter rule ID"
-              />
-            </div>
-
-            <div>
-              <Text 
-                strong 
-                style={{ 
-                  display: 'block', 
-                  marginBottom: '8px',
-                  color: darkMode ? '#e0e0e0' : 'inherit'
-                }}
-              >
-                Description:
-              </Text>
-              <TextArea
-                value={ruleData.metadata.description}
-                onChange={(e) => handleChange({ 
-                  metadata: { ...ruleData.metadata, description: e.target.value } 
-                })}
-                placeholder="Enter rule description"
-                rows={3}
-              />
-            </div>
-
-            <Space style={{ width: '100%' }}>
+            <Space style={{ width: '100%' }} size="middle">
               <div style={{ flex: 1 }}>
                 <Text 
                   strong 
@@ -256,15 +270,38 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
                     color: darkMode ? '#e0e0e0' : 'inherit'
                   }}
                 >
-                  UUID:
+                  Rule ID:
                 </Text>
                 <Input
-                  value={ruleData.uuId}
-                  disabled
+                  value={ruleData.metadata.id}
+                  onChange={(e) => handleChange({ 
+                    metadata: { ...ruleData.metadata, id: e.target.value }
+                  })}
+                  placeholder="Enter unique rule identifier"
+                />
+              </div>
+              
+              <div style={{ width: '120px' }}>
+                <Text 
+                  strong 
                   style={{ 
-                    color: darkMode ? '#888888' : '#999999',
-                    cursor: 'not-allowed'
+                    display: 'block', 
+                    marginBottom: '8px',
+                    color: darkMode ? '#e0e0e0' : 'inherit'
                   }}
+                >
+                  Rule Type:
+                </Text>
+                <Select
+                  value={ruleData.ruleType}
+                  onChange={(ruleType) => handleChange({ ruleType })}
+                  style={{ width: '100%' }}
+                  options={[
+                    { value: 'Reporting', label: 'Reporting' },
+                    { value: 'Validation', label: 'Validation' },
+                    { value: 'Calculation', label: 'Calculation' },
+                    { value: 'Business', label: 'Business' }
+                  ]}
                 />
               </div>
               
@@ -279,14 +316,56 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
                 >
                   Version:
                 </Text>
-                <Input
-                  type="number"
-                  value={ruleData.version}
-                  onChange={(e) => handleChange({ version: parseInt(e.target.value) || 1 })}
-                  min={1}
-                />
+                {selectedRuleUuid && availableVersions.length > 0 ? (
+                  <Select
+                    value={ruleData.version}
+                    onChange={(version) => handleChange({ version })}
+                    style={{ width: '100%' }}
+                    loading={loadingVersions}
+                    options={availableVersions}
+                  />
+                ) : (
+                  <Input
+                    type="number"
+                    value={ruleData.version}
+                    onChange={(e) => handleChange({ version: parseInt(e.target.value) || 1 })}
+                    min={1}
+                  />
+                )}
+              </div>
+              
+              <div style={{ marginTop: '32px' }}>
+                <Button 
+                  type="primary"
+                  icon={<SaveOutlined />}
+                  onClick={handleSaveRule}
+                  disabled={!ruleData.metadata.id}
+                >
+                  Save Rule
+                </Button>
               </div>
             </Space>
+            
+            <div>
+              <Text 
+                strong 
+                style={{ 
+                  display: 'block', 
+                  marginBottom: '8px',
+                  color: darkMode ? '#e0e0e0' : 'inherit'
+                }}
+              >
+                Description:
+              </Text>
+              <TextArea
+                value={ruleData.metadata.description}
+                onChange={(e) => handleChange({ 
+                  metadata: { ...ruleData.metadata, description: e.target.value }
+                })}
+                placeholder="Enter rule description"
+                rows={2}
+              />
+            </div>
           </Space>
         </Card>
 
@@ -316,16 +395,16 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
                 style={{ width: '100%' }}
                 options={[
                   { 
-                    value: 'case', 
-                    label: 'CASE - Multiple conditions with different results' 
+                    value: 'condition', 
+                    label: 'Simple Condition - Single boolean condition or group' 
                   },
                   { 
-                    value: 'condition', 
-                    label: 'CONDITION - Single boolean condition or group' 
+                    value: 'case', 
+                    label: 'Case Expression - Multiple conditions with different results' 
                   },
                   { 
                     value: 'expression', 
-                    label: 'EXPRESSION - Single value, field, or function' 
+                    label: 'Mathematical Expression - Single value, field, or function' 
                   }
                 ]}
               />
@@ -398,5 +477,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
     </div>
   );
 });
+
+RuleBuilder.displayName = 'RuleBuilder';
 
 export default RuleBuilder;

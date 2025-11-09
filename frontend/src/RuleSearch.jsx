@@ -1,0 +1,157 @@
+import React, { useState, useEffect } from 'react';
+import { Card, Button, Select, Space, message } from 'antd';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import axios from 'axios';
+
+/**
+ * RuleSearch Component
+ * 
+ * Provides rule discovery and selection functionality:
+ * - New Rule button to create empty rules
+ * - Searchable dropdown to select existing rules
+ * - Loads selected rule into RuleBuilder
+ */
+const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false }) => {
+  const [ruleList, setRuleList] = useState([]);
+  const [selectedRuleKey, setSelectedRuleKey] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadRuleIds();
+  }, []);
+
+  const loadRuleIds = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/rules/ids');
+      
+      // Transform the data for the Select component
+      const options = response.data.map(rule => ({
+        value: `${rule.ruleId}.${rule.uuid}`,
+        label: `${rule.ruleId} (v${rule.latestVersion})`,
+        ruleId: rule.ruleId,
+        uuid: rule.uuid,
+        latestVersion: rule.latestVersion
+      }));
+      
+      setRuleList(options);
+    } catch (error) {
+      console.error('Error loading rule IDs:', error);
+      message.error('Failed to load rule list');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRuleSelect = async (value) => {
+    if (!value) {
+      setSelectedRuleKey(null);
+      return;
+    }
+
+    const selectedRule = ruleList.find(rule => rule.value === value);
+    if (!selectedRule) return;
+
+    try {
+      // Load the latest version of the selected rule
+      const response = await axios.get(
+        `/api/rules/${selectedRule.ruleId}/${selectedRule.uuid}/${selectedRule.latestVersion}`
+      );
+      
+      if (response.data) {
+        setSelectedRuleKey(value);
+        onRuleSelect(response.data, selectedRule.uuid);
+      }
+    } catch (error) {
+      console.error('Error loading rule:', error);
+      message.error('Failed to load selected rule');
+    }
+  };
+
+  const handleNewRule = () => {
+    setSelectedRuleKey(null);
+    onNewRule();
+  };
+
+  const handleRefresh = () => {
+    loadRuleIds();
+  };
+
+  return (
+    <Card
+      title="Rule Search"
+      size="small"
+      style={{
+        background: darkMode ? '#1f1f1f' : '#ffffff',
+        border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
+        height: '100%'
+      }}
+      bodyStyle={{ padding: '12px' }}
+    >
+      <Space direction="vertical" style={{ width: '100%' }} size="small">
+        
+        {/* New Rule Button */}
+        <Button 
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleNewRule}
+          size="small"
+          style={{ width: '100%' }}
+        >
+          New Rule
+        </Button>
+
+        {/* Rule Selection Dropdown */}
+        <div>
+          <div style={{ 
+            fontSize: '12px', 
+            marginBottom: '4px',
+            color: darkMode ? '#e0e0e0' : '#666'
+          }}>
+            Select Existing Rule:
+          </div>
+          
+          <Space.Compact style={{ width: '100%' }}>
+            <Select
+              showSearch
+              placeholder="Search rules..."
+              value={selectedRuleKey}
+              onChange={handleRuleSelect}
+              loading={loading}
+              style={{ flex: 1 }}
+              size="small"
+              allowClear
+              filterOption={(input, option) =>
+                option?.label?.toLowerCase().includes(input.toLowerCase())
+              }
+              options={ruleList}
+            />
+            <Button 
+              icon={<SearchOutlined />}
+              onClick={handleRefresh}
+              size="small"
+              title="Refresh rule list"
+            />
+          </Space.Compact>
+        </div>
+
+        {/* Selected Rule Info */}
+        {selectedRuleKey && (
+          <div style={{
+            fontSize: '11px',
+            color: darkMode ? '#888' : '#666',
+            padding: '8px',
+            background: darkMode ? '#2a2a2a' : '#f5f5f5',
+            borderRadius: '4px'
+          }}>
+            <div><strong>Selected:</strong></div>
+            <div>{ruleList.find(r => r.value === selectedRuleKey)?.label}</div>
+          </div>
+        )}
+
+      </Space>
+    </Card>
+  );
+};
+
+export default RuleSearch;

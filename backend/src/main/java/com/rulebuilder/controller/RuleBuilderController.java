@@ -47,17 +47,38 @@ public class RuleBuilderController {
         }
     }
 
-    @GetMapping("/rules/{ruleId}/{version}")
+    @GetMapping("/rules/{ruleId}/{uuid}/{version}")
     public ResponseEntity<JsonNode> getRule(
             @PathVariable String ruleId,
+            @PathVariable String uuid,
             @PathVariable String version) {
         try {
-            JsonNode rule = ruleBuilderService.getRule(ruleId, version);
+            JsonNode rule = ruleBuilderService.getRule(ruleId, uuid, version);
             if (rule != null) {
                 return ResponseEntity.ok(rule);
             } else {
                 return ResponseEntity.notFound().build();
             }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/rules/ids")
+    public ResponseEntity<JsonNode> getRuleIds() {
+        try {
+            JsonNode ruleIds = ruleBuilderService.getRuleIds();
+            return ResponseEntity.ok(ruleIds);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/rules/versions/{uuid}")
+    public ResponseEntity<JsonNode> getRuleVersions(@PathVariable String uuid) {
+        try {
+            JsonNode versions = ruleBuilderService.getRuleVersions(uuid);
+            return ResponseEntity.ok(versions);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

@@ -2,6 +2,8 @@ package com.rulebuilder.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class RuleBuilderService {
@@ -36,20 +42,121 @@ public class RuleBuilderService {
             directory.mkdirs();
         }
 
-        // Save the rule to file
-        String filename = String.format("%s.%s.json", ruleId, version);
+        // Extract UUID from the rule
+        String uuid = rule.has("uuId") ? rule.get("uuId").asText() : "unknown";
+        
+        // Save with new naming convention: {ruleId}.{uuid}.{version}.json
+        String filename = String.format("%s.%s.%s.json", ruleId, uuid, version);
         Path filePath = Paths.get(rulesDir, filename);
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), rule);
     }
 
-    public JsonNode getRule(String ruleId, String version) throws IOException {
+    public JsonNode getRule(String ruleId, String uuid, String version) throws IOException {
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
-        String filename = String.format("%s.%s.json", ruleId, version);
+        String filename = String.format("%s.%s.%s.json", ruleId, uuid, version);
         Path filePath = Paths.get(rulesDir, filename);
 
         if (Files.exists(filePath)) {
             return objectMapper.readTree(filePath.toFile());
         }
         return null;
+    }
+
+    /**
+     * Get all rule IDs with their UUIDs and latest versions
+     */
+    public JsonNode getRuleIds() throws IOException {
+        String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
+        File directory = new File(rulesDir);
+        
+        if (!directory.exists()) {
+            return objectMapper.createArrayNode();
+        }
+
+        // Pattern to match {ruleId}.{uuid}.{version}.json
+        Pattern pattern = Pattern.compile("^(.+)\\.([0-9a-f-]+)\\.(\\d+)\\.json$");
+        Map<String, RuleInfo> ruleMap = new HashMap<>();
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                Matcher matcher = pattern.matcher(file.getName());
+                if (matcher.matches()) {
+                    String ruleId = matcher.group(1);
+                    String uuid = matcher.group(2);
+                    int version = Integer.parseInt(matcher.group(3));
+                    
+                    String key = ruleId + "." + uuid;
+                    RuleInfo existing = ruleMap.get(key);
+                    
+                    if (existing == null || version > existing.version) {
+                        ruleMap.put(key, new RuleInfo(ruleId, uuid, version));
+                    }
+                }
+            }
+        }
+
+        ArrayNode result = objectMapper.createArrayNode();
+        for (RuleInfo ruleInfo : ruleMap.values()) {
+            ObjectNode ruleNode = objectMapper.createObjectNode();
+            ruleNode.put("ruleId", ruleInfo.ruleId);
+            ruleNode.put("uuid", ruleInfo.uuid);
+            ruleNode.put("latestVersion", ruleInfo.version);
+            result.add(ruleNode);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get all versions for a specific rule UUID
+     */
+    public JsonNode getRuleVersions(String uuid) throws IOException {
+        String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
+        File directory = new File(rulesDir);
+        
+        if (!directory.exists()) {
+            return objectMapper.createArrayNode();
+        }
+
+        // Pattern to match any ruleId with the specific UUID
+        Pattern pattern = Pattern.compile("^(.+)\\." + Pattern.quote(uuid) + "\\.(\\d+)\\.json$");
+        List<Integer> versions = new ArrayList<>();
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                Matcher matcher = pattern.matcher(file.getName());
+                if (matcher.matches()) {
+                    int version = Integer.parseInt(matcher.group(2));
+                    versions.add(version);
+                }
+            }
+        }
+
+        // Sort versions in descending order (newest first)
+        versions.sort(Collections.reverseOrder());
+
+        ArrayNode result = objectMapper.createArrayNode();
+        for (Integer version : versions) {
+            result.add(version);
+        }
+
+        return result;
+    }
+
+    /**
+     * Helper class to store rule information
+     */
+    private static class RuleInfo {
+        String ruleId;
+        String uuid;
+        int version;
+
+        RuleInfo(String ruleId, String uuid, int version) {
+            this.ruleId = ruleId;
+            this.uuid = uuid;
+            this.version = version;
+        }
     }
 }
