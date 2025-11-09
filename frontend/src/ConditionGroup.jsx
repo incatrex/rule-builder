@@ -152,9 +152,19 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
       id: generateId(),
       returnType: 'boolean',
       name: `Condition ${conditions.length + 1}`,
-      left: { source: 'field', returnType: 'text', field: null },
+      left: { 
+        source: 'expressionGroup',
+        returnType: 'number',
+        firstExpression: { source: 'field', returnType: 'number', field: null },
+        additionalExpressions: []
+      },
       operator: null,
-      right: { source: 'value', returnType: 'text', value: '' }
+      right: { 
+        source: 'expressionGroup',
+        returnType: 'number',
+        firstExpression: { source: 'value', returnType: 'number', value: '' },
+        additionalExpressions: []
+      }
     };
     handleChange({ conditions: [...conditions, newCondition] });
   };
@@ -175,9 +185,19 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
           id: generateId(),
           returnType: 'boolean',
           name: 'Condition 1',
-          left: { source: 'field', returnType: 'text', field: null },
+          left: { 
+            source: 'expressionGroup',
+            returnType: 'number',
+            firstExpression: { source: 'field', returnType: 'number', field: null },
+            additionalExpressions: []
+          },
           operator: null,
-          right: { source: 'value', returnType: 'text', value: '' }
+          right: { 
+            source: 'expressionGroup',
+            returnType: 'number',
+            firstExpression: { source: 'value', returnType: 'number', value: '' },
+            additionalExpressions: []
+          }
         }
       ]
     };
