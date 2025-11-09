@@ -86,7 +86,7 @@ const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false }) => {
         border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
         height: '100%'
       }}
-      bodyStyle={{ padding: '12px' }}
+      styles={{ body: { padding: '12px' } }}
     >
       <Space direction="vertical" style={{ width: '100%' }} size="small">
         

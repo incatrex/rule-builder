@@ -57,12 +57,40 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
 
   const [availableVersions, setAvailableVersions] = useState([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
+  const [ruleTypes, setRuleTypes] = useState(['Reporting', 'Validation', 'Calculation', 'Business']); // Default values
 
   useEffect(() => {
     // Initialize content based on structure
     if (!ruleData.content) {
       initializeContent(ruleData.structure);
     }
+  }, []);
+
+  useEffect(() => {
+    // Load rule types from backend API
+    const loadRuleTypes = async () => {
+      try {
+        const response = await fetch('/api/ruleTypes');
+        if (response.ok) {
+          const ruleTypesData = await response.json();
+          if (Array.isArray(ruleTypesData) && ruleTypesData.length > 0) {
+            setRuleTypes(ruleTypesData);
+            // Update the current ruleType if it's not in the new list
+            if (!ruleTypesData.includes(ruleData.ruleType)) {
+              handleChange({ ruleType: ruleTypesData[0] });
+            }
+          }
+        } else {
+          console.error('Failed to load rule types, status:', response.status);
+        }
+      } catch (error) {
+        console.error('Error loading rule types:', error);
+        // Keep default values if API fails
+        setRuleTypes(['Reporting', 'Validation', 'Calculation', 'Business']);
+      }
+    };
+
+    loadRuleTypes();
   }, []);
 
   useEffect(() => {
@@ -311,7 +339,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                 />
               </div>
               
-              <div style={{ width: '120px' }}>
+              <div style={{ width: '150px' }}>
                 <Text 
                   strong 
                   style={{ 
@@ -326,12 +354,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                   value={ruleData.ruleType}
                   onChange={(ruleType) => handleChange({ ruleType })}
                   style={{ width: '100%' }}
-                  options={[
-                    { value: 'Reporting', label: 'Reporting' },
-                    { value: 'Validation', label: 'Validation' },
-                    { value: 'Calculation', label: 'Calculation' },
-                    { value: 'Business', label: 'Business' }
-                  ]}
+                  options={ruleTypes.map(type => ({ value: type, label: type }))}
                 />
               </div>
               

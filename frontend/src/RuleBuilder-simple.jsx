@@ -18,7 +18,7 @@ const EMPTY_RULE = {
 
 const RuleBuilder = forwardRef(({ selectedRuleUuid, loadVersionsForRule, config, darkMode }, ref) => {
   const [ruleData, setRuleData] = useState(EMPTY_RULE);
-  const [ruleTypes, setRuleTypes] = useState(['Reporting', 'Validation', 'Calculation', 'Business']);
+  const [ruleTypes, setRuleTypes] = useState([]);
 
   useEffect(() => {
     // Load rule types from API
@@ -27,14 +27,14 @@ const RuleBuilder = forwardRef(({ selectedRuleUuid, loadVersionsForRule, config,
         const response = await fetch('/api/ruleTypes');
         if (response.ok) {
           const ruleTypesData = await response.json();
-          if (Array.isArray(ruleTypesData) && ruleTypesData.length > 0) {
+          if (Array.isArray(ruleTypesData)) {
             setRuleTypes(ruleTypesData);
           }
+        } else {
+          console.error('Failed to fetch rule types:', response.status, response.statusText);
         }
       } catch (error) {
         console.error('Error loading rule types:', error);
-        // Keep default values if API fails
-        setRuleTypes(['Reporting', 'Validation', 'Calculation', 'Business']);
       }
     };
 

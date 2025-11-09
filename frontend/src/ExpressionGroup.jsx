@@ -613,7 +613,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         treeData={fieldTree}
         placeholder="Select field"
         style={{ width: '100%', minWidth: '200px' }}
-        dropdownClassName="compact-tree-select"
+        popupClassName="compact-tree-select"
         treeIcon={false}
         showSearch
         treeDefaultExpandAll={true}
@@ -710,7 +710,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         treeData={functionTree}
         placeholder="Select function"
         style={{ width: '100%', minWidth: '200px' }}
-        dropdownClassName="compact-tree-select"
+        popupClassName="compact-tree-select"
         treeIcon={false}
         showSearch
         treeDefaultExpandAll={true}
