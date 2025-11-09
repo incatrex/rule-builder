@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag } from 'antd';
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -41,19 +41,40 @@ const { Text } = Typography;
  */
 const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false }) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [groupData, setGroupData] = useState(value || {
-    source: 'expressionGroup',
-    returnType: expectedType || 'number',
-    firstExpression: { source: 'value', returnType: expectedType || 'number', value: '' },
-    additionalExpressions: []
-  });
+  
+  // Normalize the value to ensure it's a proper ExpressionGroup structure
+  const normalizeValue = (val) => {
+    if (!val) {
+      return {
+        source: 'expressionGroup',
+        returnType: expectedType || 'number',
+        firstExpression: { source: 'value', returnType: expectedType || 'number', value: '' },
+        additionalExpressions: []
+      };
+    }
+    
+    // If it's already an ExpressionGroup, return as-is
+    if (val.source === 'expressionGroup') {
+      return val;
+    }
+    
+    // If it's a BaseExpression (field, value, function), wrap it as the firstExpression
+    return {
+      source: 'expressionGroup',
+      returnType: val.returnType || expectedType || 'number',
+      firstExpression: val,
+      additionalExpressions: []
+    };
+  };
+  
+  const [groupData, setGroupData] = useState(normalizeValue(value));
   const isUpdatingFromProps = useRef(false);
 
   // Sync with external changes
   useEffect(() => {
     if (value) {
       isUpdatingFromProps.current = true;
-      setGroupData(value);
+      setGroupData(normalizeValue(value));
       setTimeout(() => {
         isUpdatingFromProps.current = false;
       }, 0);
@@ -123,7 +144,11 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     const additionalExpressions = [...(groupData.additionalExpressions || [])];
     additionalExpressions.push({
       operator: '+',
-      expression: { source: 'value', returnType: 'number', value: 0 }
+      expression: { 
+        source: 'value', 
+        returnType: 'number', 
+        value: 0 
+      }
     });
     handleChange({ additionalExpressions });
   };
@@ -193,13 +218,28 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       case 'value':
         return expr.value !== undefined ? String(expr.value) : '?';
       case 'field':
-        return expr.field ? expr.field.split('.').pop() : 'field';
+        return getFieldDisplayName(expr.field, config?.fields) || '?';
       case 'function':
         return expr.function?.name?.split('.').pop() || 'func';
       default:
         return '?';
     }
   };
+
+  // Memoized expression preview calculation
+  const expressionPreview = useMemo(() => {
+    // Use the same logic as expanded view for consistency
+    const firstSummary = getExpressionSummary(groupData.firstExpression);
+    if (!groupData.additionalExpressions?.length) {
+      return firstSummary || 'Mathematical Expression';
+    }
+    
+    const additionalSummaries = groupData.additionalExpressions.map(ae => 
+      `${ae.operator} ${getExpressionSummary(ae.expression)}`
+    );
+    
+    return `${firstSummary} ${additionalSummaries.join(' ')}`;
+  }, [groupData, config?.fields]);
 
   const renderExpandedView = () => {
     return (
@@ -226,47 +266,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
               }}
               title="Click to expand expression"
             >
-              {(() => {
-                // Generate collapsed view of the entire expression group
-                const getExpressionCompactView = (expr) => {
-                  if (!expr) return '?';
-                  
-                  if (expr.source === 'value') {
-                    return expr.value !== undefined ? String(expr.value) : '?';
-                  } else if (expr.source === 'field') {
-                    return expr.field || '?';
-                  } else if (expr.source === 'function') {
-                    const funcName = expr.function?.name?.split('.').pop() || '?';
-                    if (expr.function?.args?.length) {
-                      const argsStr = expr.function.args.map(arg => {
-                        if (!arg.value) return '?';
-                        return getExpressionCompactView(arg.value);
-                      }).join(', ');
-                      return `${funcName}(${argsStr})`;
-                    }
-                    return `${funcName}()`;
-                  } else if (expr.source === 'expressionGroup') {
-                    // Handle nested expression groups
-                    let result = getExpressionCompactView(expr.firstExpression);
-                    if (expr.additionalExpressions?.length) {
-                      expr.additionalExpressions.forEach(addExpr => {
-                        result += ` ${addExpr.operator} ${getExpressionCompactView(addExpr.expression)}`;
-                      });
-                      return `(${result})`;
-                    }
-                    return result;
-                  }
-                  return '?';
-                };
-                
-                let result = getExpressionCompactView(groupData.firstExpression);
-                if (groupData.additionalExpressions?.length) {
-                  groupData.additionalExpressions.forEach(addExpr => {
-                    result += ` ${addExpr.operator} ${getExpressionCompactView(addExpr.expression)}`;
-                  });
-                }
-                return result || 'Mathematical Expression';
-              })()}
+              {expressionPreview}
             </Text>
             <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
               {groupData.returnType}
@@ -274,16 +274,36 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           </Space>
         )}
 
-        {/* First Expression */}
+        {/* First Expression with Add Button */}
         <div style={{ paddingLeft: hasMultipleExpressions() ? '16px' : '0' }}>
-          <BaseExpression
-            value={groupData.firstExpression}
-            onChange={updateFirstExpression}
-            config={config}
-            expectedType={hasMultipleExpressions() ? 'number' : expectedType}
-            darkMode={darkMode}
-            compact={compact}
-          />
+          <Space style={{ width: '100%' }} size="small">
+            <div style={{ flex: 1 }}>
+              <BaseExpression
+                value={groupData.firstExpression}
+                onChange={updateFirstExpression}
+                config={config}
+                expectedType={hasMultipleExpressions() ? 'number' : expectedType}
+                darkMode={darkMode}
+                compact={compact}
+              />
+            </div>
+            
+            {/* Add Operation Button */}
+            {canAddOperators() && (
+              <Button
+                type="text"
+                size="small"
+                icon={<PlusOutlined />}
+                onClick={addExpression}
+                style={{ 
+                  minWidth: 'auto', 
+                  padding: '0 4px',
+                  color: darkMode ? '#52c41a' : '#52c41a' // Green color to indicate add action
+                }}
+                title="Add Operation"
+              />
+            )}
+          </Space>
         </div>
 
         {/* Additional Expressions with Operators */}
@@ -324,25 +344,11 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                 icon={<CloseOutlined />}
                 onClick={() => removeExpression(index)}
                 style={{ minWidth: 'auto', padding: '0 4px' }}
+                title="Remove Operation"
               />
             </Space>
           </div>
         ))}
-
-        {/* Add Expression Button */}
-        {canAddOperators() && (
-          <div style={{ paddingLeft: hasMultipleExpressions() ? '16px' : '0' }}>
-            <Button
-              type="dashed"
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={addExpression}
-              style={{ fontSize: '11px', height: '24px' }}
-            >
-              Add Operation
-            </Button>
-          </div>
-        )}
 
         {/* Type Warning */}
         {!canAddOperators() && groupData.additionalExpressions?.length > 0 && (
@@ -455,7 +461,12 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
   };
 
   const handleValueChange = (updates) => {
-    setExpressionData(prev => ({ ...prev, ...updates }));
+    const newData = { ...expressionData, ...updates };
+    setExpressionData(newData);
+    // Propagate change to parent
+    if (onChange) {
+      onChange(newData);
+    }
   };
 
   // Source selector options
@@ -722,7 +733,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
       if (arg.value.source === 'value') {
         return arg.value.value !== undefined ? String(arg.value.value) : '?';
       } else if (arg.value.source === 'field') {
-        return arg.value.field || '?';
+        return getFieldDisplayName(arg.value.field, config?.fields) || '?';
       } else if (arg.value.source === 'function') {
         const innerFuncName = arg.value.function?.name?.split('.').pop() || '?';
         return `${innerFuncName}(...)`;
@@ -877,7 +888,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                   if (arg.value.source === 'value') {
                     return arg.value.value !== undefined ? String(arg.value.value) : '?';
                   } else if (arg.value.source === 'field') {
-                    return arg.value.field || '?';
+                    return getFieldDisplayName(arg.value.field, config?.fields) || '?';
                   } else if (arg.value.source === 'function') {
                     const innerFuncName = arg.value.function?.name?.split('.').pop() || '?';
                     return `${innerFuncName}(...)`;
@@ -1044,6 +1055,31 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
 };
 
 // Helper functions
+// Helper function to get field display name from field path
+const getFieldDisplayName = (fieldPath, fields) => {
+  if (!fieldPath || !fields) return fieldPath || '?';
+  
+  const pathParts = fieldPath.split('.');
+  let currentFields = fields;
+  let displayName = '';
+  
+  for (let i = 0; i < pathParts.length; i++) {
+    const part = pathParts[i];
+    const field = currentFields[part];
+    
+    if (!field) return fieldPath; // Fallback to original path
+    
+    if (i > 0) displayName += ' > ';
+    displayName += field.label || part;
+    
+    if (field.subfields) {
+      currentFields = field.subfields;
+    }
+  }
+  
+  return displayName;
+};
+
 const getFieldDefinition = (fieldPath, fields) => {
   if (!fields || !fieldPath) return null;
   
