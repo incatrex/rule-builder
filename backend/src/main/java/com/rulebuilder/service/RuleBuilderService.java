@@ -32,6 +32,11 @@ public class RuleBuilderService {
         return objectMapper.readTree(resource.getInputStream());
     }
 
+    public JsonNode getRuleTypes() throws IOException {
+        ClassPathResource resource = new ClassPathResource("static/ruleTypes.json");
+        return objectMapper.readTree(resource.getInputStream());
+    }
+
     public void saveRule(String ruleId, String version, JsonNode rule) throws IOException {
         // Get the rules directory path - use absolute path from project root
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
