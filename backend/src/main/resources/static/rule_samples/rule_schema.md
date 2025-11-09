@@ -1,8 +1,20 @@
+
+```.jsonc
 / Core reusable components
 Expression = {
   source: "value" | "field" | "function",
   returnType: string,
   // + type-specific properties
+}
+
+ExpressionGroup = {
+  source: "expressionGroup",
+  returnType: string, // inferred from expressions
+  firstExpression: Expression | ExpressionGroup,
+  additionalExpressions: {
+    operator: "+" | "-" | "*" | "/",
+    expression: Expression | ExpressionGroup
+  }[]
 }
 
 Function = {
@@ -12,15 +24,15 @@ Function = {
 
 Arg = {
   name: string,
-  value: Expression  // recursive reference
+  value: Expression | ExpressionGroup  // recursive reference
 }
 
 Condition = {
   id: string,
   name: string,
-  left: Expression,
+  left: Expression | ExpressionGroup,
   operator: string,
-  right: Expression | Expression[]  // array for operators like "between"
+  right: Expression | ExpressionGroup | (Expression | ExpressionGroup)[]  // array for operators like "between"
 }
 
 ConditionGroup = {
@@ -36,7 +48,7 @@ WhenClause = {
   when: ConditionGroup,
   then: {
     name: string,
-    value: Expression
+    value: Expression | ExpressionGroup
   }
 }
 
@@ -44,5 +56,5 @@ Rule = {
   structure: "case" | "condition" | "expression",
   returnType: string,
   metadata: {...},
-  content: CaseContent | ConditionGroup | Expression
+  content: CaseContent | ConditionGroup | Expression | ExpressionGroup
 }

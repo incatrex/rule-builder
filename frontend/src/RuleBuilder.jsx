@@ -4,7 +4,7 @@ import { SaveOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
-import Expression from './Expression';
+import ExpressionGroup from './ExpressionGroup';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -117,31 +117,47 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
               name: 'Condition 1',
               conjunction: 'AND',
               not: false,
-              children: [
+              conditions: [
                 // Auto-add an empty condition to the new group
                 {
                   type: 'condition',
                   id: generateId(),
                   returnType: 'boolean',
                   name: 'Condition 1',
-                  left: { source: 'field', returnType: 'text', field: null },
+                  left: { 
+                    source: 'expressionGroup',
+                    returnType: 'number',
+                    firstExpression: { source: 'field', returnType: 'number', field: null },
+                    additionalExpressions: []
+                  },
                   operator: null,
-                  right: { source: 'value', returnType: 'text', value: '' }
+                  right: { 
+                    source: 'expressionGroup',
+                    returnType: 'number',
+                    firstExpression: { source: 'value', returnType: 'number', value: '' },
+                    additionalExpressions: []
+                  }
                 }
               ],
               isExpanded: true
             },
             then: {
-              source: 'value',
-              returnType: 'text',
-              value: ''
+              source: 'expressionGroup',
+              returnType: 'number',
+              firstExpression: { source: 'value', returnType: 'number', value: '' },
+              additionalExpressions: []
             },
             resultName: 'Result 1',
             editingName: false,
             editingResultName: false
           }
         ],
-        elseClause: { source: 'value', returnType: 'text', value: '' },
+        elseClause: { 
+          source: 'expressionGroup',
+          returnType: 'number',
+          firstExpression: { source: 'value', returnType: 'number', value: '' },
+          additionalExpressions: []
+        },
         elseResultName: 'Default',
         elseExpanded: true
       };
@@ -152,35 +168,49 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         name: 'Main Condition',
         conjunction: 'AND',
         not: false,
-        children: [
+        conditions: [
           // Auto-add an empty condition
           {
             type: 'condition',
             id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             returnType: 'boolean',
             name: 'Condition 1',
-            left: { source: 'field', returnType: 'text', field: null },
+            left: { 
+              source: 'expressionGroup',
+              returnType: 'number',
+              firstExpression: { source: 'field', returnType: 'number', field: null },
+              additionalExpressions: []
+            },
             operator: null,
-            right: { source: 'value', returnType: 'text', value: '' }
+            right: { 
+              source: 'expressionGroup',
+              returnType: 'number',
+              firstExpression: { source: 'value', returnType: 'number', value: '' },
+              additionalExpressions: []
+            }
           }
         ],
         isExpanded: true
       };
     } else if (structure === 'expression') {
       content = {
-        source: 'value',
-        returnType: 'text',
-        value: ''
+        source: 'expressionGroup',
+        returnType: 'number',
+        firstExpression: { source: 'value', returnType: 'number', value: '' },
+        additionalExpressions: []
       };
     }
     
-    handleChange({ content });
+    handleChange({ 
+      content,
+      returnType: structure === 'expression' ? 'number' : (structure === 'condition' ? 'boolean' : ruleData.returnType)
+    });
   };
 
   const handleStructureChange = (newStructure) => {
     handleChange({ 
       structure: newStructure,
-      returnType: newStructure === 'case' || newStructure === 'condition' ? 'boolean' : 'text'
+      returnType: newStructure === 'case' || newStructure === 'condition' ? 'boolean' : 'number'
     });
     initializeContent(newStructure);
   };
@@ -464,7 +494,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
           )}
 
           {ruleData.structure === 'expression' && ruleData.content && (
-            <Expression
+            <ExpressionGroup
               value={ruleData.content}
               onChange={(content) => handleChange({ content })}
               config={config}

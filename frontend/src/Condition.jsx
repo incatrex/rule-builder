@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Space, Typography, Input, Button } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import Expression from './Expression';
+import ExpressionGroup from './ExpressionGroup';
 
 const { Text } = Typography;
 
@@ -25,9 +25,19 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
   const [conditionData, setConditionData] = useState(value || {
     returnType: 'boolean',
     name: 'New Condition',
-    left: { source: 'field', returnType: 'text', field: null },
+    left: { 
+      source: 'expressionGroup',
+      returnType: 'number',
+      firstExpression: { source: 'field', returnType: 'number', field: null },
+      additionalExpressions: []
+    },
     operator: null,
-    right: { source: 'value', returnType: 'text', value: '' }
+    right: { 
+      source: 'expressionGroup',
+      returnType: 'number',
+      firstExpression: { source: 'value', returnType: 'number', value: '' },
+      additionalExpressions: []
+    }
   });
   const [editingName, setEditingName] = useState(false);
 
@@ -189,7 +199,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
         <div style={{ minWidth: '200px' }}>
-          <Expression
+          <ExpressionGroup
             value={conditionData.left}
             onChange={handleLeftChange}
             config={config}
@@ -211,7 +221,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
         {/* Right Expression(s) */}
         {cardinality === 1 && (
           <div style={{ minWidth: '200px' }}>
-            <Expression
+            <ExpressionGroup
               value={conditionData.right}
               onChange={(newRight) => handleChange({ right: newRight })}
               config={config}
@@ -226,7 +236,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
           <React.Fragment key={index}>
             {index > 0 && <Text strong style={{ color: '#1890ff' }}>AND</Text>}
             <div style={{ minWidth: '200px' }}>
-              <Expression
+              <ExpressionGroup
                 value={rightVal}
                 onChange={(newVal) => {
                   const updatedRight = [...conditionData.right];
