@@ -1,5 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { Card, Space, Input, Select, Typography, Button } from 'antd';
+import { Card, Space, Input, Select, Typography, Button, message } from 'antd';
+import { SaveOutlined, FolderOpenOutlined } from '@ant-design/icons';
+import axios from 'axios';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
 import Expression from './Expression';
@@ -42,6 +44,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
   const [ruleData, setRuleData] = useState({
     structure: 'case',
     returnType: 'boolean',
+    ruleType: 'Reporting',
     uuId: generateUUID(),
     version: 1,
     metadata: {
@@ -51,12 +54,28 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
     content: null
   });
 
+  const [ruleTypes, setRuleTypes] = useState([]);
+
   useEffect(() => {
     // Initialize content based on structure
     if (!ruleData.content) {
       initializeContent(ruleData.structure);
     }
+    
+    // Load rule types
+    loadRuleTypes();
   }, []);
+
+  const loadRuleTypes = async () => {
+    try {
+      const response = await axios.get('/api/ruleTypes');
+      setRuleTypes(response.data);
+    } catch (error) {
+      console.error('Error loading rule types:', error);
+      // Fallback to default types
+      setRuleTypes(['Reporting', 'Transformation', 'Aggregation', 'Validation']);
+    }
+  };
 
   useEffect(() => {
     // Notify parent of changes
@@ -67,6 +86,77 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
 
   const handleChange = (updates) => {
     setRuleData(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleSaveRule = async () => {
+    const ruleId = ruleData.metadata.id;
+    const version = ruleData.version;
+    
+    if (!ruleId) {
+      message.warning('Please enter a Rule ID');
+      return;
+    }
+
+    try {
+      const dataToSave = {
+        structure: ruleData.structure,
+        returnType: ruleData.returnType,
+        uuId: ruleData.uuId,
+        version: ruleData.version,
+        metadata: ruleData.metadata,
+        content: ruleData.content
+      };
+
+      await axios.post(`/api/rules/${ruleId}/${version}`, dataToSave);
+      message.success(`Rule saved: ${ruleId} v${version}`);
+    } catch (error) {
+      console.error('Error saving rule:', error);
+      message.error('Failed to save rule');
+    }
+  };
+
+  const handleLoadRule = async () => {
+    const ruleId = ruleData.metadata.id;
+    const version = ruleData.version;
+    
+    if (!ruleId) {
+      message.warning('Please enter a Rule ID');
+      return;
+    }
+
+    try {
+      const response = await axios.get(`/api/rules/${ruleId}/${version}`);
+      const loadedData = response.data;
+
+      // Load the rule data
+      const structure = loadedData.structure || 'case';
+      let content = loadedData.content || loadedData[structure] || null;
+      
+      setRuleData({
+        structure,
+        returnType: loadedData.returnType || 'boolean',
+        uuId: loadedData.uuId || generateUUID(),
+        version: loadedData.version || 1,
+        metadata: loadedData.metadata || { id: ruleId, description: '' },
+        content: content
+      });
+      
+      // If content is null, initialize it based on structure
+      if (!content) {
+        setTimeout(() => {
+          initializeContent(structure);
+        }, 0);
+      }
+
+      message.success(`Rule loaded: ${ruleId} v${version}`);
+    } catch (error) {
+      if (error.response?.status === 404) {
+        message.error('Rule not found');
+      } else {
+        console.error('Error loading rule:', error);
+        message.error('Failed to load rule');
+      }
+    }
   };
 
   const initializeContent = (structure) => {
@@ -86,7 +176,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
               name: 'Condition 1',
               conjunction: 'AND',
               not: false,
-              children: [
+              conditions: [
                 // Auto-add an empty condition to the new group
                 {
                   type: 'condition',
@@ -97,22 +187,18 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
                   operator: null,
                   right: { source: 'value', returnType: 'text', value: '' }
                 }
-              ],
-              isExpanded: true
+              ]
             },
             then: {
               source: 'value',
               returnType: 'text',
               value: ''
             },
-            resultName: 'Result 1',
-            editingName: false,
-            editingResultName: false
+            resultName: 'Result 1'
           }
         ],
         elseClause: { source: 'value', returnType: 'text', value: '' },
-        elseResultName: 'Default',
-        elseExpanded: true
+        elseResultName: 'Default'
       };
     } else if (structure === 'condition') {
       content = {
@@ -121,7 +207,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
         name: 'Main Condition',
         conjunction: 'AND',
         not: false,
-        children: [
+        conditions: [
           // Auto-add an empty condition
           {
             type: 'condition',
@@ -132,13 +218,12 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
             operator: null,
             right: { source: 'value', returnType: 'text', value: '' }
           }
-        ],
-        isExpanded: true
+        ]
       };
     } else if (structure === 'expression') {
       content = {
         source: 'value',
-        returnType: 'text',
+        returnType: 'number',
         value: ''
       };
     }
@@ -149,22 +234,67 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
   const handleStructureChange = (newStructure) => {
     handleChange({ 
       structure: newStructure,
-      returnType: newStructure === 'case' || newStructure === 'condition' ? 'boolean' : 'text'
+      returnType: newStructure === 'case' || newStructure === 'condition' ? 'boolean' : 'number'
     });
     initializeContent(newStructure);
+  };
+
+  // Clean JSON transformation for final output
+  const cleanForOutput = (data) => {
+    if (!data || typeof data !== 'object') return data;
+    
+    // Handle arrays
+    if (Array.isArray(data)) {
+      return data.map(cleanForOutput);
+    }
+    
+    const cleaned = { ...data };
+    
+    // Remove type fields used for component rendering
+    delete cleaned.type;
+    
+    // Transform THEN/ELSE clauses to {name, value} structure
+    if (cleaned.then && typeof cleaned.then === 'object' && !cleaned.then.name) {
+      cleaned.then = {
+        name: 'Result 1', // or extract from the expression if available
+        value: cleaned.then
+      };
+    }
+    
+    if (cleaned.else && typeof cleaned.else === 'object' && !cleaned.else.name) {
+      cleaned.else = {
+        name: 'Result 2', // or extract from the expression if available  
+        value: cleaned.else
+      };
+    }
+    
+    // Rename 'children' to 'conditions' for ConditionGroups
+    if (cleaned.children && Array.isArray(cleaned.children)) {
+      cleaned.conditions = cleaned.children.map(cleanForOutput);
+      delete cleaned.children;
+    }
+    
+    // Recursively clean nested objects
+    Object.keys(cleaned).forEach(key => {
+      if (typeof cleaned[key] === 'object') {
+        cleaned[key] = cleanForOutput(cleaned[key]);
+      }
+    });
+    
+    return cleaned;
   };
 
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
     getRuleOutput: () => {
-      // Use 'content' key for consistency with editing
       return {
         structure: ruleData.structure,
         returnType: ruleData.returnType,
+        ruleType: ruleData.ruleType,
         uuId: ruleData.uuId,
         version: ruleData.version,
         metadata: ruleData.metadata,
-        content: ruleData.content
+        content: cleanForOutput(ruleData.content)
       };
     },
     loadRuleData: (data) => {
@@ -178,6 +308,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
       setRuleData({
         structure,
         returnType: data.returnType || 'boolean',
+        ruleType: data.ruleType || 'Reporting',
         uuId: data.uuId || generateUUID(),
         version: data.version || 1,
         metadata: data.metadata || { id: '', description: '' },
@@ -194,23 +325,30 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
   }));
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
-        {/* Metadata Card */}
-        <Card
-          title="Rule Metadata"
-          style={{
-            background: darkMode ? '#1f1f1f' : '#ffffff',
-            border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
-          }}
-        >
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            <div>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Fixed Header Panel */}
+      <Card
+        style={{
+          background: darkMode ? '#1f1f1f' : '#ffffff',
+          border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
+          borderRadius: '6px 6px 0 0',
+          flexShrink: 0,
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          marginBottom: '8px'
+        }}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="small">
+          {/* Row 1: Rule ID, Version, Load Rule, Save Rule */}
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+            <div style={{ flex: 1 }}>
               <Text 
                 strong 
                 style={{ 
                   display: 'block', 
-                  marginBottom: '8px',
+                  marginBottom: '4px',
+                  fontSize: '12px',
                   color: darkMode ? '#e0e0e0' : 'inherit'
                 }}
               >
@@ -222,121 +360,109 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
                   metadata: { ...ruleData.metadata, id: e.target.value } 
                 })}
                 placeholder="Enter rule ID"
+                size="small"
               />
             </div>
-
-            <div>
+            
+            <div style={{ width: '80px' }}>
               <Text 
                 strong 
                 style={{ 
                   display: 'block', 
-                  marginBottom: '8px',
+                  marginBottom: '4px',
+                  fontSize: '12px',
                   color: darkMode ? '#e0e0e0' : 'inherit'
                 }}
               >
-                Description:
+                Version:
               </Text>
-              <TextArea
-                value={ruleData.metadata.description}
-                onChange={(e) => handleChange({ 
-                  metadata: { ...ruleData.metadata, description: e.target.value } 
-                })}
-                placeholder="Enter rule description"
-                rows={3}
+              <Input
+                type="number"
+                value={ruleData.version}
+                onChange={(e) => handleChange({ version: parseInt(e.target.value) || 1 })}
+                min={1}
+                size="small"
               />
             </div>
+            
+            <Button 
+              icon={<FolderOpenOutlined />}
+              onClick={handleLoadRule}
+              disabled={!ruleData.metadata.id}
+              size="small"
+            >
+              Load Rule
+            </Button>
+            
+            <Button 
+              type="primary"
+              icon={<SaveOutlined />}
+              onClick={handleSaveRule}
+              disabled={!ruleData.metadata.id}
+              size="small"
+            >
+              Save Rule
+            </Button>
+          </div>
 
-            <Space style={{ width: '100%' }}>
-              <div style={{ flex: 1 }}>
-                <Text 
-                  strong 
-                  style={{ 
-                    display: 'block', 
-                    marginBottom: '8px',
-                    color: darkMode ? '#e0e0e0' : 'inherit'
-                  }}
-                >
-                  UUID:
-                </Text>
-                <Input
-                  value={ruleData.uuId}
-                  disabled
-                  style={{ 
-                    color: darkMode ? '#888888' : '#999999',
-                    cursor: 'not-allowed'
-                  }}
-                />
-              </div>
-              
-              <div style={{ width: '100px' }}>
-                <Text 
-                  strong 
-                  style={{ 
-                    display: 'block', 
-                    marginBottom: '8px',
-                    color: darkMode ? '#e0e0e0' : 'inherit'
-                  }}
-                >
-                  Version:
-                </Text>
-                <Input
-                  type="number"
-                  value={ruleData.version}
-                  onChange={(e) => handleChange({ version: parseInt(e.target.value) || 1 })}
-                  min={1}
-                />
-              </div>
-            </Space>
-          </Space>
-        </Card>
+          {/* Row 2: Description */}
+          <div>
+            <Text 
+              strong 
+              style={{ 
+                display: 'block', 
+                marginBottom: '4px',
+                fontSize: '12px',
+                color: darkMode ? '#e0e0e0' : 'inherit'
+              }}
+            >
+              Description:
+            </Text>
+            <TextArea
+              value={ruleData.metadata.description}
+              onChange={(e) => handleChange({ 
+                metadata: { ...ruleData.metadata, description: e.target.value } 
+              })}
+              placeholder="Enter rule description"
+              rows={2}
+              size="small"
+            />
+          </div>
 
-        {/* Structure Selection */}
-        <Card
-          title="Rule Structure"
-          style={{
-            background: darkMode ? '#1f1f1f' : '#ffffff',
-            border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
-          }}
-        >
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            <div>
+          {/* Row 3: Structure, Return Type, Rule Type */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ flex: 1 }}>
               <Text 
                 strong 
                 style={{ 
                   display: 'block', 
-                  marginBottom: '8px',
+                  marginBottom: '4px',
+                  fontSize: '12px',
                   color: darkMode ? '#e0e0e0' : 'inherit'
                 }}
               >
-                Structure Type:
+                Structure:
               </Text>
               <Select
                 value={ruleData.structure}
                 onChange={handleStructureChange}
                 style={{ width: '100%' }}
+                size="small"
                 options={[
-                  { 
-                    value: 'case', 
-                    label: 'CASE - Multiple conditions with different results' 
-                  },
-                  { 
-                    value: 'condition', 
-                    label: 'CONDITION - Single boolean condition or group' 
-                  },
-                  { 
-                    value: 'expression', 
-                    label: 'EXPRESSION - Single value, field, or function' 
-                  }
+                  { value: 'case', label: 'CASE Expression' },
+                  { value: 'condition', label: 'Condition Group' },
+                  { value: 'expression', label: 'Single Expression' }
                 ]}
               />
             </div>
 
-            <div>
+            <div style={{ flex: 1 }}>
               <Text 
                 strong 
                 style={{ 
                   display: 'block', 
-                  marginBottom: '8px',
+                  marginBottom: '4px',
+                  fontSize: '12px',
                   color: darkMode ? '#e0e0e0' : 'inherit'
                 }}
               >
@@ -346,6 +472,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
                 value={ruleData.returnType}
                 onChange={(returnType) => handleChange({ returnType })}
                 style={{ width: '100%' }}
+                size="small"
                 disabled={ruleData.structure === 'case' || ruleData.structure === 'condition'}
                 options={[
                   { value: 'boolean', label: 'Boolean' },
@@ -355,46 +482,76 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange }, ref)
                 ]}
               />
             </div>
-          </Space>
-        </Card>
 
-        {/* Rule Content */}
-        <Card
-          title="Rule Definition"
-          style={{
-            background: darkMode ? '#1f1f1f' : '#ffffff',
-            border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
-          }}
-        >
-          {ruleData.structure === 'case' && ruleData.content && (
-            <Case
-              value={ruleData.content}
-              onChange={(content) => handleChange({ content })}
-              config={config}
-              darkMode={darkMode}
-            />
-          )}
+            <div style={{ flex: 1 }}>
+              <Text 
+                strong 
+                style={{ 
+                  display: 'block', 
+                  marginBottom: '4px',
+                  fontSize: '12px',
+                  color: darkMode ? '#e0e0e0' : 'inherit'
+                }}
+              >
+                Rule Type:
+              </Text>
+              <Select
+                value={ruleData.ruleType}
+                onChange={(ruleType) => handleChange({ ruleType })}
+                style={{ width: '100%' }}
+                size="small"
+                options={ruleTypes.map(type => ({ value: type, label: type }))}
+              />
+            </div>
+          </div>
+        </Space>        
+      </Card>
 
-          {ruleData.structure === 'condition' && ruleData.content && (
-            <ConditionGroup
-              value={ruleData.content}
-              onChange={(content) => handleChange({ content })}
-              config={config}
-              darkMode={darkMode}
-            />
-          )}
+      {/* Scrollable Rule Definition */}
+      <Card
+        title="Rule Definition"
+        style={{
+          background: darkMode ? '#1f1f1f' : '#ffffff',
+          border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
+          borderRadius: '0 0 6px 6px',
+          flex: 1,
+          overflow: 'auto'
+        }}
+        styles={{
+          body: {
+            height: '100%',
+            overflow: 'auto'
+          }
+        }}
+      >
+        {ruleData.structure === 'case' && ruleData.content && (
+          <Case
+            value={ruleData.content}
+            onChange={(content) => handleChange({ content })}
+            config={config}
+            darkMode={darkMode}
+          />
+        )}
 
-          {ruleData.structure === 'expression' && ruleData.content && (
-            <Expression
-              value={ruleData.content}
-              onChange={(content) => handleChange({ content })}
-              config={config}
-              expectedType={ruleData.returnType}
-              darkMode={darkMode}
-            />
-          )}
-        </Card>
-      </Space>
+        {ruleData.structure === 'condition' && ruleData.content && (
+          <ConditionGroup
+            value={ruleData.content}
+            onChange={(content) => handleChange({ content })}
+            config={config}
+            darkMode={darkMode}
+          />
+        )}
+
+        {ruleData.structure === 'expression' && ruleData.content && (
+          <Expression
+            value={ruleData.content}
+            onChange={(content) => handleChange({ content })}
+            config={config}
+            expectedType={ruleData.returnType}
+            darkMode={darkMode}
+          />
+        )}
+      </Card>
     </div>
   );
 });

@@ -166,170 +166,180 @@
     }
   },
   "funcs": {
-    "TEXT.CONCAT": {
-      "label": "TEXT.CONCAT",
-      "returnType": "text",
-      "args": {
-        "text1": {
-          "label": "Text 1",
-          "type": "text",
-          "valueSources": ["value", "field", "func"]
+    "MATH": {
+      "label": "MATH Functions",
+      "type": "!struct",
+      "subfields": {
+        "ADD": {
+          "label": "ADD",
+          "returnType": "number",
+          "dynamicArgs": {
+            "argType": "number",
+            "minArgs": 2,
+            "maxArgs": 10,
+            "defaultValue": 0
+          }
         },
-        "text2": {
-          "label": "Text 2",
-          "type": "text",
-          "valueSources": ["value", "field", "func"]
-        }
-      }
-    },
-    "TEXT.MID": {
-      "label": "TEXT.MID",
-      "returnType": "text",
-      "args": {
-        "text": {
-          "label": "Text",
-          "type": "text",
-          "valueSources": ["value", "field", "func"]
+        "SUBTRACT": {
+          "label": "SUBTRACT",
+          "returnType": "number",
+          "args": {
+            "num1": {
+              "label": "Number 1",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            },
+            "num2": {
+              "label": "Number 2",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         },
-        "start": {
-          "label": "Start Position",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
+        "MULTIPLY": {
+          "label": "MULTIPLY",
+          "returnType": "number",
+          "args": {
+            "num1": {
+              "label": "Number 1",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            },
+            "num2": {
+              "label": "Number 2",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         },
-        "length": {
-          "label": "Length",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
-        }
-      }
-    },
-    "TEXT.LEN": {
-      "label": "TEXT.LEN",
-      "returnType": "number",
-      "args": {
-        "text": {
-          "label": "Text",
-          "type": "text",
-          "valueSources": ["value", "field", "func"]
-        }
-      }
-    },
-    "MATH.ADD": {
-      "label": "MATH.ADD",
-      "returnType": "number",
-      "args": {
-        "num1": {
-          "label": "Number 1",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
+        "DIVIDE": {
+          "label": "DIVIDE",
+          "returnType": "number",
+          "args": {
+            "dividend": {
+              "label": "Dividend",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            },
+            "divisor": {
+              "label": "Divisor",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         },
-        "num2": {
-          "label": "Number 2",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
-        }
-      }
-    },
-    "MATH.SUBTRACT": {
-      "label": "MATH.SUBTRACT",
-      "returnType": "number",
-      "args": {
-        "num1": {
-          "label": "Number 1",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
+        "SUM": {
+          "label": "SUM",
+          "returnType": "number",
+          "dynamicArgs": {
+            "argType": "number",
+            "minArgs": 2,
+            "maxArgs": 20,
+            "defaultValue": 0
+          }
         },
-        "num2": {
-          "label": "Number 2",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
-        }
-      }
-    },
-    "MATH.MULTIPLY": {
-      "label": "MATH.MULTIPLY",
-      "returnType": "number",
-      "args": {
-        "num1": {
-          "label": "Number 1",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
+        "ROUND": {
+          "label": "ROUND",
+          "returnType": "number",
+          "args": {
+            "number": {
+              "label": "Number",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            },
+            "decimals": {
+              "label": "Decimals",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         },
-        "num2": {
-          "label": "Number 2",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
+        "ABS": {
+          "label": "ABS",
+          "returnType": "number",
+          "args": {
+            "number": {
+              "label": "Number",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         }
       }
     },
-    "MATH.DIVIDE": {
-      "label": "MATH.DIVIDE",
-      "returnType": "number",
-      "args": {
-        "dividend": {
-          "label": "Dividend",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
+    "TEXT": {
+      "label": "TEXT Functions",
+      "type": "!struct",
+      "subfields": {
+        "CONCAT": {
+          "label": "CONCAT",
+          "returnType": "text",
+          "args": {
+            "text1": {
+              "label": "Text 1",
+              "type": "text",
+              "valueSources": ["value", "field", "func"]
+            },
+            "text2": {
+              "label": "Text 2",
+              "type": "text",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         },
-        "divisor": {
-          "label": "Divisor",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
-        }
-      }
-    },
-    "MATH.SUM": {
-      "label": "MATH.SUM",
-      "returnType": "number",
-      "args": {
-        "numbers": {
-          "label": "Numbers",
-          "type": "number",
-          "valueSources": ["value", "field", "func"],
-          "isVariadic": true
-        }
-      }
-    },
-    "MATH.ROUND": {
-      "label": "MATH.ROUND",
-      "returnType": "number",
-      "args": {
-        "number": {
-          "label": "Number",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
+        "MID": {
+          "label": "MID",
+          "returnType": "text",
+          "args": {
+            "text": {
+              "label": "Text",
+              "type": "text",
+              "valueSources": ["value", "field", "func"]
+            },
+            "start": {
+              "label": "Start Position",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            },
+            "length": {
+              "label": "Length",
+              "type": "number",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         },
-        "decimals": {
-          "label": "Decimals",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
+        "LEN": {
+          "label": "LEN",
+          "returnType": "number",
+          "args": {
+            "text": {
+              "label": "Text",
+              "type": "text",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         }
       }
     },
-    "MATH.ABS": {
-      "label": "MATH.ABS",
-      "returnType": "number",
-      "args": {
-        "number": {
-          "label": "Number",
-          "type": "number",
-          "valueSources": ["value", "field", "func"]
-        }
-      }
-    },
-    "DATE.DIFF": {
-      "label": "DATE.DIFF",
-      "returnType": "number",
-      "args": {
-        "date1": {
-          "label": "Date 1",
-          "type": "date",
-          "valueSources": ["value", "field", "func"]
-        },
-        "date2": {
-          "label": "Date 2",
-          "type": "date",
-          "valueSources": ["value", "field", "func"]
+    "DATE": {
+      "label": "DATE Functions",
+      "type": "!struct",
+      "subfields": {
+        "DIFF": {
+          "label": "DIFF",
+          "returnType": "number",
+          "args": {
+            "date1": {
+              "label": "Date 1",
+              "type": "date",
+              "valueSources": ["value", "field", "func"]
+            },
+            "date2": {
+              "label": "Date 2",
+              "type": "date",
+              "valueSources": ["value", "field", "func"]
+            }
+          }
         }
       }
     }

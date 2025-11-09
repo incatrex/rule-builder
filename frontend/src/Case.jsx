@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Button, Space, Typography, Collapse, Input } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
@@ -28,33 +28,36 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
     elseClause: { source: 'value', returnType: 'text', value: '' },
-    elseResultName: 'Default',
-    elseExpanded: true
+    elseResultName: 'Default'
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
   const [activeKeys, setActiveKeys] = useState([]);
+  const [elseExpanded, setElseExpanded] = useState(true); // UI state only
+  const [editingStates, setEditingStates] = useState({}); // Track editing state for each clause
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     if (value) {
       setCaseData(value);
-      // Expand all WHEN clauses when new data is loaded
-      const keys = value.whenClauses ? value.whenClauses.map((_, index) => String(index)) : [];
-      setActiveKeys(keys);
+      // Only auto-expand on initial load, not on subsequent updates
+      if (isInitialLoad.current && value.whenClauses && value.whenClauses.length > 0) {
+        const keys = value.whenClauses.map((_, index) => String(index));
+        setActiveKeys(keys);
+        isInitialLoad.current = false;
+      }
     }
   }, [value]);
-
-  // Initialize activeKeys for existing whenClauses when component mounts
-  useEffect(() => {
-    if (caseData.whenClauses && caseData.whenClauses.length > 0 && activeKeys.length === 0) {
-      const keys = caseData.whenClauses.map((_, index) => String(index));
-      setActiveKeys(keys);
-    }
-  }, [caseData.whenClauses, activeKeys.length]);
 
   const handleChange = (updates) => {
     const updated = { ...caseData, ...updates };
     setCaseData(updated);
-    onChange(updated);
+    
+    // Remove UI-only properties but keep the internal structure intact for components
+    const { elseExpanded: _, ...cleanData } = updated;
+    
+    // Pass the data through without transformation for internal component use
+    // JSON transformation should only happen at final export stage
+    onChange(cleanData);
   };
 
   const addWhenClause = () => {
@@ -68,7 +71,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
         name: `Condition ${caseData.whenClauses.length + 1}`,
         conjunction: 'AND',
         not: false,
-        children: [
+        conditions: [
           // Auto-add an empty condition to the new group
           {
             type: 'condition',
@@ -79,17 +82,14 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
             operator: null,
             right: { source: 'value', returnType: 'text', value: '' }
           }
-        ],
-        isExpanded: true
+        ]
       },
       then: {
         source: 'value',
         returnType: 'text',
         value: ''
       },
-      resultName: `Result ${caseData.whenClauses.length + 1}`,
-      editingName: false,
-      editingResultName: false
+      resultName: `Result ${caseData.whenClauses.length + 1}`
     };
     handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });
     setActiveKeys([...activeKeys, String(caseData.whenClauses.length)]);
@@ -107,14 +107,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   };
 
   return (
-    <Card 
-      title="CASE Statement Builder"
-      style={{
-        background: darkMode ? '#1f1f1f' : '#ffffff',
-        border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
-      }}
-    >
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
+    <Space direction="vertical" style={{ width: '100%' }} size="large">
         {/* WHEN Clauses */}
         <Collapse 
           activeKey={activeKeys} 
@@ -131,13 +124,13 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Space>
                     <Text strong>WHEN</Text>
-                    {clause.editingName ? (
+                    {editingStates[`${index}_name`] ? (
                       <Input
                         size="small"
                         value={clause.when?.name || `Condition ${index + 1}`}
                         onChange={(e) => updateWhenClause(index, { when: { ...clause.when, name: e.target.value } })}
-                        onPressEnter={() => updateWhenClause(index, { editingName: false })}
-                        onBlur={() => updateWhenClause(index, { editingName: false })}
+                        onPressEnter={() => setEditingStates(prev => ({ ...prev, [`${index}_name`]: false }))}
+                        onBlur={() => setEditingStates(prev => ({ ...prev, [`${index}_name`]: false }))}
                         autoFocus
                         style={{ width: '200px' }}
                         onClick={(e) => e.stopPropagation()}
@@ -149,7 +142,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                           style={{ fontSize: '12px', cursor: 'pointer' }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            updateWhenClause(index, { editingName: true });
+                            setEditingStates(prev => ({ ...prev, [`${index}_name`]: true }));
                           }}
                         />
                       </>
@@ -157,13 +150,13 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                     {!isExpanded && (
                       <>
                         <Text strong style={{ marginLeft: '16px' }}>THEN</Text>
-                        {clause.editingResultName ? (
+                        {editingStates[`${index}_result`] ? (
                           <Input
                             size="small"
                             value={clause.resultName || `Result ${index + 1}`}
                             onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
-                            onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
-                            onBlur={() => updateWhenClause(index, { editingResultName: false })}
+                            onPressEnter={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
+                            onBlur={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
                             autoFocus
                             style={{ width: '150px' }}
                             onClick={(e) => e.stopPropagation()}
@@ -175,7 +168,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                               style={{ fontSize: '12px', cursor: 'pointer' }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                updateWhenClause(index, { editingResultName: true });
+                                setEditingStates(prev => ({ ...prev, [`${index}_result`]: true }));
                               }}
                             />
                           </>
@@ -214,13 +207,13 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                 <div>
                   <Space style={{ marginBottom: '8px' }}>
                     <Text strong>THEN</Text>
-                    {clause.editingResultName ? (
+                    {editingStates[`${index}_result`] ? (
                       <Input
                         size="small"
                         value={clause.resultName || `Result ${index + 1}`}
                         onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
-                        onPressEnter={() => updateWhenClause(index, { editingResultName: false })}
-                        onBlur={() => updateWhenClause(index, { editingResultName: false })}
+                        onPressEnter={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
+                        onBlur={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
                         autoFocus
                         style={{ width: '150px' }}
                       />
@@ -229,7 +222,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                         <Text code>{clause.resultName || `Result ${index + 1}`}</Text>
                         <EditOutlined 
                           style={{ fontSize: '12px', cursor: 'pointer' }}
-                          onClick={() => updateWhenClause(index, { editingResultName: true })}
+                          onClick={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: true }))}
                         />
                       </>
                     )}
@@ -260,8 +253,8 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
 
         {/* ELSE Clause */}
         <Collapse 
-          activeKey={caseData.elseExpanded ? ['else'] : []} 
-          onChange={(keys) => handleChange({ elseExpanded: keys.includes('else') })}
+          activeKey={elseExpanded ? ['else'] : []} 
+          onChange={(keys) => setElseExpanded(keys.includes('else'))}
         >
           <Panel
             key="else"
@@ -303,7 +296,6 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
           </Panel>
         </Collapse>
       </Space>
-    </Card>
   );
 };
 

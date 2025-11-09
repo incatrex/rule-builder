@@ -203,6 +203,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
           onChange={handleOperatorChange}
           placeholder="Select operator"
           style={{ width: 140 }}
+          className="operator-select"
           size="small"
           options={availableOperators}
         />
