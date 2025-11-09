@@ -214,8 +214,59 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
               onClick={() => setIsExpanded(false)}
               style={{ padding: 0, minWidth: 'auto', color: darkMode ? '#888' : '#666' }}
             />
-            <Text type="secondary" style={{ fontSize: '11px' }}>
-              Mathematical Expression
+            <Text 
+              type="secondary" 
+              style={{ 
+                fontSize: '11px',
+                fontFamily: 'monospace',
+                maxWidth: '200px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+              title="Click to expand expression"
+            >
+              {(() => {
+                // Generate collapsed view of the entire expression group
+                const getExpressionCompactView = (expr) => {
+                  if (!expr) return '?';
+                  
+                  if (expr.source === 'value') {
+                    return expr.value !== undefined ? String(expr.value) : '?';
+                  } else if (expr.source === 'field') {
+                    return expr.field || '?';
+                  } else if (expr.source === 'function') {
+                    const funcName = expr.function?.name?.split('.').pop() || '?';
+                    if (expr.function?.args?.length) {
+                      const argsStr = expr.function.args.map(arg => {
+                        if (!arg.value) return '?';
+                        return getExpressionCompactView(arg.value);
+                      }).join(', ');
+                      return `${funcName}(${argsStr})`;
+                    }
+                    return `${funcName}()`;
+                  } else if (expr.source === 'expressionGroup') {
+                    // Handle nested expression groups
+                    let result = getExpressionCompactView(expr.firstExpression);
+                    if (expr.additionalExpressions?.length) {
+                      expr.additionalExpressions.forEach(addExpr => {
+                        result += ` ${addExpr.operator} ${getExpressionCompactView(addExpr.expression)}`;
+                      });
+                      return `(${result})`;
+                    }
+                    return result;
+                  }
+                  return '?';
+                };
+                
+                let result = getExpressionCompactView(groupData.firstExpression);
+                if (groupData.additionalExpressions?.length) {
+                  groupData.additionalExpressions.forEach(addExpr => {
+                    result += ` ${addExpr.operator} ${getExpressionCompactView(addExpr.expression)}`;
+                  });
+                }
+                return result || 'Mathematical Expression';
+              })()}
             </Text>
             <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
               {groupData.returnType}
@@ -796,9 +847,57 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
               }}
               style={{ padding: 0, color: darkMode ? '#e0e0e0' : 'inherit' }}
             />
-            <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
-              Arguments ({expressionData.function.args?.length || 0})
-            </Text>
+            <div 
+              style={{ 
+                padding: '6px 8px',
+                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '12px',
+                border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                maxWidth: '200px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                cursor: 'pointer'
+              }}
+              title="Click to expand function"
+            >
+              <Text 
+                style={{ 
+                  color: darkMode ? '#e0e0e0' : '#333',
+                  fontSize: '12px'
+                }}
+              >
+              {(() => {
+                // Generate collapsed function view for header
+                const getCompactArgValue = (arg) => {
+                  if (!arg.value) return '?';
+                  
+                  if (arg.value.source === 'value') {
+                    return arg.value.value !== undefined ? String(arg.value.value) : '?';
+                  } else if (arg.value.source === 'field') {
+                    return arg.value.field || '?';
+                  } else if (arg.value.source === 'function') {
+                    const innerFuncName = arg.value.function?.name?.split('.').pop() || '?';
+                    return `${innerFuncName}(...)`;
+                  } else if (arg.value.source === 'expressionGroup') {
+                    // Handle ExpressionGroup - show compact representation
+                    if (arg.value.additionalExpressions?.length > 0) {
+                      return '(...)'; // Complex expression
+                    } else if (arg.value.firstExpression) {
+                      return getCompactArgValue({ value: arg.value.firstExpression });
+                    }
+                  }
+                  return '?';
+                };
+
+                const functionName = expressionData.function.name.split('.').pop();
+                const argsStr = expressionData.function.args.map(getCompactArgValue).join(', ');
+                return `${functionName}(${argsStr})`;
+              })()}
+              </Text>
+            </div>
           </Space>
         }
         style={{
