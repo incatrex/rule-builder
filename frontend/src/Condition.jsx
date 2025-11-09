@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Space, Typography, Input, Button } from 'antd';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { CloseOutlined, EditOutlined } from '@ant-design/icons';
 import ExpressionGroup from './ExpressionGroup';
 
 const { Text } = Typography;
@@ -186,9 +186,10 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
           </Space>
           {onRemove && (
             <Button
-              danger
+              type="text"
               size="small"
-              icon={<DeleteOutlined />}
+              danger
+              icon={<CloseOutlined />}
               onClick={onRemove}
               title="Remove condition"
             />
