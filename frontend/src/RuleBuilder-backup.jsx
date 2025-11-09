@@ -57,7 +57,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
 
   const [availableVersions, setAvailableVersions] = useState([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
-  const [ruleTypes, setRuleTypes] = useState(['Reporting', 'Validation', 'Calculation', 'Business']); // Default values
+  const [ruleTypes, setRuleTypes] = useState(['Reporting', 'Validation', 'Calculation', 'Business']);
 
   useEffect(() => {
     // Initialize content based on structure
@@ -66,32 +66,10 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     }
   }, []);
 
-  useEffect(() => {
-    // Load rule types from backend API
-    const loadRuleTypes = async () => {
-      try {
-        const response = await fetch('/api/ruleTypes');
-        if (response.ok) {
-          const ruleTypesData = await response.json();
-          if (Array.isArray(ruleTypesData) && ruleTypesData.length > 0) {
-            setRuleTypes(ruleTypesData);
-            // Update the current ruleType if it's not in the new list
-            if (!ruleTypesData.includes(ruleData.ruleType)) {
-              handleChange({ ruleType: ruleTypesData[0] });
-            }
-          }
-        } else {
-          console.error('Failed to load rule types, status:', response.status);
-        }
-      } catch (error) {
-        console.error('Error loading rule types:', error);
-        // Keep default values if API fails
-        setRuleTypes(['Reporting', 'Validation', 'Calculation', 'Business']);
-      }
-    };
-
-    loadRuleTypes();
-  }, []);
+  // useEffect(() => {
+  //   // Load rule types on component mount
+  //   loadRuleTypes();
+  // }, []);
 
   useEffect(() => {
     // Load versions when selectedRuleUuid changes
@@ -121,6 +99,23 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       setAvailableVersions([]);
     } finally {
       setLoadingVersions(false);
+    }
+  };
+
+  const loadRuleTypes = async () => {
+    try {
+      const response = await axios.get('/api/ruleTypes');
+      const types = response.data;
+      setRuleTypes(types);
+      
+      // Update the default ruleType if current one is not in the list
+      if (types.length > 0 && !types.includes(ruleData.ruleType)) {
+        setRuleData(prev => ({ ...prev, ruleType: types[0] }));
+      }
+    } catch (error) {
+      console.error('Error loading rule types:', error);
+      // Fallback to default values if API fails
+      setRuleTypes(['Reporting', 'Validation', 'Calculation', 'Business']);
     }
   };
 
@@ -264,7 +259,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   };
 
   const getRuleOutput = () => {
-    // Use 'content' key for consistency with editing
+    // Use 'content' key for consistency with editing and clean UI state
     return {
       structure: ruleData.structure,
       returnType: ruleData.returnType,
@@ -272,9 +267,36 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       uuId: ruleData.uuId,
       version: ruleData.version,
       metadata: ruleData.metadata,
-      content: ruleData.content
+      content: cleanRuleData(ruleData.content)
     };
   };
+
+  // Helper function to recursively remove all UI state properties from rule data
+  const cleanRuleData = (obj) => {
+    if (!obj || typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (Array.isArray(obj)) {
+      return obj.map(item => cleanRuleData(item));
+    }
+    
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Remove UI-only properties
+      if (key === 'isExpanded' || key === 'elseExpanded') {
+        continue;
+      } else if (typeof value === 'object' && value !== null) {
+        result[key] = cleanRuleData(value);
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  };
+
+  // Signal to child components that this is a loaded rule (should be collapsed)
+  // const [isLoadedRule, setIsLoadedRule] = useState(false);
 
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
@@ -286,6 +308,14 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       // 1. Content format (new): { structure: "case", content: {...} }
       // 2. Dynamic key format (old): { structure: "case", case: {...} }
       let content = data.content || data[structure] || null;
+      
+      // Clean any UI state from loaded data and signal this is a loaded rule
+      if (content) {
+        content = cleanRuleData(content);
+        // setIsLoadedRule(true);
+      } else {
+        // setIsLoadedRule(false);
+      }
       
       setRuleData({
         structure,

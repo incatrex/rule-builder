@@ -275,7 +275,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
         treeData={fieldTreeData}
         placeholder="Select field"
         style={{ width: '100%', minWidth: '200px' }}
-        dropdownClassName="compact-tree-select"
+        popupClassName="compact-tree-select"
         treeIcon={false}
         showSearch
         treeDefaultExpandAll
@@ -343,7 +343,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
             style={{ width: '100%' }}
             showSearch
             treeDefaultExpandAll
-            dropdownClassName="compact-tree-select"
+            popupClassName="compact-tree-select"
             treeIcon={false}
             onClick={(e) => e.stopPropagation()}
             onFocus={(e) => e.stopPropagation()}

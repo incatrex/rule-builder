@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from 'antd';
-import { PlusOutlined, DeleteOutlined, MenuOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined } from '@ant-design/icons';
 import {
   DndContext,
   closestCenter,
@@ -269,12 +269,12 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
         }
         extra={
           depth > 0 && onRemove ? (
-            <DeleteOutlined
+            <CloseOutlined
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove();
               }}
-              style={{ color: 'red' }}
+              style={{ color: 'red', cursor: 'pointer' }}
             />
           ) : null
         }
