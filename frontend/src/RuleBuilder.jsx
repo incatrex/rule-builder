@@ -4,6 +4,7 @@ import { SaveOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
+import { createFieldExpressionGroup, createValueExpressionGroup } from './ExpressionGroup';
 import ExpressionGroup from './ExpressionGroup';
 
 const { Text } = Typography;
@@ -153,40 +154,20 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                   id: generateId(),
                   returnType: 'boolean',
                   name: 'Condition 1',
-                  left: { 
-                    source: 'expressionGroup',
-                    returnType: 'number',
-                    firstExpression: { source: 'field', returnType: 'number', field: null },
-                    additionalExpressions: []
-                  },
+                  left: createFieldExpressionGroup('number'),
                   operator: null,
-                  right: { 
-                    source: 'expressionGroup',
-                    returnType: 'number',
-                    firstExpression: { source: 'value', returnType: 'number', value: '' },
-                    additionalExpressions: []
-                  }
+                  right: createValueExpressionGroup('number', '')
                 }
               ],
               isExpanded: true
             },
-            then: {
-              source: 'expressionGroup',
-              returnType: 'number',
-              firstExpression: { source: 'value', returnType: 'number', value: '' },
-              additionalExpressions: []
-            },
+              then: createValueExpressionGroup('number', ''),
             resultName: 'Result 1',
             editingName: false,
             editingResultName: false
           }
         ],
-        elseClause: { 
-          source: 'expressionGroup',
-          returnType: 'number',
-          firstExpression: { source: 'value', returnType: 'number', value: '' },
-          additionalExpressions: []
-        },
+        elseClause: createValueExpressionGroup('number', ''),
         elseResultName: 'Default',
         elseExpanded: true
       };
@@ -204,30 +185,15 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
             id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             returnType: 'boolean',
             name: 'Condition 1',
-            left: { 
-              source: 'expressionGroup',
-              returnType: 'number',
-              firstExpression: { source: 'field', returnType: 'number', field: null },
-              additionalExpressions: []
-            },
-            operator: null,
-            right: { 
-              source: 'expressionGroup',
-              returnType: 'number',
-              firstExpression: { source: 'value', returnType: 'number', value: '' },
-              additionalExpressions: []
-            }
+            left: createFieldExpressionGroup('number'),
+          operator: null,
+          right: createValueExpressionGroup('number', '')
           }
         ],
         isExpanded: true
       };
     } else if (structure === 'expression') {
-      content = {
-        source: 'expressionGroup',
-        returnType: 'number',
-        firstExpression: { source: 'value', returnType: 'number', value: '' },
-        additionalExpressions: []
-      };
+      content = createValueExpressionGroup('number', '');
     }
     
     handleChange({ 

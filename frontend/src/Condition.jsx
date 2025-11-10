@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { CloseOutlined, EditOutlined } from '@ant-design/icons';
-import ExpressionGroup from './ExpressionGroup';
+import ExpressionGroup, { createFieldExpressionGroup, createValueExpressionGroup } from './ExpressionGroup';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -26,19 +26,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
   const [conditionData, setConditionData] = useState(value || {
     returnType: 'boolean',
     name: 'New Condition',
-    left: { 
-      source: 'expressionGroup',
-      returnType: 'number',
-      firstExpression: { source: 'field', returnType: 'number', field: null },
-      additionalExpressions: []
-    },
+    left: createFieldExpressionGroup('number'),
     operator: null,
-    right: { 
-      source: 'expressionGroup',
-      returnType: 'number',
-      firstExpression: { source: 'value', returnType: 'number', value: '' },
-      additionalExpressions: []
-    }
+    right: createValueExpressionGroup('number', '')
   });
   const [editingName, setEditingName] = useState(false);
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules

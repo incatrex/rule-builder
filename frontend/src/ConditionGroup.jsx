@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from 'antd';
 import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined } from '@ant-design/icons';
+import { createFieldExpressionGroup, createValueExpressionGroup } from './ExpressionGroup';
 import {
   DndContext,
   closestCenter,
@@ -161,19 +162,9 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
       id: generateId(),
       returnType: 'boolean',
       name: `Condition ${conditions.length + 1}`,
-      left: { 
-        source: 'expressionGroup',
-        returnType: 'number',
-        firstExpression: { source: 'field', returnType: 'number', field: null },
-        additionalExpressions: []
-      },
+      left: createFieldExpressionGroup('number'),
       operator: null,
-      right: { 
-        source: 'expressionGroup',
-        returnType: 'number',
-        firstExpression: { source: 'value', returnType: 'number', value: '' },
-        additionalExpressions: []
-      }
+      right: createValueExpressionGroup('number', '')
     };
     handleChange({ conditions: [...conditions, newCondition] });
   };
@@ -194,19 +185,9 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
           id: generateId(),
           returnType: 'boolean',
           name: 'Condition 1',
-          left: { 
-            source: 'expressionGroup',
-            returnType: 'number',
-            firstExpression: { source: 'field', returnType: 'number', field: null },
-            additionalExpressions: []
-          },
+          left: createFieldExpressionGroup('number'),
           operator: null,
-          right: { 
-            source: 'expressionGroup',
-            returnType: 'number',
-            firstExpression: { source: 'value', returnType: 'number', value: '' },
-            additionalExpressions: []
-          }
+          right: createValueExpressionGroup('number', '')
         }
       ]
     };

@@ -17,13 +17,12 @@ const { Text } = Typography;
  * {
  *   "source": "expressionGroup",
  *   "returnType": "number|text|date|boolean", // inferred from expressions
- *   "firstExpression": BaseExpression | ExpressionGroup,
- *   "additionalExpressions": [
- *     {
- *       "operator": "+" | "-" | "*" | "/",
- *       "expression": BaseExpression | ExpressionGroup
- *     }
- *   ]
+ *   "expressions": [
+ *     BaseExpression | ExpressionGroup,
+ *     BaseExpression | ExpressionGroup,
+ *     ...
+ *   ],
+ *   "operators": ["+" | "-" | "*" | "/", ...]  // Always one less than expressions
  * }
  * 
  * BaseExpression (leaf expressions):
@@ -49,39 +48,25 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     }
   }, [isLoadedRule]);
   
-  // Normalize the value to ensure it's a proper ExpressionGroup structure
-  const normalizeValue = (val) => {
-    if (!val) {
+  // Initialize with default structure if value is null/undefined
+  const [groupData, setGroupData] = useState(() => {
+    if (!value) {
       return {
         source: 'expressionGroup',
         returnType: expectedType || 'number',
-        firstExpression: { source: 'value', returnType: expectedType || 'number', value: '' },
-        additionalExpressions: []
+        expressions: [{ source: 'value', returnType: expectedType || 'number', value: '' }],
+        operators: []
       };
     }
-    
-    // If it's already an ExpressionGroup, return as-is
-    if (val.source === 'expressionGroup') {
-      return val;
-    }
-    
-    // If it's a BaseExpression (field, value, function), wrap it as the firstExpression
-    return {
-      source: 'expressionGroup',
-      returnType: val.returnType || expectedType || 'number',
-      firstExpression: val,
-      additionalExpressions: []
-    };
-  };
-  
-  const [groupData, setGroupData] = useState(normalizeValue(value));
+    return value;
+  });
   const isUpdatingFromProps = useRef(false);
 
   // Sync with external changes
   useEffect(() => {
     if (value) {
       isUpdatingFromProps.current = true;
-      setGroupData(normalizeValue(value));
+      setGroupData(value);
       setTimeout(() => {
         isUpdatingFromProps.current = false;
       }, 0);
@@ -109,9 +94,9 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
 
   const inferReturnType = (data) => {
     // If we have mathematical operators, result should be number
-    if (data.additionalExpressions && data.additionalExpressions.length > 0) {
-      const hasNumericalOperators = data.additionalExpressions.some(ae => 
-        ['+', '-', '*', '/'].includes(ae.operator)
+    if (data.operators && data.operators.length > 0) {
+      const hasNumericalOperators = data.operators.some(op => 
+        ['+', '-', '*', '/'].includes(op)
       );
       if (hasNumericalOperators) {
         return 'number';
@@ -119,7 +104,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     }
     
     // Start with first expression's return type, but default to number for mathematical expressions
-    let type = getExpressionReturnType(data.firstExpression);
+    let type = getExpressionReturnType(data.expressions?.[0]);
     
     // Default to number for mathematical expressions (when no specific type is determined)
     if (type === 'text' && data.source === 'expressionGroup') {
@@ -137,43 +122,64 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     return expr.returnType || 'number'; // Default to number instead of text
   };
 
-  const updateFirstExpression = (newExpression) => {
-    handleChange({ firstExpression: newExpression });
+  const updateExpression = (index, newExpression) => {
+    const expressions = [...(groupData.expressions || [])];
+    expressions[index] = newExpression;
+    handleChange({ expressions });
   };
 
-  const updateAdditionalExpression = (index, updates) => {
-    const additionalExpressions = [...(groupData.additionalExpressions || [])];
-    additionalExpressions[index] = { ...additionalExpressions[index], ...updates };
-    handleChange({ additionalExpressions });
+  const updateOperator = (index, operator) => {
+    const operators = [...(groupData.operators || [])];
+    operators[index] = operator;
+    handleChange({ operators });
   };
 
   const addExpression = () => {
-    const additionalExpressions = [...(groupData.additionalExpressions || [])];
-    additionalExpressions.push({
-      operator: '+',
-      expression: { 
-        source: 'value', 
-        returnType: 'number', 
-        value: 0 
-      }
+    const expressions = [...(groupData.expressions || [])];
+    const operators = [...(groupData.operators || [])];
+    
+    // Add new expression
+    expressions.push({ 
+      source: 'value', 
+      returnType: 'number', 
+      value: 0 
     });
-    handleChange({ additionalExpressions });
+    
+    // Add operator (default to +)
+    operators.push('+');
+    
+    handleChange({ expressions, operators });
   };
 
   const removeExpression = (index) => {
-    const additionalExpressions = [...(groupData.additionalExpressions || [])];
-    additionalExpressions.splice(index, 1);
-    handleChange({ additionalExpressions });
+    const expressions = [...(groupData.expressions || [])];
+    const operators = [...(groupData.operators || [])];
+    
+    // Remove expression
+    expressions.splice(index, 1);
+    
+    // Remove corresponding operator (either before or after the expression)
+    if (operators.length > 0) {
+      if (index === 0 && operators.length > 0) {
+        // Removing first expression, remove first operator
+        operators.splice(0, 1);
+      } else if (index > 0) {
+        // Removing non-first expression, remove the operator before it
+        operators.splice(index - 1, 1);
+      }
+    }
+    
+    handleChange({ expressions, operators });
   };
 
   const canAddOperators = () => {
     // Only allow operators if first expression is numeric
-    const firstType = getExpressionReturnType(groupData.firstExpression);
+    const firstType = getExpressionReturnType(groupData.expressions?.[0]);
     return firstType === 'number';
   };
 
   const hasMultipleExpressions = () => {
-    return groupData.additionalExpressions && groupData.additionalExpressions.length > 0;
+    return groupData.expressions && groupData.expressions.length > 1;
   };
 
   const renderCompactView = () => {
@@ -181,8 +187,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       // Single expression - render the child directly without parentheses
       return (
         <ExpressionGroup
-          value={groupData.firstExpression}
-          onChange={updateFirstExpression}
+          value={groupData.expressions?.[0]}
+          onChange={(newExpr) => updateExpression(0, newExpr)}
           config={config}
           expectedType={expectedType}
           darkMode={darkMode}
@@ -193,16 +199,19 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     }
 
     // Multiple expressions - show compact mathematical notation
-    const firstSummary = getExpressionSummary(groupData.firstExpression);
-    const additionalSummaries = (groupData.additionalExpressions || []).map(ae => 
-      `${ae.operator} ${getExpressionSummary(ae.expression)}`
-    );
+    const summaries = (groupData.expressions || []).map(expr => getExpressionSummary(expr));
+    const operators = groupData.operators || [];
+    
+    let displayText = summaries[0] || '?';
+    for (let i = 0; i < operators.length && i + 1 < summaries.length; i++) {
+      displayText += ` ${operators[i]} ${summaries[i + 1]}`;
+    }
 
     return (
       <Space size={4} style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(true)}>
         <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
         <Text code style={{ fontSize: '12px' }}>
-          ({firstSummary} {additionalSummaries.join(' ')})
+          ({displayText})
         </Text>
         <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
           {groupData.returnType}
@@ -215,10 +224,12 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     if (!expr) return '?';
     
     if (expr.source === 'expressionGroup') {
-      if (expr.additionalExpressions && expr.additionalExpressions.length > 0) {
-        return '(...)'; // Nested group
+      if (expr.expressions && expr.expressions.length > 1) {
+        return '(...)'; // Multi-expression group
+      } else if (expr.expressions && expr.expressions[0]) {
+        return getExpressionSummary(expr.expressions[0]);
       } else {
-        return getExpressionSummary(expr.firstExpression);
+        return '(empty)';
       }
     }
     
@@ -237,16 +248,25 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   // Memoized expression preview calculation
   const expressionPreview = useMemo(() => {
     // Use the same logic as expanded view for consistency
-    const firstSummary = getExpressionSummary(groupData.firstExpression);
-    if (!groupData.additionalExpressions?.length) {
-      return firstSummary || 'Mathematical Expression';
+    const { expressions, operators } = groupData;
+    
+    if (!expressions || expressions.length === 0) {
+      return 'Mathematical Expression';
     }
     
-    const additionalSummaries = groupData.additionalExpressions.map(ae => 
-      `${ae.operator} ${getExpressionSummary(ae.expression)}`
-    );
+    const expressionSummaries = expressions.map(expr => getExpressionSummary(expr));
     
-    return `${firstSummary} ${additionalSummaries.join(' ')}`;
+    if (expressions.length === 1) {
+      return expressionSummaries[0] || 'Mathematical Expression';
+    }
+    
+    // Build summary for multiple expressions
+    let summary = expressionSummaries[0];
+    for (let i = 0; i < operators.length && i + 1 < expressionSummaries.length; i++) {
+      summary += ` ${operators[i]} ${expressionSummaries[i + 1]}`;
+    }
+    
+    return summary;
   }, [groupData, config?.fields]);
 
   const renderExpandedView = () => {
@@ -287,8 +307,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           <Space style={{ width: '100%' }} size="small">
             <div style={{ flex: 1 }}>
               <BaseExpression
-                value={groupData.firstExpression}
-                onChange={updateFirstExpression}
+                value={groupData.expressions?.[0] || { source: 'value', returnType: 'number', value: '' }}
+                onChange={(value) => updateExpression(0, value)}
                 config={config}
                 expectedType={hasMultipleExpressions() ? 'number' : expectedType}
                 darkMode={darkMode}
@@ -316,52 +336,57 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         </div>
 
         {/* Additional Expressions with Operators */}
-        {(groupData.additionalExpressions || []).map((additionalExpr, index) => (
-          <div key={index} style={{ paddingLeft: '16px' }}>
-            <Space style={{ width: '100%' }} size="small">
-              {/* Operator */}
-              <Select
-                value={additionalExpr.operator}
-                onChange={(op) => updateAdditionalExpression(index, { operator: op })}
-                style={{ width: '50px' }}
-                size="small"
-                options={[
-                  { value: '+', label: '+' },
-                  { value: '-', label: '-' },
-                  { value: '*', label: '*' },
-                  { value: '/', label: '/' }
-                ]}
-              />
-              
-              {/* Expression */}
-              <div style={{ flex: 1 }}>
-                <ExpressionGroup
-                  value={additionalExpr.expression}
-                  onChange={(expr) => updateAdditionalExpression(index, { expression: expr })}
-                  config={config}
-                  expectedType="number"
-                  darkMode={darkMode}
-                  compact={compact}
-                  isLoadedRule={isLoadedRule}
+        {(groupData.expressions || []).slice(1).map((expression, index) => {
+          const operatorIndex = index; // operators[0] connects expressions[0] and expressions[1]
+          const expressionIndex = index + 1; // we're rendering expressions[1], expressions[2], etc.
+          
+          return (
+            <div key={expressionIndex} style={{ paddingLeft: '16px' }}>
+              <Space style={{ width: '100%' }} size="small">
+                {/* Operator */}
+                <Select
+                  value={groupData.operators?.[operatorIndex] || '+'}
+                  onChange={(op) => updateOperator(operatorIndex, op)}
+                  style={{ width: '50px' }}
+                  size="small"
+                  options={[
+                    { value: '+', label: '+' },
+                    { value: '-', label: '-' },
+                    { value: '*', label: '*' },
+                    { value: '/', label: '/' }
+                  ]}
                 />
-              </div>
+                
+                {/* Expression */}
+                <div style={{ flex: 1 }}>
+                  <ExpressionGroup
+                    value={expression}
+                    onChange={(expr) => updateExpression(expressionIndex, expr)}
+                    config={config}
+                    expectedType="number"
+                    darkMode={darkMode}
+                    compact={compact}
+                    isLoadedRule={isLoadedRule}
+                  />
+                </div>
 
-              {/* Remove Button */}
-              <Button
-                type="text"
-                size="small"
-                danger
-                icon={<CloseOutlined />}
-                onClick={() => removeExpression(index)}
-                style={{ minWidth: 'auto', padding: '0 4px' }}
-                title="Remove Operation"
-              />
-            </Space>
-          </div>
-        ))}
+                {/* Remove Button */}
+                <Button
+                  type="text"
+                  size="small"
+                  danger
+                  icon={<CloseOutlined />}
+                  onClick={() => removeExpression(expressionIndex)}
+                  style={{ minWidth: 'auto', padding: '0 4px' }}
+                  title="Remove Operation"
+                />
+              </Space>
+            </div>
+          );
+        })}
 
         {/* Type Warning */}
-        {!canAddOperators() && groupData.additionalExpressions?.length > 0 && (
+        {!canAddOperators() && hasMultipleExpressions() && (
           <div style={{ paddingLeft: '16px' }}>
             <Text type="warning" style={{ fontSize: '11px' }}>
               ⚠ Mathematical operations require numeric expressions
@@ -376,8 +401,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   if (compact && !hasMultipleExpressions()) {
     return (
       <BaseExpression
-        value={groupData.firstExpression}
-        onChange={updateFirstExpression}
+        value={groupData.expressions?.[0] || { source: 'value', returnType: 'number', value: '' }}
+        onChange={(value) => updateExpression(0, value)}
         config={config}
         expectedType={expectedType}
         darkMode={darkMode}
@@ -690,32 +715,20 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
               for (let i = 0; i < minArgs; i++) {
                 args.push({
                   name: `arg${i + 1}`,
-                  value: { 
-                    source: 'expressionGroup',
-                    returnType: funcDef.dynamicArgs.argType || 'text',
-                    firstExpression: {
-                      source: 'value', 
-                      returnType: funcDef.dynamicArgs.argType || 'text', 
-                      value: funcDef.dynamicArgs.defaultValue || '' 
-                    },
-                    additionalExpressions: []
-                  }
+                  value: createValueExpressionGroup(
+                    funcDef.dynamicArgs.argType || 'text',
+                    funcDef.dynamicArgs.defaultValue || ''
+                  )
                 });
               }
             } else if (funcDef.args) {
               // Handle static args (regular functions)
               args = Object.keys(funcDef.args).map(argName => ({
                 name: argName,
-                value: { 
-                  source: 'expressionGroup',
-                  returnType: funcDef.args[argName].type || 'text',
-                  firstExpression: {
-                    source: 'value', 
-                    returnType: funcDef.args[argName].type || 'text', 
-                    value: '' 
-                  },
-                  additionalExpressions: []
-                }
+                value: createValueExpressionGroup(
+                  funcDef.args[argName].type || 'text',
+                  ''
+                )
               }));
             }
             
@@ -757,10 +770,12 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         return `${innerFuncName}(...)`;
       } else if (arg.value.source === 'expressionGroup') {
         // Handle ExpressionGroup - show compact representation
-        if (arg.value.additionalExpressions?.length > 0) {
+        if (arg.value.expressions && arg.value.expressions.length > 1) {
           return '(...)'; // Complex expression
-        } else if (arg.value.firstExpression) {
-          return getCompactArgValue({ value: arg.value.firstExpression });
+        } else if (arg.value.expressions && arg.value.expressions[0]) {
+          return getCompactArgValue({ value: arg.value.expressions[0] });
+        } else {
+          return '(empty)';
         }
       }
       return '?';
@@ -824,32 +839,20 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         for (let i = 0; i < minArgs; i++) {
           args.push({
             name: `arg${i + 1}`,
-            value: { 
-              source: 'expressionGroup',
-              returnType: funcDef.dynamicArgs.argType || 'text',
-              firstExpression: {
-                source: 'value', 
-                returnType: funcDef.dynamicArgs.argType || 'text', 
-                value: funcDef.dynamicArgs.defaultValue || '' 
-              },
-              additionalExpressions: []
-            }
+            value: createValueExpressionGroup(
+              funcDef.dynamicArgs.argType || 'text',
+              funcDef.dynamicArgs.defaultValue || ''
+            )
           });
         }
       } else if (funcDef.args) {
         // Handle static args (regular functions)
         args = Object.keys(funcDef.args).map(argName => ({
           name: argName,
-          value: { 
-            source: 'expressionGroup',
-            returnType: funcDef.args[argName].type || 'text',
-            firstExpression: {
-              source: 'value', 
-              returnType: funcDef.args[argName].type || 'text', 
-              value: '' 
-            },
-            additionalExpressions: []
-          }
+          value: createValueExpressionGroup(
+            funcDef.args[argName].type || 'text',
+            ''
+          )
         }));
       }
       
@@ -912,10 +915,12 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                     return `${innerFuncName}(...)`;
                   } else if (arg.value.source === 'expressionGroup') {
                     // Handle ExpressionGroup - show compact representation
-                    if (arg.value.additionalExpressions?.length > 0) {
+                    if (arg.value.expressions && arg.value.expressions.length > 1) {
                       return '(...)'; // Complex expression
-                    } else if (arg.value.firstExpression) {
-                      return getCompactArgValue({ value: arg.value.firstExpression });
+                    } else if (arg.value.expressions && arg.value.expressions[0]) {
+                      return getCompactArgValue({ value: arg.value.expressions[0] });
+                    } else {
+                      return '(empty)';
                     }
                   }
                   return '?';
@@ -1015,16 +1020,10 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                   const newArgs = [...expressionData.function.args];
                   newArgs.push({
                     name: `arg${newArgs.length + 1}`,
-                    value: { 
-                      source: 'expressionGroup',
-                      returnType: funcDef.dynamicArgs.argType || 'text',
-                      firstExpression: {
-                        source: 'value', 
-                        returnType: funcDef.dynamicArgs.argType || 'text',
-                        value: funcDef.dynamicArgs.defaultValue ?? ''
-                      },
-                      additionalExpressions: []
-                    }
+                    value: createValueExpressionGroup(
+                      funcDef.dynamicArgs.argType || 'text',
+                      funcDef.dynamicArgs.defaultValue ?? ''
+                    )
                   });
                   handleValueChange({ function: { ...expressionData.function, args: newArgs } });
                 }}
@@ -1140,5 +1139,25 @@ const getFunctionDefinition = (funcPath, funcs) => {
   
   return null;
 };
+
+// Helper functions for creating default expression groups with new structure
+export const createDefaultExpressionGroup = (source = 'field', returnType = 'number', value = null) => {
+  const baseExpression = source === 'field' 
+    ? { source: 'field', returnType, field: value }
+    : { source: 'value', returnType, value: value || '' };
+    
+  return {
+    source: 'expressionGroup',
+    returnType,
+    expressions: [baseExpression],
+    operators: []
+  };
+};
+
+export const createFieldExpressionGroup = (returnType = 'number') => 
+  createDefaultExpressionGroup('field', returnType, null);
+
+export const createValueExpressionGroup = (returnType = 'number', value = '') => 
+  createDefaultExpressionGroup('value', returnType, value);
 
 export default ExpressionGroup;
