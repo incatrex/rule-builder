@@ -13,17 +13,16 @@ const { Text } = Typography;
  * - A single expression (simple case)
  * - Multiple expressions connected by operators (mathematical expressions)
  * 
- * JSON Structure:
+ * JSON Structure (NEW SCHEMA):
  * {
  *   "source": "expressionGroup",
  *   "returnType": "number|text|date|boolean", // inferred from expressions
- *   "firstExpression": BaseExpression | ExpressionGroup,
- *   "additionalExpressions": [
- *     {
- *       "operator": "+" | "-" | "*" | "/",
- *       "expression": BaseExpression | ExpressionGroup
- *     }
- *   ]
+ *   "expressions": [
+ *     BaseExpression | ExpressionGroup,
+ *     BaseExpression | ExpressionGroup,
+ *     ...
+ *   ],
+ *   "operators": ["+", "-", "*", "/"]  // operators between expressions
  * }
  * 
  * BaseExpression (leaf expressions):
@@ -55,8 +54,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       return {
         source: 'expressionGroup',
         returnType: expectedType || 'number',
-        firstExpression: { source: 'value', returnType: expectedType || 'number', value: '' },
-        additionalExpressions: []
+        expressions: [{ source: 'value', returnType: expectedType || 'number', value: '' }],
+        operators: []
       };
     }
     
@@ -65,12 +64,12 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       return val;
     }
     
-    // If it's a BaseExpression (field, value, function), wrap it as the firstExpression
+    // If it's a BaseExpression (field, value, function), wrap it in expressions array
     return {
       source: 'expressionGroup',
       returnType: val.returnType || expectedType || 'number',
-      firstExpression: val,
-      additionalExpressions: []
+      expressions: [val],
+      operators: []
     };
   };
   
@@ -109,9 +108,9 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
 
   const inferReturnType = (data) => {
     // If we have mathematical operators, result should be number
-    if (data.additionalExpressions && data.additionalExpressions.length > 0) {
-      const hasNumericalOperators = data.additionalExpressions.some(ae => 
-        ['+', '-', '*', '/'].includes(ae.operator)
+    if (data.operators && data.operators.length > 0) {
+      const hasNumericalOperators = data.operators.some(op => 
+        ['+', '-', '*', '/'].includes(op)
       );
       if (hasNumericalOperators) {
         return 'number';
@@ -119,7 +118,9 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     }
     
     // Start with first expression's return type, but default to number for mathematical expressions
-    let type = getExpressionReturnType(data.firstExpression);
+    let type = data.expressions && data.expressions.length > 0 
+      ? getExpressionReturnType(data.expressions[0]) 
+      : 'number';
     
     // Default to number for mathematical expressions (when no specific type is determined)
     if (type === 'text' && data.source === 'expressionGroup') {
@@ -137,43 +138,63 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     return expr.returnType || 'number'; // Default to number instead of text
   };
 
-  const updateFirstExpression = (newExpression) => {
-    handleChange({ firstExpression: newExpression });
+  const updateExpression = (index, newExpression) => {
+    const expressions = [...(groupData.expressions || [])];
+    expressions[index] = newExpression;
+    handleChange({ expressions });
   };
 
-  const updateAdditionalExpression = (index, updates) => {
-    const additionalExpressions = [...(groupData.additionalExpressions || [])];
-    additionalExpressions[index] = { ...additionalExpressions[index], ...updates };
-    handleChange({ additionalExpressions });
+  const updateOperator = (index, newOperator) => {
+    const operators = [...(groupData.operators || [])];
+    operators[index] = newOperator;
+    handleChange({ operators });
   };
 
   const addExpression = () => {
-    const additionalExpressions = [...(groupData.additionalExpressions || [])];
-    additionalExpressions.push({
-      operator: '+',
-      expression: { 
-        source: 'value', 
-        returnType: 'number', 
-        value: 0 
-      }
+    const expressions = [...(groupData.expressions || [])];
+    const operators = [...(groupData.operators || [])];
+    
+    // Add new expression
+    expressions.push({ 
+      source: 'value', 
+      returnType: 'number', 
+      value: 0 
     });
-    handleChange({ additionalExpressions });
+    
+    // Add operator before the new expression (if not the first)
+    if (expressions.length > 1) {
+      operators.push('+');
+    }
+    
+    handleChange({ expressions, operators });
   };
 
   const removeExpression = (index) => {
-    const additionalExpressions = [...(groupData.additionalExpressions || [])];
-    additionalExpressions.splice(index, 1);
-    handleChange({ additionalExpressions });
+    const expressions = [...(groupData.expressions || [])];
+    const operators = [...(groupData.operators || [])];
+    
+    expressions.splice(index, 1);
+    
+    // Remove corresponding operator
+    if (index > 0) {
+      operators.splice(index - 1, 1);
+    } else if (operators.length > 0) {
+      operators.splice(0, 1);
+    }
+    
+    handleChange({ expressions, operators });
   };
 
   const canAddOperators = () => {
     // Only allow operators if first expression is numeric
-    const firstType = getExpressionReturnType(groupData.firstExpression);
+    const firstType = groupData.expressions && groupData.expressions.length > 0
+      ? getExpressionReturnType(groupData.expressions[0])
+      : 'number';
     return firstType === 'number';
   };
 
   const hasMultipleExpressions = () => {
-    return groupData.additionalExpressions && groupData.additionalExpressions.length > 0;
+    return groupData.expressions && groupData.expressions.length > 1;
   };
 
   const renderCompactView = () => {
@@ -181,8 +202,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       // Single expression - render the child directly without parentheses
       return (
         <ExpressionGroup
-          value={groupData.firstExpression}
-          onChange={updateFirstExpression}
+          value={groupData.expressions?.[0]}
+          onChange={(value) => updateExpression(0, value)}
           config={config}
           expectedType={expectedType}
           darkMode={darkMode}
@@ -193,16 +214,19 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     }
 
     // Multiple expressions - show compact mathematical notation
-    const firstSummary = getExpressionSummary(groupData.firstExpression);
-    const additionalSummaries = (groupData.additionalExpressions || []).map(ae => 
-      `${ae.operator} ${getExpressionSummary(ae.expression)}`
-    );
+    const expressionSummaries = (groupData.expressions || []).map((expr, index) => {
+      const summary = getExpressionSummary(expr);
+      const operator = index > 0 && groupData.operators?.[index - 1] 
+        ? ` ${groupData.operators[index - 1]} ` 
+        : '';
+      return operator + summary;
+    });
 
     return (
       <Space size={4} style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(true)}>
         <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
         <Text code style={{ fontSize: '12px' }}>
-          ({firstSummary} {additionalSummaries.join(' ')})
+          ({expressionSummaries.join('')})
         </Text>
         <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
           {groupData.returnType}
@@ -215,11 +239,12 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     if (!expr) return '?';
     
     if (expr.source === 'expressionGroup') {
-      if (expr.additionalExpressions && expr.additionalExpressions.length > 0) {
+      if (expr.expressions && expr.expressions.length > 1) {
         return '(...)'; // Nested group
-      } else {
-        return getExpressionSummary(expr.firstExpression);
+      } else if (expr.expressions && expr.expressions.length === 1) {
+        return getExpressionSummary(expr.expressions[0]);
       }
+      return '?';
     }
     
     switch (expr.source) {
@@ -237,16 +262,18 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   // Memoized expression preview calculation
   const expressionPreview = useMemo(() => {
     // Use the same logic as expanded view for consistency
-    const firstSummary = getExpressionSummary(groupData.firstExpression);
-    if (!groupData.additionalExpressions?.length) {
-      return firstSummary || 'Mathematical Expression';
+    if (!groupData.expressions || groupData.expressions.length === 0) {
+      return 'Mathematical Expression';
     }
     
-    const additionalSummaries = groupData.additionalExpressions.map(ae => 
-      `${ae.operator} ${getExpressionSummary(ae.expression)}`
-    );
+    const summaries = groupData.expressions.map((expr, index) => {
+      const summary = getExpressionSummary(expr);
+      if (index === 0) return summary;
+      const operator = groupData.operators?.[index - 1] || '+';
+      return `${operator} ${summary}`;
+    });
     
-    return `${firstSummary} ${additionalSummaries.join(' ')}`;
+    return summaries.join(' ');
   }, [groupData, config?.fields]);
 
   const renderExpandedView = () => {
@@ -287,8 +314,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           <Space style={{ width: '100%' }} size="small">
             <div style={{ flex: 1 }}>
               <BaseExpression
-                value={groupData.firstExpression}
-                onChange={updateFirstExpression}
+                value={groupData.expressions?.[0]}
+                onChange={(value) => updateExpression(0, value)}
                 config={config}
                 expectedType={hasMultipleExpressions() ? 'number' : expectedType}
                 darkMode={darkMode}
@@ -316,52 +343,55 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         </div>
 
         {/* Additional Expressions with Operators */}
-        {(groupData.additionalExpressions || []).map((additionalExpr, index) => (
-          <div key={index} style={{ paddingLeft: '16px' }}>
-            <Space style={{ width: '100%' }} size="small">
-              {/* Operator */}
-              <Select
-                value={additionalExpr.operator}
-                onChange={(op) => updateAdditionalExpression(index, { operator: op })}
-                style={{ width: '50px' }}
-                size="small"
-                options={[
-                  { value: '+', label: '+' },
-                  { value: '-', label: '-' },
-                  { value: '*', label: '*' },
-                  { value: '/', label: '/' }
-                ]}
-              />
-              
-              {/* Expression */}
-              <div style={{ flex: 1 }}>
-                <ExpressionGroup
-                  value={additionalExpr.expression}
-                  onChange={(expr) => updateAdditionalExpression(index, { expression: expr })}
-                  config={config}
-                  expectedType="number"
-                  darkMode={darkMode}
-                  compact={compact}
-                  isLoadedRule={isLoadedRule}
+        {(groupData.expressions || []).slice(1).map((expr, index) => {
+          const actualIndex = index + 1; // Since we're starting from slice(1)
+          return (
+            <div key={actualIndex} style={{ paddingLeft: '16px' }}>
+              <Space style={{ width: '100%' }} size="small">
+                {/* Operator */}
+                <Select
+                  value={groupData.operators?.[index] || '+'}
+                  onChange={(op) => updateOperator(index, op)}
+                  style={{ width: '50px' }}
+                  size="small"
+                  options={[
+                    { value: '+', label: '+' },
+                    { value: '-', label: '-' },
+                    { value: '*', label: '*' },
+                    { value: '/', label: '/' }
+                  ]}
                 />
-              </div>
+                
+                {/* Expression */}
+                <div style={{ flex: 1 }}>
+                  <ExpressionGroup
+                    value={expr}
+                    onChange={(value) => updateExpression(actualIndex, value)}
+                    config={config}
+                    expectedType="number"
+                    darkMode={darkMode}
+                    compact={compact}
+                    isLoadedRule={isLoadedRule}
+                  />
+                </div>
 
-              {/* Remove Button */}
-              <Button
-                type="text"
-                size="small"
-                danger
-                icon={<CloseOutlined />}
-                onClick={() => removeExpression(index)}
-                style={{ minWidth: 'auto', padding: '0 4px' }}
-                title="Remove Operation"
-              />
-            </Space>
-          </div>
-        ))}
+                {/* Remove Button */}
+                <Button
+                  type="text"
+                  size="small"
+                  danger
+                  icon={<CloseOutlined />}
+                  onClick={() => removeExpression(actualIndex)}
+                  style={{ minWidth: 'auto', padding: '0 4px' }}
+                  title="Remove Operation"
+                />
+              </Space>
+            </div>
+          );
+        })}
 
         {/* Type Warning */}
-        {!canAddOperators() && groupData.additionalExpressions?.length > 0 && (
+        {!canAddOperators() && groupData.expressions?.length > 1 && (
           <div style={{ paddingLeft: '16px' }}>
             <Text type="warning" style={{ fontSize: '11px' }}>
               ⚠ Mathematical operations require numeric expressions
@@ -376,8 +406,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   if (compact && !hasMultipleExpressions()) {
     return (
       <BaseExpression
-        value={groupData.firstExpression}
-        onChange={updateFirstExpression}
+        value={groupData.expressions?.[0]}
+        onChange={(value) => updateExpression(0, value)}
         config={config}
         expectedType={expectedType}
         darkMode={darkMode}
