@@ -78,8 +78,8 @@ public class RuleBuilderService {
             return objectMapper.createArrayNode();
         }
 
-        // Pattern to match {ruleId}.{uuid}.{version}.json
-        Pattern pattern = Pattern.compile("^(.+)\\.([0-9a-f-]+)\\.(\\d+)\\.json$");
+        // Pattern to match {ruleId}.{uuid}.{version}.json - permissive UUID pattern
+        Pattern pattern = Pattern.compile("^(.+)\\.([a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12})\\.(\\d+)\\.json$");
         Map<String, RuleInfo> ruleMap = new HashMap<>();
 
         File[] files = directory.listFiles();
@@ -124,7 +124,7 @@ public class RuleBuilderService {
             return objectMapper.createArrayNode();
         }
 
-        // Pattern to match any ruleId with the specific UUID
+        // Pattern to match any ruleId with the specific UUID - handle mixed case
         Pattern pattern = Pattern.compile("^(.+)\\." + Pattern.quote(uuid) + "\\.(\\d+)\\.json$");
         List<Integer> versions = new ArrayList<>();
 
