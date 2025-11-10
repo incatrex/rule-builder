@@ -156,25 +156,24 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                   left: { 
                     source: 'expressionGroup',
                     returnType: 'number',
-                    firstExpression: { source: 'field', returnType: 'number', field: null },
-                    additionalExpressions: []
+                    expressions: [{ source: 'field', returnType: 'number', field: null }],
+                    operators: []
                   },
                   operator: null,
                   right: { 
                     source: 'expressionGroup',
                     returnType: 'number',
-                    firstExpression: { source: 'value', returnType: 'number', value: '' },
-                    additionalExpressions: []
+                    expressions: [{ source: 'value', returnType: 'number', value: '' }],
+                    operators: []
                   }
                 }
-              ],
-              isExpanded: true
+              ]
             },
             then: {
               source: 'expressionGroup',
               returnType: 'number',
-              firstExpression: { source: 'value', returnType: 'number', value: '' },
-              additionalExpressions: []
+              expressions: [{ source: 'value', returnType: 'number', value: '' }],
+              operators: []
             },
             resultName: 'Result 1',
             editingName: false,
@@ -184,8 +183,8 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         elseClause: { 
           source: 'expressionGroup',
           returnType: 'number',
-          firstExpression: { source: 'value', returnType: 'number', value: '' },
-          additionalExpressions: []
+          expressions: [{ source: 'value', returnType: 'number', value: '' }],
+          operators: []
         },
         elseResultName: 'Default',
         elseExpanded: true
@@ -207,26 +206,25 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
             left: { 
               source: 'expressionGroup',
               returnType: 'number',
-              firstExpression: { source: 'field', returnType: 'number', field: null },
-              additionalExpressions: []
+              expressions: [{ source: 'field', returnType: 'number', field: null }],
+              operators: []
             },
             operator: null,
             right: { 
               source: 'expressionGroup',
               returnType: 'number',
-              firstExpression: { source: 'value', returnType: 'number', value: '' },
-              additionalExpressions: []
+              expressions: [{ source: 'value', returnType: 'number', value: '' }],
+              operators: []
             }
           }
-        ],
-        isExpanded: true
+        ]
       };
     } else if (structure === 'expression') {
       content = {
         source: 'expressionGroup',
         returnType: 'number',
-        firstExpression: { source: 'value', returnType: 'number', value: '' },
-        additionalExpressions: []
+        expressions: [{ source: 'value', returnType: 'number', value: '' }],
+        operators: []
       };
     }
     
@@ -265,6 +263,9 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   };
 
   const getRuleOutput = () => {
+    // Clean UI state properties before saving
+    const cleanContent = removeUIState(ruleData.content);
+    
     // Use 'content' key for consistency with editing
     return {
       structure: ruleData.structure,
@@ -273,8 +274,36 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       uuId: ruleData.uuId,
       version: ruleData.version,
       metadata: ruleData.metadata,
-      content: ruleData.content
+      content: cleanContent
     };
+  };
+
+  // Helper function to recursively remove UI state properties
+  const removeUIState = (obj) => {
+    if (!obj || typeof obj !== 'object') {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(item => removeUIState(item));
+    }
+
+    const cleaned = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Skip UI-only properties
+      if (key === 'isExpanded' || key === 'isCollapsed') {
+        continue;
+      }
+      
+      // Recursively clean nested objects
+      if (value && typeof value === 'object') {
+        cleaned[key] = removeUIState(value);
+      } else {
+        cleaned[key] = value;
+      }
+    }
+    
+    return cleaned;
   };
 
   // Expose methods to parent via ref
