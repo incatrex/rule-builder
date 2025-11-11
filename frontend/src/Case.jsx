@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Button, Space, Typography, Collapse, Input } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Card, Space, Button, Collapse, Input, Typography, Tag, Select } from 'antd';
+import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
-import ExpressionGroup from './ExpressionGroup';
+import ExpressionGroup, { createExpressionGroup } from './ExpressionGroup';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -24,32 +24,35 @@ const { Panel } = Collapse;
  * - config: Config with operators, fields, funcs
  * - darkMode: Dark mode styling
  */
-const Case = ({ value, onChange, config, darkMode = false }) => {
+const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false }) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
-    elseClause: { 
-      source: 'expressionGroup',
-      returnType: 'number',
-      firstExpression: { source: 'value', returnType: 'number', value: '' },
-      additionalExpressions: []
-    },
+    elseClause: createExpressionGroup('number', ''),
     elseResultName: 'Default'
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
   const [activeKeys, setActiveKeys] = useState([]);
-  const [elseExpanded, setElseExpanded] = useState(true); // UI state only
+  const [elseExpanded, setElseExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
   const [editingStates, setEditingStates] = useState({}); // Track editing state for each clause
   const isInitialLoad = useRef(true);
+
+  // Update expansion state when isLoadedRule changes
+  useEffect(() => {
+    if (isLoadedRule) {
+      setElseExpanded(false); // Collapse when rule is loaded
+      setActiveKeys([]); // Collapse all when clauses when rule is loaded
+    }
+  }, [isLoadedRule]);
 
   useEffect(() => {
     if (value) {
       setCaseData(value);
-      // Only auto-expand on initial load, not on subsequent updates
-      if (isInitialLoad.current && value.whenClauses && value.whenClauses.length > 0) {
+      // Only auto-expand on initial load for new rules, not loaded rules
+      if (isInitialLoad.current && value.whenClauses && value.whenClauses.length > 0 && !isLoadedRule) {
         const keys = value.whenClauses.map((_, index) => String(index));
         setActiveKeys(keys);
-        isInitialLoad.current = false;
       }
+      isInitialLoad.current = false;
     }
   }, [value]);
 
@@ -66,12 +69,9 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
   };
 
   const addWhenClause = () => {
-    const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
     const newWhen = {
       when: {
         type: 'conditionGroup',
-        id: generateId(),
         returnType: 'boolean',
         name: `Condition ${caseData.whenClauses.length + 1}`,
         conjunction: 'AND',
@@ -80,31 +80,15 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
           // Auto-add an empty condition to the new group
           {
             type: 'condition',
-            id: generateId(),
             returnType: 'boolean',
             name: 'Condition 1',
-            left: { 
-              source: 'expressionGroup',
-              returnType: 'number',
-              firstExpression: { source: 'field', returnType: 'number', field: null },
-              additionalExpressions: []
-            },
+            left: createExpressionGroup('number', null),
             operator: null,
-            right: { 
-              source: 'expressionGroup',
-              returnType: 'number',
-              firstExpression: { source: 'value', returnType: 'number', value: '' },
-              additionalExpressions: []
-            }
+            right: createExpressionGroup('number', '')
           }
         ]
       },
-      then: {
-        source: 'expressionGroup',
-        returnType: 'number',
-        firstExpression: { source: 'value', returnType: 'number', value: '' },
-        additionalExpressions: []
-      },
+      then: createExpressionGroup('number', ''),
       resultName: `Result ${caseData.whenClauses.length + 1}`
     };
     handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });
@@ -216,6 +200,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                     onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
                     config={config}
                     darkMode={darkMode}
+                    isLoadedRule={isLoadedRule}
                   />
                 </div>
 
@@ -249,6 +234,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
                     onChange={(newThen) => updateWhenClause(index, { then: newThen })}
                     config={config}
                     darkMode={darkMode}
+                    isLoadedRule={isLoadedRule}
                   />
                 </div>
               </Space>
@@ -308,6 +294,7 @@ const Case = ({ value, onChange, config, darkMode = false }) => {
               onChange={(newElse) => handleChange({ elseClause: newElse })}
               config={config}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           </Panel>
         </Collapse>

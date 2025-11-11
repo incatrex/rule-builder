@@ -58,6 +58,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   const [availableVersions, setAvailableVersions] = useState([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
   const [ruleTypes, setRuleTypes] = useState(['Reporting', 'Validation', 'Calculation', 'Business']); // Default values
+  const [isLoadedRule, setIsLoadedRule] = useState(false);
 
   useEffect(() => {
     // Initialize content based on structure
@@ -112,8 +113,8 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       setLoadingVersions(true);
       const response = await axios.get(`/api/rules/versions/${uuid}`);
       const versions = response.data.map(v => ({
-        value: v.version,
-        label: `Version ${v.version}`
+        value: v,
+        label: `${v}`
       }));
       setAvailableVersions(versions);
     } catch (error) {
@@ -121,6 +122,42 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       setAvailableVersions([]);
     } finally {
       setLoadingVersions(false);
+    }
+  };
+
+  const handleVersionChange = async (version) => {
+    if (!selectedRuleUuid || !ruleData.metadata.id) {
+      handleChange({ version });
+      return;
+    }
+
+    try {
+      // Load the selected version from the backend
+      const response = await axios.get(
+        `/api/rules/${ruleData.metadata.id}/${selectedRuleUuid}/${version}`
+      );
+      
+      if (response.data) {
+        // Load the rule data for the selected version
+        const structure = response.data.structure || 'condition';
+        const content = response.data.content || response.data[structure] || null;
+        
+        setRuleData({
+          structure,
+          returnType: response.data.returnType || 'boolean',
+          ruleType: response.data.ruleType || 'Reporting',
+          uuId: response.data.uuId || selectedRuleUuid,
+          version: response.data.version || version,
+          metadata: response.data.metadata || { id: '', description: '' },
+          content: content
+        });
+        
+        setIsLoadedRule(true);
+        message.success(`Loaded version ${version}`);
+      }
+    } catch (error) {
+      console.error('Error loading version:', error);
+      message.error(`Failed to load version ${version}`);
     }
   };
 
@@ -132,15 +169,12 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     let content = null;
     
     if (structure === 'case') {
-      const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
       content = {
         whenClauses: [
           // Start with one default WHEN clause like CustomCaseBuilder
           {
             when: {
               type: 'conditionGroup',
-              id: generateId(),
               returnType: 'boolean',
               name: 'Condition 1',
               conjunction: 'AND',
@@ -149,31 +183,29 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                 // Auto-add an empty condition to the new group
                 {
                   type: 'condition',
-                  id: generateId(),
                   returnType: 'boolean',
                   name: 'Condition 1',
                   left: { 
-                    source: 'expressionGroup',
+                    type: 'expressionGroup',
                     returnType: 'number',
-                    firstExpression: { source: 'field', returnType: 'number', field: null },
-                    additionalExpressions: []
+                    expressions: [{ type: 'field', returnType: 'number', field: null }],
+                    operators: []
                   },
                   operator: null,
                   right: { 
-                    source: 'expressionGroup',
+                    type: 'expressionGroup',
                     returnType: 'number',
-                    firstExpression: { source: 'value', returnType: 'number', value: '' },
-                    additionalExpressions: []
+                    expressions: [{ type: 'value', returnType: 'number', value: '' }],
+                    operators: []
                   }
                 }
-              ],
-              isExpanded: true
+              ]
             },
             then: {
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
-              firstExpression: { source: 'value', returnType: 'number', value: '' },
-              additionalExpressions: []
+              expressions: [{ type: 'value', returnType: 'number', value: '' }],
+              operators: []
             },
             resultName: 'Result 1',
             editingName: false,
@@ -181,10 +213,10 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
           }
         ],
         elseClause: { 
-          source: 'expressionGroup',
+          type: 'expressionGroup',
           returnType: 'number',
-          firstExpression: { source: 'value', returnType: 'number', value: '' },
-          additionalExpressions: []
+          expressions: [{ type: 'value', returnType: 'number', value: '' }],
+          operators: []
         },
         elseResultName: 'Default',
         elseExpanded: true
@@ -200,32 +232,30 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
           // Auto-add an empty condition
           {
             type: 'condition',
-            id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             returnType: 'boolean',
             name: 'Condition 1',
             left: { 
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
-              firstExpression: { source: 'field', returnType: 'number', field: null },
-              additionalExpressions: []
+              expressions: [{ type: 'field', returnType: 'number', field: null }],
+              operators: []
             },
             operator: null,
             right: { 
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
-              firstExpression: { source: 'value', returnType: 'number', value: '' },
-              additionalExpressions: []
+              expressions: [{ type: 'value', returnType: 'number', value: '' }],
+              operators: []
             }
           }
-        ],
-        isExpanded: true
+        ]
       };
     } else if (structure === 'expression') {
       content = {
-        source: 'expressionGroup',
+        type: 'expressionGroup',
         returnType: 'number',
-        firstExpression: { source: 'value', returnType: 'number', value: '' },
-        additionalExpressions: []
+        expressions: [{ type: 'value', returnType: 'number', value: '' }],
+        operators: []
       };
     }
     
@@ -250,13 +280,19 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     }
 
     try {
-      const ruleOutput = getRuleOutput();
-      await axios.post(`/api/rules/${ruleData.metadata.id}/${ruleData.version}`, ruleOutput);
+      // Increment version BEFORE saving
+      const newVersion = ruleData.version + 1;
+      const ruleOutput = {
+        ...getRuleOutput(),
+        version: newVersion
+      };
       
-      // Auto-increment version for next save
-      handleChange({ version: ruleData.version + 1 });
+      await axios.post(`/api/rules/${ruleData.metadata.id}/${newVersion}`, ruleOutput);
       
-      message.success(`Rule saved: ${ruleData.metadata.id} v${ruleData.version}`);
+      // Update the version in state to match what was saved
+      handleChange({ version: newVersion });
+      
+      message.success(`Rule saved: ${ruleData.metadata.id} v${newVersion}`);
     } catch (error) {
       console.error('Error saving rule:', error);
       message.error('Failed to save rule');
@@ -264,6 +300,9 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   };
 
   const getRuleOutput = () => {
+    // Clean UI state properties before saving
+    const cleanContent = removeUIState(ruleData.content);
+    
     // Use 'content' key for consistency with editing
     return {
       structure: ruleData.structure,
@@ -272,8 +311,40 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       uuId: ruleData.uuId,
       version: ruleData.version,
       metadata: ruleData.metadata,
-      content: ruleData.content
+      content: cleanContent
     };
+  };
+
+  // Helper function to recursively remove UI state properties
+  const removeUIState = (obj) => {
+    if (!obj || typeof obj !== 'object') {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(item => removeUIState(item));
+    }
+
+    const cleaned = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Skip UI-only properties
+      if (key === 'isExpanded' || 
+          key === 'isCollapsed' || 
+          key === 'editingName' || 
+          key === 'editingResultName' ||
+          (key === 'id' && obj.type === 'conditionGroup')) {
+        continue;
+      }
+      
+      // Recursively clean nested objects
+      if (value && typeof value === 'object') {
+        cleaned[key] = removeUIState(value);
+      } else {
+        cleaned[key] = value;
+      }
+    }
+    
+    return cleaned;
   };
 
   // Expose methods to parent via ref
@@ -297,12 +368,34 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         content: content
       });
       
+      setIsLoadedRule(true); // Signal that this is a loaded rule (should be collapsed)
+      
       // If content is null, initialize it based on structure
       if (!content) {
         setTimeout(() => {
           initializeContent(structure);
         }, 0);
       }
+    },
+    newRule: (data = {}) => {
+      const structure = data.structure || 'condition';
+      
+      setRuleData({
+        structure,
+        returnType: data.returnType || 'boolean',
+        ruleType: data.ruleType || 'Reporting',
+        uuId: generateUUID(),
+        version: 1,
+        metadata: data.metadata || { id: '', description: '' },
+        content: null
+      });
+      
+      setIsLoadedRule(false); // Signal that this is a new rule (should be expanded)
+      
+      // Initialize content based on structure
+      setTimeout(() => {
+        initializeContent(structure);
+      }, 0);
     }
   }));
 
@@ -372,7 +465,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                 {selectedRuleUuid && availableVersions.length > 0 ? (
                   <Select
                     value={ruleData.version}
-                    onChange={(version) => handleChange({ version })}
+                    onChange={handleVersionChange}
                     style={{ width: '100%' }}
                     loading={loadingVersions}
                     options={availableVersions}
@@ -381,8 +474,8 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                   <Input
                     type="number"
                     value={ruleData.version}
-                    onChange={(e) => handleChange({ version: parseInt(e.target.value) || 1 })}
-                    min={1}
+                    disabled
+                    style={{ width: '100%' }}
                   />
                 )}
               </div>
@@ -504,6 +597,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
               onChange={(content) => handleChange({ content })}
               config={config}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           )}
 
@@ -513,6 +607,8 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
               onChange={(content) => handleChange({ content })}
               config={config}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
+              isSimpleCondition={true}
             />
           )}
 
@@ -523,6 +619,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
               config={config}
               expectedType={ruleData.returnType}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           )}
         </Card>

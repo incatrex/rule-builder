@@ -93,4 +93,14 @@ public class RuleBuilderController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @PostMapping("/rules/validate")
+    public ResponseEntity<JsonNode> validateRule(@RequestBody JsonNode rule) {
+        try {
+            JsonNode validationResult = ruleBuilderService.validateRule(rule);
+            return ResponseEntity.ok(validationResult);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

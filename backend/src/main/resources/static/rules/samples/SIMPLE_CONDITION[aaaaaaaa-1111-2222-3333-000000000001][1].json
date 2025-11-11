@@ -1,0 +1,320 @@
+{
+  "structure": "condition",
+  "returnType": "boolean",
+  "ruleType": "Validation",
+  "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+  "version": 1,
+  "metadata": {
+    "id": "SIMPLE_CONDITION",
+    "description": "Demonstrates all operators, nested condition groups, and various expression types"
+  },
+  "content": {
+    "type": "conditionGroup",
+    "returnType": "boolean",
+    "name": "Main Validation Group",
+    "conjunction": "AND",
+    "not": false,
+    "conditions": [
+      {
+        "type": "condition",
+        "id": "cond-1",
+        "returnType": "boolean",
+        "name": "Numeric Equality with Function",
+        "left": {
+          "type": "expressionGroup",
+          "returnType": "number",
+          "expressions": [
+            {
+              "type": "function",
+              "returnType": "number",
+              "function": {
+                "name": "MATH.ADD",
+                "args": [
+                  {
+                    "name": "arg1",
+                    "value": {
+                      "type": "expressionGroup",
+                      "returnType": "number",
+                      "expressions": [
+                        {
+                          "type": "field",
+                          "returnType": "number",
+                          "field": "TABLE1.NUMBER_FIELD_01"
+                        }
+                      ],
+                      "operators": []
+                    }
+                  },
+                  {
+                    "name": "arg2",
+                    "value": {
+                      "type": "expressionGroup",
+                      "returnType": "number",
+                      "expressions": [
+                        {
+                          "type": "value",
+                          "returnType": "number",
+                          "value": 10
+                        }
+                      ],
+                      "operators": []
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "operators": []
+        },
+        "operator": "equal",
+        "right": {
+          "type": "expressionGroup",
+          "returnType": "number",
+          "expressions": [
+            {
+              "type": "field",
+              "returnType": "number",
+              "field": "TABLE2.NUMBER_FIELD_02"
+            }
+          ],
+          "operators": []
+        }
+      },
+      {
+        "type": "condition",
+        "id": "cond-2",
+        "returnType": "boolean",
+        "name": "Greater Than with Nested Math",
+        "left": {
+          "type": "expressionGroup",
+          "returnType": "number",
+          "expressions": [
+            {
+              "type": "function",
+              "returnType": "number",
+              "function": {
+                "name": "MATH.MULTIPLY",
+                "args": [
+                  {
+                    "name": "arg1",
+                    "value": {
+                      "type": "expressionGroup",
+                      "returnType": "number",
+                      "expressions": [
+                        {
+                          "type": "field",
+                          "returnType": "number",
+                          "field": "TABLE1.NUMBER_FIELD_02"
+                        }
+                      ],
+                      "operators": []
+                    }
+                  },
+                  {
+                    "name": "arg2",
+                    "value": {
+                      "type": "expressionGroup",
+                      "returnType": "number",
+                      "expressions": [
+                        {
+                          "type": "value",
+                          "returnType": "number",
+                          "value": 1.5
+                        }
+                      ],
+                      "operators": []
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "operators": []
+        },
+        "operator": "greater",
+        "right": {
+          "type": "expressionGroup",
+          "returnType": "number",
+          "expressions": [
+            {
+              "type": "value",
+              "returnType": "number",
+              "value": 100
+            }
+          ],
+          "operators": []
+        }
+      },
+      {
+        "type": "conditionGroup",
+        "returnType": "boolean",
+        "name": "Nested Text Validations",
+        "conjunction": "OR",
+        "not": false,
+        "conditions": [
+          {
+            "type": "condition",
+            "id": "cond-3",
+            "returnType": "boolean",
+            "name": "Text Contains Check",
+            "left": {
+              "type": "expressionGroup",
+              "returnType": "text",
+              "expressions": [
+                {
+                  "type": "field",
+                  "returnType": "text",
+                  "field": "TABLE1.TEXT_FIELD_01"
+                }
+              ],
+              "operators": []
+            },
+            "operator": "contains",
+            "right": {
+              "type": "expressionGroup",
+              "returnType": "text",
+              "expressions": [
+                {
+                  "type": "value",
+                  "returnType": "text",
+                  "value": "APPROVED"
+                }
+              ],
+              "operators": []
+            }
+          },
+          {
+            "type": "condition",
+            "id": "cond-4",
+            "returnType": "boolean",
+            "name": "Text Starts With",
+            "left": {
+              "type": "expressionGroup",
+              "returnType": "text",
+              "expressions": [
+                {
+                  "type": "function",
+                  "returnType": "text",
+                  "function": {
+                    "name": "TEXT.CONCAT",
+                    "args": [
+                      {
+                        "name": "arg1",
+                        "value": {
+                          "type": "expressionGroup",
+                          "returnType": "text",
+                          "expressions": [
+                            {
+                              "type": "field",
+                              "returnType": "text",
+                              "field": "TABLE1.TEXT_FIELD_02"
+                            }
+                          ],
+                          "operators": []
+                        }
+                      },
+                      {
+                        "name": "arg2",
+                        "value": {
+                          "type": "expressionGroup",
+                          "returnType": "text",
+                          "expressions": [
+                            {
+                              "type": "value",
+                              "returnType": "text",
+                              "value": "_SUFFIX"
+                            }
+                          ],
+                          "operators": []
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "operators": []
+            },
+            "operator": "starts_with",
+            "right": {
+              "type": "expressionGroup",
+              "returnType": "text",
+              "expressions": [
+                {
+                  "type": "value",
+                  "returnType": "text",
+                  "value": "TEST"
+                }
+              ],
+              "operators": []
+            }
+          }
+        ]
+      },
+      {
+        "type": "condition",
+        "id": "cond-5",
+        "returnType": "boolean",
+        "name": "Between Check",
+        "left": {
+          "type": "expressionGroup",
+          "returnType": "number",
+          "expressions": [
+            {
+              "type": "field",
+              "returnType": "number",
+              "field": "TABLE2.NUMBER_FIELD_01"
+            }
+          ],
+          "operators": []
+        },
+        "operator": "between",
+        "right": [
+          {
+            "type": "expressionGroup",
+            "returnType": "number",
+            "expressions": [
+              {
+                "type": "value",
+                "returnType": "number",
+                "value": 50
+              }
+            ],
+            "operators": []
+          },
+          {
+            "type": "expressionGroup",
+            "returnType": "number",
+            "expressions": [
+              {
+                "type": "value",
+                "returnType": "number",
+                "value": 150
+              }
+            ],
+            "operators": []
+          }
+        ]
+      },
+      {
+        "type": "condition",
+        "id": "cond-6",
+        "returnType": "boolean",
+        "name": "Is Not Empty Check",
+        "left": {
+          "type": "expressionGroup",
+          "returnType": "text",
+          "expressions": [
+            {
+              "type": "field",
+              "returnType": "text",
+              "field": "TABLE2.TEXT_FIELD_01"
+            }
+          ],
+          "operators": []
+        },
+        "operator": "is_not_empty",
+        "right": null
+      }
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Space, message, Input } from 'antd';
-import { EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Card, Button, Space, message, Input, Alert } from 'antd';
+import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 /**
  * JsonEditor Component
@@ -19,6 +20,9 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
   const [displayText, setDisplayText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isValid, setIsValid] = useState(true);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [schemaInfo, setSchemaInfo] = useState(null);
 
   // Update local state when data prop changes (only when not editing)
   useEffect(() => {
@@ -44,21 +48,51 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
     setIsEditing(false);
     setJsonText(displayText);
     setIsValid(true);
+    setValidationErrors([]);
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     try {
       const parsed = JSON.parse(jsonText);
       setIsValid(true);
-      setIsEditing(false);
-      setDisplayText(jsonText);
-      if (onChange) {
-        onChange(parsed);
-        message.success('JSON updated successfully');
+      
+      // Validate against schema
+      setIsValidating(true);
+      setValidationErrors([]);
+      
+      try {
+        const response = await axios.post('/api/rules/validate', parsed);
+        const validationResult = response.data;
+        
+        // Store schema info
+        if (validationResult.schema) {
+          setSchemaInfo(validationResult.schema);
+        }
+        
+        if (validationResult.valid) {
+          // Valid - update the component
+          setIsEditing(false);
+          setDisplayText(jsonText);
+          setValidationErrors([]);
+          
+          if (onChange) {
+            onChange(parsed);
+            message.success('JSON validated and updated successfully');
+          }
+        } else {
+          // Invalid according to schema
+          setValidationErrors(validationResult.errors || []);
+          message.error(`Schema validation failed with ${validationResult.errors?.length || 0} error(s)`);
+        }
+      } catch (error) {
+        console.error('Validation error:', error);
+        message.error('Failed to validate rule against schema');
+      } finally {
+        setIsValidating(false);
       }
     } catch (error) {
       setIsValid(false);
-      message.error('Invalid JSON - please fix errors before updating');
+      message.error('Invalid JSON - please fix syntax errors before updating');
     }
   };
 
@@ -95,17 +129,19 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
             <>
               <Button
                 type="primary"
-                icon={<CheckOutlined />}
+                icon={isValidating ? <LoadingOutlined /> : <CheckOutlined />}
                 onClick={handleUpdate}
                 size="small"
-                disabled={!isValid}
+                disabled={!isValid || isValidating}
+                loading={isValidating}
               >
-                Update
+                {isValidating ? 'Validating...' : 'Update'}
               </Button>
               <Button
                 icon={<CloseOutlined />}
                 onClick={handleCancel}
                 size="small"
+                disabled={isValidating}
               >
                 Cancel
               </Button>
@@ -148,7 +184,29 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
         }}
         placeholder={isEditing ? `{\n  "structure": "case",\n  "returnType": "boolean"\n}` : "No JSON data to display"}
       />
-      {isEditing && !isValid && (
+      
+      {/* Validation Errors */}
+      {validationErrors.length > 0 && (
+        <div style={{ padding: '16px', maxHeight: '200px', overflow: 'auto' }}>
+          <Alert
+            message="Schema Validation Errors"
+            description={
+              <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+                {validationErrors.map((error, index) => (
+                  <li key={index} style={{ marginBottom: '8px' }}>
+                    <strong>{error.path || 'root'}:</strong> {error.message}
+                  </li>
+                ))}
+              </ul>
+            }
+            type="error"
+            showIcon
+          />
+        </div>
+      )}
+      
+      {/* JSON Syntax Error */}
+      {isEditing && !isValid && validationErrors.length === 0 && (
         <div
           style={{
             position: 'absolute',
@@ -164,6 +222,39 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
           }}
         >
           Invalid JSON - Fix errors before updating
+        </div>
+      )}
+      
+      {/* Schema Information */}
+      {schemaInfo && (
+        <div
+          style={{
+            padding: '8px 16px',
+            borderTop: '1px solid ' + (darkMode ? '#434343' : '#f0f0f0'),
+            background: darkMode ? '#141414' : '#fafafa',
+            fontSize: '11px',
+            color: darkMode ? '#8c8c8c' : '#595959',
+            fontFamily: 'Monaco, Menlo, monospace'
+          }}
+        >
+          <div style={{ marginBottom: '2px' }}>
+            <strong>Validated against:</strong> {schemaInfo.filename}
+          </div>
+          {schemaInfo.title && (
+            <div style={{ marginBottom: '2px' }}>
+              <strong>Schema:</strong> {schemaInfo.title}
+            </div>
+          )}
+          {schemaInfo.id && (
+            <div style={{ marginBottom: '2px' }}>
+              <strong>Schema ID:</strong> {schemaInfo.id}
+            </div>
+          )}
+          {schemaInfo.draft && (
+            <div>
+              <strong>JSON Schema:</strong> {schemaInfo.draft}
+            </div>
+          )}
         </div>
       )}
     </Card>

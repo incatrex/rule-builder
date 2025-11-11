@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Select, Space, Typography, Input, Button } from 'antd';
+import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { CloseOutlined, EditOutlined } from '@ant-design/icons';
-import ExpressionGroup from './ExpressionGroup';
+import ExpressionGroup, { createExpressionGroup } from './ExpressionGroup';
 
 const { Text } = Typography;
+const { Panel } = Collapse;
 
 /**
  * Condition Component
@@ -21,25 +22,23 @@ const { Text } = Typography;
  * - darkMode: Dark mode styling
  * - onRemove: Callback to remove this condition
  */
-const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
+const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoadedRule = false }) => {
   const [conditionData, setConditionData] = useState(value || {
     returnType: 'boolean',
     name: 'New Condition',
-    left: { 
-      source: 'expressionGroup',
-      returnType: 'number',
-      firstExpression: { source: 'field', returnType: 'number', field: null },
-      additionalExpressions: []
-    },
+    left: createExpressionGroup('number', null),
     operator: null,
-    right: { 
-      source: 'expressionGroup',
-      returnType: 'number',
-      firstExpression: { source: 'value', returnType: 'number', value: '' },
-      additionalExpressions: []
-    }
+    right: createExpressionGroup('number', '')
   });
   const [editingName, setEditingName] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
+
+  // Update expansion state when isLoadedRule changes
+  useEffect(() => {
+    if (isLoadedRule) {
+      setIsExpanded(false); // Collapse when rule is loaded
+    }
+  }, [isLoadedRule]);
 
   useEffect(() => {
     if (value) {
@@ -109,19 +108,19 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
       // No right side value needed
       newRight = null;
     } else if (cardinality === 1) {
-      // Single right side value
-      newRight = { 
-        source: 'value', 
-        returnType: conditionData.left?.returnType || 'text', 
-        value: '' 
-      };
+      // Single right side value - must be ExpressionGroup
+      newRight = createExpressionGroup(
+        conditionData.left?.returnType || 'text',
+        ''
+      );
     } else {
-      // Multiple right side values (array)
-      newRight = Array(cardinality).fill(null).map(() => ({
-        source: 'value',
-        returnType: conditionData.left?.returnType || 'text',
-        value: ''
-      }));
+      // Multiple right side values (array of ExpressionGroups)
+      newRight = Array(cardinality).fill(null).map(() => 
+        createExpressionGroup(
+          conditionData.left?.returnType || 'text',
+          ''
+        )
+      );
     }
     
     handleChange({ operator: operatorKey, right: newRight });
@@ -148,55 +147,65 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
   const cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
 
   return (
-    <Card
-      size="small"
+    <Collapse
+      activeKey={isExpanded ? ['condition'] : []}
+      onChange={(keys) => setIsExpanded(keys.includes('condition'))}
       style={{
         background: darkMode ? '#2a2a2a' : '#fafafa',
         borderLeft: '3px solid #1890ff',
         marginBottom: '8px'
       }}
-      title={
-        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Space size="small">
-            {editingName ? (
-              <Input
-                size="small"
-                value={conditionData.name || ''}
-                onChange={(e) => handleChange({ name: e.target.value })}
-                onPressEnter={() => setEditingName(false)}
-                onBlur={() => setEditingName(false)}
-                autoFocus
-                style={{ 
-                  width: '200px',
-                  fontWeight: 'bold'
-                }}
-                onClick={(e) => e.stopPropagation()}
-              />
-            ) : (
-              <>
-                <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
-                  {conditionData.name || 'Unnamed Condition'}
-                </Text>
-                <EditOutlined 
-                  style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
-                  onClick={() => setEditingName(true)}
+    >
+      <Panel
+        key="condition"
+        header={
+          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Space size="small">
+              {editingName ? (
+                <Input
+                  size="small"
+                  value={conditionData.name || ''}
+                  onChange={(e) => handleChange({ name: e.target.value })}
+                  onPressEnter={() => setEditingName(false)}
+                  onBlur={() => setEditingName(false)}
+                  autoFocus
+                  style={{ 
+                    width: '200px',
+                    fontWeight: 'bold'
+                  }}
+                  onClick={(e) => e.stopPropagation()}
                 />
-              </>
+              ) : (
+                <>
+                  <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
+                    {conditionData.name || 'Unnamed Condition'}
+                  </Text>
+                  <EditOutlined 
+                    style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingName(true);
+                    }}
+                  />
+                </>
+              )}
+            </Space>
+            {onRemove && (
+              <Button
+                type="text"
+                size="small"
+                danger
+                icon={<CloseOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                title="Remove condition"
+              />
             )}
           </Space>
-          {onRemove && (
-            <Button
-              type="text"
-              size="small"
-              danger
-              icon={<CloseOutlined />}
-              onClick={onRemove}
-              title="Remove condition"
-            />
-          )}
-        </Space>
-      }
-    >
+        }
+      >
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
         <div style={{ minWidth: '200px' }}>
@@ -205,6 +214,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
             onChange={handleLeftChange}
             config={config}
             darkMode={darkMode}
+            isLoadedRule={isLoadedRule}
           />
         </div>
 
@@ -228,6 +238,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
               config={config}
               expectedType={conditionData.left?.returnType}
               darkMode={darkMode}
+              isLoadedRule={isLoadedRule}
             />
           </div>
         )}
@@ -247,12 +258,14 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove }) => {
                 config={config}
                 expectedType={conditionData.left?.returnType}
                 darkMode={darkMode}
+                isLoadedRule={isLoadedRule}
               />
             </div>
           </React.Fragment>
         ))}
       </Space>
-    </Card>
+      </Panel>
+    </Collapse>
   );
 };
 
