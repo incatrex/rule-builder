@@ -1,0 +1,515 @@
+{
+  "structure": "expression",
+  "returnType": "number",
+  "ruleType": "Reporting",
+  "uuId": "cccccccc-3333-4444-5555-000000000003",
+  "version": 1,
+  "metadata": {
+    "id": "MATH_EXPRESSION",
+    "description": "Comprehensive mathematical expression demonstrating nested expression groups, all math functions, operators, and complex calculations"
+  },
+  "content": {
+    "source": "expressionGroup",
+    "returnType": "number",
+    "expressions": [
+      {
+        "source": "expressionGroup",
+        "returnType": "number",
+        "expressions": [
+          {
+            "source": "function",
+            "returnType": "number",
+            "function": {
+              "name": "MATH.ROUND",
+              "args": [
+                {
+                  "name": "value",
+                  "value": {
+                    "source": "expressionGroup",
+                    "returnType": "number",
+                    "expressions": [
+                      {
+                        "source": "function",
+                        "returnType": "number",
+                        "function": {
+                          "name": "MATH.MULTIPLY",
+                          "args": [
+                            {
+                              "name": "arg1",
+                              "value": {
+                                "source": "expressionGroup",
+                                "returnType": "number",
+                                "expressions": [
+                                  {
+                                    "source": "field",
+                                    "returnType": "number",
+                                    "field": "TABLE1.NUMBER_FIELD_01"
+                                  },
+                                  {
+                                    "source": "value",
+                                    "returnType": "number",
+                                    "value": 10
+                                  }
+                                ],
+                                "operators": ["+"]
+                              }
+                            },
+                            {
+                              "name": "arg2",
+                              "value": {
+                                "source": "expressionGroup",
+                                "returnType": "number",
+                                "expressions": [
+                                  {
+                                    "source": "value",
+                                    "returnType": "number",
+                                    "value": 1.15
+                                  }
+                                ],
+                                "operators": []
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "operators": []
+                  }
+                },
+                {
+                  "name": "decimals",
+                  "value": {
+                    "source": "expressionGroup",
+                    "returnType": "number",
+                    "expressions": [
+                      {
+                        "source": "value",
+                        "returnType": "number",
+                        "value": 2
+                      }
+                    ],
+                    "operators": []
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "source": "function",
+            "returnType": "number",
+            "function": {
+              "name": "MATH.ABS",
+              "args": [
+                {
+                  "name": "value",
+                  "value": {
+                    "source": "expressionGroup",
+                    "returnType": "number",
+                    "expressions": [
+                      {
+                        "source": "function",
+                        "returnType": "number",
+                        "function": {
+                          "name": "MATH.SUBTRACT",
+                          "args": [
+                            {
+                              "name": "arg1",
+                              "value": {
+                                "source": "expressionGroup",
+                                "returnType": "number",
+                                "expressions": [
+                                  {
+                                    "source": "field",
+                                    "returnType": "number",
+                                    "field": "TABLE1.NUMBER_FIELD_02"
+                                  }
+                                ],
+                                "operators": []
+                              }
+                            },
+                            {
+                              "name": "arg2",
+                              "value": {
+                                "source": "expressionGroup",
+                                "returnType": "number",
+                                "expressions": [
+                                  {
+                                    "source": "field",
+                                    "returnType": "number",
+                                    "field": "TABLE2.NUMBER_FIELD_02"
+                                  }
+                                ],
+                                "operators": []
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "operators": []
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "operators": ["-"]
+      },
+      {
+        "source": "expressionGroup",
+        "returnType": "number",
+        "expressions": [
+          {
+            "source": "function",
+            "returnType": "number",
+            "function": {
+              "name": "MATH.DIVIDE",
+              "args": [
+                {
+                  "name": "arg1",
+                  "value": {
+                    "source": "expressionGroup",
+                    "returnType": "number",
+                    "expressions": [
+                      {
+                        "source": "function",
+                        "returnType": "number",
+                        "function": {
+                          "name": "MATH.SUM",
+                          "args": [
+                            {
+                              "name": "values",
+                              "value": {
+                                "source": "expressionGroup",
+                                "returnType": "number",
+                                "expressions": [
+                                  {
+                                    "source": "field",
+                                    "returnType": "number",
+                                    "field": "TABLE1.NUMBER_FIELD_01"
+                                  },
+                                  {
+                                    "source": "field",
+                                    "returnType": "number",
+                                    "field": "TABLE1.NUMBER_FIELD_02"
+                                  },
+                                  {
+                                    "source": "field",
+                                    "returnType": "number",
+                                    "field": "TABLE1.NUMBER_FIELD_03"
+                                  }
+                                ],
+                                "operators": ["+", "+"]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "operators": []
+                  }
+                },
+                {
+                  "name": "arg2",
+                  "value": {
+                    "source": "expressionGroup",
+                    "returnType": "number",
+                    "expressions": [
+                      {
+                        "source": "value",
+                        "returnType": "number",
+                        "value": 3
+                      }
+                    ],
+                    "operators": []
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "source": "value",
+            "returnType": "number",
+            "value": 50
+          }
+        ],
+        "operators": ["*"]
+      },
+      {
+        "source": "expressionGroup",
+        "returnType": "number",
+        "expressions": [
+          {
+            "source": "function",
+            "returnType": "number",
+            "function": {
+              "name": "MATH.ADD",
+              "args": [
+                {
+                  "name": "arg1",
+                  "value": {
+                    "source": "expressionGroup",
+                    "returnType": "number",
+                    "expressions": [
+                      {
+                        "source": "expressionGroup",
+                        "returnType": "number",
+                        "expressions": [
+                          {
+                            "source": "field",
+                            "returnType": "number",
+                            "field": "TABLE2.NUMBER_FIELD_01"
+                          },
+                          {
+                            "source": "function",
+                            "returnType": "number",
+                            "function": {
+                              "name": "MATH.MULTIPLY",
+                              "args": [
+                                {
+                                  "name": "arg1",
+                                  "value": {
+                                    "source": "expressionGroup",
+                                    "returnType": "number",
+                                    "expressions": [
+                                      {
+                                        "source": "value",
+                                        "returnType": "number",
+                                        "value": 2
+                                      }
+                                    ],
+                                    "operators": []
+                                  }
+                                },
+                                {
+                                  "name": "arg2",
+                                  "value": {
+                                    "source": "expressionGroup",
+                                    "returnType": "number",
+                                    "expressions": [
+                                      {
+                                        "source": "value",
+                                        "returnType": "number",
+                                        "value": 3
+                                      }
+                                    ],
+                                    "operators": []
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "operators": ["*"]
+                      }
+                    ],
+                    "operators": []
+                  }
+                },
+                {
+                  "name": "arg2",
+                  "value": {
+                    "source": "expressionGroup",
+                    "returnType": "number",
+                    "expressions": [
+                      {
+                        "source": "function",
+                        "returnType": "number",
+                        "function": {
+                          "name": "MATH.DIVIDE",
+                          "args": [
+                            {
+                              "name": "arg1",
+                              "value": {
+                                "source": "expressionGroup",
+                                "returnType": "number",
+                                "expressions": [
+                                  {
+                                    "source": "value",
+                                    "returnType": "number",
+                                    "value": 100
+                                  }
+                                ],
+                                "operators": []
+                              }
+                            },
+                            {
+                              "name": "arg2",
+                              "value": {
+                                "source": "expressionGroup",
+                                "returnType": "number",
+                                "expressions": [
+                                  {
+                                    "source": "value",
+                                    "returnType": "number",
+                                    "value": 4
+                                  }
+                                ],
+                                "operators": []
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "operators": []
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "operators": []
+      },
+      {
+        "source": "function",
+        "returnType": "number",
+        "function": {
+          "name": "MATH.ROUND",
+          "args": [
+            {
+              "name": "value",
+              "value": {
+                "source": "expressionGroup",
+                "returnType": "number",
+                "expressions": [
+                  {
+                    "source": "function",
+                    "returnType": "number",
+                    "function": {
+                      "name": "MATH.SUBTRACT",
+                      "args": [
+                        {
+                          "name": "arg1",
+                          "value": {
+                            "source": "expressionGroup",
+                            "returnType": "number",
+                            "expressions": [
+                              {
+                                "source": "function",
+                                "returnType": "number",
+                                "function": {
+                                  "name": "MATH.MULTIPLY",
+                                  "args": [
+                                    {
+                                      "name": "arg1",
+                                      "value": {
+                                        "source": "expressionGroup",
+                                        "returnType": "number",
+                                        "expressions": [
+                                          {
+                                            "source": "field",
+                                            "returnType": "number",
+                                            "field": "TABLE2.NUMBER_FIELD_03"
+                                          }
+                                        ],
+                                        "operators": []
+                                      }
+                                    },
+                                    {
+                                      "name": "arg2",
+                                      "value": {
+                                        "source": "expressionGroup",
+                                        "returnType": "number",
+                                        "expressions": [
+                                          {
+                                            "source": "value",
+                                            "returnType": "number",
+                                            "value": 0.85
+                                          }
+                                        ],
+                                        "operators": []
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "operators": []
+                          }
+                        },
+                        {
+                          "name": "arg2",
+                          "value": {
+                            "source": "expressionGroup",
+                            "returnType": "number",
+                            "expressions": [
+                              {
+                                "source": "function",
+                                "returnType": "number",
+                                "function": {
+                                  "name": "MATH.ABS",
+                                  "args": [
+                                    {
+                                      "name": "value",
+                                      "value": {
+                                        "source": "expressionGroup",
+                                        "returnType": "number",
+                                        "expressions": [
+                                          {
+                                            "source": "value",
+                                            "returnType": "number",
+                                            "value": -15.5
+                                          }
+                                        ],
+                                        "operators": []
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "operators": []
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "operators": []
+              }
+            },
+            {
+              "name": "decimals",
+              "value": {
+                "source": "expressionGroup",
+                "returnType": "number",
+                "expressions": [
+                  {
+                    "source": "value",
+                    "returnType": "number",
+                    "value": 1
+                  }
+                ],
+                "operators": []
+              }
+            }
+          ]
+        }
+      },
+      {
+        "source": "expressionGroup",
+        "returnType": "number",
+        "expressions": [
+          {
+            "source": "value",
+            "returnType": "number",
+            "value": 25
+          },
+          {
+            "source": "field",
+            "returnType": "number",
+            "field": "TABLE1.NUMBER_FIELD_03"
+          },
+          {
+            "source": "value",
+            "returnType": "number",
+            "value": 5
+          }
+        ],
+        "operators": ["+", "-"]
+      }
+    ],
+    "operators": ["+", "/", "*", "-"]
+  }
+}
