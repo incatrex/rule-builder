@@ -313,15 +313,27 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         <div style={{ paddingLeft: hasMultipleExpressions() ? '16px' : '0' }}>
           <Space style={{ width: '100%' }} size="small">
             <div style={{ flex: 1 }}>
-              <BaseExpression
-                value={groupData.expressions?.[0]}
-                onChange={(value) => updateExpression(0, value)}
-                config={config}
-                expectedType={hasMultipleExpressions() ? 'number' : expectedType}
-                darkMode={darkMode}
-                compact={compact}
-                isLoadedRule={isLoadedRule}
-              />
+              {groupData.expressions?.[0]?.source === 'expressionGroup' ? (
+                <ExpressionGroup
+                  value={groupData.expressions[0]}
+                  onChange={(value) => updateExpression(0, value)}
+                  config={config}
+                  expectedType={hasMultipleExpressions() ? 'number' : expectedType}
+                  darkMode={darkMode}
+                  compact={compact}
+                  isLoadedRule={isLoadedRule}
+                />
+              ) : (
+                <BaseExpression
+                  value={groupData.expressions?.[0]}
+                  onChange={(value) => updateExpression(0, value)}
+                  config={config}
+                  expectedType={hasMultipleExpressions() ? 'number' : expectedType}
+                  darkMode={darkMode}
+                  compact={compact}
+                  isLoadedRule={isLoadedRule}
+                />
+              )}
             </div>
             
             {/* Add Operation Button */}
@@ -404,9 +416,26 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
 
   // For single expressions in compact mode, render without the group wrapper
   if (compact && !hasMultipleExpressions()) {
+    const firstExpression = groupData.expressions?.[0];
+    
+    // Check if it's a nested ExpressionGroup or BaseExpression
+    if (firstExpression?.source === 'expressionGroup') {
+      return (
+        <ExpressionGroup
+          value={firstExpression}
+          onChange={(value) => updateExpression(0, value)}
+          config={config}
+          expectedType={expectedType}
+          darkMode={darkMode}
+          compact={compact}
+          isLoadedRule={isLoadedRule}
+        />
+      );
+    }
+    
     return (
       <BaseExpression
-        value={groupData.expressions?.[0]}
+        value={firstExpression}
         onChange={(value) => updateExpression(0, value)}
         config={config}
         expectedType={expectedType}
@@ -445,12 +474,28 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
  * This is what used to be the core of the Expression component
  */
 const BaseExpression = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false }) => {
-  const [source, setSource] = useState(value?.source || 'value');
-  const [expressionData, setExpressionData] = useState(value || { 
-    source: 'value', 
-    returnType: expectedType || 'number', 
-    value: expectedType === 'number' || !expectedType ? 0 : '' 
-  });
+  // Ensure we always have a valid initial value
+  const getInitialValue = () => {
+    // If value exists and has a valid source for BaseExpression (not expressionGroup), use it
+    if (value && value.source && ['value', 'field', 'function'].includes(value.source)) {
+      return value;
+    }
+    // If value is an expressionGroup, this shouldn't be here - but return as-is to avoid breaking
+    if (value && value.source === 'expressionGroup') {
+      console.warn('BaseExpression received an expressionGroup - should be rendered as ExpressionGroup', value);
+      return value; // Return as-is to avoid data loss
+    }
+    // Otherwise return a default value expression
+    return {
+      source: 'value',
+      returnType: expectedType || 'number',
+      value: expectedType === 'number' || !expectedType ? 0 : ''
+    };
+  };
+  
+  const initialValue = getInitialValue();
+  const [source, setSource] = useState(initialValue.source || 'value');
+  const [expressionData, setExpressionData] = useState(initialValue);
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isUpdatingFromProps = useRef(false);
@@ -537,6 +582,11 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
   ];
 
   const renderSourceSelector = () => {
+    // Don't render if source is not set
+    if (!source || !sourceOptions.find(opt => opt.value === source)) {
+      return null;
+    }
+    
     return (
       <Select
         value={source}
@@ -547,14 +597,15 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         // When closed, show only icon
         labelRender={(props) => {
           const option = sourceOptions.find(opt => opt.value === props.value);
+          if (!option) return null; // Safety check
           return isDropdownOpen ? (
             <Space size={4}>
-              {option?.icon}
-              <span>{option?.label}</span>
+              {option.icon}
+              <span>{option.label}</span>
             </Space>
           ) : (
             <span style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-              {option?.icon}
+              {option.icon}
             </span>
           );
         }}
