@@ -154,11 +154,16 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     const expressions = [...(groupData.expressions || [])];
     const operators = [...(groupData.operators || [])];
     
-    // Add new expression
+    // Determine the type from existing expressions
+    const existingType = expressions.length > 0 
+      ? getExpressionReturnType(expressions[0])
+      : 'number';
+    
+    // Add new expression matching the existing type
     expressions.push({ 
       type: 'value', 
-      returnType: 'number', 
-      value: 0 
+      returnType: existingType, 
+      value: existingType === 'text' ? '' : 0 
     });
     
     // Add operator before the new expression (if not the first)
@@ -186,11 +191,11 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   };
 
   const canAddOperators = () => {
-    // Only allow operators if first expression is numeric
+    // Allow operators for numeric (arithmetic) and text (concatenation) types
     const firstType = groupData.expressions && groupData.expressions.length > 0
       ? getExpressionReturnType(groupData.expressions[0])
       : 'number';
-    return firstType === 'number';
+    return firstType === 'number' || firstType === 'text';
   };
 
   const hasMultipleExpressions = () => {
@@ -357,6 +362,18 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         {/* Additional Expressions with Operators */}
         {(groupData.expressions || []).slice(1).map((expr, index) => {
           const actualIndex = index + 1; // Since we're starting from slice(1)
+          
+          // Determine operator options based on expression type
+          const firstType = getExpressionReturnType(groupData.expressions[0]);
+          const operatorOptions = firstType === 'text' 
+            ? [{ value: '+', label: '+' }] // Only concatenation for text
+            : [
+                { value: '+', label: '+' },
+                { value: '-', label: '-' },
+                { value: '*', label: '*' },
+                { value: '/', label: '/' }
+              ];
+          
           return (
             <div key={actualIndex} style={{ paddingLeft: '16px' }}>
               <Space style={{ width: '100%' }} size="small">
@@ -366,12 +383,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                   onChange={(op) => updateOperator(index, op)}
                   style={{ width: '50px' }}
                   size="small"
-                  options={[
-                    { value: '+', label: '+' },
-                    { value: '-', label: '-' },
-                    { value: '*', label: '*' },
-                    { value: '/', label: '/' }
-                  ]}
+                  options={operatorOptions}
                 />
                 
                 {/* Expression */}
@@ -406,7 +418,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         {!canAddOperators() && groupData.expressions?.length > 1 && (
           <div style={{ paddingLeft: '16px' }}>
             <Text type="warning" style={{ fontSize: '11px' }}>
-              ⚠ Mathematical operations require numeric expressions
+              ⚠ Operations require numeric or text expressions
             </Text>
           </div>
         )}

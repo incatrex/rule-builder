@@ -121,7 +121,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       expect(capturedOutput.operators).toEqual(['+']);
     });
 
-    test('BUG: clicking + on a text expression incorrectly converts to number', async () => {
+    test('clicking + on text expression adds text value (FIXED)', async () => {
       const user = userEvent.setup();
       let capturedOutput = null;
       
@@ -149,36 +149,29 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
         />
       );
 
-      // Try to find the "+" button - it might not exist if canAddOperators() returns false
-      const addButton = screen.queryByTitle('Add Operation');
+      // Find and click the "+" button (should now exist for text)
+      const addButton = screen.getByTitle('Add Operation');
+      await user.click(addButton);
+
+      await waitFor(() => {
+        expect(capturedOutput).toBeDefined();
+      });
+
+      // FIXED: Should now add a text expression!
+      expect(capturedOutput.expressions).toHaveLength(2);
       
-      if (addButton) {
-        await user.click(addButton);
-
-        await waitFor(() => {
-          expect(capturedOutput).toBeDefined();
-        });
-
-        // This is the BUG - it should add a text expression, not a number!
-        expect(capturedOutput.expressions).toHaveLength(2);
-        
-        // Current buggy behavior:
-        expect(capturedOutput.expressions[1].returnType).toBe('number'); // WRONG!
-        expect(capturedOutput.expressions[1].value).toBe(0); // WRONG!
-        
-        // What it SHOULD be:
-        // expect(capturedOutput.expressions[1].returnType).toBe('text');
-        // expect(capturedOutput.expressions[1].value).toBe('');
-      } else {
-        // The + button doesn't even appear for text!
-        expect(addButton).toBeNull();
-        console.log('BUG CONFIRMED: Cannot add operator to text expressions');
-      }
+      // Note: Still creates expressionGroup wrapper (Bug #4), but type is correct
+      expect(capturedOutput.expressions[1].type).toBe('expressionGroup');
+      expect(capturedOutput.expressions[1].returnType).toBe('text');
+      expect(capturedOutput.expressions[1].expressions[0].type).toBe('value');
+      expect(capturedOutput.expressions[1].expressions[0].returnType).toBe('text');
+      expect(capturedOutput.expressions[1].expressions[0].value).toBe('');
+      expect(capturedOutput.operators).toEqual(['+']);
     });
   });
 
   describe('Type changes when adding operators', () => {
-    test('BUG: text value gets converted to number when operator is added', async () => {
+    test('text expressions can now have operators (FIXED)', async () => {
       const user = userEvent.setup();
       let capturedOutput = null;
       
@@ -196,7 +189,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
         operators: []
       };
 
-      const { rerender } = render(
+      render(
         <ExpressionGroup
           value={initialValue}
           onChange={handleChange}
@@ -206,20 +199,14 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
         />
       );
 
-      // Check if + button exists
-      const addButton = screen.queryByTitle('Add Operation');
-      
-      // Document the bug
-      if (!addButton) {
-        console.log('BUG: + button hidden for text expressions due to canAddOperators() check');
-      }
-      
-      expect(addButton).toBeNull(); // Bug confirmed
+      // FIXED: + button should now be available for text expressions
+      const addButton = screen.getByTitle('Add Operation');
+      expect(addButton).toBeTruthy();
     });
   });
 
   describe('Creating text concatenation (desired behavior)', () => {
-    test('SHOULD WORK: text + text = concatenation', async () => {
+    test('text + text = concatenation (FIXED)', async () => {
       const user = userEvent.setup();
       let capturedOutput = null;
       
@@ -248,11 +235,9 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
         />
       );
 
-      // If we can load this JSON, it should display
-      // But we currently can't CREATE it via the UI!
-      
-      // BUG CONFIRMED: Shows warning even for valid text concatenation
-      expect(screen.queryByText(/Mathematical operations require numeric/)).toBeInTheDocument();
+      // FIXED: Should no longer show warning for text concatenation
+      expect(screen.queryByText(/Mathematical operations require numeric/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Operations require numeric or text/)).not.toBeInTheDocument();
     });
   });
 
@@ -296,35 +281,50 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
 });
 
 describe('Bug Documentation', () => {
-  test('documents the current limitations', () => {
+  test('documents the remaining limitations', () => {
     const bugs = [
       {
+        status: 'FIXED',
         bug: 'Cannot add operators to text expressions',
-        cause: 'canAddOperators() only returns true for numbers',
-        impact: 'Users cannot create text concatenation via UI',
-        workaround: 'Must manually edit JSON'
+        fix: 'canAddOperators() now returns true for text types',
+        impact: 'Users can now create text concatenation via UI'
       },
       {
+        status: 'FIXED', 
         bug: 'addExpression() hardcodes returnType to number',
-        cause: 'Line 158: returnType: "number" is hardcoded',
-        impact: 'Any operator addition converts expression to numbers',
-        workaround: 'None - must load pre-made JSON'
+        fix: 'Now detects type from existing expressions',
+        impact: 'Operator addition preserves expression type'
       },
       {
+        status: 'FIXED',
         bug: 'Warning shows for text concatenation',
-        cause: 'Warning checks !canAddOperators() which is false for text',
-        impact: 'Misleading warning for valid text operations',
-        workaround: 'Ignore the warning'
+        fix: 'Warning message updated and only shows for invalid types',
+        impact: 'No misleading warning for valid operations'
+      },
+      {
+        status: 'REMAINING',
+        bug: 'New expressions wrapped in expressionGroup',
+        cause: 'addExpression() creates nested structure',
+        impact: 'Expressions have extra nesting level',
+        workaround: 'Still functional, just verbose JSON'
       }
     ];
 
-    // This test always passes but documents the issues
-    expect(bugs).toHaveLength(3);
+    // This test documents the fixes
+    expect(bugs.filter(b => b.status === 'FIXED')).toHaveLength(3);
+    expect(bugs.filter(b => b.status === 'REMAINING')).toHaveLength(1);
+    
     bugs.forEach(bug => {
-      console.log(`\n🐛 BUG: ${bug.bug}`);
-      console.log(`   Cause: ${bug.cause}`);
-      console.log(`   Impact: ${bug.impact}`);
-      console.log(`   Workaround: ${bug.workaround}`);
+      if (bug.status === 'FIXED') {
+        console.log(`\n✅ FIXED: ${bug.bug}`);
+        console.log(`   Fix: ${bug.fix}`);
+        console.log(`   Impact: ${bug.impact}`);
+      } else {
+        console.log(`\n🐛 BUG: ${bug.bug}`);
+        console.log(`   Cause: ${bug.cause}`);
+        console.log(`   Impact: ${bug.impact}`);
+        console.log(`   Workaround: ${bug.workaround}`);
+      }
     });
   });
 });
