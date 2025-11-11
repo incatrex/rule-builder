@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Button, Space, Typography, Collapse, Input } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Card, Space, Button, Collapse, Input, Typography, Tag, Select } from 'antd';
+import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
-import ExpressionGroup from './ExpressionGroup';
+import ExpressionGroup, { createExpressionGroup } from './ExpressionGroup';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -27,12 +27,7 @@ const { Panel } = Collapse;
 const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false }) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
-    elseClause: { 
-      source: 'expressionGroup',
-      returnType: 'number',
-      firstExpression: { source: 'value', returnType: 'number', value: '' },
-      additionalExpressions: []
-    },
+    elseClause: createExpressionGroup('number', ''),
     elseResultName: 'Default'
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
@@ -91,28 +86,13 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
             id: generateId(),
             returnType: 'boolean',
             name: 'Condition 1',
-            left: { 
-              source: 'expressionGroup',
-              returnType: 'number',
-              firstExpression: { source: 'field', returnType: 'number', field: null },
-              additionalExpressions: []
-            },
+            left: createExpressionGroup('number', null),
             operator: null,
-            right: { 
-              source: 'expressionGroup',
-              returnType: 'number',
-              firstExpression: { source: 'value', returnType: 'number', value: '' },
-              additionalExpressions: []
-            }
+            right: createExpressionGroup('number', '')
           }
         ]
       },
-      then: {
-        source: 'expressionGroup',
-        returnType: 'number',
-        firstExpression: { source: 'value', returnType: 'number', value: '' },
-        additionalExpressions: []
-      },
+      then: createExpressionGroup('number', ''),
       resultName: `Result ${caseData.whenClauses.length + 1}`
     };
     handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });

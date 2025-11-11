@@ -327,7 +327,11 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     const cleaned = {};
     for (const [key, value] of Object.entries(obj)) {
       // Skip UI-only properties
-      if (key === 'isExpanded' || key === 'isCollapsed') {
+      if (key === 'isExpanded' || 
+          key === 'isCollapsed' || 
+          key === 'editingName' || 
+          key === 'editingResultName' ||
+          (key === 'id' && obj.type === 'conditionGroup')) {
         continue;
       }
       

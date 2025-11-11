@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { CloseOutlined, EditOutlined } from '@ant-design/icons';
-import ExpressionGroup from './ExpressionGroup';
+import ExpressionGroup, { createExpressionGroup } from './ExpressionGroup';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -26,19 +26,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
   const [conditionData, setConditionData] = useState(value || {
     returnType: 'boolean',
     name: 'New Condition',
-    left: { 
-      source: 'expressionGroup',
-      returnType: 'number',
-      firstExpression: { source: 'field', returnType: 'number', field: null },
-      additionalExpressions: []
-    },
+    left: createExpressionGroup('number', null),
     operator: null,
-    right: { 
-      source: 'expressionGroup',
-      returnType: 'number',
-      firstExpression: { source: 'value', returnType: 'number', value: '' },
-      additionalExpressions: []
-    }
+    right: createExpressionGroup('number', '')
   });
   const [editingName, setEditingName] = useState(false);
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
@@ -118,19 +108,19 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       // No right side value needed
       newRight = null;
     } else if (cardinality === 1) {
-      // Single right side value
-      newRight = { 
-        source: 'value', 
-        returnType: conditionData.left?.returnType || 'text', 
-        value: '' 
-      };
+      // Single right side value - must be ExpressionGroup
+      newRight = createExpressionGroup(
+        conditionData.left?.returnType || 'text',
+        ''
+      );
     } else {
-      // Multiple right side values (array)
-      newRight = Array(cardinality).fill(null).map(() => ({
-        source: 'value',
-        returnType: conditionData.left?.returnType || 'text',
-        value: ''
-      }));
+      // Multiple right side values (array of ExpressionGroups)
+      newRight = Array(cardinality).fill(null).map(() => 
+        createExpressionGroup(
+          conditionData.left?.returnType || 'text',
+          ''
+        )
+      );
     }
     
     handleChange({ operator: operatorKey, right: newRight });

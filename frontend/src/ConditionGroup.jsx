@@ -164,15 +164,15 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
       left: { 
         source: 'expressionGroup',
         returnType: 'number',
-        firstExpression: { source: 'field', returnType: 'number', field: null },
-        additionalExpressions: []
+        expressions: [{ source: 'field', returnType: 'number', field: null }],
+        operators: []
       },
       operator: null,
       right: { 
         source: 'expressionGroup',
         returnType: 'number',
-        firstExpression: { source: 'value', returnType: 'number', value: '' },
-        additionalExpressions: []
+        expressions: [{ source: 'value', returnType: 'number', value: '' }],
+        operators: []
       }
     };
     handleChange({ conditions: [...conditions, newCondition] });
@@ -197,15 +197,15 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
           left: { 
             source: 'expressionGroup',
             returnType: 'number',
-            firstExpression: { source: 'field', returnType: 'number', field: null },
-            additionalExpressions: []
+            expressions: [{ source: 'field', returnType: 'number', field: null }],
+            operators: []
           },
           operator: null,
           right: { 
             source: 'expressionGroup',
             returnType: 'number',
-            firstExpression: { source: 'value', returnType: 'number', value: '' },
-            additionalExpressions: []
+            expressions: [{ source: 'value', returnType: 'number', value: '' }],
+            operators: []
           }
         }
       ]

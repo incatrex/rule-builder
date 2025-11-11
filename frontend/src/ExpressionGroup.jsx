@@ -720,32 +720,20 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
               for (let i = 0; i < minArgs; i++) {
                 args.push({
                   name: `arg${i + 1}`,
-                  value: { 
-                    source: 'expressionGroup',
-                    returnType: funcDef.dynamicArgs.argType || 'text',
-                    firstExpression: {
-                      source: 'value', 
-                      returnType: funcDef.dynamicArgs.argType || 'text', 
-                      value: funcDef.dynamicArgs.defaultValue || '' 
-                    },
-                    additionalExpressions: []
-                  }
+                  value: createExpressionGroup(
+                    funcDef.dynamicArgs.argType || 'text',
+                    funcDef.dynamicArgs.defaultValue || ''
+                  )
                 });
               }
             } else if (funcDef.args) {
               // Handle static args (regular functions)
               args = Object.keys(funcDef.args).map(argName => ({
                 name: argName,
-                value: { 
-                  source: 'expressionGroup',
-                  returnType: funcDef.args[argName].type || 'text',
-                  firstExpression: {
-                    source: 'value', 
-                    returnType: funcDef.args[argName].type || 'text', 
-                    value: '' 
-                  },
-                  additionalExpressions: []
-                }
+                value: createExpressionGroup(
+                  funcDef.args[argName].type || 'text',
+                  ''
+                )
               }));
             }
             
@@ -787,10 +775,10 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         return `${innerFuncName}(...)`;
       } else if (arg.value.source === 'expressionGroup') {
         // Handle ExpressionGroup - show compact representation
-        if (arg.value.additionalExpressions?.length > 0) {
+        if (arg.value.expressions?.length > 1 || arg.value.operators?.length > 0) {
           return '(...)'; // Complex expression
-        } else if (arg.value.firstExpression) {
-          return getCompactArgValue({ value: arg.value.firstExpression });
+        } else if (arg.value.expressions?.[0]) {
+          return getCompactArgValue({ value: arg.value.expressions[0] });
         }
       }
       return '?';
@@ -854,32 +842,20 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         for (let i = 0; i < minArgs; i++) {
           args.push({
             name: `arg${i + 1}`,
-            value: { 
-              source: 'expressionGroup',
-              returnType: funcDef.dynamicArgs.argType || 'text',
-              firstExpression: {
-                source: 'value', 
-                returnType: funcDef.dynamicArgs.argType || 'text', 
-                value: funcDef.dynamicArgs.defaultValue || '' 
-              },
-              additionalExpressions: []
-            }
+            value: createExpressionGroup(
+              funcDef.dynamicArgs.argType || 'text',
+              funcDef.dynamicArgs.defaultValue || ''
+            )
           });
         }
       } else if (funcDef.args) {
         // Handle static args (regular functions)
         args = Object.keys(funcDef.args).map(argName => ({
           name: argName,
-          value: { 
-            source: 'expressionGroup',
-            returnType: funcDef.args[argName].type || 'text',
-            firstExpression: {
-              source: 'value', 
-              returnType: funcDef.args[argName].type || 'text', 
-              value: '' 
-            },
-            additionalExpressions: []
-          }
+          value: createExpressionGroup(
+            funcDef.args[argName].type || 'text',
+            ''
+          )
         }));
       }
       
@@ -942,10 +918,10 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                     return `${innerFuncName}(...)`;
                   } else if (arg.value.source === 'expressionGroup') {
                     // Handle ExpressionGroup - show compact representation
-                    if (arg.value.additionalExpressions?.length > 0) {
+                    if (arg.value.expressions?.length > 1 || arg.value.operators?.length > 0) {
                       return '(...)'; // Complex expression
-                    } else if (arg.value.firstExpression) {
-                      return getCompactArgValue({ value: arg.value.firstExpression });
+                    } else if (arg.value.expressions?.[0]) {
+                      return getCompactArgValue({ value: arg.value.expressions[0] });
                     }
                   }
                   return '?';
@@ -1045,16 +1021,10 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                   const newArgs = [...expressionData.function.args];
                   newArgs.push({
                     name: `arg${newArgs.length + 1}`,
-                    value: { 
-                      source: 'expressionGroup',
-                      returnType: funcDef.dynamicArgs.argType || 'text',
-                      firstExpression: {
-                        source: 'value', 
-                        returnType: funcDef.dynamicArgs.argType || 'text',
-                        value: funcDef.dynamicArgs.defaultValue ?? ''
-                      },
-                      additionalExpressions: []
-                    }
+                    value: createExpressionGroup(
+                      funcDef.dynamicArgs.argType || 'text',
+                      funcDef.dynamicArgs.defaultValue ?? ''
+                    )
                   });
                   handleValueChange({ function: { ...expressionData.function, args: newArgs } });
                 }}
@@ -1170,5 +1140,20 @@ const getFunctionDefinition = (funcPath, funcs) => {
   
   return null;
 };
+
+/**
+ * Factory function to create a new empty ExpressionGroup structure
+ * This ensures the structure is defined in one place
+ */
+export const createExpressionGroup = (returnType = 'text', defaultValue = '') => ({
+  source: 'expressionGroup',
+  returnType,
+  expressions: [{
+    source: 'value',
+    returnType,
+    value: defaultValue
+  }],
+  operators: []
+});
 
 export default ExpressionGroup;
