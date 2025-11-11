@@ -31,7 +31,7 @@ public class RuleBuilderService {
         try {
             // Load the JSON schema on service initialization
             ClassPathResource schemaResource = new ClassPathResource("static/schemas/rule-schema-v1.0.1.json");
-            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
             this.ruleSchema = factory.getSchema(schemaResource.getInputStream());
         } catch (Exception e) {
             throw new RuntimeException("Failed to load rule schema", e);
@@ -75,16 +75,52 @@ public class RuleBuilderService {
     public JsonNode getRule(String ruleId, String uuid, String version) throws IOException {
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
         String filename = String.format("%s[%s][%s].json", ruleId, uuid, version);
+        
+        // First try root directory (for newly saved rules)
         Path filePath = Paths.get(rulesDir, filename);
-
         if (Files.exists(filePath)) {
             return objectMapper.readTree(filePath.toFile());
         }
+        
+        // If not found in root, search recursively in subdirectories
+        File rootDir = new File(rulesDir);
+        File foundFile = findFileRecursively(rootDir, filename);
+        if (foundFile != null && foundFile.exists()) {
+            return objectMapper.readTree(foundFile);
+        }
+        
         return null;
     }
 
     /**
-     * Get all rule IDs with their UUIDs and latest versions
+     * Recursively search for a file by name
+     */
+    private File findFileRecursively(File directory, String filename) {
+        if (!directory.isDirectory()) {
+            return null;
+        }
+        
+        File[] files = directory.listFiles();
+        if (files == null) {
+            return null;
+        }
+        
+        for (File file : files) {
+            if (file.isFile() && file.getName().equals(filename)) {
+                return file;
+            } else if (file.isDirectory()) {
+                File found = findFileRecursively(file, filename);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get all rule IDs with their UUIDs, latest versions, and folder paths
      */
     public JsonNode getRuleIds() throws IOException {
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
@@ -98,24 +134,8 @@ public class RuleBuilderService {
         Pattern pattern = Pattern.compile("^(.+)\\[([0-9a-f-]+)\\]\\[(\\d+)\\]\\.json$");
         Map<String, RuleInfo> ruleMap = new HashMap<>();
 
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                Matcher matcher = pattern.matcher(file.getName());
-                if (matcher.matches()) {
-                    String ruleId = matcher.group(1);
-                    String uuid = matcher.group(2);
-                    int version = Integer.parseInt(matcher.group(3));
-                    
-                    String key = ruleId + "." + uuid;
-                    RuleInfo existing = ruleMap.get(key);
-                    
-                    if (existing == null || version > existing.version) {
-                        ruleMap.put(key, new RuleInfo(ruleId, uuid, version));
-                    }
-                }
-            }
-        }
+        // Recursively scan directory and subdirectories
+        scanDirectory(directory, directory, pattern, ruleMap);
 
         ArrayNode result = objectMapper.createArrayNode();
         for (RuleInfo ruleInfo : ruleMap.values()) {
@@ -123,10 +143,45 @@ public class RuleBuilderService {
             ruleNode.put("ruleId", ruleInfo.ruleId);
             ruleNode.put("uuid", ruleInfo.uuid);
             ruleNode.put("latestVersion", ruleInfo.version);
+            ruleNode.put("folderPath", ruleInfo.folderPath);
             result.add(ruleNode);
         }
 
         return result;
+    }
+
+    /**
+     * Recursively scan directory for rule files
+     */
+    private void scanDirectory(File rootDir, File currentDir, Pattern pattern, Map<String, RuleInfo> ruleMap) {
+        File[] files = currentDir.listFiles();
+        if (files == null) return;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                // Recursively scan subdirectories
+                scanDirectory(rootDir, file, pattern, ruleMap);
+            } else if (file.isFile() && file.getName().endsWith(".json")) {
+                Matcher matcher = pattern.matcher(file.getName());
+                if (matcher.matches()) {
+                    String ruleId = matcher.group(1);
+                    String uuid = matcher.group(2);
+                    int version = Integer.parseInt(matcher.group(3));
+                    
+                    // Get relative path from root rules directory
+                    String relativePath = rootDir.toPath().relativize(file.getParentFile().toPath()).toString();
+                    // Use empty string for root, otherwise the folder path
+                    String folderPath = relativePath.isEmpty() ? "" : relativePath.replace("\\", "/");
+                    
+                    String key = ruleId + "." + uuid;
+                    RuleInfo existing = ruleMap.get(key);
+                    
+                    if (existing == null || version > existing.version) {
+                        ruleMap.put(key, new RuleInfo(ruleId, uuid, version, folderPath));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -144,16 +199,8 @@ public class RuleBuilderService {
         Pattern pattern = Pattern.compile("^(.+)\\[" + Pattern.quote(uuid) + "\\]\\[(\\d+)\\]\\.json$");
         List<Integer> versions = new ArrayList<>();
 
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                Matcher matcher = pattern.matcher(file.getName());
-                if (matcher.matches()) {
-                    int version = Integer.parseInt(matcher.group(2));
-                    versions.add(version);
-                }
-            }
-        }
+        // Recursively scan for all versions
+        scanForVersions(directory, pattern, versions);
 
         // Sort versions in descending order (newest first)
         versions.sort(Collections.reverseOrder());
@@ -167,17 +214,39 @@ public class RuleBuilderService {
     }
 
     /**
+     * Recursively scan directory for version files matching pattern
+     */
+    private void scanForVersions(File directory, Pattern pattern, List<Integer> versions) {
+        File[] files = directory.listFiles();
+        if (files == null) return;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                scanForVersions(file, pattern, versions);
+            } else if (file.isFile()) {
+                Matcher matcher = pattern.matcher(file.getName());
+                if (matcher.matches()) {
+                    int version = Integer.parseInt(matcher.group(2));
+                    versions.add(version);
+                }
+            }
+        }
+    }
+
+    /**
      * Helper class to store rule information
      */
     private static class RuleInfo {
         String ruleId;
         String uuid;
         int version;
+        String folderPath;
 
-        RuleInfo(String ruleId, String uuid, int version) {
+        RuleInfo(String ruleId, String uuid, int version, String folderPath) {
             this.ruleId = ruleId;
             this.uuid = uuid;
             this.version = version;
+            this.folderPath = folderPath;
         }
     }
 
@@ -189,6 +258,21 @@ public class RuleBuilderService {
         
         ObjectNode result = objectMapper.createObjectNode();
         result.put("valid", errors.isEmpty());
+        
+        // Add schema information
+        JsonNode schemaNode = ruleSchema.getSchemaNode();
+        ObjectNode schemaInfo = objectMapper.createObjectNode();
+        schemaInfo.put("filename", "rule-schema-v1.0.1.json");
+        if (schemaNode.has("$id")) {
+            schemaInfo.put("id", schemaNode.get("$id").asText());
+        }
+        if (schemaNode.has("title")) {
+            schemaInfo.put("title", schemaNode.get("title").asText());
+        }
+        if (schemaNode.has("$schema")) {
+            schemaInfo.put("draft", schemaNode.get("$schema").asText());
+        }
+        result.set("schema", schemaInfo);
         
         if (!errors.isEmpty()) {
             ArrayNode errorArray = objectMapper.createArrayNode();

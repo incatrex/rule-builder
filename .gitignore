@@ -152,9 +152,11 @@ mvnw.cmd
 # Frontend build
 frontend/build/
 
-# Saved rules
-backend/src/main/resources/static/rules/
+# Saved rules (ignore root level rules, but keep samples)
+backend/src/main/resources/static/rules/*.json
 !backend/src/main/resources/static/rules/.gitkeep
+!backend/src/main/resources/static/rules/samples/
+
 
 # IDEs
 .idea/

@@ -26,13 +26,20 @@ const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false }) => {
       const response = await axios.get('/api/rules/ids');
       
       // Transform the data for the Select component
-      const options = response.data.map(rule => ({
-        value: `${rule.ruleId}.${rule.uuid}`,
-        label: `${rule.ruleId} (v${rule.latestVersion})`,
-        ruleId: rule.ruleId,
-        uuid: rule.uuid,
-        latestVersion: rule.latestVersion
-      }));
+      const options = response.data.map(rule => {
+        // Build display label with folder path if present
+        const folderPrefix = rule.folderPath ? `${rule.folderPath}/` : '';
+        const displayLabel = `${folderPrefix}${rule.ruleId} (v${rule.latestVersion})`;
+        
+        return {
+          value: `${rule.ruleId}.${rule.uuid}`,
+          label: displayLabel,
+          ruleId: rule.ruleId,
+          uuid: rule.uuid,
+          latestVersion: rule.latestVersion,
+          folderPath: rule.folderPath || ''
+        };
+      });
       
       setRuleList(options);
     } catch (error) {

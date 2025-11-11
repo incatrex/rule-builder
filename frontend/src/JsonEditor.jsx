@@ -22,6 +22,7 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
   const [isValid, setIsValid] = useState(true);
   const [isValidating, setIsValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
+  const [schemaInfo, setSchemaInfo] = useState(null);
 
   // Update local state when data prop changes (only when not editing)
   useEffect(() => {
@@ -62,6 +63,11 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
       try {
         const response = await axios.post('/api/rules/validate', parsed);
         const validationResult = response.data;
+        
+        // Store schema info
+        if (validationResult.schema) {
+          setSchemaInfo(validationResult.schema);
+        }
         
         if (validationResult.valid) {
           // Valid - update the component
@@ -216,6 +222,39 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
           }}
         >
           Invalid JSON - Fix errors before updating
+        </div>
+      )}
+      
+      {/* Schema Information */}
+      {schemaInfo && (
+        <div
+          style={{
+            padding: '8px 16px',
+            borderTop: '1px solid ' + (darkMode ? '#434343' : '#f0f0f0'),
+            background: darkMode ? '#141414' : '#fafafa',
+            fontSize: '11px',
+            color: darkMode ? '#8c8c8c' : '#595959',
+            fontFamily: 'Monaco, Menlo, monospace'
+          }}
+        >
+          <div style={{ marginBottom: '2px' }}>
+            <strong>Validated against:</strong> {schemaInfo.filename}
+          </div>
+          {schemaInfo.title && (
+            <div style={{ marginBottom: '2px' }}>
+              <strong>Schema:</strong> {schemaInfo.title}
+            </div>
+          )}
+          {schemaInfo.id && (
+            <div style={{ marginBottom: '2px' }}>
+              <strong>Schema ID:</strong> {schemaInfo.id}
+            </div>
+          )}
+          {schemaInfo.draft && (
+            <div>
+              <strong>JSON Schema:</strong> {schemaInfo.draft}
+            </div>
+          )}
         </div>
       )}
     </Card>

@@ -1,9 +1,8 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.1.json",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Updated to match actual implementation",
-  "version": "1.0.1",
   "type": "object",
   "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "content"],
   "properties": {
@@ -19,7 +18,7 @@
     },
     "ruleType": {
       "type": "string",
-      "enum": ["Reporting", "Validation", "Calculation", "Decision"],
+      "enum": ["Reporting", "Transformation", "Aggregation", "Validation"],
       "description": "The business purpose of this rule"
     },
     "uuId": {
@@ -48,16 +47,46 @@
       "additionalProperties": false
     },
     "content": {
-      "oneOf": [
-        { "$ref": "#/$defs/CaseContent" },
-        { "$ref": "#/$defs/ConditionGroup" },
-        { "$ref": "#/$defs/ExpressionGroup" }
-      ],
+      "type": "object",
       "description": "The actual rule content, structure depends on the 'structure' field"
     }
   },
   "additionalProperties": false,
-  "$defs": {
+  "if": {
+    "properties": {
+      "structure": { "const": "case" }
+    }
+  },
+  "then": {
+    "properties": {
+      "content": { "$ref": "#/definitions/CaseContent" }
+    }
+  },
+  "else": {
+    "if": {
+      "properties": {
+        "structure": { "const": "condition" }
+      }
+    },
+    "then": {
+      "properties": {
+        "content": { "$ref": "#/definitions/ConditionGroup" }
+      }
+    },
+    "else": {
+      "if": {
+        "properties": {
+          "structure": { "const": "expression" }
+        }
+      },
+      "then": {
+        "properties": {
+          "content": { "$ref": "#/definitions/ExpressionGroup" }
+        }
+      }
+    }
+  },
+  "definitions": {
     "CaseContent": {
       "type": "object",
       "required": ["whenClauses"],
@@ -65,11 +94,11 @@
         "whenClauses": {
           "type": "array",
           "minItems": 1,
-          "items": { "$ref": "#/$defs/WhenClause" },
+          "items": { "$ref": "#/definitions/WhenClause" },
           "description": "Array of WHEN/THEN clause pairs"
         },
         "elseClause": {
-          "$ref": "#/$defs/ExpressionGroup",
+          "$ref": "#/definitions/ExpressionGroup",
           "description": "Optional ELSE clause with default result"
         },
         "elseResultName": {
@@ -84,11 +113,11 @@
       "required": ["when", "then"],
       "properties": {
         "when": {
-          "$ref": "#/$defs/ConditionGroup",
+          "$ref": "#/definitions/ConditionGroup",
           "description": "The condition that must be true for this clause"
         },
         "then": {
-          "$ref": "#/$defs/ExpressionGroup",
+          "$ref": "#/definitions/ExpressionGroup",
           "description": "The result to return if the WHEN condition is true"
         },
         "resultName": {
@@ -130,14 +159,13 @@
           "minItems": 0,
           "items": {
             "oneOf": [
-              { "$ref": "#/$defs/Condition" },
-              { "$ref": "#/$defs/ConditionGroup" }
+              { "$ref": "#/definitions/Condition" },
+              { "$ref": "#/definitions/ConditionGroup" }
             ]
           },
           "description": "Array of conditions or nested condition groups"
         }
-      },
-      "additionalProperties": false
+      }
     },
     "Condition": {
       "type": "object",
@@ -162,7 +190,7 @@
           "description": "Unique identifier for UI management (optional)"
         },
         "left": {
-          "$ref": "#/$defs/ExpressionGroup",
+          "$ref": "#/definitions/ExpressionGroup",
           "description": "Left side expression of the condition"
         },
         "operator": {
@@ -176,18 +204,18 @@
         },
         "right": {
           "oneOf": [
-            { "$ref": "#/$defs/ExpressionGroup" },
+            { "$ref": "#/definitions/ExpressionGroup" },
             {
               "type": "array",
-              "items": { "$ref": "#/$defs/ExpressionGroup" },
+              "items": { "$ref": "#/definitions/ExpressionGroup" },
               "minItems": 2,
               "maxItems": 2
-            }
+            },
+            { "type": "null" }
           ],
-          "description": "Right side expression(s) - single expression for most operators, array of 2 for 'between'/'not_between'"
+          "description": "Right side expression(s) - single expression for most operators, array of 2 for 'between'/'not_between', or null for 'is_empty'/'is_not_empty'"
         }
-      },
-      "additionalProperties": false
+      }
     },
     "ExpressionGroup": {
       "type": "object",
@@ -208,8 +236,8 @@
           "minItems": 1,
           "items": {
             "oneOf": [
-              { "$ref": "#/$defs/BaseExpression" },
-              { "$ref": "#/$defs/ExpressionGroup" }
+              { "$ref": "#/definitions/BaseExpression" },
+              { "$ref": "#/definitions/ExpressionGroup" }
             ]
           },
           "description": "Array of expressions - can be base expressions or nested expression groups"
@@ -280,7 +308,7 @@
                     "description": "Argument name"
                   },
                   "value": {
-                    "$ref": "#/$defs/ExpressionGroup",
+                    "$ref": "#/definitions/ExpressionGroup",
                     "description": "Argument value as expression group"
                   }
                 },

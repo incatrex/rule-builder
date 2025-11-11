@@ -285,13 +285,19 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     }
 
     try {
-      const ruleOutput = getRuleOutput();
-      await axios.post(`/api/rules/${ruleData.metadata.id}/${ruleData.version}`, ruleOutput);
+      // Increment version BEFORE saving
+      const newVersion = ruleData.version + 1;
+      const ruleOutput = {
+        ...getRuleOutput(),
+        version: newVersion
+      };
       
-      // Auto-increment version for next save
-      handleChange({ version: ruleData.version + 1 });
+      await axios.post(`/api/rules/${ruleData.metadata.id}/${newVersion}`, ruleOutput);
       
-      message.success(`Rule saved: ${ruleData.metadata.id} v${ruleData.version}`);
+      // Update the version in state to match what was saved
+      handleChange({ version: newVersion });
+      
+      message.success(`Rule saved: ${ruleData.metadata.id} v${newVersion}`);
     } catch (error) {
       console.error('Error saving rule:', error);
       message.error('Failed to save rule');

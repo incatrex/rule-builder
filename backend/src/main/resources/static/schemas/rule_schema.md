@@ -10,7 +10,7 @@ Based on actual UI component implementation and JSON structures used by the Rule
 {
   "structure": "case" | "condition" | "expression",
   "returnType": "boolean" | "number" | "text" | "date",
-  "ruleType": "Reporting" | "Validation" | "Calculation", // configurable
+  "ruleType": "Reporting" | "Transformation" | "Aggregation" | "Validation",
   "uuId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", // UUID v4 format
   "version": number,
   "metadata": {
@@ -94,7 +94,7 @@ Used for all expression handling - replaces simple Expression types.
   "id": string, // unique identifier for UI management
   "left": ExpressionGroup,
   "operator": string, // from config.operators (e.g., "equal", "greater_or_equal", "contains")
-  "right": ExpressionGroup | [ExpressionGroup] // array for operators like "between"
+  "right": ExpressionGroup | [ExpressionGroup] | null // array for "between"/"not_between", null for "is_empty"/"is_not_empty"
 }
 ```
 
@@ -229,3 +229,6 @@ Used for all expression handling - replaces simple Expression types.
 4. **Function Arguments**: Always wrapped in ExpressionGroup containers for consistency
 5. **UI State Management**: Each condition has an `id` field for React key management
 6. **Type Safety**: `returnType` fields ensure type compatibility across the system
+7. **Schema Version**: Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) for compatibility with networknt validator
+8. **Content Validation**: Schema uses `if/then/else` conditional pattern based on the `structure` field to determine which content type to validate against (CaseContent, ConditionGroup, or ExpressionGroup)
+9. **Null Right Side**: Condition `right` property can be `null` for operators like `is_empty` and `is_not_empty` that don't require a comparison value
