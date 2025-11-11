@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Space, message, Input } from 'antd';
-import { EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Card, Button, Space, message, Input, Alert } from 'antd';
+import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 /**
  * JsonEditor Component
@@ -19,6 +20,8 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
   const [displayText, setDisplayText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isValid, setIsValid] = useState(true);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState([]);
 
   // Update local state when data prop changes (only when not editing)
   useEffect(() => {
@@ -44,21 +47,46 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
     setIsEditing(false);
     setJsonText(displayText);
     setIsValid(true);
+    setValidationErrors([]);
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     try {
       const parsed = JSON.parse(jsonText);
       setIsValid(true);
-      setIsEditing(false);
-      setDisplayText(jsonText);
-      if (onChange) {
-        onChange(parsed);
-        message.success('JSON updated successfully');
+      
+      // Validate against schema
+      setIsValidating(true);
+      setValidationErrors([]);
+      
+      try {
+        const response = await axios.post('/api/rules/validate', parsed);
+        const validationResult = response.data;
+        
+        if (validationResult.valid) {
+          // Valid - update the component
+          setIsEditing(false);
+          setDisplayText(jsonText);
+          setValidationErrors([]);
+          
+          if (onChange) {
+            onChange(parsed);
+            message.success('JSON validated and updated successfully');
+          }
+        } else {
+          // Invalid according to schema
+          setValidationErrors(validationResult.errors || []);
+          message.error(`Schema validation failed with ${validationResult.errors?.length || 0} error(s)`);
+        }
+      } catch (error) {
+        console.error('Validation error:', error);
+        message.error('Failed to validate rule against schema');
+      } finally {
+        setIsValidating(false);
       }
     } catch (error) {
       setIsValid(false);
-      message.error('Invalid JSON - please fix errors before updating');
+      message.error('Invalid JSON - please fix syntax errors before updating');
     }
   };
 
@@ -95,17 +123,19 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
             <>
               <Button
                 type="primary"
-                icon={<CheckOutlined />}
+                icon={isValidating ? <LoadingOutlined /> : <CheckOutlined />}
                 onClick={handleUpdate}
                 size="small"
-                disabled={!isValid}
+                disabled={!isValid || isValidating}
+                loading={isValidating}
               >
-                Update
+                {isValidating ? 'Validating...' : 'Update'}
               </Button>
               <Button
                 icon={<CloseOutlined />}
                 onClick={handleCancel}
                 size="small"
+                disabled={isValidating}
               >
                 Cancel
               </Button>
@@ -148,7 +178,29 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
         }}
         placeholder={isEditing ? `{\n  "structure": "case",\n  "returnType": "boolean"\n}` : "No JSON data to display"}
       />
-      {isEditing && !isValid && (
+      
+      {/* Validation Errors */}
+      {validationErrors.length > 0 && (
+        <div style={{ padding: '16px', maxHeight: '200px', overflow: 'auto' }}>
+          <Alert
+            message="Schema Validation Errors"
+            description={
+              <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+                {validationErrors.map((error, index) => (
+                  <li key={index} style={{ marginBottom: '8px' }}>
+                    <strong>{error.path || 'root'}:</strong> {error.message}
+                  </li>
+                ))}
+              </ul>
+            }
+            type="error"
+            showIcon
+          />
+        </div>
+      )}
+      
+      {/* JSON Syntax Error */}
+      {isEditing && !isValid && validationErrors.length === 0 && (
         <div
           style={{
             position: 'absolute',

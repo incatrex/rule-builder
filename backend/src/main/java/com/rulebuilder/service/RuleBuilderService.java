@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +25,18 @@ import java.util.stream.Collectors;
 public class RuleBuilderService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private JsonSchema ruleSchema;
+
+    public RuleBuilderService() {
+        try {
+            // Load the JSON schema on service initialization
+            ClassPathResource schemaResource = new ClassPathResource("static/schemas/rule-schema-v1.0.1.json");
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+            this.ruleSchema = factory.getSchema(schemaResource.getInputStream());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load rule schema", e);
+        }
+    }
 
     public JsonNode getFields() throws IOException {
         ClassPathResource resource = new ClassPathResource("static/fields.json");
@@ -163,5 +179,29 @@ public class RuleBuilderService {
             this.uuid = uuid;
             this.version = version;
         }
+    }
+
+    /**
+     * Validate a rule against the JSON schema
+     */
+    public JsonNode validateRule(JsonNode rule) {
+        Set<ValidationMessage> errors = ruleSchema.validate(rule);
+        
+        ObjectNode result = objectMapper.createObjectNode();
+        result.put("valid", errors.isEmpty());
+        
+        if (!errors.isEmpty()) {
+            ArrayNode errorArray = objectMapper.createArrayNode();
+            for (ValidationMessage error : errors) {
+                ObjectNode errorNode = objectMapper.createObjectNode();
+                errorNode.put("path", error.getPath());
+                errorNode.put("message", error.getMessage());
+                errorNode.put("type", error.getType());
+                errorArray.add(errorNode);
+            }
+            result.set("errors", errorArray);
+        }
+        
+        return result;
     }
 }
