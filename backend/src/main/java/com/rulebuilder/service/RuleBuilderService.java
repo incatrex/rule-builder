@@ -30,7 +30,7 @@ public class RuleBuilderService {
     public RuleBuilderService() {
         try {
             // Load the JSON schema on service initialization
-            ClassPathResource schemaResource = new ClassPathResource("static/schemas/rule-schema-v1.0.1.json");
+            ClassPathResource schemaResource = new ClassPathResource("static/schemas/rule-schema-v1.0.2.json");
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
             this.ruleSchema = factory.getSchema(schemaResource.getInputStream());
         } catch (Exception e) {
@@ -262,7 +262,7 @@ public class RuleBuilderService {
         // Add schema information
         JsonNode schemaNode = ruleSchema.getSchemaNode();
         ObjectNode schemaInfo = objectMapper.createObjectNode();
-        schemaInfo.put("filename", "rule-schema-v1.0.1.json");
+        schemaInfo.put("filename", "rule-schema-v1.0.2.json");
         if (schemaNode.has("$id")) {
             schemaInfo.put("id", schemaNode.get("$id").asText());
         }
