@@ -66,15 +66,15 @@ public class RuleBuilderService {
         // Extract UUID from the rule
         String uuid = rule.has("uuId") ? rule.get("uuId").asText() : "unknown";
         
-        // Save with new naming convention: {ruleId}.{uuid}.{version}.json
-        String filename = String.format("%s.%s.%s.json", ruleId, uuid, version);
+        // Save with new naming convention: {ruleId}[{uuid}][{version}].json
+        String filename = String.format("%s[%s][%s].json", ruleId, uuid, version);
         Path filePath = Paths.get(rulesDir, filename);
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), rule);
     }
 
     public JsonNode getRule(String ruleId, String uuid, String version) throws IOException {
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
-        String filename = String.format("%s.%s.%s.json", ruleId, uuid, version);
+        String filename = String.format("%s[%s][%s].json", ruleId, uuid, version);
         Path filePath = Paths.get(rulesDir, filename);
 
         if (Files.exists(filePath)) {
@@ -94,8 +94,8 @@ public class RuleBuilderService {
             return objectMapper.createArrayNode();
         }
 
-        // Pattern to match {ruleId}.{uuid}.{version}.json
-        Pattern pattern = Pattern.compile("^(.+)\\.([0-9a-f-]+)\\.(\\d+)\\.json$");
+        // Pattern to match {ruleId}[{uuid}][{version}].json
+        Pattern pattern = Pattern.compile("^(.+)\\[([0-9a-f-]+)\\]\\[(\\d+)\\]\\.json$");
         Map<String, RuleInfo> ruleMap = new HashMap<>();
 
         File[] files = directory.listFiles();
@@ -140,8 +140,8 @@ public class RuleBuilderService {
             return objectMapper.createArrayNode();
         }
 
-        // Pattern to match any ruleId with the specific UUID
-        Pattern pattern = Pattern.compile("^(.+)\\." + Pattern.quote(uuid) + "\\.(\\d+)\\.json$");
+        // Pattern to match any ruleId with the specific UUID: {ruleId}[{uuid}][{version}].json
+        Pattern pattern = Pattern.compile("^(.+)\\[" + Pattern.quote(uuid) + "\\]\\[(\\d+)\\]\\.json$");
         List<Integer> versions = new ArrayList<>();
 
         File[] files = directory.listFiles();
