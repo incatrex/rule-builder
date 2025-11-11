@@ -31,7 +31,7 @@ public class RuleBuilderService {
         try {
             // Load the JSON schema on service initialization
             ClassPathResource schemaResource = new ClassPathResource("static/schemas/rule-schema-v1.0.1.json");
-            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
             this.ruleSchema = factory.getSchema(schemaResource.getInputStream());
         } catch (Exception e) {
             throw new RuntimeException("Failed to load rule schema", e);

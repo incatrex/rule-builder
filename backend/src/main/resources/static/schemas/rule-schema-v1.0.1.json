@@ -238,105 +238,76 @@
           "type": "string",
           "enum": ["boolean", "number", "text", "date"],
           "description": "Data type this expression returns"
-        }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": { "source": { "const": "value" } }
-          },
-          "then": {
-            "required": ["value"],
-            "properties": {
-              "value": {
-                "description": "The literal value",
-                "oneOf": [
-                  { "type": "string" },
-                  { "type": "number" },
-                  { "type": "boolean" },
-                  { "type": "null" }
-                ]
-              }
-            },
-            "not": {
-              "anyOf": [
-                { "required": ["field"] },
-                { "required": ["function"] }
-              ]
-            }
-          }
         },
-        {
-          "if": {
-            "properties": { "source": { "const": "field" } }
-          },
-          "then": {
-            "required": ["field"],
-            "properties": {
-              "field": {
-                "type": "string",
-                "description": "Field path in dot notation (e.g., 'TABLE1.NUMBER_FIELD_01')",
-                "pattern": "^[A-Z0-9_]+\\.[A-Z0-9_]+$"
-              }
-            },
-            "not": {
-              "anyOf": [
-                { "required": ["value"] },
-                { "required": ["function"] }
-              ]
-            }
-          }
+        "value": {
+          "description": "The literal value (only when source=value)",
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "boolean" },
+            { "type": "null" }
+          ]
         },
-        {
-          "if": {
-            "properties": { "source": { "const": "function" } }
-          },
-          "then": {
-            "required": ["function"],
-            "properties": {
-              "function": {
+        "field": {
+          "type": "string",
+          "description": "Field path in dot notation (only when source=field)",
+          "pattern": "^[A-Z0-9_]+\\.[A-Z0-9_]+$"
+        },
+        "function": {
+          "type": "object",
+          "description": "Function definition (only when source=function)",
+          "required": ["name", "args"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "enum": [
+                "MATH.ADD", "MATH.SUBTRACT", "MATH.MULTIPLY", "MATH.DIVIDE", 
+                "MATH.SUM", "MATH.ROUND", "MATH.ABS",
+                "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN",
+                "DATE.DIFF"
+              ],
+              "description": "Function name in category.function format"
+            },
+            "args": {
+              "type": "array",
+              "description": "Function arguments",
+              "items": {
                 "type": "object",
-                "required": ["name", "args"],
+                "required": ["name", "value"],
                 "properties": {
                   "name": {
                     "type": "string",
-                    "enum": [
-                      "MATH.ADD", "MATH.SUBTRACT", "MATH.MULTIPLY", "MATH.DIVIDE", 
-                      "MATH.SUM", "MATH.ROUND", "MATH.ABS",
-                      "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN",
-                      "DATE.DIFF"
-                    ],
-                    "description": "Function name in category.function format"
+                    "description": "Argument name"
                   },
-                  "args": {
-                    "type": "array",
-                    "description": "Function arguments",
-                    "items": {
-                      "type": "object",
-                      "required": ["name", "value"],
-                      "properties": {
-                        "name": {
-                          "type": "string",
-                          "description": "Argument name"
-                        },
-                        "value": {
-                          "$ref": "#/$defs/ExpressionGroup",
-                          "description": "Argument value as expression group"
-                        }
-                      },
-                      "additionalProperties": false
-                    }
+                  "value": {
+                    "$ref": "#/$defs/ExpressionGroup",
+                    "description": "Argument value as expression group"
                   }
                 },
                 "additionalProperties": false
               }
-            },
-            "not": {
-              "anyOf": [
-                { "required": ["value"] },
-                { "required": ["field"] }
-              ]
             }
+          },
+          "additionalProperties": false
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["source", "returnType", "value"],
+          "properties": {
+            "source": { "const": "value" }
+          }
+        },
+        {
+          "required": ["source", "returnType", "field"],
+          "properties": {
+            "source": { "const": "field" }
+          }
+        },
+        {
+          "required": ["source", "returnType", "function"],
+          "properties": {
+            "source": { "const": "function" }
           }
         }
       ],

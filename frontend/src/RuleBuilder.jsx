@@ -113,8 +113,8 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       setLoadingVersions(true);
       const response = await axios.get(`/api/rules/versions/${uuid}`);
       const versions = response.data.map(v => ({
-        value: v.version,
-        label: `Version ${v.version}`
+        value: v,
+        label: `${v}`
       }));
       setAvailableVersions(versions);
     } catch (error) {
@@ -122,6 +122,42 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       setAvailableVersions([]);
     } finally {
       setLoadingVersions(false);
+    }
+  };
+
+  const handleVersionChange = async (version) => {
+    if (!selectedRuleUuid || !ruleData.metadata.id) {
+      handleChange({ version });
+      return;
+    }
+
+    try {
+      // Load the selected version from the backend
+      const response = await axios.get(
+        `/api/rules/${ruleData.metadata.id}/${selectedRuleUuid}/${version}`
+      );
+      
+      if (response.data) {
+        // Load the rule data for the selected version
+        const structure = response.data.structure || 'condition';
+        const content = response.data.content || response.data[structure] || null;
+        
+        setRuleData({
+          structure,
+          returnType: response.data.returnType || 'boolean',
+          ruleType: response.data.ruleType || 'Reporting',
+          uuId: response.data.uuId || selectedRuleUuid,
+          version: response.data.version || version,
+          metadata: response.data.metadata || { id: '', description: '' },
+          content: content
+        });
+        
+        setIsLoadedRule(true);
+        message.success(`Loaded version ${version}`);
+      }
+    } catch (error) {
+      console.error('Error loading version:', error);
+      message.error(`Failed to load version ${version}`);
     }
   };
 
@@ -424,7 +460,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                 {selectedRuleUuid && availableVersions.length > 0 ? (
                   <Select
                     value={ruleData.version}
-                    onChange={(version) => handleChange({ version })}
+                    onChange={handleVersionChange}
                     style={{ width: '100%' }}
                     loading={loadingVersions}
                     options={availableVersions}
@@ -433,8 +469,8 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                   <Input
                     type="number"
                     value={ruleData.version}
-                    onChange={(e) => handleChange({ version: parseInt(e.target.value) || 1 })}
-                    min={1}
+                    disabled
+                    style={{ width: '100%' }}
                   />
                 )}
               </div>
