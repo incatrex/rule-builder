@@ -4,16 +4,16 @@
  */
 
 /**
- * Create a base expression with the specified source type
+ * Create a base expression with the specified type
  */
-export const createExpression = (source = 'value', returnType = 'number', additionalProps = {}) => {
+export const createExpression = (type = 'value', returnType = 'number', additionalProps = {}) => {
   const baseExpression = {
-    source,
+    type,
     returnType
   };
 
-  // Add source-specific properties
-  switch (source) {
+  // Add type-specific properties
+  switch (type) {
     case 'value':
       return { ...baseExpression, value: '', ...additionalProps };
     case 'field':
@@ -36,7 +36,7 @@ export const createExpressionGroup = (returnType = 'number', initialExpression =
   const firstExpression = initialExpression || createExpression('value', returnType);
   
   return {
-    source: 'expressionGroup',
+    type: 'expressionGroup',
     returnType,
     expressions: [firstExpression],
     operators: []
@@ -46,12 +46,9 @@ export const createExpressionGroup = (returnType = 'number', initialExpression =
 /**
  * Create a condition
  */
-export const createCondition = (id = null) => {
-  const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
+export const createCondition = () => {
   return {
     type: 'condition',
-    id: id || generateId(),
     returnType: 'boolean',
     name: 'Condition 1',
     left: createExpressionGroup('number', createExpression('field', 'number')),
@@ -64,11 +61,8 @@ export const createCondition = (id = null) => {
  * Create a condition group
  */
 export const createConditionGroup = (name = 'Main Condition') => {
-  const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
   return {
     type: 'conditionGroup',
-    id: generateId(),
     returnType: 'boolean',
     name,
     conjunction: 'AND',

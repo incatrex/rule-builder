@@ -169,15 +169,12 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     let content = null;
     
     if (structure === 'case') {
-      const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
       content = {
         whenClauses: [
           // Start with one default WHEN clause like CustomCaseBuilder
           {
             when: {
               type: 'conditionGroup',
-              id: generateId(),
               returnType: 'boolean',
               name: 'Condition 1',
               conjunction: 'AND',
@@ -186,29 +183,28 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                 // Auto-add an empty condition to the new group
                 {
                   type: 'condition',
-                  id: generateId(),
                   returnType: 'boolean',
                   name: 'Condition 1',
                   left: { 
-                    source: 'expressionGroup',
+                    type: 'expressionGroup',
                     returnType: 'number',
-                    expressions: [{ source: 'field', returnType: 'number', field: null }],
+                    expressions: [{ type: 'field', returnType: 'number', field: null }],
                     operators: []
                   },
                   operator: null,
                   right: { 
-                    source: 'expressionGroup',
+                    type: 'expressionGroup',
                     returnType: 'number',
-                    expressions: [{ source: 'value', returnType: 'number', value: '' }],
+                    expressions: [{ type: 'value', returnType: 'number', value: '' }],
                     operators: []
                   }
                 }
               ]
             },
             then: {
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
-              expressions: [{ source: 'value', returnType: 'number', value: '' }],
+              expressions: [{ type: 'value', returnType: 'number', value: '' }],
               operators: []
             },
             resultName: 'Result 1',
@@ -217,9 +213,9 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
           }
         ],
         elseClause: { 
-          source: 'expressionGroup',
+          type: 'expressionGroup',
           returnType: 'number',
-          expressions: [{ source: 'value', returnType: 'number', value: '' }],
+          expressions: [{ type: 'value', returnType: 'number', value: '' }],
           operators: []
         },
         elseResultName: 'Default',
@@ -236,20 +232,19 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
           // Auto-add an empty condition
           {
             type: 'condition',
-            id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             returnType: 'boolean',
             name: 'Condition 1',
             left: { 
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
-              expressions: [{ source: 'field', returnType: 'number', field: null }],
+              expressions: [{ type: 'field', returnType: 'number', field: null }],
               operators: []
             },
             operator: null,
             right: { 
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
-              expressions: [{ source: 'value', returnType: 'number', value: '' }],
+              expressions: [{ type: 'value', returnType: 'number', value: '' }],
               operators: []
             }
           }
@@ -257,9 +252,9 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       };
     } else if (structure === 'expression') {
       content = {
-        source: 'expressionGroup',
+        type: 'expressionGroup',
         returnType: 'number',
-        expressions: [{ source: 'value', returnType: 'number', value: '' }],
+        expressions: [{ type: 'value', returnType: 'number', value: '' }],
         operators: []
       };
     }

@@ -114,9 +114,6 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     }
   }, [value]);
 
-  // Generate unique ID
-  const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
   // Setup drag-and-drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -135,8 +132,8 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
 
     if (over && active.id !== over.id) {
       const conditions = groupData.conditions || [];
-      const oldIndex = conditions.findIndex(child => child.id === active.id);
-      const newIndex = conditions.findIndex(child => child.id === over.id);
+      const oldIndex = parseInt(active.id);
+      const newIndex = parseInt(over.id);
       
       if (oldIndex !== -1 && newIndex !== -1) {
         const newConditions = arrayMove(conditions, oldIndex, newIndex);
@@ -158,20 +155,19 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     const conditions = groupData.conditions || [];
     const newCondition = {
       type: 'condition',
-      id: generateId(),
       returnType: 'boolean',
       name: `Condition ${conditions.length + 1}`,
       left: { 
-        source: 'expressionGroup',
+        type: 'expressionGroup',
         returnType: 'number',
-        expressions: [{ source: 'field', returnType: 'number', field: null }],
+        expressions: [{ type: 'field', returnType: 'number', field: null }],
         operators: []
       },
       operator: null,
       right: { 
-        source: 'expressionGroup',
+        type: 'expressionGroup',
         returnType: 'number',
-        expressions: [{ source: 'value', returnType: 'number', value: '' }],
+        expressions: [{ type: 'value', returnType: 'number', value: '' }],
         operators: []
       }
     };
@@ -182,7 +178,6 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     const conditions = groupData.conditions || [];
     const newGroup = {
       type: 'conditionGroup',
-      id: generateId(),
       returnType: 'boolean',
       name: `Group ${depth + 2}.${conditions.filter(c => c.type === 'conditionGroup').length + 1}`,
       conjunction: 'AND',
@@ -191,20 +186,19 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
         // Auto-add an empty condition to the new group
         {
           type: 'condition',
-          id: generateId(),
           returnType: 'boolean',
           name: 'Condition 1',
           left: { 
-            source: 'expressionGroup',
+            type: 'expressionGroup',
             returnType: 'number',
-            expressions: [{ source: 'field', returnType: 'number', field: null }],
+            expressions: [{ type: 'field', returnType: 'number', field: null }],
             operators: []
           },
           operator: null,
           right: { 
-            source: 'expressionGroup',
+            type: 'expressionGroup',
             returnType: 'number',
-            expressions: [{ source: 'value', returnType: 'number', value: '' }],
+            expressions: [{ type: 'value', returnType: 'number', value: '' }],
             operators: []
           }
         }
@@ -325,18 +319,13 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={(groupData.conditions || []).map(c => c.id || c.type + Math.random())}
+                items={(groupData.conditions || []).map((c, idx) => String(idx))}
                 strategy={verticalListSortingStrategy}
               >
                 <Space direction="vertical" size="small" style={{ width: '100%' }}>
                   {(groupData.conditions || []).map((child, index) => {
-                    // Ensure child has an ID
-                    if (!child.id) {
-                      child.id = generateId();
-                    }
-                    
                     return (
-                      <div key={child.id}>
+                      <div key={index}>
                         {/* Show conjunction between children (except before first child) */}
                         {index > 0 && (
                           <div style={{ 
@@ -350,7 +339,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
                           </div>
                         )}
                         
-                        <DraggableItem id={child.id} darkMode={darkMode}>
+                        <DraggableItem id={String(index)} darkMode={darkMode}>
                           {/* Render Condition or Nested Group */}
                           {child.type === 'condition' ? (
                             <Condition

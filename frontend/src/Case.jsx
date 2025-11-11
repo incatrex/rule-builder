@@ -69,12 +69,9 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
   };
 
   const addWhenClause = () => {
-    const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
     const newWhen = {
       when: {
         type: 'conditionGroup',
-        id: generateId(),
         returnType: 'boolean',
         name: `Condition ${caseData.whenClauses.length + 1}`,
         conjunction: 'AND',
@@ -83,7 +80,6 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
           // Auto-add an empty condition to the new group
           {
             type: 'condition',
-            id: generateId(),
             returnType: 'boolean',
             name: 'Condition 1',
             left: createExpressionGroup('number', null),
