@@ -12,34 +12,34 @@ describe('JSON Structure Validation', () => {
   
   test('ExpressionGroup can contain nested ExpressionGroups', () => {
     const nestedExpression = {
-      source: 'expressionGroup',
+      type: 'expressionGroup',
       returnType: 'number',
       expressions: [
         {
-          source: 'expressionGroup', // Nested group
+          type: 'expressionGroup', // Nested group
           returnType: 'number',
           expressions: [
-            { source: 'value', returnType: 'number', value: 1 },
-            { source: 'value', returnType: 'number', value: 2 }
+            { type: 'value', returnType: 'number', value: 1 },
+            { type: 'value', returnType: 'number', value: 2 }
           ],
           operators: ['+']
         },
-        { source: 'value', returnType: 'number', value: 3 }
+        { type: 'value', returnType: 'number', value: 3 }
       ],
       operators: ['*']
     };
 
     // Verify structure is valid
-    expect(nestedExpression.expressions[0].source).toBe('expressionGroup');
+    expect(nestedExpression.expressions[0].type).toBe('expressionGroup');
     expect(Array.isArray(nestedExpression.expressions[0].expressions)).toBe(true);
     expect(nestedExpression.expressions[0].expressions).toHaveLength(2);
   });
 
   test('BaseExpression types are recognized', () => {
-    const valueExpr = { source: 'value', returnType: 'number', value: 42 };
-    const fieldExpr = { source: 'field', returnType: 'number', field: 'TABLE1.NUMBER_FIELD_01' };
+    const valueExpr = { type: 'value', returnType: 'number', value: 42 };
+    const fieldExpr = { type: 'field', returnType: 'number', field: 'TABLE1.NUMBER_FIELD_01' };
     const funcExpr = { 
-      source: 'function', 
+      type: 'function', 
       returnType: 'number', 
       function: { 
         name: 'MATH.ADD', 
@@ -47,14 +47,14 @@ describe('JSON Structure Validation', () => {
       } 
     };
 
-    expect(valueExpr.source).toBe('value');
-    expect(fieldExpr.source).toBe('field');
-    expect(funcExpr.source).toBe('function');
+    expect(valueExpr.type).toBe('value');
+    expect(fieldExpr.type).toBe('field');
+    expect(funcExpr.type).toBe('function');
   });
 
   test('Function arguments contain ExpressionGroups', () => {
     const funcWithArgs = {
-      source: 'function',
+      type: 'function',
       returnType: 'number',
       function: {
         name: 'MATH.ADD',
@@ -62,18 +62,18 @@ describe('JSON Structure Validation', () => {
           {
             name: 'arg1',
             value: {
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
-              expressions: [{ source: 'value', returnType: 'number', value: 10 }],
+              expressions: [{ type: 'value', returnType: 'number', value: 10 }],
               operators: []
             }
           },
           {
             name: 'arg2',
             value: {
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
-              expressions: [{ source: 'value', returnType: 'number', value: 20 }],
+              expressions: [{ type: 'value', returnType: 'number', value: 20 }],
               operators: []
             }
           }
@@ -81,25 +81,25 @@ describe('JSON Structure Validation', () => {
       }
     };
 
-    expect(funcWithArgs.function.args[0].value.source).toBe('expressionGroup');
-    expect(funcWithArgs.function.args[1].value.source).toBe('expressionGroup');
+    expect(funcWithArgs.function.args[0].value.type).toBe('expressionGroup');
+    expect(funcWithArgs.function.args[1].value.type).toBe('expressionGroup');
     expect(funcWithArgs.function.args).toHaveLength(2);
   });
 
   test('Deeply nested ExpressionGroups are valid (triple nesting)', () => {
     const tripleNested = {
-      source: 'expressionGroup',
+      type: 'expressionGroup',
       returnType: 'number',
       expressions: [
         {
-          source: 'expressionGroup',
+          type: 'expressionGroup',
           returnType: 'number',
           expressions: [
             {
-              source: 'expressionGroup',
+              type: 'expressionGroup',
               returnType: 'number',
               expressions: [
-                { source: 'value', returnType: 'number', value: 1 }
+                { type: 'value', returnType: 'number', value: 1 }
               ],
               operators: []
             }
@@ -111,20 +111,20 @@ describe('JSON Structure Validation', () => {
     };
 
     // Navigate through nested structure
-    expect(tripleNested.source).toBe('expressionGroup');
-    expect(tripleNested.expressions[0].source).toBe('expressionGroup');
-    expect(tripleNested.expressions[0].expressions[0].source).toBe('expressionGroup');
-    expect(tripleNested.expressions[0].expressions[0].expressions[0].source).toBe('value');
+    expect(tripleNested.type).toBe('expressionGroup');
+    expect(tripleNested.expressions[0].type).toBe('expressionGroup');
+    expect(tripleNested.expressions[0].expressions[0].type).toBe('expressionGroup');
+    expect(tripleNested.expressions[0].expressions[0].expressions[0].type).toBe('value');
   });
 
   test('ExpressionGroup with multiple expressions and operators', () => {
     const mathExpression = {
-      source: 'expressionGroup',
+      type: 'expressionGroup',
       returnType: 'number',
       expressions: [
-        { source: 'value', returnType: 'number', value: 10 },
-        { source: 'value', returnType: 'number', value: 5 },
-        { source: 'value', returnType: 'number', value: 2 }
+        { type: 'value', returnType: 'number', value: 10 },
+        { type: 'value', returnType: 'number', value: 5 },
+        { type: 'value', returnType: 'number', value: 2 }
       ],
       operators: ['+', '*']
     };

@@ -205,7 +205,7 @@ describe('Round-trip Integration Tests', () => {
       // Verify core structure matches
       expect(normalizedOutput.structure).toBe(normalizedInput.structure);
       expect(normalizedOutput.returnType).toBe(normalizedInput.returnType);
-      expect(normalizedOutput.content.source).toBe(normalizedInput.content.source);
+      expect(normalizedOutput.content.type).toBe(normalizedInput.content.type);
       expect(normalizedOutput.content.expressions.length).toBe(normalizedInput.content.expressions.length);
       
       // Deep comparison of content
@@ -216,13 +216,13 @@ describe('Round-trip Integration Tests', () => {
       const content = MATH_EXPRESSION.content;
       
       // Verify the JSON has nested ExpressionGroups
-      expect(content.expressions[0].source).toBe('expressionGroup');
-      expect(content.expressions[0].expressions[0].source).toBe('function');
+      expect(content.expressions[0].type).toBe('expressionGroup');
+      expect(content.expressions[0].expressions[0].type).toBe('function');
       
       // Find the ADD function
       const addFunction = content.expressions.find(expr => 
-        expr.source === 'expressionGroup' && 
-        expr.expressions?.[0]?.source === 'function' &&
+        expr.type === 'expressionGroup' && 
+        expr.expressions?.[0]?.type === 'function' &&
         expr.expressions?.[0]?.function?.name === 'MATH.ADD'
       );
       
@@ -232,8 +232,8 @@ describe('Round-trip Integration Tests', () => {
       
       // Verify arg1 has nested ExpressionGroup
       const arg1Value = addFunction.expressions[0].function.args[0].value;
-      expect(arg1Value.source).toBe('expressionGroup');
-      expect(arg1Value.expressions[0].source).toBe('expressionGroup');
+      expect(arg1Value.type).toBe('expressionGroup');
+      expect(arg1Value.expressions[0].type).toBe('expressionGroup');
     });
   });
 

@@ -9,15 +9,15 @@
     "description": "Comprehensive mathematical expression demonstrating nested expression groups, all math functions, operators, and complex calculations"
   },
   "content": {
-    "source": "expressionGroup",
+    "type": "expressionGroup",
     "returnType": "number",
     "expressions": [
       {
-        "source": "expressionGroup",
+        "type": "expressionGroup",
         "returnType": "number",
         "expressions": [
           {
-            "source": "function",
+            "type": "function",
             "returnType": "number",
             "function": {
               "name": "MATH.ROUND",
@@ -25,11 +25,11 @@
                 {
                   "name": "value",
                   "value": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "function",
+                        "type": "function",
                         "returnType": "number",
                         "function": {
                           "name": "MATH.MULTIPLY",
@@ -37,16 +37,16 @@
                             {
                               "name": "arg1",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "number",
                                 "expressions": [
                                   {
-                                    "source": "field",
+                                    "type": "field",
                                     "returnType": "number",
                                     "field": "TABLE1.NUMBER_FIELD_01"
                                   },
                                   {
-                                    "source": "value",
+                                    "type": "value",
                                     "returnType": "number",
                                     "value": 10
                                   }
@@ -57,11 +57,11 @@
                             {
                               "name": "arg2",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "number",
                                 "expressions": [
                                   {
-                                    "source": "value",
+                                    "type": "value",
                                     "returnType": "number",
                                     "value": 1.15
                                   }
@@ -79,11 +79,11 @@
                 {
                   "name": "decimals",
                   "value": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "value",
+                        "type": "value",
                         "returnType": "number",
                         "value": 2
                       }
@@ -95,7 +95,7 @@
             }
           },
           {
-            "source": "function",
+            "type": "function",
             "returnType": "number",
             "function": {
               "name": "MATH.ABS",
@@ -103,11 +103,11 @@
                 {
                   "name": "value",
                   "value": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "function",
+                        "type": "function",
                         "returnType": "number",
                         "function": {
                           "name": "MATH.SUBTRACT",
@@ -115,11 +115,11 @@
                             {
                               "name": "arg1",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "number",
                                 "expressions": [
                                   {
-                                    "source": "field",
+                                    "type": "field",
                                     "returnType": "number",
                                     "field": "TABLE1.NUMBER_FIELD_02"
                                   }
@@ -130,11 +130,11 @@
                             {
                               "name": "arg2",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "number",
                                 "expressions": [
                                   {
-                                    "source": "field",
+                                    "type": "field",
                                     "returnType": "number",
                                     "field": "TABLE2.NUMBER_FIELD_02"
                                   }
@@ -156,11 +156,11 @@
         "operators": ["-"]
       },
       {
-        "source": "expressionGroup",
+        "type": "expressionGroup",
         "returnType": "number",
         "expressions": [
           {
-            "source": "function",
+            "type": "function",
             "returnType": "number",
             "function": {
               "name": "MATH.DIVIDE",
@@ -168,11 +168,11 @@
                 {
                   "name": "arg1",
                   "value": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "function",
+                        "type": "function",
                         "returnType": "number",
                         "function": {
                           "name": "MATH.SUM",
@@ -180,21 +180,21 @@
                             {
                               "name": "values",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "number",
                                 "expressions": [
                                   {
-                                    "source": "field",
+                                    "type": "field",
                                     "returnType": "number",
                                     "field": "TABLE1.NUMBER_FIELD_01"
                                   },
                                   {
-                                    "source": "field",
+                                    "type": "field",
                                     "returnType": "number",
                                     "field": "TABLE1.NUMBER_FIELD_02"
                                   },
                                   {
-                                    "source": "field",
+                                    "type": "field",
                                     "returnType": "number",
                                     "field": "TABLE1.NUMBER_FIELD_03"
                                   }
@@ -212,11 +212,11 @@
                 {
                   "name": "arg2",
                   "value": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "value",
+                        "type": "value",
                         "returnType": "number",
                         "value": 3
                       }
@@ -228,7 +228,7 @@
             }
           },
           {
-            "source": "value",
+            "type": "value",
             "returnType": "number",
             "value": 50
           }
@@ -236,11 +236,11 @@
         "operators": ["*"]
       },
       {
-        "source": "expressionGroup",
+        "type": "expressionGroup",
         "returnType": "number",
         "expressions": [
           {
-            "source": "function",
+            "type": "function",
             "returnType": "number",
             "function": {
               "name": "MATH.ADD",
@@ -248,20 +248,20 @@
                 {
                   "name": "arg1",
                   "value": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "expressionGroup",
+                        "type": "expressionGroup",
                         "returnType": "number",
                         "expressions": [
                           {
-                            "source": "field",
+                            "type": "field",
                             "returnType": "number",
                             "field": "TABLE2.NUMBER_FIELD_01"
                           },
                           {
-                            "source": "function",
+                            "type": "function",
                             "returnType": "number",
                             "function": {
                               "name": "MATH.MULTIPLY",
@@ -269,11 +269,11 @@
                                 {
                                   "name": "arg1",
                                   "value": {
-                                    "source": "expressionGroup",
+                                    "type": "expressionGroup",
                                     "returnType": "number",
                                     "expressions": [
                                       {
-                                        "source": "value",
+                                        "type": "value",
                                         "returnType": "number",
                                         "value": 2
                                       }
@@ -284,11 +284,11 @@
                                 {
                                   "name": "arg2",
                                   "value": {
-                                    "source": "expressionGroup",
+                                    "type": "expressionGroup",
                                     "returnType": "number",
                                     "expressions": [
                                       {
-                                        "source": "value",
+                                        "type": "value",
                                         "returnType": "number",
                                         "value": 3
                                       }
@@ -309,11 +309,11 @@
                 {
                   "name": "arg2",
                   "value": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "function",
+                        "type": "function",
                         "returnType": "number",
                         "function": {
                           "name": "MATH.DIVIDE",
@@ -321,11 +321,11 @@
                             {
                               "name": "arg1",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "number",
                                 "expressions": [
                                   {
-                                    "source": "value",
+                                    "type": "value",
                                     "returnType": "number",
                                     "value": 100
                                   }
@@ -336,11 +336,11 @@
                             {
                               "name": "arg2",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "number",
                                 "expressions": [
                                   {
-                                    "source": "value",
+                                    "type": "value",
                                     "returnType": "number",
                                     "value": 4
                                   }
@@ -362,7 +362,7 @@
         "operators": []
       },
       {
-        "source": "function",
+        "type": "function",
         "returnType": "number",
         "function": {
           "name": "MATH.ROUND",
@@ -370,11 +370,11 @@
             {
               "name": "value",
               "value": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "function",
+                    "type": "function",
                     "returnType": "number",
                     "function": {
                       "name": "MATH.SUBTRACT",
@@ -382,11 +382,11 @@
                         {
                           "name": "arg1",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "function",
+                                "type": "function",
                                 "returnType": "number",
                                 "function": {
                                   "name": "MATH.MULTIPLY",
@@ -394,11 +394,11 @@
                                     {
                                       "name": "arg1",
                                       "value": {
-                                        "source": "expressionGroup",
+                                        "type": "expressionGroup",
                                         "returnType": "number",
                                         "expressions": [
                                           {
-                                            "source": "field",
+                                            "type": "field",
                                             "returnType": "number",
                                             "field": "TABLE2.NUMBER_FIELD_03"
                                           }
@@ -409,11 +409,11 @@
                                     {
                                       "name": "arg2",
                                       "value": {
-                                        "source": "expressionGroup",
+                                        "type": "expressionGroup",
                                         "returnType": "number",
                                         "expressions": [
                                           {
-                                            "source": "value",
+                                            "type": "value",
                                             "returnType": "number",
                                             "value": 0.85
                                           }
@@ -431,11 +431,11 @@
                         {
                           "name": "arg2",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "function",
+                                "type": "function",
                                 "returnType": "number",
                                 "function": {
                                   "name": "MATH.ABS",
@@ -443,11 +443,11 @@
                                     {
                                       "name": "value",
                                       "value": {
-                                        "source": "expressionGroup",
+                                        "type": "expressionGroup",
                                         "returnType": "number",
                                         "expressions": [
                                           {
-                                            "source": "value",
+                                            "type": "value",
                                             "returnType": "number",
                                             "value": -15.5
                                           }
@@ -472,11 +472,11 @@
             {
               "name": "decimals",
               "value": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "value",
+                    "type": "value",
                     "returnType": "number",
                     "value": 1
                   }
@@ -488,21 +488,21 @@
         }
       },
       {
-        "source": "expressionGroup",
+        "type": "expressionGroup",
         "returnType": "number",
         "expressions": [
           {
-            "source": "value",
+            "type": "value",
             "returnType": "number",
             "value": 25
           },
           {
-            "source": "field",
+            "type": "field",
             "returnType": "number",
             "field": "TABLE1.NUMBER_FIELD_03"
           },
           {
-            "source": "value",
+            "type": "value",
             "returnType": "number",
             "value": 5
           }

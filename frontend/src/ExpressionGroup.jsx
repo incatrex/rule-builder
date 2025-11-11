@@ -15,7 +15,7 @@ const { Text } = Typography;
  * 
  * JSON Structure (NEW SCHEMA):
  * {
- *   "source": "expressionGroup",
+ *   "type": "expressionGroup",
  *   "returnType": "number|text|date|boolean", // inferred from expressions
  *   "expressions": [
  *     BaseExpression | ExpressionGroup,
@@ -26,9 +26,9 @@ const { Text } = Typography;
  * }
  * 
  * BaseExpression (leaf expressions):
- * - value: { source: 'value', returnType: 'text', value: 'hello' }
- * - field: { source: 'field', returnType: 'text', field: 'TABLE1.TEXT_FIELD_01' }
- * - function: { source: 'function', returnType: 'number', name: 'MATH.ADD', args: [...] }
+ * - value: { type: 'value', returnType: 'text', value: 'hello' }
+ * - field: { type: 'field', returnType: 'text', field: 'TABLE1.TEXT_FIELD_01' }
+ * - function: { type: 'function', returnType: 'number', name: 'MATH.ADD', args: [...] }
  * 
  * Props:
  * - value: Current expression group object
@@ -52,21 +52,21 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   const normalizeValue = (val) => {
     if (!val) {
       return {
-        source: 'expressionGroup',
+        type: 'expressionGroup',
         returnType: expectedType || 'number',
-        expressions: [{ source: 'value', returnType: expectedType || 'number', value: '' }],
+        expressions: [{ type: 'value', returnType: expectedType || 'number', value: '' }],
         operators: []
       };
     }
     
     // If it's already an ExpressionGroup, return as-is
-    if (val.source === 'expressionGroup') {
+    if (val.type === 'expressionGroup') {
       return val;
     }
     
     // If it's a BaseExpression (field, value, function), wrap it in expressions array
     return {
-      source: 'expressionGroup',
+      type: 'expressionGroup',
       returnType: val.returnType || expectedType || 'number',
       expressions: [val],
       operators: []
@@ -123,7 +123,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       : 'number';
     
     // Default to number for mathematical expressions (when no specific type is determined)
-    if (type === 'text' && data.source === 'expressionGroup') {
+    if (type === 'text' && data.type === 'expressionGroup') {
       type = 'number';
     }
     
@@ -132,7 +132,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
 
   const getExpressionReturnType = (expr) => {
     if (!expr) return 'number'; // Default to number for mathematical expressions
-    if (expr.source === 'expressionGroup') {
+    if (expr.type === 'expressionGroup') {
       return expr.returnType || 'number';
     }
     return expr.returnType || 'number'; // Default to number instead of text
@@ -156,7 +156,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     
     // Add new expression
     expressions.push({ 
-      source: 'value', 
+      type: 'value', 
       returnType: 'number', 
       value: 0 
     });
@@ -238,7 +238,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   const getExpressionSummary = (expr) => {
     if (!expr) return '?';
     
-    if (expr.source === 'expressionGroup') {
+    if (expr.type === 'expressionGroup') {
       if (expr.expressions && expr.expressions.length > 1) {
         return '(...)'; // Nested group
       } else if (expr.expressions && expr.expressions.length === 1) {
@@ -247,7 +247,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       return '?';
     }
     
-    switch (expr.source) {
+    switch (expr.type) {
       case 'value':
         return expr.value !== undefined ? String(expr.value) : '?';
       case 'field':
@@ -313,7 +313,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         <div style={{ paddingLeft: hasMultipleExpressions() ? '16px' : '0' }}>
           <Space style={{ width: '100%' }} size="small">
             <div style={{ flex: 1 }}>
-              {groupData.expressions?.[0]?.source === 'expressionGroup' ? (
+              {groupData.expressions?.[0]?.type === 'expressionGroup' ? (
                 <ExpressionGroup
                   value={groupData.expressions[0]}
                   onChange={(value) => updateExpression(0, value)}
@@ -419,7 +419,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     const firstExpression = groupData.expressions?.[0];
     
     // Check if it's a nested ExpressionGroup or BaseExpression
-    if (firstExpression?.source === 'expressionGroup') {
+    if (firstExpression?.type === 'expressionGroup') {
       return (
         <ExpressionGroup
           value={firstExpression}
@@ -477,24 +477,24 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
   // Ensure we always have a valid initial value
   const getInitialValue = () => {
     // If value exists and has a valid source for BaseExpression (not expressionGroup), use it
-    if (value && value.source && ['value', 'field', 'function'].includes(value.source)) {
+    if (value && value.type && ['value', 'field', 'function'].includes(value.type)) {
       return value;
     }
     // If value is an expressionGroup, this shouldn't be here - but return as-is to avoid breaking
-    if (value && value.source === 'expressionGroup') {
+    if (value && value.type === 'expressionGroup') {
       console.warn('BaseExpression received an expressionGroup - should be rendered as ExpressionGroup', value);
       return value; // Return as-is to avoid data loss
     }
     // Otherwise return a default value expression
     return {
-      source: 'value',
+      type: 'value',
       returnType: expectedType || 'number',
       value: expectedType === 'number' || !expectedType ? 0 : ''
     };
   };
   
   const initialValue = getInitialValue();
-  const [source, setSource] = useState(initialValue.source || 'value');
+  const [source, setSource] = useState(initialValue.type || 'value');
   const [expressionData, setExpressionData] = useState(initialValue);
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -511,7 +511,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
   useEffect(() => {
     if (value) {
       isUpdatingFromProps.current = true;
-      setSource(value.source || 'value');
+      setSource(value.type || 'value');
       setExpressionData(value);
       setTimeout(() => {
         isUpdatingFromProps.current = false;
@@ -532,19 +532,19 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
     
     if (newSource === 'value') {
       newData = { 
-        source: 'value', 
+        type: 'value', 
         returnType: expectedType || 'number', 
         value: expectedType === 'number' || !expectedType ? 0 : '' 
       };
     } else if (newSource === 'field') {
       newData = { 
-        source: 'field', 
+        type: 'field', 
         returnType: expectedType || 'number', 
         field: null 
       };
     } else if (newSource === 'function') {
       newData = { 
-        source: 'function', 
+        type: 'function', 
         returnType: expectedType || 'number', 
         function: { name: null, args: [] } 
       };
@@ -817,14 +817,14 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
     const getCompactArgValue = (arg) => {
       if (!arg.value) return '?';
       
-      if (arg.value.source === 'value') {
+      if (arg.value.type === 'value') {
         return arg.value.value !== undefined ? String(arg.value.value) : '?';
-      } else if (arg.value.source === 'field') {
+      } else if (arg.value.type === 'field') {
         return getFieldDisplayName(arg.value.field, config?.fields) || '?';
-      } else if (arg.value.source === 'function') {
+      } else if (arg.value.type === 'function') {
         const innerFuncName = arg.value.function?.name?.split('.').pop() || '?';
         return `${innerFuncName}(...)`;
-      } else if (arg.value.source === 'expressionGroup') {
+      } else if (arg.value.type === 'expressionGroup') {
         // Handle ExpressionGroup - show compact representation
         if (arg.value.expressions?.length > 1 || arg.value.operators?.length > 0) {
           return '(...)'; // Complex expression
@@ -960,14 +960,14 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                 const getCompactArgValue = (arg) => {
                   if (!arg.value) return '?';
                   
-                  if (arg.value.source === 'value') {
+                  if (arg.value.type === 'value') {
                     return arg.value.value !== undefined ? String(arg.value.value) : '?';
-                  } else if (arg.value.source === 'field') {
+                  } else if (arg.value.type === 'field') {
                     return getFieldDisplayName(arg.value.field, config?.fields) || '?';
-                  } else if (arg.value.source === 'function') {
+                  } else if (arg.value.type === 'function') {
                     const innerFuncName = arg.value.function?.name?.split('.').pop() || '?';
                     return `${innerFuncName}(...)`;
-                  } else if (arg.value.source === 'expressionGroup') {
+                  } else if (arg.value.type === 'expressionGroup') {
                     // Handle ExpressionGroup - show compact representation
                     if (arg.value.expressions?.length > 1 || arg.value.operators?.length > 0) {
                       return '(...)'; // Complex expression
@@ -1197,10 +1197,10 @@ const getFunctionDefinition = (funcPath, funcs) => {
  * This ensures the structure is defined in one place
  */
 export const createExpressionGroup = (returnType = 'text', defaultValue = '') => ({
-  source: 'expressionGroup',
+  type: 'expressionGroup',
   returnType,
   expressions: [{
-    source: 'value',
+    type: 'value',
     returnType,
     value: defaultValue
   }],

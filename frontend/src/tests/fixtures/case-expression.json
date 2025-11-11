@@ -25,11 +25,11 @@
               "returnType": "boolean",
               "name": "Nested Function Greater Than",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "function",
+                    "type": "function",
                     "returnType": "number",
                     "function": {
                       "name": "MATH.ROUND",
@@ -37,11 +37,11 @@
                         {
                           "name": "value",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "function",
+                                "type": "function",
                                 "returnType": "number",
                                 "function": {
                                   "name": "MATH.MULTIPLY",
@@ -49,11 +49,11 @@
                                     {
                                       "name": "arg1",
                                       "value": {
-                                        "source": "expressionGroup",
+                                        "type": "expressionGroup",
                                         "returnType": "number",
                                         "expressions": [
                                           {
-                                            "source": "field",
+                                            "type": "field",
                                             "returnType": "number",
                                             "field": "TABLE1.NUMBER_FIELD_01"
                                           }
@@ -64,11 +64,11 @@
                                     {
                                       "name": "arg2",
                                       "value": {
-                                        "source": "expressionGroup",
+                                        "type": "expressionGroup",
                                         "returnType": "number",
                                         "expressions": [
                                           {
-                                            "source": "value",
+                                            "type": "value",
                                             "returnType": "number",
                                             "value": 1.15
                                           }
@@ -86,11 +86,11 @@
                         {
                           "name": "decimals",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "value",
+                                "type": "value",
                                 "returnType": "number",
                                 "value": 2
                               }
@@ -106,11 +106,11 @@
               },
               "operator": "greater",
               "right": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "value",
+                    "type": "value",
                     "returnType": "number",
                     "value": 1000
                   }
@@ -124,11 +124,11 @@
               "returnType": "boolean",
               "name": "Text Not Contains",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "text",
                 "expressions": [
                   {
-                    "source": "field",
+                    "type": "field",
                     "returnType": "text",
                     "field": "TABLE1.TEXT_FIELD_01"
                   }
@@ -137,11 +137,11 @@
               },
               "operator": "not_contains",
               "right": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "text",
                 "expressions": [
                   {
-                    "source": "value",
+                    "type": "value",
                     "returnType": "text",
                     "value": "EXCLUDE"
                   }
@@ -152,11 +152,11 @@
           ]
         },
         "then": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "text",
           "expressions": [
             {
-              "source": "function",
+              "type": "function",
               "returnType": "text",
               "function": {
                 "name": "TEXT.CONCAT",
@@ -164,11 +164,11 @@
                   {
                     "name": "arg1",
                     "value": {
-                      "source": "expressionGroup",
+                      "type": "expressionGroup",
                       "returnType": "text",
                       "expressions": [
                         {
-                          "source": "value",
+                          "type": "value",
                           "returnType": "text",
                           "value": "HIGH_VALUE_"
                         }
@@ -179,11 +179,11 @@
                   {
                     "name": "arg2",
                     "value": {
-                      "source": "expressionGroup",
+                      "type": "expressionGroup",
                       "returnType": "text",
                       "expressions": [
                         {
-                          "source": "field",
+                          "type": "field",
                           "returnType": "text",
                           "field": "TABLE1.TEXT_FIELD_02"
                         }
@@ -213,11 +213,11 @@
               "returnType": "boolean",
               "name": "Value Between Range",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "function",
+                    "type": "function",
                     "returnType": "number",
                     "function": {
                       "name": "MATH.ADD",
@@ -225,11 +225,11 @@
                         {
                           "name": "arg1",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "field",
+                                "type": "field",
                                 "returnType": "number",
                                 "field": "TABLE2.NUMBER_FIELD_01"
                               }
@@ -240,11 +240,11 @@
                         {
                           "name": "arg2",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "field",
+                                "type": "field",
                                 "returnType": "number",
                                 "field": "TABLE2.NUMBER_FIELD_02"
                               }
@@ -261,11 +261,11 @@
               "operator": "between",
               "right": [
                 {
-                  "source": "expressionGroup",
+                  "type": "expressionGroup",
                   "returnType": "number",
                   "expressions": [
                     {
-                      "source": "value",
+                      "type": "value",
                       "returnType": "number",
                       "value": 100
                     }
@@ -273,11 +273,11 @@
                   "operators": []
                 },
                 {
-                  "source": "expressionGroup",
+                  "type": "expressionGroup",
                   "returnType": "number",
                   "expressions": [
                     {
-                      "source": "value",
+                      "type": "value",
                       "returnType": "number",
                       "value": 1000
                     }
@@ -299,11 +299,11 @@
                   "returnType": "boolean",
                   "name": "Date Difference Check",
                   "left": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "function",
+                        "type": "function",
                         "returnType": "number",
                         "function": {
                           "name": "DATE.DIFF",
@@ -311,11 +311,11 @@
                             {
                               "name": "date1",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "date",
                                 "expressions": [
                                   {
-                                    "source": "field",
+                                    "type": "field",
                                     "returnType": "date",
                                     "field": "TABLE1.DATE_FIELD_01"
                                   }
@@ -326,11 +326,11 @@
                             {
                               "name": "date2",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "date",
                                 "expressions": [
                                   {
-                                    "source": "value",
+                                    "type": "value",
                                     "returnType": "date",
                                     "value": "2024-01-01"
                                   }
@@ -341,11 +341,11 @@
                             {
                               "name": "unit",
                               "value": {
-                                "source": "expressionGroup",
+                                "type": "expressionGroup",
                                 "returnType": "text",
                                 "expressions": [
                                   {
-                                    "source": "value",
+                                    "type": "value",
                                     "returnType": "text",
                                     "value": "days"
                                   }
@@ -361,11 +361,11 @@
                   },
                   "operator": "less_or_equal",
                   "right": {
-                    "source": "expressionGroup",
+                    "type": "expressionGroup",
                     "returnType": "number",
                     "expressions": [
                       {
-                        "source": "value",
+                        "type": "value",
                         "returnType": "number",
                         "value": 30
                       }
@@ -378,11 +378,11 @@
           ]
         },
         "then": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "text",
           "expressions": [
             {
-              "source": "function",
+              "type": "function",
               "returnType": "text",
               "function": {
                 "name": "TEXT.MID",
@@ -390,11 +390,11 @@
                   {
                     "name": "text",
                     "value": {
-                      "source": "expressionGroup",
+                      "type": "expressionGroup",
                       "returnType": "text",
                       "expressions": [
                         {
-                          "source": "field",
+                          "type": "field",
                           "returnType": "text",
                           "field": "TABLE2.TEXT_FIELD_01"
                         }
@@ -405,11 +405,11 @@
                   {
                     "name": "start",
                     "value": {
-                      "source": "expressionGroup",
+                      "type": "expressionGroup",
                       "returnType": "number",
                       "expressions": [
                         {
-                          "source": "value",
+                          "type": "value",
                           "returnType": "number",
                           "value": 0
                         }
@@ -420,11 +420,11 @@
                   {
                     "name": "length",
                     "value": {
-                      "source": "expressionGroup",
+                      "type": "expressionGroup",
                       "returnType": "number",
                       "expressions": [
                         {
-                          "source": "value",
+                          "type": "value",
                           "returnType": "number",
                           "value": 10
                         }
@@ -454,11 +454,11 @@
               "returnType": "boolean",
               "name": "Starts With Check",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "text",
                 "expressions": [
                   {
-                    "source": "field",
+                    "type": "field",
                     "returnType": "text",
                     "field": "TABLE1.TEXT_FIELD_02"
                   }
@@ -467,11 +467,11 @@
               },
               "operator": "starts_with",
               "right": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "text",
                 "expressions": [
                   {
-                    "source": "value",
+                    "type": "value",
                     "returnType": "text",
                     "value": "PREFIX"
                   }
@@ -485,11 +485,11 @@
               "returnType": "boolean",
               "name": "Ends With Check",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "text",
                 "expressions": [
                   {
-                    "source": "field",
+                    "type": "field",
                     "returnType": "text",
                     "field": "TABLE2.TEXT_FIELD_02"
                   }
@@ -498,11 +498,11 @@
               },
               "operator": "ends_with",
               "right": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "text",
                 "expressions": [
                   {
-                    "source": "value",
+                    "type": "value",
                     "returnType": "text",
                     "value": "SUFFIX"
                   }
@@ -513,16 +513,16 @@
           ]
         },
         "then": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "text",
           "expressions": [
             {
-              "source": "value",
+              "type": "value",
               "returnType": "text",
               "value": "PATTERN_MATCH_"
             },
             {
-              "source": "function",
+              "type": "function",
               "returnType": "text",
               "function": {
                 "name": "TEXT.LEN",
@@ -530,11 +530,11 @@
                   {
                     "name": "text",
                     "value": {
-                      "source": "expressionGroup",
+                      "type": "expressionGroup",
                       "returnType": "text",
                       "expressions": [
                         {
-                          "source": "field",
+                          "type": "field",
                           "returnType": "text",
                           "field": "TABLE1.TEXT_FIELD_01"
                         }
@@ -564,11 +564,11 @@
               "returnType": "boolean",
               "name": "Is Empty Check",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "text",
                 "expressions": [
                   {
-                    "source": "field",
+                    "type": "field",
                     "returnType": "text",
                     "field": "TABLE1.TEXT_FIELD_03"
                   }
@@ -584,11 +584,11 @@
               "returnType": "boolean",
               "name": "Not Empty Check",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "text",
                 "expressions": [
                   {
-                    "source": "field",
+                    "type": "field",
                     "returnType": "text",
                     "field": "TABLE2.TEXT_FIELD_03"
                   }
@@ -601,11 +601,11 @@
           ]
         },
         "then": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "text",
           "expressions": [
             {
-              "source": "value",
+              "type": "value",
               "returnType": "text",
               "value": "EMPTY_FIELD_DETECTED"
             }
@@ -628,11 +628,11 @@
               "returnType": "boolean",
               "name": "Not Equal Check",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "function",
+                    "type": "function",
                     "returnType": "number",
                     "function": {
                       "name": "MATH.ABS",
@@ -640,11 +640,11 @@
                         {
                           "name": "value",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "function",
+                                "type": "function",
                                 "returnType": "number",
                                 "function": {
                                   "name": "MATH.SUBTRACT",
@@ -652,11 +652,11 @@
                                     {
                                       "name": "arg1",
                                       "value": {
-                                        "source": "expressionGroup",
+                                        "type": "expressionGroup",
                                         "returnType": "number",
                                         "expressions": [
                                           {
-                                            "source": "field",
+                                            "type": "field",
                                             "returnType": "number",
                                             "field": "TABLE1.NUMBER_FIELD_02"
                                           }
@@ -667,11 +667,11 @@
                                     {
                                       "name": "arg2",
                                       "value": {
-                                        "source": "expressionGroup",
+                                        "type": "expressionGroup",
                                         "returnType": "number",
                                         "expressions": [
                                           {
-                                            "source": "field",
+                                            "type": "field",
                                             "returnType": "number",
                                             "field": "TABLE2.NUMBER_FIELD_02"
                                           }
@@ -694,11 +694,11 @@
               },
               "operator": "not_equal",
               "right": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "value",
+                    "type": "value",
                     "returnType": "number",
                     "value": 0
                   }
@@ -712,11 +712,11 @@
               "returnType": "boolean",
               "name": "Not Between Check",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "function",
+                    "type": "function",
                     "returnType": "number",
                     "function": {
                       "name": "MATH.DIVIDE",
@@ -724,11 +724,11 @@
                         {
                           "name": "arg1",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "field",
+                                "type": "field",
                                 "returnType": "number",
                                 "field": "TABLE1.NUMBER_FIELD_03"
                               }
@@ -739,11 +739,11 @@
                         {
                           "name": "arg2",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "value",
+                                "type": "value",
                                 "returnType": "number",
                                 "value": 2
                               }
@@ -760,11 +760,11 @@
               "operator": "not_between",
               "right": [
                 {
-                  "source": "expressionGroup",
+                  "type": "expressionGroup",
                   "returnType": "number",
                   "expressions": [
                     {
-                      "source": "value",
+                      "type": "value",
                       "returnType": "number",
                       "value": 10
                     }
@@ -772,11 +772,11 @@
                   "operators": []
                 },
                 {
-                  "source": "expressionGroup",
+                  "type": "expressionGroup",
                   "returnType": "number",
                   "expressions": [
                     {
-                      "source": "value",
+                      "type": "value",
                       "returnType": "number",
                       "value": 20
                     }
@@ -788,20 +788,20 @@
           ]
         },
         "then": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "text",
           "expressions": [
             {
-              "source": "value",
+              "type": "value",
               "returnType": "text",
               "value": "RESULT_"
             },
             {
-              "source": "expressionGroup",
+              "type": "expressionGroup",
               "returnType": "text",
               "expressions": [
                 {
-                  "source": "function",
+                  "type": "function",
                   "returnType": "text",
                   "function": {
                     "name": "TEXT.CONCAT",
@@ -809,11 +809,11 @@
                       {
                         "name": "arg1",
                         "value": {
-                          "source": "expressionGroup",
+                          "type": "expressionGroup",
                           "returnType": "text",
                           "expressions": [
                             {
-                              "source": "value",
+                              "type": "value",
                               "returnType": "text",
                               "value": "COMPLEX_"
                             }
@@ -824,11 +824,11 @@
                       {
                         "name": "arg2",
                         "value": {
-                          "source": "expressionGroup",
+                          "type": "expressionGroup",
                           "returnType": "text",
                           "expressions": [
                             {
-                              "source": "value",
+                              "type": "value",
                               "returnType": "text",
                               "value": "MATH"
                             }
@@ -861,11 +861,11 @@
               "returnType": "boolean",
               "name": "Less Than Check",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "function",
+                    "type": "function",
                     "returnType": "number",
                     "function": {
                       "name": "MATH.SUM",
@@ -873,21 +873,21 @@
                         {
                           "name": "values",
                           "value": {
-                            "source": "expressionGroup",
+                            "type": "expressionGroup",
                             "returnType": "number",
                             "expressions": [
                               {
-                                "source": "field",
+                                "type": "field",
                                 "returnType": "number",
                                 "field": "TABLE1.NUMBER_FIELD_01"
                               },
                               {
-                                "source": "field",
+                                "type": "field",
                                 "returnType": "number",
                                 "field": "TABLE1.NUMBER_FIELD_02"
                               },
                               {
-                                "source": "value",
+                                "type": "value",
                                 "returnType": "number",
                                 "value": 50
                               }
@@ -903,11 +903,11 @@
               },
               "operator": "less",
               "right": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "value",
+                    "type": "value",
                     "returnType": "number",
                     "value": 500
                   }
@@ -921,11 +921,11 @@
               "returnType": "boolean",
               "name": "Greater or Equal Check",
               "left": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "field",
+                    "type": "field",
                     "returnType": "number",
                     "field": "TABLE2.NUMBER_FIELD_03"
                   }
@@ -934,11 +934,11 @@
               },
               "operator": "greater_or_equal",
               "right": {
-                "source": "expressionGroup",
+                "type": "expressionGroup",
                 "returnType": "number",
                 "expressions": [
                   {
-                    "source": "value",
+                    "type": "value",
                     "returnType": "number",
                     "value": 0
                   }
@@ -949,11 +949,11 @@
           ]
         },
         "then": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "text",
           "expressions": [
             {
-              "source": "value",
+              "type": "value",
               "returnType": "text",
               "value": "SUM_RESULT"
             }
@@ -963,11 +963,11 @@
       }
     ],
     "elseClause": {
-      "source": "expressionGroup",
+      "type": "expressionGroup",
       "returnType": "text",
       "expressions": [
         {
-          "source": "function",
+          "type": "function",
           "returnType": "text",
           "function": {
             "name": "TEXT.CONCAT",
@@ -975,11 +975,11 @@
               {
                 "name": "arg1",
                 "value": {
-                  "source": "expressionGroup",
+                  "type": "expressionGroup",
                   "returnType": "text",
                   "expressions": [
                     {
-                      "source": "value",
+                      "type": "value",
                       "returnType": "text",
                       "value": "DEFAULT_"
                     }
@@ -990,11 +990,11 @@
               {
                 "name": "arg2",
                 "value": {
-                  "source": "expressionGroup",
+                  "type": "expressionGroup",
                   "returnType": "text",
                   "expressions": [
                     {
-                      "source": "function",
+                      "type": "function",
                       "returnType": "text",
                       "function": {
                         "name": "TEXT.CONCAT",
@@ -1002,11 +1002,11 @@
                           {
                             "name": "arg1",
                             "value": {
-                              "source": "expressionGroup",
+                              "type": "expressionGroup",
                               "returnType": "text",
                               "expressions": [
                                 {
-                                  "source": "value",
+                                  "type": "value",
                                   "returnType": "text",
                                   "value": "NO_"
                                 }
@@ -1017,11 +1017,11 @@
                           {
                             "name": "arg2",
                             "value": {
-                              "source": "expressionGroup",
+                              "type": "expressionGroup",
                               "returnType": "text",
                               "expressions": [
                                 {
-                                  "source": "value",
+                                  "type": "value",
                                   "returnType": "text",
                                   "value": "MATCH"
                                 }
