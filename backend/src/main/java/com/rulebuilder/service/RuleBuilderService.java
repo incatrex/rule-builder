@@ -301,4 +301,163 @@ public class RuleBuilderService {
         
         return result;
     }
+
+    /**
+     * Get version history for a specific rule UUID
+     */
+    public JsonNode getRuleHistory(String uuid) throws IOException {
+        String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
+        File directory = new File(rulesDir);
+        
+        if (!directory.exists()) {
+            return objectMapper.createArrayNode();
+        }
+
+        // Pattern to match {ruleId}[{uuid}][{version}].json
+        Pattern pattern = Pattern.compile("^(.+)\\[" + Pattern.quote(uuid) + "\\]\\[(\\d+)\\]\\.json$");
+        List<RuleHistoryEntry> historyEntries = new ArrayList<>();
+
+        // Recursively scan for all versions
+        scanForHistory(directory, pattern, historyEntries);
+
+        // Sort by version descending (newest first)
+        historyEntries.sort((a, b) -> Integer.compare(b.version, a.version));
+
+        ArrayNode result = objectMapper.createArrayNode();
+        for (RuleHistoryEntry entry : historyEntries) {
+            ObjectNode entryNode = objectMapper.createObjectNode();
+            entryNode.put("ruleId", entry.ruleId);
+            entryNode.put("version", entry.version);
+            entryNode.put("modifiedBy", "Lastname, Firstname");
+            entryNode.put("modifiedOn", entry.modifiedOn);
+            entryNode.put("filePath", entry.filePath);
+            result.add(entryNode);
+        }
+
+        return result;
+    }
+
+    /**
+     * Recursively scan directory for rule files matching the pattern
+     */
+    private void scanForHistory(File directory, Pattern pattern, List<RuleHistoryEntry> historyEntries) {
+        File[] files = directory.listFiles();
+        if (files == null) return;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                scanForHistory(file, pattern, historyEntries);
+            } else if (file.isFile()) {
+                Matcher matcher = pattern.matcher(file.getName());
+                if (matcher.matches()) {
+                    String ruleId = matcher.group(1);
+                    int version = Integer.parseInt(matcher.group(2));
+                    
+                    try {
+                        long modifiedTimeMs = Files.getLastModifiedTime(file.toPath()).toMillis();
+                        String filePath = file.getAbsolutePath();
+                        historyEntries.add(new RuleHistoryEntry(ruleId, version, modifiedTimeMs, filePath));
+                    } catch (IOException e) {
+                        // Skip files we can't read
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Restore a specific version of a rule by creating a new version
+     */
+    public void restoreRuleVersion(String uuid, int version) throws IOException {
+        String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
+        File directory = new File(rulesDir);
+        
+        if (!directory.exists()) {
+            throw new IOException("Rules directory does not exist");
+        }
+
+        // Pattern to match any ruleId with the specific UUID: {ruleId}[{uuid}][{version}].json
+        Pattern sourcePattern = Pattern.compile("^(.+)\\[" + Pattern.quote(uuid) + "\\]\\[" + version + "\\]\\.json$");
+        Pattern allVersionsPattern = Pattern.compile("^(.+)\\[" + Pattern.quote(uuid) + "\\]\\[(\\d+)\\]\\.json$");
+        
+        // Find the source file to restore
+        File sourceFile = findFileByPattern(directory, sourcePattern);
+        if (sourceFile == null) {
+            throw new IOException("Source version not found: " + version);
+        }
+
+        // Find the maximum version for this UUID
+        int maxVersion = findMaxVersion(directory, allVersionsPattern);
+        
+        // Read the source rule
+        JsonNode ruleContent = objectMapper.readTree(sourceFile);
+        
+        // Extract ruleId from filename
+        Matcher matcher = sourcePattern.matcher(sourceFile.getName());
+        if (!matcher.matches()) {
+            throw new IOException("Invalid source filename");
+        }
+        String ruleId = matcher.group(1);
+        
+        // Save as new version (maxVersion + 1)
+        int newVersion = maxVersion + 1;
+        saveRule(ruleId, String.valueOf(newVersion), ruleContent);
+    }
+
+    /**
+     * Find a file matching the given pattern
+     */
+    private File findFileByPattern(File directory, Pattern pattern) {
+        File[] files = directory.listFiles();
+        if (files == null) return null;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                File found = findFileByPattern(file, pattern);
+                if (found != null) return found;
+            } else if (file.isFile() && pattern.matcher(file.getName()).matches()) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find the maximum version for files matching the pattern
+     */
+    private int findMaxVersion(File directory, Pattern pattern) {
+        int maxVersion = 0;
+        File[] files = directory.listFiles();
+        if (files == null) return maxVersion;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                maxVersion = Math.max(maxVersion, findMaxVersion(file, pattern));
+            } else if (file.isFile()) {
+                Matcher matcher = pattern.matcher(file.getName());
+                if (matcher.matches()) {
+                    int version = Integer.parseInt(matcher.group(2));
+                    maxVersion = Math.max(maxVersion, version);
+                }
+            }
+        }
+        return maxVersion;
+    }
+
+    /**
+     * Helper class to store rule history entry information
+     */
+    private static class RuleHistoryEntry {
+        String ruleId;
+        int version;
+        long modifiedOn;
+        String filePath;
+
+        RuleHistoryEntry(String ruleId, int version, long modifiedOn, String filePath) {
+            this.ruleId = ruleId;
+            this.version = version;
+            this.modifiedOn = modifiedOn;
+            this.filePath = filePath;
+        }
+    }
 }
