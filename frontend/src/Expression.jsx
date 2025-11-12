@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag } from 'antd';
-import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
+import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert } from 'antd';
+import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import RuleSelector from './RuleSelector';
 
 const { Text } = Typography;
 
@@ -9,12 +10,13 @@ const { Text } = Typography;
  * Expression Component
  * 
  * A clean component for building expressions following the new rule structure.
- * Generates JSON matching: <expression returnType="number|text|date|boolean" source="value|field|function">
+ * Generates JSON matching: <expression returnType="number|text|date|boolean" source="value|field|function|ruleRef">
  * 
  * Structure:
  * - value: { source: 'value', returnType: 'text', value: 'hello' }
  * - field: { source: 'field', returnType: 'text', field: 'TABLE1.TEXT_FIELD_01' }
  * - function: { source: 'function', returnType: 'number', name: 'MATH.ADD', args: [...] }
+ * - ruleRef: { source: 'ruleRef', returnType: 'boolean', id: 'RULE_ID', uuid: 'abc-123', version: 1 }
  * 
  * Props:
  * - value: Current expression object
@@ -28,6 +30,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
   const [source, setSource] = useState(value?.source || 'value');
   const [expressionData, setExpressionData] = useState(value || { source: 'value', returnType: expectedType || 'text', value: '' });
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Sync with external changes
   useEffect(() => {
@@ -59,6 +62,14 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
         returnType: expectedType || 'text',
         name: null, 
         args: [] 
+      };
+    } else if (newSource === 'ruleRef') {
+      newData = { 
+        source: 'ruleRef', 
+        returnType: expectedType || 'boolean',
+        id: null,
+        uuid: null,
+        version: null
       };
     }
     
@@ -176,12 +187,11 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
   };
 
   const renderSourceSelector = () => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    
     const sourceOptions = [
       { label: 'Value', value: 'value', icon: <NumberOutlined /> },
       { label: 'Field', value: 'field', icon: <FieldTimeOutlined /> },
-      { label: 'Function', value: 'function', icon: <FunctionOutlined /> }
+      { label: 'Function', value: 'function', icon: <FunctionOutlined /> },
+      { label: 'Rule', value: 'ruleRef', icon: <LinkOutlined /> }
     ];
     
     return (
@@ -463,6 +473,82 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
     );
   };
 
+  const renderRuleSelector = () => {
+    const ruleKey = expressionData.id && expressionData.uuid 
+      ? `${expressionData.id}.${expressionData.uuid}`
+      : null;
+    
+    // Check if rule return type matches expected type
+    const hasTypeMismatch = expressionData.returnType && expectedType && 
+      expressionData.returnType !== expectedType;
+    
+    return (
+      <Card
+        size="small"
+        style={{
+          background: darkMode ? '#1f1f1f' : '#ffffff',
+          border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`
+        }}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="small">
+          {/* Rule selector */}
+          <RuleSelector
+            value={ruleKey}
+            onChange={(selection) => {
+              if (!selection) {
+                handleValueChange({
+                  id: null,
+                  uuid: null,
+                  version: null,
+                  returnType: expectedType || 'boolean'
+                });
+                return;
+              }
+              
+              const { metadata } = selection;
+              handleValueChange({
+                id: metadata.ruleId,
+                uuid: metadata.uuid,
+                version: metadata.version,
+                returnType: metadata.returnType
+              });
+            }}
+            darkMode={darkMode}
+            placeholder="Select a rule..."
+            showReturnType={true}
+          />
+          
+          {/* Warning for type mismatch */}
+          {hasTypeMismatch && (
+            <Alert
+              message="Return Type Mismatch"
+              description={`This rule returns ${expressionData.returnType}, but ${expectedType} is expected.`}
+              type="warning"
+              showIcon
+              closable={false}
+              style={{ fontSize: '12px' }}
+            />
+          )}
+          
+          {/* Selected rule info */}
+          {expressionData.id && (
+            <div style={{
+              fontSize: '11px',
+              color: darkMode ? '#888' : '#666',
+              padding: '8px',
+              background: darkMode ? '#2a2a2a' : '#f5f5f5',
+              borderRadius: '4px'
+            }}>
+              <div><strong>Rule ID:</strong> {expressionData.id}</div>
+              <div><strong>Version:</strong> {expressionData.version}</div>
+              <div><strong>Returns:</strong> <Tag color="blue" style={{ fontSize: '10px' }}>{expressionData.returnType}</Tag></div>
+            </div>
+          )}
+        </Space>
+      </Card>
+    );
+  };
+
   return (
     <Space.Compact style={{ width: '100%' }}>
       {renderSourceSelector()}
@@ -470,6 +556,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
         {source === 'value' && renderValueInput()}
         {source === 'field' && renderFieldSelector()}
         {source === 'function' && renderFunctionBuilder()}
+        {source === 'ruleRef' && renderRuleSelector()}
       </div>
     </Space.Compact>
   );

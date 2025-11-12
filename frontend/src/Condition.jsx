@@ -208,7 +208,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       >
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
-        <div style={{ minWidth: '200px' }}>
+        <div style={{ minWidth: '300px', flex: 1 }}>
           <ExpressionGroup
             value={conditionData.left}
             onChange={handleLeftChange}
@@ -231,7 +231,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
 
         {/* Right Expression(s) */}
         {cardinality === 1 && (
-          <div style={{ minWidth: '200px' }}>
+          <div style={{ minWidth: '300px', flex: 1 }}>
             <ExpressionGroup
               value={conditionData.right}
               onChange={(newRight) => handleChange({ right: newRight })}
@@ -247,7 +247,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         {cardinality > 1 && Array.isArray(conditionData.right) && conditionData.right.map((rightVal, index) => (
           <React.Fragment key={index}>
             {index > 0 && <Text strong style={{ color: '#1890ff' }}>AND</Text>}
-            <div style={{ minWidth: '200px' }}>
+            <div style={{ minWidth: '300px', flex: 1 }}>
               <ExpressionGroup
                 value={rightVal}
                 onChange={(newVal) => {

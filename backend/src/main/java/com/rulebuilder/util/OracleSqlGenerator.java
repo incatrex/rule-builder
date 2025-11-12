@@ -230,6 +230,8 @@ public class OracleSqlGenerator {
                 return processField(expr);
             case "function":
                 return processFunction(expr);
+            case "ruleRef":
+                return processRuleRef(expr);
             default:
                 return "NULL";
         }
@@ -348,5 +350,17 @@ public class OracleSqlGenerator {
         
         // Unknown function, return as-is
         return functionName + "()";
+    }
+
+    /**
+     * Process a rule reference
+     */
+    private String processRuleRef(JsonNode ruleRef) {
+        JsonNode idNode = ruleRef.get("id");
+        if (idNode == null || idNode.isNull()) {
+            return "<RULE:UNKNOWN>";
+        }
+        String ruleId = idNode.asText();
+        return "<RULE:" + ruleId + ">";
     }
 }
