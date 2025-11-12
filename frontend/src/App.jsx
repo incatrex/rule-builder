@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Layout, ConfigProvider, theme, Switch, Space, Spin, message, Button } from 'antd';
+import { Layout, ConfigProvider, theme, Switch, Space, Spin, message, Button, Tabs } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import RuleBuilder from './RuleBuilder';
 import RuleSearch from './RuleSearch';
 import JsonEditor from './JsonEditor';
+import SqlViewer from './SqlViewer';
 import ResizablePanels from './ResizablePanels';
 
 const { Header, Content } = Layout;
@@ -14,10 +15,12 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const ruleBuilderRef = useRef(null);
+  const sqlViewerRef = useRef(null);
   const [ruleBuilderData, setRuleBuilderData] = useState(null);
   const [selectedRuleUuid, setSelectedRuleUuid] = useState(null);
   const [searchPanelCollapsed, setSearchPanelCollapsed] = useState(false);
   const [jsonPanelCollapsed, setJsonPanelCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState('json');
 
   useEffect(() => {
     loadConfiguration();
@@ -103,6 +106,14 @@ const App = () => {
         version: 1,
         metadata: { id: '', description: '' }
       });
+    }
+  };
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    // Auto-refresh SQL when switching to SQL tab
+    if (key === 'sql' && sqlViewerRef.current) {
+      sqlViewerRef.current.refresh();
     }
   };
 
@@ -201,8 +212,20 @@ const App = () => {
               )}
               
               {/* Middle and Right Panels */}
-              <div style={{ flex: 1, display: 'flex', gap: '0px', position: 'relative' }}>
-                <div style={{ flex: 1, display: 'flex' }}>
+              <div style={{ 
+                flex: 1, 
+                display: 'flex', 
+                gap: '0px', 
+                position: 'relative',
+                overflow: 'hidden',
+                minWidth: 0
+              }}>
+                <div style={{ 
+                  flex: 1, 
+                  display: 'flex',
+                  overflow: 'hidden',
+                  minWidth: 0
+                }}>
                   <ResizablePanels
                     leftPanel={
                       <RuleBuilder
@@ -214,17 +237,75 @@ const App = () => {
                       />
                     }
                     rightPanel={
-                      <JsonEditor
-                        data={ruleBuilderData}
-                        onChange={(newData) => {
-                          if (ruleBuilderRef.current) {
-                            ruleBuilderRef.current.loadRuleData(newData);
-                          }
-                        }}
-                        darkMode={darkMode}
-                        title="Rule JSON"
-                        onCollapse={() => setJsonPanelCollapsed(true)}
-                      />
+                      <div style={{ 
+                        height: '100%', 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        backgroundColor: darkMode ? '#141414' : '#ffffff',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '16px',
+                          borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`,
+                          flexShrink: 0
+                        }}>
+                          <Tabs 
+                            activeKey={activeTab}
+                            onChange={handleTabChange}
+                            items={[
+                              {
+                                key: 'json',
+                                label: 'JSON',
+                              },
+                              {
+                                key: 'sql',
+                                label: 'SQL',
+                              },
+                            ]}
+                            style={{ flex: 1, marginBottom: '-16px' }}
+                          />
+                          <Button 
+                            type="text"
+                            icon={<MenuFoldOutlined />}
+                            onClick={() => setJsonPanelCollapsed(true)}
+                            style={{ 
+                              marginLeft: '16px',
+                              flexShrink: 0
+                            }}
+                            title="Collapse Panel"
+                          />
+                        </div>
+                        <div style={{ 
+                          flex: 1, 
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column'
+                        }}>
+                          {activeTab === 'json' && (
+                            <JsonEditor
+                              data={ruleBuilderData}
+                              onChange={(newData) => {
+                                if (ruleBuilderRef.current) {
+                                  ruleBuilderRef.current.loadRuleData(newData);
+                                }
+                              }}
+                              darkMode={darkMode}
+                              title={null}
+                              onCollapse={null}
+                            />
+                          )}
+                          {activeTab === 'sql' && (
+                            <SqlViewer
+                              ref={sqlViewerRef}
+                              ruleData={ruleBuilderData}
+                              darkMode={darkMode}
+                            />
+                          )}
+                        </div>
+                      </div>
                     }
                     darkMode={darkMode}
                     defaultLeftWidth={60}

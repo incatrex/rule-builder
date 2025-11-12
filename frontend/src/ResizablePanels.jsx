@@ -84,8 +84,10 @@ const ResizablePanels = ({
       <div style={{ 
         width: isCollapsed ? '100%' : `${actualLeftWidth}%`, 
         height: '100%', 
-        overflow: 'auto',
-        flex: isCollapsed ? '1' : 'none'
+        overflow: 'hidden',
+        flex: isCollapsed ? '1' : 'none',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         {leftPanel}
       </div>
@@ -136,7 +138,13 @@ const ResizablePanels = ({
 
       {/* Right Panel */}
       {!isCollapsed && (
-        <div style={{ width: `${rightWidth}%`, height: '100%', overflow: 'auto' }}>
+        <div style={{ 
+          width: `${rightWidth}%`, 
+          height: '100%', 
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
           {rightPanel}
         </div>
       )}
