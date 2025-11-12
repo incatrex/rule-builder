@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Button, Tooltip } from 'antd';
 import { ExpandOutlined } from '@ant-design/icons';
 import ReactFlow, { 
@@ -109,11 +109,12 @@ const processConditionGroup = (condGroup, parentId, nodes, edges, getNodeId) => 
   const conjunction = condGroup.conjunction || 'AND';
   const notPrefix = condGroup.not ? 'NOT ' : '';
 
+  // Create condition group name node
   nodes.push({
     id: groupId,
     data: { 
       label: `${notPrefix}${groupName}`,
-      subtitle: conjunction,
+      subtitle: 'condition group',
       type: 'group'
     },
     type: 'default',
@@ -134,11 +135,39 @@ const processConditionGroup = (condGroup, parentId, nodes, edges, getNodeId) => 
     style: { stroke: '#52c41a' }
   });
 
+  // Create conjunction node (AND/OR)
+  const conjunctionId = getNodeId();
+  nodes.push({
+    id: conjunctionId,
+    data: { 
+      label: conjunction,
+      subtitle: 'operator',
+      type: 'conjunction'
+    },
+    type: 'default',
+    style: {
+      background: '#faad14',
+      color: 'white',
+      border: '2px solid #d48806',
+      borderRadius: '6px',
+      padding: '8px',
+      fontSize: '14px',
+      fontWeight: 'bold'
+    }
+  });
+
+  edges.push({
+    id: `${groupId}-${conjunctionId}`,
+    source: groupId,
+    target: conjunctionId,
+    style: { stroke: '#52c41a' }
+  });
+
   // Process conditions
   if (condGroup.conditions && Array.isArray(condGroup.conditions)) {
     condGroup.conditions.forEach((condition) => {
       if (condition.type === 'conditionGroup') {
-        processConditionGroup(condition, groupId, nodes, edges, getNodeId);
+        processConditionGroup(condition, conjunctionId, nodes, edges, getNodeId);
       } else if (condition.type === 'condition') {
         const condId = getNodeId();
         const condName = condition.name || 'Condition';
@@ -163,8 +192,8 @@ const processConditionGroup = (condGroup, parentId, nodes, edges, getNodeId) => 
         });
 
         edges.push({
-          id: `${groupId}-${condId}`,
-          source: groupId,
+          id: `${conjunctionId}-${condId}`,
+          source: conjunctionId,
           target: condId,
           style: { stroke: '#52c41a' }
         });
@@ -180,68 +209,138 @@ const processCaseExpression = (caseExpr, parentId, nodes, edges, getNodeId) => {
   // Process WHEN clauses
   if (caseExpr.whenClauses && Array.isArray(caseExpr.whenClauses)) {
     caseExpr.whenClauses.forEach((whenClause, index) => {
-      const whenId = getNodeId();
-      
-      nodes.push({
-        id: whenId,
-        data: { 
-          label: `WHEN ${index + 1}`,
-          subtitle: 'condition',
-          type: 'when'
-        },
-        type: 'default',
-        style: {
-          background: '#fa8c16',
-          color: 'white',
-          border: '2px solid #d46b08',
-          borderRadius: '8px',
-          padding: '10px'
-        }
-      });
+      // Process the condition group directly
+      if (whenClause.when && whenClause.when.type === 'conditionGroup') {
+        const condGroup = whenClause.when;
+        const groupId = getNodeId();
+        const groupName = condGroup.name || `Condition ${index + 1}`;
+        const conjunction = condGroup.conjunction || 'AND';
+        const notPrefix = condGroup.not ? 'NOT ' : '';
 
-      edges.push({
-        id: `${parentId}-${whenId}`,
-        source: parentId,
-        target: whenId,
-        label: 'WHEN',
-        style: { stroke: '#fa8c16' }
-      });
-
-      // Process the condition
-      if (whenClause.when) {
-        if (whenClause.when.type === 'conditionGroup') {
-          processConditionGroup(whenClause.when, whenId, nodes, edges, getNodeId);
-        }
-      }
-
-      // Process the THEN result
-      if (whenClause.then) {
-        const thenId = getNodeId();
+        // Create condition group name node
         nodes.push({
-          id: thenId,
+          id: groupId,
           data: { 
-            label: 'THEN',
-            subtitle: getExpressionLabel(whenClause.then),
-            type: 'then'
+            label: `${notPrefix}${groupName}`,
+            subtitle: 'condition group',
+            type: 'conditionGroup'
           },
           type: 'default',
           style: {
-            background: '#722ed1',
+            background: '#52c41a',
             color: 'white',
-            border: '2px solid #531dab',
-            borderRadius: '6px',
-            padding: '8px',
-            fontSize: '12px'
+            border: '2px solid #389e0d',
+            borderRadius: '8px',
+            padding: '10px'
           }
         });
 
         edges.push({
-          id: `${whenId}-${thenId}`,
-          source: whenId,
-          target: thenId,
-          label: 'THEN',
-          style: { stroke: '#722ed1' }
+          id: `${parentId}-${groupId}`,
+          source: parentId,
+          target: groupId,
+          label: 'WHEN',
+          style: { stroke: '#fa8c16' }
         });
+
+        // Create conjunction node (AND/OR)
+        const conjunctionId = getNodeId();
+        nodes.push({
+          id: conjunctionId,
+          data: { 
+            label: conjunction,
+            subtitle: 'operator',
+            type: 'conjunction'
+          },
+          type: 'default',
+          style: {
+            background: '#faad14',
+            color: 'white',
+            border: '2px solid #d48806',
+            borderRadius: '6px',
+            padding: '8px',
+            fontSize: '14px',
+            fontWeight: 'bold'
+          }
+        });
+
+        edges.push({
+          id: `${groupId}-${conjunctionId}`,
+          source: groupId,
+          target: conjunctionId,
+          style: { stroke: '#52c41a' }
+        });
+
+        // Process conditions - point to individual condition nodes
+        if (condGroup.conditions && Array.isArray(condGroup.conditions)) {
+          condGroup.conditions.forEach((condition) => {
+            if (condition.type === 'conditionGroup') {
+              // Nested condition group - recursive call
+              processConditionGroup(condition, conjunctionId, nodes, edges, getNodeId);
+            } else if (condition.type === 'condition') {
+              const condId = getNodeId();
+              const condName = condition.name || 'Condition';
+              const operator = condition.operator || '==';
+
+              nodes.push({
+                id: condId,
+                data: { 
+                  label: condName,
+                  subtitle: operator,
+                  type: 'condition'
+                },
+                type: 'default',
+                style: {
+                  background: '#fff',
+                  color: '#333',
+                  border: '2px solid #52c41a',
+                  borderRadius: '6px',
+                  padding: '8px',
+                  fontSize: '12px'
+                }
+              });
+
+              edges.push({
+                id: `${conjunctionId}-${condId}`,
+                source: conjunctionId,
+                target: condId,
+                style: { stroke: '#52c41a' }
+              });
+            }
+          });
+        }
+
+        // Process the THEN result - comes from condition group node
+        if (whenClause.then) {
+          const thenId = getNodeId();
+          const thenLabel = whenClause.resultName || getThenClauseName(whenClause.then);
+          
+          nodes.push({
+            id: thenId,
+            data: { 
+              label: thenLabel,
+              subtitle: whenClause.then.returnType || 'result',
+              type: 'then'
+            },
+            type: 'default',
+            style: {
+              background: '#722ed1',
+              color: 'white',
+              border: '2px solid #531dab',
+              borderRadius: '6px',
+              padding: '8px',
+              fontSize: '12px'
+            }
+          });
+
+          edges.push({
+            id: `${groupId}-${thenId}`,
+            source: groupId,
+            target: thenId,
+            label: 'THEN',
+            style: { stroke: '#722ed1' }
+          });
+        }
       }
     });
   }
@@ -249,11 +348,13 @@ const processCaseExpression = (caseExpr, parentId, nodes, edges, getNodeId) => {
   // Process ELSE clause
   if (caseExpr.elseClause) {
     const elseId = getNodeId();
+    const elseLabel = getThenClauseName(caseExpr.elseClause);
+    
     nodes.push({
       id: elseId,
       data: { 
-        label: 'ELSE',
-        subtitle: getExpressionLabel(caseExpr.elseClause),
+        label: elseLabel,
+        subtitle: caseExpr.elseClause.returnType || 'result',
         type: 'else'
       },
       type: 'default',
@@ -344,6 +445,41 @@ const getExpressionLabel = (expr) => {
   return expr.type || 'Expression';
 };
 
+// Get a descriptive name for THEN clause content
+const getThenClauseName = (expr) => {
+  if (!expr) return 'null';
+  
+  if (expr.type === 'expressionGroup') {
+    // Try to get a meaningful name from the expression
+    const expCount = expr.expressions?.length || 0;
+    if (expCount === 1 && expr.expressions[0]) {
+      return getThenClauseName(expr.expressions[0]);
+    }
+    return `Expression (${expCount} parts)`;
+  }
+  
+  if (expr.type === 'value') {
+    const val = expr.value !== undefined ? String(expr.value) : '?';
+    return val.length > 30 ? val.substring(0, 30) + '...' : val;
+  }
+  
+  if (expr.type === 'field') {
+    return expr.field || 'Field';
+  }
+  
+  if (expr.type === 'function') {
+    const funcName = expr.function?.name?.split('.').pop() || 'Function';
+    const argCount = expr.function?.arguments?.length || 0;
+    return argCount > 0 ? `${funcName}(${argCount} args)` : `${funcName}()`;
+  }
+
+  if (expr.type === 'ruleRef') {
+    return expr.id || 'Rule Reference';
+  }
+  
+  return expr.type || 'Expression';
+};
+
 const RuleCanvas = ({ rule, darkMode = false, showExpandButton = true }) => {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
     const { nodes, edges } = convertRuleToGraph(rule);
@@ -352,24 +488,58 @@ const RuleCanvas = ({ rule, darkMode = false, showExpandButton = true }) => {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [canvasWindow, setCanvasWindow] = React.useState(null);
 
-  const openInNewWindow = () => {
-    // Encode rule data in URL hash for the main app
-    const data = {
-      rule: rule,
-      darkMode: darkMode
+  // Update nodes and edges when rule changes
+  useEffect(() => {
+    const { nodes: newNodes, edges: newEdges } = convertRuleToGraph(rule);
+    const layouted = getLayoutedElements(newNodes, newEdges, 'LR');
+    setNodes(layouted.nodes);
+    setEdges(layouted.edges);
+
+    // Send update to canvas window if it's open
+    if (canvasWindow && !canvasWindow.closed) {
+      canvasWindow.postMessage({
+        type: 'RULE_UPDATE',
+        rule: rule,
+        darkMode: darkMode
+      }, window.location.origin);
+    }
+  }, [rule, darkMode, setNodes, setEdges, canvasWindow]);
+
+    const openInNewWindow = () => {
+    // Open new window with just the canvas parameter (no rule data in URL)
+    const canvasUrl = `${window.location.origin}${window.location.pathname}?canvas=true`;
+    
+    // Open new window and store reference
+    const newWindow = window.open(canvasUrl, '_blank', 'width=1200,height=800');
+    
+    // Store window reference
+    setCanvasWindow(newWindow);
+
+    // Listen for CANVAS_READY message from child window
+    const handleMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data && event.data.type === 'CANVAS_READY') {
+        // Send initial state to child
+        newWindow.postMessage({
+          type: 'RULE_UPDATE',
+          rule: rule,
+          darkMode: darkMode
+        }, window.location.origin);
+      }
     };
-    const encoded = encodeURIComponent(JSON.stringify(data));
-    
-    // Open main app with special canvas-only parameter
-    const url = `${window.location.origin}/?canvas=true#${encoded}`;
-    
-    // Open in new window with specific dimensions
-    window.open(
-      url, 
-      'RuleCanvas',
-      'width=1200,height=800,menubar=no,toolbar=no,location=no,status=no'
-    );
+
+    window.addEventListener('message', handleMessage);
+
+    // Clean up listener when window closes
+    const checkWindowClosed = setInterval(() => {
+      if (newWindow.closed) {
+        clearInterval(checkWindowClosed);
+        window.removeEventListener('message', handleMessage);
+        setCanvasWindow(null);
+      }
+    }, 1000);
   };
 
   if (!rule || !rule.content) {
@@ -414,7 +584,7 @@ const RuleCanvas = ({ rule, darkMode = false, showExpandButton = true }) => {
         fitView
         attributionPosition="bottom-left"
         style={{
-          background: darkMode ? '#1f1f1f' : '#fafafa'
+          background: darkMode ? '#1f1f1f' : '#f5f5f5'
         }}
       >
         <Background 

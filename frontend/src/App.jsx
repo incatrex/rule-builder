@@ -27,23 +27,32 @@ const App = () => {
   const isCanvasMode = new URLSearchParams(window.location.search).get('canvas') === 'true';
 
   useEffect(() => {
-    // If canvas mode, load rule data from URL hash
+    // If canvas mode, wait for rule data from parent via postMessage
     if (isCanvasMode) {
-      const hash = window.location.hash.substring(1);
-      if (hash) {
-        try {
-          const decoded = decodeURIComponent(hash);
-          const data = JSON.parse(decoded);
-          setRuleBuilderData(data.rule);
-          setDarkMode(data.darkMode || false);
-          setLoading(false);
-        } catch (error) {
-          console.error('Error parsing canvas data:', error);
+      // Listen for updates from parent window
+      const handleMessage = (event) => {
+        // Verify the message is from the same origin for security
+        if (event.origin !== window.location.origin) return;
+        
+        if (event.data && event.data.type === 'RULE_UPDATE') {
+          setRuleBuilderData(event.data.rule);
+          if (event.data.darkMode !== undefined) {
+            setDarkMode(event.data.darkMode);
+          }
           setLoading(false);
         }
-      } else {
-        setLoading(false);
+      };
+
+      window.addEventListener('message', handleMessage);
+      
+      // Let parent know we're ready
+      if (window.opener) {
+        window.opener.postMessage({ type: 'CANVAS_READY' }, window.location.origin);
       }
+
+      return () => {
+        window.removeEventListener('message', handleMessage);
+      };
     } else {
       loadConfiguration();
     }
