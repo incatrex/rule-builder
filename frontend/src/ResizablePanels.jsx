@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from 'antd';
-import { LeftOutlined, RightOutlined, ColumnWidthOutlined } from '@ant-design/icons';
+import { ColumnWidthOutlined } from '@ant-design/icons';
 
 /**
  * ResizablePanels Component
@@ -14,6 +13,7 @@ import { LeftOutlined, RightOutlined, ColumnWidthOutlined } from '@ant-design/ic
  * - minLeftWidth: Minimum width percentage for left panel (default: 20)
  * - maxLeftWidth: Maximum width percentage for left panel (default: 80)
  * - darkMode: Dark mode styling
+ * - rightPanelCollapsed: External control for right panel collapse state
  */
 const ResizablePanels = ({ 
   leftPanel, 
@@ -21,13 +21,15 @@ const ResizablePanels = ({
   defaultLeftWidth = 50,
   minLeftWidth = 20,
   maxLeftWidth = 80,
-  darkMode = false 
+  darkMode = false,
+  rightPanelCollapsed = false
 }) => {
   const [leftWidth, setLeftWidth] = useState(defaultLeftWidth);
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   const savedWidthRef = useRef(defaultLeftWidth);
+
+  const isCollapsed = rightPanelCollapsed;
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -64,19 +66,6 @@ const ResizablePanels = ({
     };
   }, [isDragging, minLeftWidth, maxLeftWidth]);
 
-  const handleCollapse = () => {
-    if (isCollapsed) {
-      // Expand: restore saved width
-      setLeftWidth(savedWidthRef.current);
-      setIsCollapsed(false);
-    } else {
-      // Collapse: save current width and expand left to 100%
-      savedWidthRef.current = leftWidth;
-      setLeftWidth(100);
-      setIsCollapsed(true);
-    }
-  };
-
   const actualLeftWidth = isCollapsed ? 100 : leftWidth;
   const rightWidth = 100 - actualLeftWidth;
 
@@ -85,13 +74,19 @@ const ResizablePanels = ({
       ref={containerRef}
       style={{ 
         display: 'flex', 
-        height: '100%', 
+        height: '100%',
+        width: '100%',
         position: 'relative',
         userSelect: isDragging ? 'none' : 'auto'
       }}
     >
       {/* Left Panel */}
-      <div style={{ width: `${actualLeftWidth}%`, height: '100%', overflow: 'auto' }}>
+      <div style={{ 
+        width: isCollapsed ? '100%' : `${actualLeftWidth}%`, 
+        height: '100%', 
+        overflow: 'auto',
+        flex: isCollapsed ? '1' : 'none'
+      }}>
         {leftPanel}
       </div>
 
@@ -136,24 +131,6 @@ const ResizablePanels = ({
           >
             <ColumnWidthOutlined />
           </div>
-          
-          {/* Collapse Button on Divider */}
-          <Button
-            type="primary"
-            size="small"
-            icon={<RightOutlined />}
-            onClick={handleCollapse}
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 10,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-              pointerEvents: 'auto'
-            }}
-            title="Hide JSON Panel"
-          />
         </div>
       )}
 
@@ -162,25 +139,6 @@ const ResizablePanels = ({
         <div style={{ width: `${rightWidth}%`, height: '100%', overflow: 'auto' }}>
           {rightPanel}
         </div>
-      )}
-
-      {/* Expand Button - Only shown when collapsed */}
-      {isCollapsed && (
-        <Button
-          type="primary"
-          icon={<LeftOutlined />}
-          onClick={handleCollapse}
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            zIndex: 10,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-          }}
-          title="Show JSON Panel"
-        >
-          Show JSON
-        </Button>
       )}
     </div>
   );
