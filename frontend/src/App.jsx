@@ -6,6 +6,7 @@ import RuleBuilder from './RuleBuilder';
 import RuleSearch from './RuleSearch';
 import JsonEditor from './JsonEditor';
 import SqlViewer from './SqlViewer';
+import RuleCanvas from './RuleCanvas';
 import ResizablePanels from './ResizablePanels';
 
 const { Header, Content } = Layout;
@@ -21,6 +22,77 @@ const App = () => {
   const [searchPanelCollapsed, setSearchPanelCollapsed] = useState(false);
   const [jsonPanelCollapsed, setJsonPanelCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('json');
+  
+  // Check if this is canvas-only mode
+  const isCanvasMode = new URLSearchParams(window.location.search).get('canvas') === 'true';
+
+  useEffect(() => {
+    // If canvas mode, load rule data from URL hash
+    if (isCanvasMode) {
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        try {
+          const decoded = decodeURIComponent(hash);
+          const data = JSON.parse(decoded);
+          setRuleBuilderData(data.rule);
+          setDarkMode(data.darkMode || false);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error parsing canvas data:', error);
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    } else {
+      loadConfiguration();
+    }
+  }, [isCanvasMode]);
+
+  // If canvas-only mode, render just the canvas
+  if (isCanvasMode) {
+    return (
+      <ConfigProvider
+        theme={{
+          algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        }}
+      >
+        <Layout style={{ height: '100vh' }}>
+          <Header style={{
+            background: darkMode ? '#141414' : '#fff',
+            padding: '0 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`
+          }}>
+            <h2 style={{ margin: 0, color: darkMode ? '#fff' : '#000' }}>
+              {ruleBuilderData?.metadata?.id || 'Rule'} - Canvas View
+            </h2>
+            <Switch
+              checked={darkMode}
+              onChange={setDarkMode}
+              checkedChildren="🌙"
+              unCheckedChildren="☀️"
+            />
+          </Header>
+          <Content style={{ height: 'calc(100vh - 64px)' }}>
+            {loading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <Spin size="large" />
+              </div>
+            ) : (
+              <RuleCanvas
+                rule={ruleBuilderData}
+                darkMode={darkMode}
+                showExpandButton={false}
+              />
+            )}
+          </Content>
+        </Layout>
+      </ConfigProvider>
+    );
+  }
 
   useEffect(() => {
     loadConfiguration();
@@ -264,6 +336,10 @@ const App = () => {
                                 key: 'sql',
                                 label: 'SQL',
                               },
+                              {
+                                key: 'canvas',
+                                label: 'Canvas',
+                              },
                             ]}
                             style={{ flex: 1, marginBottom: '-16px' }}
                           />
@@ -301,6 +377,12 @@ const App = () => {
                             <SqlViewer
                               ref={sqlViewerRef}
                               ruleData={ruleBuilderData}
+                              darkMode={darkMode}
+                            />
+                          )}
+                          {activeTab === 'canvas' && (
+                            <RuleCanvas
+                              rule={ruleBuilderData}
                               darkMode={darkMode}
                             />
                           )}
