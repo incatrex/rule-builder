@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag } from 'antd';
-import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
+import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert } from 'antd';
+import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import RuleSelector from './RuleSelector';
 
 const { Text } = Typography;
 
@@ -560,6 +561,14 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         returnType: expectedType || 'number', 
         function: { name: null, args: [] } 
       };
+    } else if (newSource === 'ruleRef') {
+      newData = { 
+        type: 'ruleRef', 
+        returnType: expectedType || 'boolean',
+        id: null,
+        uuid: null,
+        version: null
+      };
     }
     
     setExpressionData(newData);
@@ -590,6 +599,11 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
       value: 'function', 
       label: 'Function', 
       icon: <FunctionOutlined style={{ fontSize: '12px' }} /> 
+    },
+    { 
+      value: 'ruleRef', 
+      label: 'Rule', 
+      icon: <LinkOutlined style={{ fontSize: '12px' }} /> 
     }
   ];
 
@@ -819,6 +833,81 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
     );
   };
 
+  const renderRuleSelector = () => {
+    // Create a key for the RuleSelector based on current rule data
+    const ruleKey = expressionData.id ? `${expressionData.id}_${expressionData.version}` : null;
+    
+    // Check if rule return type matches expected type
+    const hasTypeMismatch = expressionData.returnType && expectedType && 
+      expressionData.returnType !== expectedType;
+    
+    return (
+      <Card
+        size="small"
+        style={{
+          background: darkMode ? '#1f1f1f' : '#ffffff',
+          border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`
+        }}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="small">
+          {/* Rule selector */}
+          <RuleSelector
+            value={ruleKey}
+            onChange={(selection) => {
+              if (!selection) {
+                handleValueChange({
+                  id: null,
+                  uuid: null,
+                  version: null,
+                  returnType: expectedType || 'boolean'
+                });
+                return;
+              }
+              
+              const { metadata } = selection;
+              handleValueChange({
+                id: metadata.ruleId,
+                uuid: metadata.uuid,
+                version: metadata.version,
+                returnType: metadata.returnType
+              });
+            }}
+            darkMode={darkMode}
+            placeholder="Select a rule..."
+            showReturnType={true}
+          />
+          
+          {/* Warning for type mismatch */}
+          {hasTypeMismatch && (
+            <Alert
+              message="Return Type Mismatch"
+              description={`This rule returns ${expressionData.returnType}, but ${expectedType} is expected.`}
+              type="warning"
+              showIcon
+              closable={false}
+              style={{ fontSize: '12px' }}
+            />
+          )}
+          
+          {/* Selected rule info */}
+          {expressionData.id && (
+            <div style={{
+              fontSize: '11px',
+              color: darkMode ? '#888' : '#666',
+              padding: '8px',
+              background: darkMode ? '#2a2a2a' : '#f5f5f5',
+              borderRadius: '4px'
+            }}>
+              <div><strong>Rule ID:</strong> {expressionData.id}</div>
+              <div><strong>Version:</strong> {expressionData.version}</div>
+              <div><strong>Returns:</strong> <Tag color="blue" style={{ fontSize: '10px' }}>{expressionData.returnType}</Tag></div>
+            </div>
+          )}
+        </Space>
+      </Card>
+    );
+  };
+
   const renderCompactFunction = () => {
     if (!expressionData.function?.name) return null;
 
@@ -836,6 +925,8 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
       } else if (arg.value.type === 'function') {
         const innerFuncName = arg.value.function?.name?.split('.').pop() || '?';
         return `${innerFuncName}(...)`;
+      } else if (arg.value.type === 'ruleRef') {
+        return arg.value.id ? `<${arg.value.id}>` : '<RULE>';
       } else if (arg.value.type === 'expressionGroup') {
         // Handle ExpressionGroup - show compact representation
         if (arg.value.expressions?.length > 1 || arg.value.operators?.length > 0) {
@@ -1117,6 +1208,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         <div style={{ flex: 1 }}>
           {source === 'value' && renderValueInput()}
           {source === 'field' && renderFieldSelector()}
+          {source === 'ruleRef' && renderRuleSelector()}
           {source === 'function' && (
             expressionData.function?.name && !isExpanded ? (
               // Show compact function view when collapsed

@@ -13,8 +13,8 @@ import axios from 'axios';
  * - data: The JSON object to display/edit
  * - onChange: Callback function called when valid JSON is entered and Update is clicked
  * - darkMode: Boolean for dark mode styling
- * - title: Optional title for the card
- * - onCollapse: Optional callback for collapse button
+ * - title: Optional title for the card (set to null to hide card wrapper)
+ * - onCollapse: Optional callback for collapse button (set to null to hide button)
  */
 const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", onCollapse = null }) => {
   const [jsonText, setJsonText] = useState('');
@@ -111,6 +111,174 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
   };
 
 
+
+  // Helper function to render the JSON editor content
+  const renderContent = () => (
+    <>
+      {/* Use textarea for both editing and viewing modes */}
+      <textarea
+        value={isEditing ? jsonText : displayText}
+        onChange={isEditing ? handleJsonChange : undefined}
+        readOnly={!isEditing}
+        style={{
+          width: '100%',
+          height: '100%',
+          fontFamily: 'monospace',
+          fontSize: '14px',
+          lineHeight: '1.6',
+          padding: '16px',
+          border: isEditing && !isValid ? '2px solid #ff4d4f' : 'none',
+          background: isEditing 
+            ? (darkMode ? '#2a2a2a' : '#fffbe6')
+            : (darkMode ? '#1f1f1f' : '#ffffff'),
+          color: darkMode ? '#e0e0e0' : '#000000',
+          resize: 'none',
+          outline: 'none',
+          cursor: isEditing ? 'text' : 'default'
+        }}
+        placeholder={isEditing ? `{\n  "structure": "case",\n  "returnType": "boolean"\n}` : "No JSON data to display"}
+      />
+      
+      {/* Validation Errors */}
+      {validationErrors.length > 0 && (
+        <div style={{ padding: '16px', maxHeight: '200px', overflow: 'auto' }}>
+          <Alert
+            message="Schema Validation Errors"
+            description={
+              <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+                {validationErrors.map((error, index) => (
+                  <li key={index} style={{ marginBottom: '8px' }}>
+                    <strong>{error.path || 'root'}:</strong> {error.message}
+                  </li>
+                ))}
+              </ul>
+            }
+            type="error"
+            showIcon
+          />
+        </div>
+      )}
+      
+      {/* JSON Syntax Error */}
+      {isEditing && !isValid && validationErrors.length === 0 && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '8px',
+            left: '16px',
+            color: '#ff4d4f',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            background: darkMode ? '#1f1f1f' : '#ffffff',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            border: '1px solid #ff4d4f'
+          }}
+        >
+          Invalid JSON - Fix errors before updating
+        </div>
+      )}
+      
+      {/* Schema Information */}
+      {schemaInfo && (
+        <div
+          style={{
+            padding: '8px 16px',
+            borderTop: '1px solid ' + (darkMode ? '#434343' : '#f0f0f0'),
+            background: darkMode ? '#141414' : '#fafafa',
+            fontSize: '11px',
+            color: darkMode ? '#8c8c8c' : '#595959',
+            fontFamily: 'Monaco, Menlo, monospace'
+          }}
+        >
+          <div style={{ marginBottom: '2px' }}>
+            <strong>Validated against:</strong> {schemaInfo.filename}
+          </div>
+          {schemaInfo.title && (
+            <div style={{ marginBottom: '2px' }}>
+              <strong>Schema:</strong> {schemaInfo.title}
+            </div>
+          )}
+          {schemaInfo.id && (
+            <div style={{ marginBottom: '2px' }}>
+              <strong>Schema ID:</strong> {schemaInfo.id}
+            </div>
+          )}
+          {schemaInfo.draft && (
+            <div>
+              <strong>JSON Schema:</strong> {schemaInfo.draft}
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+
+  // If title is null, render without Card wrapper (for use in tabs)
+  if (title === null) {
+    return (
+      <div style={{ 
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        background: darkMode ? '#1f1f1f' : '#ffffff',
+        overflow: 'hidden',
+        width: '100%'
+      }}>
+        <div style={{ 
+          padding: '16px',
+          borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`,
+          display: 'flex',
+          justifyContent: 'flex-end',
+          flexShrink: 0
+        }}>
+          <Space>
+            {!isEditing ? (
+              <Button
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={handleEdit}
+                size="small"
+              >
+                Edit
+              </Button>
+            ) : (
+              <>
+                <Button
+                  type="primary"
+                  icon={isValidating ? <LoadingOutlined /> : <CheckOutlined />}
+                  onClick={handleUpdate}
+                  size="small"
+                  disabled={!isValid || isValidating}
+                  loading={isValidating}
+                >
+                  {isValidating ? 'Validating...' : 'Update'}
+                </Button>
+                <Button
+                  icon={<CloseOutlined />}
+                  onClick={handleCancel}
+                  size="small"
+                  disabled={isValidating}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
+          </Space>
+        </div>
+        <div style={{ 
+          flex: 1,
+          padding: isEditing ? 0 : '8px',
+          position: 'relative',
+          overflow: 'auto',
+          width: '100%',
+          boxSizing: 'border-box'
+        }}>
+          {renderContent()}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Card

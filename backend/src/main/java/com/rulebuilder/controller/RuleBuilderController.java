@@ -1,7 +1,10 @@
 package com.rulebuilder.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rulebuilder.service.RuleBuilderService;
+import com.rulebuilder.util.OracleSqlGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +16,11 @@ public class RuleBuilderController {
 
     @Autowired
     private RuleBuilderService ruleBuilderService;
+
+    @Autowired
+    private OracleSqlGenerator sqlGenerator;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping("/fields")
     public ResponseEntity<JsonNode> getFields() {
@@ -101,6 +109,22 @@ public class RuleBuilderController {
             return ResponseEntity.ok(validationResult);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/rules/to-sql")
+    public ResponseEntity<ObjectNode> convertRuleToSql(@RequestBody JsonNode rule) {
+        try {
+            String sql = sqlGenerator.generateSql(rule);
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("sql", sql);
+            response.set("errors", objectMapper.createArrayNode());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ObjectNode errorResponse = objectMapper.createObjectNode();
+            errorResponse.putNull("sql");
+            errorResponse.putArray("errors").add(e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.rulebuilder.controller;
 
 import com.rulebuilder.service.RuleBuilderService;
+import com.rulebuilder.util.OracleSqlGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,6 +19,9 @@ public class RuleBuilderControllerTest {
 
     @MockBean
     private RuleBuilderService ruleBuilderService;
+
+    @MockBean
+    private OracleSqlGenerator sqlGenerator;
 
     @Test
     public void testGetFields() throws Exception {
