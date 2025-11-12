@@ -224,9 +224,13 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
           onChange={handleOperatorChange}
           placeholder="Select operator"
           style={{ width: 140 }}
-          className="operator-select"
+          popupClassName={darkMode ? 'dark-mode-dropdown' : ''}
+          getPopupContainer={(trigger) => trigger.parentNode}
           size="small"
           options={availableOperators}
+          dropdownStyle={darkMode ? {
+            backgroundColor: '#2d2d2d'
+          } : {}}
         />
 
         {/* Right Expression(s) */}
