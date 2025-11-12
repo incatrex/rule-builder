@@ -17,6 +17,7 @@ const App = () => {
   const [ruleBuilderData, setRuleBuilderData] = useState(null);
   const [selectedRuleUuid, setSelectedRuleUuid] = useState(null);
   const [searchPanelCollapsed, setSearchPanelCollapsed] = useState(false);
+  const [jsonPanelCollapsed, setJsonPanelCollapsed] = useState(false);
 
   useEffect(() => {
     loadConfiguration();
@@ -156,7 +157,7 @@ const App = () => {
         </Header>
         <Content style={{ padding: '50px' }}>
           {ruleConfig ? (
-            <div style={{ height: 'calc(100vh - 200px)', display: 'flex', gap: '16px' }}>
+            <div style={{ height: 'calc(100vh - 200px)', display: 'flex', gap: '0px' }}>
               {/* Collapsible Left Panel - Rule Search */}
               <div style={{ 
                 width: searchPanelCollapsed ? '0px' : '300px',
@@ -168,62 +169,93 @@ const App = () => {
                   onRuleSelect={handleRuleSelect}
                   onNewRule={handleNewRule}
                   darkMode={darkMode}
+                  onCollapse={() => setSearchPanelCollapsed(true)}
                 />
               </div>
               
-              {/* Collapse Toggle Button */}
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                paddingTop: '8px'
-              }}>
-                <Button 
-                  type="text"
-                  icon={searchPanelCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                  onClick={() => setSearchPanelCollapsed(!searchPanelCollapsed)}
-                  style={{ 
-                    width: '32px',
-                    height: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
-                    backgroundColor: darkMode ? '#1f1f1f' : '#ffffff'
-                  }}
-                  title={searchPanelCollapsed ? 'Show Search Panel' : 'Hide Search Panel'}
-                />
-              </div>
+              {/* Expand Button - Only shown when collapsed */}
+              {searchPanelCollapsed && (
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
+                  paddingTop: '8px',
+                  paddingRight: '8px'
+                }}>
+                  <Button 
+                    type="text"
+                    icon={<MenuUnfoldOutlined />}
+                    onClick={() => setSearchPanelCollapsed(false)}
+                    style={{ 
+                      width: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
+                      backgroundColor: darkMode ? '#1f1f1f' : '#ffffff'
+                    }}
+                    title="Show Search Panel"
+                  />
+                </div>
+              )}
               
               {/* Middle and Right Panels */}
-              <div style={{ flex: 1 }}>
-                <ResizablePanels
-                  leftPanel={
-                    <RuleBuilder
-                      ref={ruleBuilderRef}
-                      config={ruleConfig}
-                      darkMode={darkMode}
-                      selectedRuleUuid={selectedRuleUuid}
-                      onRuleChange={(data) => setRuleBuilderData(data)}
-                    />
-                  }
-                  rightPanel={
-                    <JsonEditor
-                      data={ruleBuilderData}
-                      onChange={(newData) => {
-                        if (ruleBuilderRef.current) {
-                          ruleBuilderRef.current.loadRuleData(newData);
-                        }
-                      }}
-                      darkMode={darkMode}
-                      title="Rule JSON"
-                    />
-                  }
-                  darkMode={darkMode}
-                  defaultLeftWidth={60}
-                  minLeftWidth={30}
-                  maxLeftWidth={80}
-                />
+              <div style={{ flex: 1, display: 'flex', gap: '0px', position: 'relative' }}>
+                <div style={{ flex: 1, display: 'flex' }}>
+                  <ResizablePanels
+                    leftPanel={
+                      <RuleBuilder
+                        ref={ruleBuilderRef}
+                        config={ruleConfig}
+                        darkMode={darkMode}
+                        selectedRuleUuid={selectedRuleUuid}
+                        onRuleChange={(data) => setRuleBuilderData(data)}
+                      />
+                    }
+                    rightPanel={
+                      <JsonEditor
+                        data={ruleBuilderData}
+                        onChange={(newData) => {
+                          if (ruleBuilderRef.current) {
+                            ruleBuilderRef.current.loadRuleData(newData);
+                          }
+                        }}
+                        darkMode={darkMode}
+                        title="Rule JSON"
+                        onCollapse={() => setJsonPanelCollapsed(true)}
+                      />
+                    }
+                    darkMode={darkMode}
+                    defaultLeftWidth={60}
+                    minLeftWidth={30}
+                    maxLeftWidth={80}
+                    rightPanelCollapsed={jsonPanelCollapsed}
+                  />
+                </div>
+                
+                {/* Expand JSON Button - Only shown when collapsed */}
+                {jsonPanelCollapsed && (
+                  <Button 
+                    type="text"
+                    icon={<MenuUnfoldOutlined />}
+                    onClick={() => setJsonPanelCollapsed(false)}
+                    style={{ 
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      width: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
+                      backgroundColor: darkMode ? '#1f1f1f' : '#ffffff',
+                      zIndex: 10
+                    }}
+                    title="Show JSON Panel"
+                  />
+                )}
               </div>
             </div>
           ) : <Spin />}

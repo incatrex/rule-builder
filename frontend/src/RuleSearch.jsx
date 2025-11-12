@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Select, Space, message } from 'antd';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 /**
@@ -11,7 +11,7 @@ import axios from 'axios';
  * - Searchable dropdown to select existing rules
  * - Loads selected rule into RuleBuilder
  */
-const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false }) => {
+const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false, onCollapse = null }) => {
   const [ruleList, setRuleList] = useState([]);
   const [selectedRuleKey, setSelectedRuleKey] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -86,7 +86,29 @@ const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false }) => {
 
   return (
     <Card
-      title="Rule Search"
+      title={
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          width: '100%'
+        }}>
+          <span>Rule Search</span>
+          {onCollapse && (
+            <Button 
+              type="text"
+              icon={<MenuFoldOutlined />}
+              onClick={onCollapse}
+              size="small"
+              style={{ 
+                marginRight: '-8px',
+                color: darkMode ? '#e0e0e0' : '#666'
+              }}
+              title="Hide Search Panel"
+            />
+          )}
+        </div>
+      }
       size="small"
       style={{
         background: darkMode ? '#1f1f1f' : '#ffffff',

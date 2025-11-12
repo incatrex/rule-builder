@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Space, message, Input, Alert } from 'antd';
-import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined } from '@ant-design/icons';
+import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 /**
@@ -14,8 +14,9 @@ import axios from 'axios';
  * - onChange: Callback function called when valid JSON is entered and Update is clicked
  * - darkMode: Boolean for dark mode styling
  * - title: Optional title for the card
+ * - onCollapse: Optional callback for collapse button
  */
-const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" }) => {
+const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", onCollapse = null }) => {
   const [jsonText, setJsonText] = useState('');
   const [displayText, setDisplayText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -113,41 +114,65 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output" })
 
   return (
     <Card
-      title={title}
-      extra={
-        <Space>
-          {!isEditing ? (
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={handleEdit}
+      title={
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          width: '100%'
+        }}>
+          <span>{title}</span>
+          {onCollapse && !isEditing && (
+            <Button 
+              type="text"
+              icon={<MenuFoldOutlined />}
+              onClick={onCollapse}
               size="small"
-            >
-              Edit
-            </Button>
-          ) : (
-            <>
+              style={{ 
+                marginRight: '-8px',
+                color: darkMode ? '#e0e0e0' : '#666'
+              }}
+              title="Hide JSON Panel"
+            />
+          )}
+        </div>
+      }
+      extra={
+        !onCollapse || isEditing ? (
+          <Space>
+            {!isEditing ? (
               <Button
                 type="primary"
-                icon={isValidating ? <LoadingOutlined /> : <CheckOutlined />}
-                onClick={handleUpdate}
+                icon={<EditOutlined />}
+                onClick={handleEdit}
                 size="small"
-                disabled={!isValid || isValidating}
-                loading={isValidating}
               >
-                {isValidating ? 'Validating...' : 'Update'}
+                Edit
               </Button>
-              <Button
-                icon={<CloseOutlined />}
-                onClick={handleCancel}
-                size="small"
-                disabled={isValidating}
-              >
-                Cancel
-              </Button>
-            </>
-          )}
-        </Space>
+            ) : (
+              <>
+                <Button
+                  type="primary"
+                  icon={isValidating ? <LoadingOutlined /> : <CheckOutlined />}
+                  onClick={handleUpdate}
+                  size="small"
+                  disabled={!isValid || isValidating}
+                  loading={isValidating}
+                >
+                  {isValidating ? 'Validating...' : 'Update'}
+                </Button>
+                <Button
+                  icon={<CloseOutlined />}
+                  onClick={handleCancel}
+                  size="small"
+                  disabled={isValidating}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
+          </Space>
+        ) : null
       }
       style={{
         height: '100%',
