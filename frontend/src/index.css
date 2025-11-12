@@ -76,20 +76,34 @@ code {
   box-shadow: 0 0 0 2px rgba(64, 169, 255, 0.2) !important;
 }
 
-/* Dark mode operator dropdown styling */
-.dark-mode .operator-select .ant-select-selector {
+/* Dark mode operator dropdown menu - use popupClassName */
+.dark-mode-dropdown.ant-select-dropdown,
+.dark-mode-dropdown.ant-select-dropdown .rc-virtual-list,
+.dark-mode-dropdown.ant-select-dropdown .rc-virtual-list-holder,
+.dark-mode-dropdown.ant-select-dropdown .rc-virtual-list-holder-inner {
   background-color: #2d2d2d !important;
-  border-color: #505050 !important;
-  box-shadow: 0 0 0 2px rgba(80, 80, 80, 0.1) !important;
 }
 
-.dark-mode .operator-select:hover .ant-select-selector {
-  border-color: #707070 !important;
-  box-shadow: 0 0 0 2px rgba(112, 112, 112, 0.2) !important;
+.dark-mode-dropdown .ant-select-item,
+.dark-mode-dropdown .ant-select-item-option,
+.dark-mode-dropdown.ant-select-dropdown .ant-select-item,
+.dark-mode-dropdown.ant-select-dropdown .ant-select-item-option {
+  color: #fff !important;
+  background-color: transparent !important;
 }
 
-.dark-mode .operator-select.ant-select-focused .ant-select-selector {
-  border-color: #909090 !important;
-  box-shadow: 0 0 0 2px rgba(144, 144, 144, 0.2) !important;
+.dark-mode-dropdown .ant-select-item-option-selected,
+.dark-mode-dropdown.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: #404040 !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.dark-mode-dropdown .ant-select-item-option-active,
+.dark-mode-dropdown .ant-select-item-option:hover,
+.dark-mode-dropdown.ant-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+.dark-mode-dropdown.ant-select-dropdown .ant-select-item-option:hover:not(.ant-select-item-option-disabled) {
+  background-color: #3a3a3a !important;
+  color: #fff !important;
 }
 

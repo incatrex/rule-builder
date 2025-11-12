@@ -224,6 +224,19 @@ const App = () => {
       <ConfigProvider
         theme={{
           algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+          ...(darkMode && {
+            components: {
+              Select: {
+                colorText: '#fff',
+                colorTextPlaceholder: '#999',
+                colorBgContainer: '#2d2d2d',
+                colorBorder: '#505050',
+                colorBgElevated: '#2d2d2d',
+                optionSelectedBg: '#404040',
+                optionActiveBg: '#3a3a3a',
+              }
+            }
+          })
         }}
       >
         <Layout style={{ minHeight: '100vh' }}>
