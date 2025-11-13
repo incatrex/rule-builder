@@ -25,11 +25,11 @@ Based on actual UI component implementation and JSON structures used by the Rule
 Used for all expression handling - replaces simple Expression types.
 ```jsonc
 {
-  "source": "expressionGroup",
+  "type": "expressionGroup",
   "returnType": "boolean" | "number" | "text" | "date",
   "expressions": [
-    BaseExpression | ExpressionGroup, // Recursive nesting supported
-    BaseExpression | ExpressionGroup,
+    Expression | ExpressionGroup, // Recursive nesting supported
+    Expression | ExpressionGroup,
     // ...
   ],
   "operators": [
@@ -39,25 +39,26 @@ Used for all expression handling - replaces simple Expression types.
 }
 ```
 
-### BaseExpression (Leaf Expressions)
+### Expression (Leaf Expressions)
+Corresponds to `Expression.jsx` UI component and internal `BaseExpression` component.
 ```jsonc
 // Value Expression
 {
-  "source": "value",
+  "type": "value",
   "returnType": "boolean" | "number" | "text" | "date",
   "value": any // actual value based on returnType
 }
 
 // Field Expression  
 {
-  "source": "field", 
+  "type": "field", 
   "returnType": "boolean" | "number" | "text" | "date",
   "field": string // e.g., "TABLE1.NUMBER_FIELD_01"
 }
 
 // Function Expression
 {
-  "source": "function",
+  "type": "function",
   "returnType": "boolean" | "number" | "text" | "date", 
   "function": {
     "name": string, // e.g., "MATH.ADD", "DATE.DIFF", "TEXT.CONCAT"
@@ -224,16 +225,16 @@ Used for all expression handling - replaces simple Expression types.
         "type": "condition",
         "name": "Age Check",
         "left": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "number",
-          "expressions": [{"source": "field", "returnType": "number", "field": "TABLE1.NUMBER_FIELD_01"}],
+          "expressions": [{"type": "field", "returnType": "number", "field": "TABLE1.NUMBER_FIELD_01"}],
           "operators": []
         },
         "operator": "greater_or_equal",
         "right": {
-          "source": "expressionGroup", 
+          "type": "expressionGroup", 
           "returnType": "number",
-          "expressions": [{"source": "value", "returnType": "number", "value": "18"}],
+          "expressions": [{"type": "value", "returnType": "number", "value": "18"}],
           "operators": []
         }
       }
@@ -245,11 +246,11 @@ Used for all expression handling - replaces simple Expression types.
 ### Mathematical Expression
 ```json
 {
-  "source": "expressionGroup",
+  "type": "expressionGroup",
   "returnType": "number",
   "expressions": [
-    {"source": "field", "returnType": "number", "field": "TABLE1.NUMBER_FIELD_01"},
-    {"source": "value", "returnType": "number", "value": "10"}
+    {"type": "field", "returnType": "number", "field": "TABLE1.NUMBER_FIELD_01"},
+    {"type": "value", "returnType": "number", "value": "10"}
   ],
   "operators": ["+"]
 }
@@ -258,7 +259,7 @@ Used for all expression handling - replaces simple Expression types.
 ### Function with Arguments  
 ```json
 {
-  "source": "function",
+  "type": "function",
   "returnType": "number",
   "function": {
     "name": "MATH.ADD",
@@ -266,18 +267,18 @@ Used for all expression handling - replaces simple Expression types.
       {
         "name": "num1", 
         "value": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "number", 
-          "expressions": [{"source": "field", "returnType": "number", "field": "TABLE1.NUMBER_FIELD_01"}],
+          "expressions": [{"type": "field", "returnType": "number", "field": "TABLE1.NUMBER_FIELD_01"}],
           "operators": []
         }
       },
       {
         "name": "num2",
         "value": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "number",
-          "expressions": [{"source": "value", "returnType": "number", "value": "5"}], 
+          "expressions": [{"type": "value", "returnType": "number", "value": "5"}], 
           "operators": []
         }
       }
@@ -289,7 +290,7 @@ Used for all expression handling - replaces simple Expression types.
 ### Function with Custom Dropdown Argument
 ```json
 {
-  "source": "function",
+  "type": "function",
   "returnType": "number",
   "function": {
     "name": "DATE.DIFF",
@@ -297,27 +298,27 @@ Used for all expression handling - replaces simple Expression types.
       {
         "name": "units",
         "value": {
-          "source": "expressionGroup", 
+          "type": "expressionGroup", 
           "returnType": "text",
-          "expressions": [{"source": "value", "returnType": "text", "value": "MONTH"}],
+          "expressions": [{"type": "value", "returnType": "text", "value": "MONTH"}],
           "operators": []
         }
       },
       {
         "name": "date1",
         "value": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "date",
-          "expressions": [{"source": "field", "returnType": "date", "field": "TABLE1.DATE_FIELD_01"}],
+          "expressions": [{"type": "field", "returnType": "date", "field": "TABLE1.DATE_FIELD_01"}],
           "operators": []
         }
       },
       {
         "name": "date2", 
         "value": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "date",
-          "expressions": [{"source": "value", "returnType": "date", "value": "2023-12-31"}],
+          "expressions": [{"type": "value", "returnType": "date", "value": "2023-12-31"}],
           "operators": []
         }
       }
@@ -329,7 +330,7 @@ Used for all expression handling - replaces simple Expression types.
 ### Function with Multiselect Dropdown Argument
 ```json
 {
-  "source": "function",
+  "type": "function",
   "returnType": "number",
   "function": {
     "name": "MATH.TEST",
@@ -337,18 +338,18 @@ Used for all expression handling - replaces simple Expression types.
       {
         "name": "number",
         "value": {
-          "source": "expressionGroup",
+          "type": "expressionGroup",
           "returnType": "number",
-          "expressions": [{"source": "value", "returnType": "number", "value": 42}],
+          "expressions": [{"type": "value", "returnType": "number", "value": 42}],
           "operators": []
         }
       },
       {
         "name": "testDropdown",
         "value": {
-          "source": "expressionGroup", 
+          "type": "expressionGroup", 
           "returnType": "text",
-          "expressions": [{"source": "value", "returnType": "text", "value": ["OPTION1", "OPTION3"]}],
+          "expressions": [{"type": "value", "returnType": "text", "value": ["OPTION1", "OPTION3"]}],
           "operators": []
         }
       }
@@ -364,29 +365,29 @@ Used for all expression handling - replaces simple Expression types.
   "returnType": "boolean",
   "name": "Status Check",
   "left": {
-    "source": "expressionGroup",
+    "type": "expressionGroup",
     "returnType": "text",
-    "expressions": [{"source": "field", "returnType": "text", "field": "TABLE1.TEXT_FIELD_01"}],
+    "expressions": [{"type": "field", "returnType": "text", "field": "TABLE1.TEXT_FIELD_01"}],
     "operators": []
   },
   "operator": "in",
   "right": [
     {
-      "source": "expressionGroup",
+      "type": "expressionGroup",
       "returnType": "text",
-      "expressions": [{"source": "value", "returnType": "text", "value": "Active"}],
+      "expressions": [{"type": "value", "returnType": "text", "value": "Active"}],
       "operators": []
     },
     {
-      "source": "expressionGroup",
+      "type": "expressionGroup",
       "returnType": "text",
-      "expressions": [{"source": "value", "returnType": "text", "value": "Pending"}],
+      "expressions": [{"type": "value", "returnType": "text", "value": "Pending"}],
       "operators": []
     },
     {
-      "source": "expressionGroup",
+      "type": "expressionGroup",
       "returnType": "text",
-      "expressions": [{"source": "value", "returnType": "text", "value": "In Progress"}],
+      "expressions": [{"type": "value", "returnType": "text", "value": "In Progress"}],
       "operators": []
     }
   ]
@@ -401,7 +402,7 @@ Used for all expression handling - replaces simple Expression types.
 4. **Function Arguments**: Always wrapped in ExpressionGroup containers for consistency
 5. **UI State Management**: Each condition has an `id` field for React key management
 6. **Type Safety**: `returnType` fields ensure type compatibility across the system
-7. **Schema Version**: v1.0.5 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) for compatibility with networknt validator. Added support for multiselect widgets, TEST function, and updated DATE.DIFF argument order.
+7. **Schema Version**: v1.0.6 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) for compatibility with networknt validator. Renamed BaseExpression to Expression to match UI component naming.
 8. **Content Validation**: Schema uses `if/then/else` conditional pattern based on the `structure` field to determine which content type to validate against (CaseContent, ConditionGroup, or ExpressionGroup)
 9. **Null Right Side**: Condition `right` property can be `null` for operators like `is_empty` and `is_not_empty` that don't require a comparison value
 10. **Dynamic Cardinality**: The `in` and `not_in` operators support variable-length arrays (1-10 values) with configurable separators and +/- buttons in the UI
