@@ -177,7 +177,7 @@ public class OracleSqlGenerator {
         String leftSql = processExpression(left);
         
         // Special handling for BETWEEN operator (right is an array with 2 values)
-        if ("Between".equalsIgnoreCase(operator)) {
+        if ("between".equalsIgnoreCase(operator)) {
             if (right != null && right.isArray() && right.size() >= 2) {
                 String minValue = processExpression(right.get(0));
                 String maxValue = processExpression(right.get(1));
@@ -185,6 +185,46 @@ public class OracleSqlGenerator {
             } else {
                 // Fallback if structure is different
                 return leftSql + " BETWEEN NULL AND NULL";
+            }
+        }
+        
+        // Special handling for NOT BETWEEN operator (right is an array with 2 values)
+        if ("not_between".equalsIgnoreCase(operator)) {
+            if (right != null && right.isArray() && right.size() >= 2) {
+                String minValue = processExpression(right.get(0));
+                String maxValue = processExpression(right.get(1));
+                return leftSql + " NOT BETWEEN " + minValue + " AND " + maxValue;
+            } else {
+                // Fallback if structure is different
+                return leftSql + " NOT BETWEEN NULL AND NULL";
+            }
+        }
+        
+        // Special handling for IN operator (right is an array with 1+ values)
+        if ("in".equalsIgnoreCase(operator)) {
+            if (right != null && right.isArray() && right.size() > 0) {
+                List<String> values = new ArrayList<>();
+                for (JsonNode valueNode : right) {
+                    values.add(processExpression(valueNode));
+                }
+                return leftSql + " IN (" + String.join(", ", values) + ")";
+            } else {
+                // Fallback if structure is different
+                return leftSql + " IN (NULL)";
+            }
+        }
+        
+        // Special handling for NOT IN operator (right is an array with 1+ values)
+        if ("not_in".equalsIgnoreCase(operator)) {
+            if (right != null && right.isArray() && right.size() > 0) {
+                List<String> values = new ArrayList<>();
+                for (JsonNode valueNode : right) {
+                    values.add(processExpression(valueNode));
+                }
+                return leftSql + " NOT IN (" + String.join(", ", values) + ")";
+            } else {
+                // Fallback if structure is different
+                return leftSql + " NOT IN (NULL)";
             }
         }
         

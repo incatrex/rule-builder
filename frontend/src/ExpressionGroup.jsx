@@ -42,6 +42,13 @@ const { Text } = Typography;
 const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false }) => {
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   
+  console.log('🎯 ExpressionGroup rendered:', {
+    valueReturnType: value?.returnType,
+    expectedType,
+    valueType: value?.type,
+    expressions: value?.expressions
+  });
+  
   // Update expansion state when isLoadedRule changes
   useEffect(() => {
     if (isLoadedRule) {
@@ -123,10 +130,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       ? getExpressionReturnType(data.expressions[0]) 
       : 'number';
     
-    // Default to number for mathematical expressions (when no specific type is determined)
-    if (type === 'text' && data.type === 'expressionGroup') {
-      type = 'number';
-    }
+    // Don't override text types - only default to number if no type is specified
+    // (Removed the line that was forcing text to number)
     
     return type;
   };
@@ -651,6 +656,12 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
   const renderValueInput = () => {
     const returnType = expressionData.returnType || 'text';
     
+    console.log('🎨 Rendering value input:', {
+      returnType,
+      expressionData,
+      expectedType
+    });
+    
     switch (returnType) {
       case 'number':
         return (
@@ -730,6 +741,13 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         value={expressionData.field}
         onChange={(field) => {
           const fieldDef = getFieldDefinition(field, config?.fields);
+          console.log('🔍 Field selected:', {
+            field,
+            fieldDef,
+            fieldDefType: fieldDef?.type,
+            expectedType,
+            finalReturnType: fieldDef?.type || expectedType || 'text'
+          });
           handleValueChange({ 
             field, 
             returnType: fieldDef?.type || expectedType || 'text' 

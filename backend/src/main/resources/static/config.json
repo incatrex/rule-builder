@@ -86,13 +86,33 @@
       "label": "Between",
       "labelForFormat": "Between",
       "reversedOp": "not_between",
-      "cardinality": 2
+      "cardinality": 2,
+      "separator": "AND"
     },
     "not_between": {
       "label": "Not Between",
       "labelForFormat": "Not Between",
       "reversedOp": "between",
-      "cardinality": 2
+      "cardinality": 2,
+      "separator": "AND"
+    },
+    "in": {
+      "label": "IN",
+      "labelForFormat": "IN",
+      "reversedOp": "not_in",
+      "minCardinality": 1,
+      "maxCardinality": 10,
+      "defaultCardinality": 3,
+      "separator": ","
+    },
+    "not_in": {
+      "label": "NOT IN",
+      "labelForFormat": "NOT IN",
+      "reversedOp": "in",
+      "minCardinality": 1,
+      "maxCardinality": 10,
+      "defaultCardinality": 3,
+      "separator": ","
     }
   },
   "widgets": {
@@ -128,7 +148,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "text": {
-          "operators": ["equal", "not_equal", "contains", "not_contains", "starts_with", "ends_with", "is_empty", "is_not_empty"],
+          "operators": ["equal", "not_equal", "contains", "not_contains", "starts_with", "ends_with", "is_empty", "is_not_empty", "in", "not_in"],
           "widgetProps": {},
           "opProps": {}
         }
@@ -138,7 +158,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "number": {
-          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty"],
+          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"],
           "widgetProps": {},
           "opProps": {}
         }
@@ -148,7 +168,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "date": {
-          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty"],
+          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"],
           "widgetProps": {},
           "opProps": {}
         }
