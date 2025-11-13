@@ -4,6 +4,7 @@ import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import RuleBuilder from './RuleBuilder';
 import RuleSearch from './RuleSearch';
+import RuleHistory from './RuleHistory';
 import JsonEditor from './JsonEditor';
 import SqlViewer from './SqlViewer';
 import RuleCanvas from './RuleCanvas';
@@ -176,6 +177,54 @@ const App = () => {
     }
   };
 
+  const handleViewVersion = async (uuid, version) => {
+    try {
+      // Find the rule ID from the current selection or search for it
+      const ruleIdsResponse = await axios.get('/api/rules/ids');
+      const ruleInfo = ruleIdsResponse.data.find(r => r.uuid === uuid);
+      
+      if (!ruleInfo) {
+        message.error('Rule not found');
+        return;
+      }
+
+      // Load the specific version
+      const response = await axios.get(
+        `/api/rules/${ruleInfo.ruleId}/${uuid}/${version}`
+      );
+      
+      if (response.data && ruleBuilderRef.current) {
+        ruleBuilderRef.current.loadRuleData(response.data);
+        message.success(`Loaded version ${version}`);
+      }
+    } catch (error) {
+      console.error('Error loading version:', error);
+      message.error('Failed to load version');
+    }
+  };
+
+  const handleRestoreComplete = async () => {
+    // Reload the current rule to show the new version
+    if (selectedRuleUuid && ruleBuilderRef.current) {
+      try {
+        const ruleIdsResponse = await axios.get('/api/rules/ids');
+        const ruleInfo = ruleIdsResponse.data.find(r => r.uuid === selectedRuleUuid);
+        
+        if (ruleInfo) {
+          const response = await axios.get(
+            `/api/rules/${ruleInfo.ruleId}/${selectedRuleUuid}/${ruleInfo.latestVersion}`
+          );
+          
+          if (response.data) {
+            ruleBuilderRef.current.loadRuleData(response.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error reloading rule:', error);
+      }
+    }
+  };
+
   const handleNewRule = () => {
     setSelectedRuleUuid(null);
     if (ruleBuilderRef.current) {
@@ -322,13 +371,33 @@ const App = () => {
                 }}>
                   <ResizablePanels
                     leftPanel={
-                      <RuleBuilder
-                        ref={ruleBuilderRef}
-                        config={ruleConfig}
-                        darkMode={darkMode}
-                        selectedRuleUuid={selectedRuleUuid}
-                        onRuleChange={(data) => setRuleBuilderData(data)}
-                      />
+                      <div style={{ 
+                        height: '100%', 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ 
+                          borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`,
+                          flexShrink: 0
+                        }}>
+                          <RuleHistory
+                            selectedRuleUuid={selectedRuleUuid}
+                            onViewVersion={handleViewVersion}
+                            onRestoreComplete={handleRestoreComplete}
+                            darkMode={darkMode}
+                          />
+                        </div>
+                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                          <RuleBuilder
+                            ref={ruleBuilderRef}
+                            config={ruleConfig}
+                            darkMode={darkMode}
+                            selectedRuleUuid={selectedRuleUuid}
+                            onRuleChange={(data) => setRuleBuilderData(data)}
+                          />
+                        </div>
+                      </div>
                     }
                     rightPanel={
                       <div style={{ 

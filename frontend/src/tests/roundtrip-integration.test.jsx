@@ -9,7 +9,7 @@
  */
 
 import { describe, test, expect, vi } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, act } from '@testing-library/react';
 import React, { useRef, useEffect } from 'react';
 import RuleBuilder from '../RuleBuilder';
 
@@ -164,19 +164,23 @@ describe('Round-trip Integration Tests', () => {
 
         useEffect(() => {
           if (ruleBuilderRef.current && !loaded) {
-            // Load the sample rule
-            ruleBuilderRef.current.loadRuleData(sampleRule);
-            setLoaded(true);
+            act(() => {
+              // Load the sample rule
+              ruleBuilderRef.current.loadRuleData(sampleRule);
+              setLoaded(true);
+            });
             
             // Wait a bit for state to settle, then get output
             setTimeout(() => {
-              try {
-                const result = ruleBuilderRef.current.getRuleOutput();
-                setOutput(result);
-                resolve(result);
-              } catch (error) {
-                reject(error);
-              }
+              act(() => {
+                try {
+                  const result = ruleBuilderRef.current.getRuleOutput();
+                  setOutput(result);
+                  resolve(result);
+                } catch (error) {
+                  reject(error);
+                }
+              });
             }, 300);
           }
         }, [loaded]);

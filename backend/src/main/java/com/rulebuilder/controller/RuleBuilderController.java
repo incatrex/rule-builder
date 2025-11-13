@@ -127,4 +127,26 @@ public class RuleBuilderController {
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
+
+    @GetMapping("/rules/{uuid}/history")
+    public ResponseEntity<JsonNode> getRuleHistory(@PathVariable String uuid) {
+        try {
+            JsonNode history = ruleBuilderService.getRuleHistory(uuid);
+            return ResponseEntity.ok(history);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/rules/{uuid}/restore/{version}")
+    public ResponseEntity<String> restoreRuleVersion(
+            @PathVariable String uuid,
+            @PathVariable int version) {
+        try {
+            ruleBuilderService.restoreRuleVersion(uuid, version);
+            return ResponseEntity.ok("Rule version restored successfully");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error restoring rule: " + e.getMessage());
+        }
+    }
 }

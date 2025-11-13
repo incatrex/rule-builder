@@ -2,62 +2,52 @@
   "conjunctions": {
     "AND": {
       "label": "AND",
-      "formatConj": "AND",
-      "reversedConj": "OR"
+      "formatConj": "AND"
     },
     "OR": {
       "label": "OR",
-      "formatConj": "OR",
-      "reversedConj": "AND"
+      "formatConj": "OR"
     }
   },
   "operators": {
     "equal": {
       "label": "=",
       "labelForFormat": "=",
-      "reversedOp": "not_equal",
       "cardinality": 1
     },
     "not_equal": {
       "label": "!=",
       "labelForFormat": "!=",
-      "reversedOp": "equal",
       "cardinality": 1
     },
     "less": {
       "label": "<",
       "labelForFormat": "<",
-      "reversedOp": "greater_or_equal",
       "cardinality": 1
     },
     "less_or_equal": {
       "label": "<=",
       "labelForFormat": "<=",
-      "reversedOp": "greater",
       "cardinality": 1
     },
     "greater": {
       "label": ">",
       "labelForFormat": ">",
-      "reversedOp": "less_or_equal",
       "cardinality": 1
     },
     "greater_or_equal": {
       "label": ">=",
       "labelForFormat": ">=",
-      "reversedOp": "less",
       "cardinality": 1
     },
     "contains": {
       "label": "Contains",
       "labelForFormat": "Contains",
-      "reversedOp": "not_contains",
       "cardinality": 1
     },
     "not_contains": {
       "label": "Not Contains",
       "labelForFormat": "Not Contains",
-      "reversedOp": "contains",
       "cardinality": 1
     },
     "starts_with": {
@@ -73,54 +63,62 @@
     "is_empty": {
       "label": "Is Empty",
       "labelForFormat": "Is Empty",
-      "reversedOp": "is_not_empty",
       "cardinality": 0
     },
     "is_not_empty": {
       "label": "Is Not Empty",
       "labelForFormat": "Is Not Empty",
-      "reversedOp": "is_empty",
       "cardinality": 0
     },
     "between": {
       "label": "Between",
       "labelForFormat": "Between",
-      "reversedOp": "not_between",
-      "cardinality": 2
+      "cardinality": 2,
+      "separator": "AND"
     },
     "not_between": {
       "label": "Not Between",
       "labelForFormat": "Not Between",
-      "reversedOp": "between",
-      "cardinality": 2
+      "cardinality": 2,
+      "separator": "AND"
+    },
+    "in": {
+      "label": "IN",
+      "labelForFormat": "IN",
+      "minCardinality": 1,
+      "maxCardinality": 10,
+      "defaultCardinality": 3,
+      "separator": ","
+    },
+    "not_in": {
+      "label": "NOT IN",
+      "labelForFormat": "NOT IN",
+      "minCardinality": 1,
+      "maxCardinality": 10,
+      "defaultCardinality": 3,
+      "separator": ","
     }
   },
   "widgets": {
     "text": {
-      "type": "text",
-      "valueSrc": "value"
+      "type": "text"
     },
     "number": {
-      "type": "number",
-      "valueSrc": "value"
+      "type": "number"
     },
     "date": {
       "type": "date",
-      "valueSrc": "value",
       "dateFormat": "YYYY-MM-DD",
       "valueFormat": "YYYY-MM-DD"
     },
     "boolean": {
-      "type": "boolean",
-      "valueSrc": "value"
+      "type": "boolean"
     },
     "select": {
-      "type": "select",
-      "valueSrc": "value"
+      "type": "select"
     },
     "multiselect": {
-      "type": "multiselect",
-      "valueSrc": "value"
+      "type": "multiselect"
     }
   },
   "types": {
@@ -128,9 +126,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "text": {
-          "operators": ["equal", "not_equal", "contains", "not_contains", "starts_with", "ends_with", "is_empty", "is_not_empty"],
-          "widgetProps": {},
-          "opProps": {}
+          "operators": ["equal", "not_equal", "contains", "not_contains", "starts_with", "ends_with", "is_empty", "is_not_empty", "in", "not_in"]
         }
       }
     },
@@ -138,9 +134,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "number": {
-          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty"],
-          "widgetProps": {},
-          "opProps": {}
+          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"]
         }
       }
     },
@@ -148,9 +142,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "date": {
-          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty"],
-          "widgetProps": {},
-          "opProps": {}
+          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"]
         }
       }
     },
@@ -158,9 +150,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "boolean": {
-          "operators": ["equal", "not_equal"],
-          "widgetProps": {},
-          "opProps": {}
+          "operators": ["equal", "not_equal"]
         }
       }
     }
@@ -174,10 +164,11 @@
           "label": "ADD",
           "returnType": "number",
           "dynamicArgs": {
-            "argType": "number",
+            "type": "number",
             "minArgs": 2,
             "maxArgs": 10,
-            "defaultValue": 0
+            "defaultValue": 0,
+            "valueSources": ["value", "field", "function"]
           }
         },
         "SUBTRACT": {
@@ -187,12 +178,14 @@
             "num1": {
               "label": "Number 1",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "defaultValue": 0,
+              "valueSources": ["value", "field", "function"]
             },
             "num2": {
               "label": "Number 2",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "defaultValue": 0,
+              "valueSources": ["value", "field", "function"]
             }
           }
         },
@@ -203,12 +196,12 @@
             "num1": {
               "label": "Number 1",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             },
             "num2": {
               "label": "Number 2",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             }
           }
         },
@@ -219,12 +212,12 @@
             "dividend": {
               "label": "Dividend",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             },
             "divisor": {
               "label": "Divisor",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             }
           }
         },
@@ -232,10 +225,11 @@
           "label": "SUM",
           "returnType": "number",
           "dynamicArgs": {
-            "argType": "number",
+            "type": "number",
             "minArgs": 2,
             "maxArgs": 20,
-            "defaultValue": 0
+            "defaultValue": 0,
+            "valueSources": ["value", "field", "function"]
           }
         },
         "ROUND": {
@@ -245,12 +239,12 @@
             "number": {
               "label": "Number",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             },
             "decimals": {
               "label": "Decimals",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             }
           }
         },
@@ -261,7 +255,20 @@
             "number": {
               "label": "Number",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
+            },
+            "testDropdown": {
+              "label": "Test Dropdown",
+              "type": "text",
+              "widget": "multiselect",
+              "defaultValue": "OPTION1",
+              "options": [
+                { "value": "OPTION1", "label": "Option 1" },
+                { "value": "OPTION2", "label": "Option 2" },
+                { "value": "OPTION3", "label": "Option 3" },
+                { "value": "OPTION4", "label": "Option 4" }
+              ],
+              "valueSources": ["value"]
             }
           }
         }
@@ -278,12 +285,14 @@
             "text1": {
               "label": "Text 1",
               "type": "text",
-              "valueSources": ["value", "field", "func"]
+              "defaultValue": "",
+              "valueSources": ["value", "field", "function"]
             },
             "text2": {
               "label": "Text 2",
               "type": "text",
-              "valueSources": ["value", "field", "func"]
+              "defaultValue": "",
+              "valueSources": ["value", "field", "function"]
             }
           }
         },
@@ -294,17 +303,17 @@
             "text": {
               "label": "Text",
               "type": "text",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             },
             "start": {
               "label": "Start Position",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             },
             "length": {
               "label": "Length",
               "type": "number",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
             }
           }
         },
@@ -315,7 +324,30 @@
             "text": {
               "label": "Text",
               "type": "text",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function"]
+            }
+          }
+        },
+        "CASE": {
+          "label": "CASE",
+          "returnType": "text",
+          "args": {
+            "text": {
+              "label": "Text",
+              "type": "text",
+              "valueSources": ["value", "field", "function"]
+            },
+            "caseType": {
+              "label": "Case Type",
+              "type": "text",
+              "widget": "select",
+              "defaultValue": "UPPER",
+              "options": [
+                { "value": "UPPER", "label": "Uppercase" },
+                { "value": "LOWER", "label": "Lowercase" },
+                { "value": "TITLE", "label": "Title Case" }
+              ],
+              "valueSources": ["value"]
             }
           }
         }
@@ -332,12 +364,24 @@
             "date1": {
               "label": "Date 1",
               "type": "date",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function", "ruleRef"]
             },
             "date2": {
               "label": "Date 2",
               "type": "date",
-              "valueSources": ["value", "field", "func"]
+              "valueSources": ["value", "field", "function", "ruleRef"]
+            },
+            "units": {
+              "label": "Units",
+              "type": "text",
+              "widget": "select",
+              "defaultValue": "DAY",
+              "options": [
+                { "value": "DAY", "label": "Day" },
+                { "value": "MONTH", "label": "Month" },
+                { "value": "YEAR", "label": "Year" }
+              ],
+              "valueSources": ["value"]
             }
           }
         }
@@ -345,6 +389,7 @@
     }
   },
   "settings": {
+    "defaultValueSources": ["value", "field", "function", "ruleRef"],
     "valueLabel": "Value",
     "valuePlaceholder": "Value",
     "fieldLabel": "Field",

@@ -93,8 +93,12 @@ Used for all expression handling - replaces simple Expression types.
   "name": string,
   "id": string, // unique identifier for UI management
   "left": ExpressionGroup,
-  "operator": string, // from config.operators (e.g., "equal", "greater_or_equal", "contains")
-  "right": ExpressionGroup | [ExpressionGroup] | null // array for "between"/"not_between", null for "is_empty"/"is_not_empty"
+  "operator": string, // from config.operators (e.g., "equal", "greater_or_equal", "contains", "in", "not_in")
+  "right": ExpressionGroup | [ExpressionGroup, ...] | null 
+  // - Single ExpressionGroup for most operators
+  // - Array of 2 ExpressionGroups for "between"/"not_between" 
+  // - Array of 1-10 ExpressionGroups for "in"/"not_in" (dynamic cardinality)
+  // - null for "is_empty"/"is_not_empty"
 }
 ```
 
@@ -121,6 +125,7 @@ Used for all expression handling - replaces simple Expression types.
 - **Text**: `"contains"`, `"not_contains"`, `"starts_with"`, `"ends_with"`
 - **Existence**: `"is_empty"`, `"is_not_empty"`
 - **Range**: `"between"`, `"not_between"`
+- **Membership**: `"in"`, `"not_in"` (supports 1-10 values with dynamic cardinality)
 
 ### Mathematical Operators
 - `"+"` (addition)
@@ -135,13 +140,73 @@ Used for all expression handling - replaces simple Expression types.
 - `"date"` - date values (YYYY-MM-DD format)
 
 ### Function Categories (from config.json)
-- **MATH**: `ADD`, `SUBTRACT`, `MULTIPLY`, `DIVIDE`, `SUM`, `ROUND`, `ABS`
-- **TEXT**: `CONCAT`, `MID`, `LEN`
-- **DATE**: `DIFF`
+- **MATH**: `ADD`, `SUBTRACT`, `MULTIPLY`, `DIVIDE`, `SUM`, `ROUND`, `ABS`, `TEST`
+- **TEXT**: `CONCAT`, `MID`, `LEN`, `CASE` (supports caseType dropdown)
+- **DATE**: `DIFF` (supports units dropdown: DAY, MONTH, YEAR)
 
 ### Field References (from fields.json)
 - Format: `"TABLE_NAME.FIELD_NAME"`
 - Examples: `"TABLE1.NUMBER_FIELD_01"`, `"TABLE1.TEXT_FIELD_01"`, `"TABLE1.DATE_FIELD_01"`
+
+### Function Argument Configuration Patterns
+
+#### Standard Arguments
+```json
+"args": {
+  "argName": {
+    "label": "Display Label",
+    "type": "text" | "number" | "date" | "boolean",
+    "defaultValue": any, // optional default value
+    "valueSources": ["value", "field", "function", "ruleRef"] // what input types are allowed
+  }
+}
+```
+
+#### Custom Dropdown Arguments
+```json
+"args": {
+  "argName": {
+    "label": "Display Label", 
+    "type": "text",
+    "widget": "select",
+    "defaultValue": "OPTION_VALUE",
+    "options": [
+      { "value": "OPTION_VALUE", "label": "Display Label" },
+      { "value": "ANOTHER_VALUE", "label": "Another Label" }
+    ],
+    "valueSources": ["value"] // typically only "value" for predefined options
+  }
+}
+```
+
+#### Custom Multiselect Arguments  
+```json
+"args": {
+  "argName": {
+    "label": "Display Label",
+    "type": "text", 
+    "widget": "multiselect",
+    "defaultValue": "OPTION_VALUE",
+    "options": [
+      { "value": "OPTION1", "label": "Option 1" },
+      { "value": "OPTION2", "label": "Option 2" },
+      { "value": "OPTION3", "label": "Option 3" }
+    ],
+    "valueSources": ["value"]
+  }
+}
+```
+
+#### Dynamic Arguments
+```json
+"dynamicArgs": {
+  "type": "number", // type for all dynamic arguments
+  "minArgs": 2,
+  "maxArgs": 10,
+  "defaultValue": 0,
+  "valueSources": ["value", "field", "function"]
+}
+```
 
 ## Structure Examples
 
@@ -221,6 +286,113 @@ Used for all expression handling - replaces simple Expression types.
 }
 ```
 
+### Function with Custom Dropdown Argument
+```json
+{
+  "source": "function",
+  "returnType": "number",
+  "function": {
+    "name": "DATE.DIFF",
+    "args": [
+      {
+        "name": "units",
+        "value": {
+          "source": "expressionGroup", 
+          "returnType": "text",
+          "expressions": [{"source": "value", "returnType": "text", "value": "MONTH"}],
+          "operators": []
+        }
+      },
+      {
+        "name": "date1",
+        "value": {
+          "source": "expressionGroup",
+          "returnType": "date",
+          "expressions": [{"source": "field", "returnType": "date", "field": "TABLE1.DATE_FIELD_01"}],
+          "operators": []
+        }
+      },
+      {
+        "name": "date2", 
+        "value": {
+          "source": "expressionGroup",
+          "returnType": "date",
+          "expressions": [{"source": "value", "returnType": "date", "value": "2023-12-31"}],
+          "operators": []
+        }
+      }
+    ]
+  }
+}
+```
+
+### Function with Multiselect Dropdown Argument
+```json
+{
+  "source": "function",
+  "returnType": "number",
+  "function": {
+    "name": "MATH.TEST",
+    "args": [
+      {
+        "name": "number",
+        "value": {
+          "source": "expressionGroup",
+          "returnType": "number",
+          "expressions": [{"source": "value", "returnType": "number", "value": 42}],
+          "operators": []
+        }
+      },
+      {
+        "name": "testDropdown",
+        "value": {
+          "source": "expressionGroup", 
+          "returnType": "text",
+          "expressions": [{"source": "value", "returnType": "text", "value": ["OPTION1", "OPTION3"]}],
+          "operators": []
+        }
+      }
+    ]
+  }
+}
+```
+
+### IN Operator with Multiple Values
+```json
+{
+  "type": "condition",
+  "returnType": "boolean",
+  "name": "Status Check",
+  "left": {
+    "source": "expressionGroup",
+    "returnType": "text",
+    "expressions": [{"source": "field", "returnType": "text", "field": "TABLE1.TEXT_FIELD_01"}],
+    "operators": []
+  },
+  "operator": "in",
+  "right": [
+    {
+      "source": "expressionGroup",
+      "returnType": "text",
+      "expressions": [{"source": "value", "returnType": "text", "value": "Active"}],
+      "operators": []
+    },
+    {
+      "source": "expressionGroup",
+      "returnType": "text",
+      "expressions": [{"source": "value", "returnType": "text", "value": "Pending"}],
+      "operators": []
+    },
+    {
+      "source": "expressionGroup",
+      "returnType": "text",
+      "expressions": [{"source": "value", "returnType": "text", "value": "In Progress"}],
+      "operators": []
+    }
+  ]
+}
+```
+
 ## Key Implementation Notes
 
 1. **ExpressionGroup is Universal**: All expressions are wrapped in ExpressionGroup containers, even simple ones
@@ -229,6 +401,7 @@ Used for all expression handling - replaces simple Expression types.
 4. **Function Arguments**: Always wrapped in ExpressionGroup containers for consistency
 5. **UI State Management**: Each condition has an `id` field for React key management
 6. **Type Safety**: `returnType` fields ensure type compatibility across the system
-7. **Schema Version**: Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) for compatibility with networknt validator
+7. **Schema Version**: v1.0.5 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) for compatibility with networknt validator. Added support for multiselect widgets, TEST function, and updated DATE.DIFF argument order.
 8. **Content Validation**: Schema uses `if/then/else` conditional pattern based on the `structure` field to determine which content type to validate against (CaseContent, ConditionGroup, or ExpressionGroup)
 9. **Null Right Side**: Condition `right` property can be `null` for operators like `is_empty` and `is_not_empty` that don't require a comparison value
+10. **Dynamic Cardinality**: The `in` and `not_in` operators support variable-length arrays (1-10 values) with configurable separators and +/- buttons in the UI
