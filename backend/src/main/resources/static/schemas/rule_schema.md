@@ -93,8 +93,12 @@ Used for all expression handling - replaces simple Expression types.
   "name": string,
   "id": string, // unique identifier for UI management
   "left": ExpressionGroup,
-  "operator": string, // from config.operators (e.g., "equal", "greater_or_equal", "contains")
-  "right": ExpressionGroup | [ExpressionGroup] | null // array for "between"/"not_between", null for "is_empty"/"is_not_empty"
+  "operator": string, // from config.operators (e.g., "equal", "greater_or_equal", "contains", "in", "not_in")
+  "right": ExpressionGroup | [ExpressionGroup, ...] | null 
+  // - Single ExpressionGroup for most operators
+  // - Array of 2 ExpressionGroups for "between"/"not_between" 
+  // - Array of 1-10 ExpressionGroups for "in"/"not_in" (dynamic cardinality)
+  // - null for "is_empty"/"is_not_empty"
 }
 ```
 
@@ -121,6 +125,7 @@ Used for all expression handling - replaces simple Expression types.
 - **Text**: `"contains"`, `"not_contains"`, `"starts_with"`, `"ends_with"`
 - **Existence**: `"is_empty"`, `"is_not_empty"`
 - **Range**: `"between"`, `"not_between"`
+- **Membership**: `"in"`, `"not_in"` (supports 1-10 values with dynamic cardinality)
 
 ### Mathematical Operators
 - `"+"` (addition)
@@ -221,6 +226,42 @@ Used for all expression handling - replaces simple Expression types.
 }
 ```
 
+### IN Operator with Multiple Values
+```json
+{
+  "type": "condition",
+  "returnType": "boolean",
+  "name": "Status Check",
+  "left": {
+    "source": "expressionGroup",
+    "returnType": "text",
+    "expressions": [{"source": "field", "returnType": "text", "field": "TABLE1.TEXT_FIELD_01"}],
+    "operators": []
+  },
+  "operator": "in",
+  "right": [
+    {
+      "source": "expressionGroup",
+      "returnType": "text",
+      "expressions": [{"source": "value", "returnType": "text", "value": "Active"}],
+      "operators": []
+    },
+    {
+      "source": "expressionGroup",
+      "returnType": "text",
+      "expressions": [{"source": "value", "returnType": "text", "value": "Pending"}],
+      "operators": []
+    },
+    {
+      "source": "expressionGroup",
+      "returnType": "text",
+      "expressions": [{"source": "value", "returnType": "text", "value": "In Progress"}],
+      "operators": []
+    }
+  ]
+}
+```
+
 ## Key Implementation Notes
 
 1. **ExpressionGroup is Universal**: All expressions are wrapped in ExpressionGroup containers, even simple ones
@@ -229,6 +270,7 @@ Used for all expression handling - replaces simple Expression types.
 4. **Function Arguments**: Always wrapped in ExpressionGroup containers for consistency
 5. **UI State Management**: Each condition has an `id` field for React key management
 6. **Type Safety**: `returnType` fields ensure type compatibility across the system
-7. **Schema Version**: Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) for compatibility with networknt validator
+7. **Schema Version**: v1.0.4 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) for compatibility with networknt validator
 8. **Content Validation**: Schema uses `if/then/else` conditional pattern based on the `structure` field to determine which content type to validate against (CaseContent, ConditionGroup, or ExpressionGroup)
 9. **Null Right Side**: Condition `right` property can be `null` for operators like `is_empty` and `is_not_empty` that don't require a comparison value
+10. **Dynamic Cardinality**: The `in` and `not_in` operators support variable-length arrays (1-10 values) with configurable separators and +/- buttons in the UI

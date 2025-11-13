@@ -148,9 +148,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "text": {
-          "operators": ["equal", "not_equal", "contains", "not_contains", "starts_with", "ends_with", "is_empty", "is_not_empty", "in", "not_in"],
-          "widgetProps": {},
-          "opProps": {}
+          "operators": ["equal", "not_equal", "contains", "not_contains", "starts_with", "ends_with", "is_empty", "is_not_empty", "in", "not_in"]
         }
       }
     },
@@ -158,9 +156,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "number": {
-          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"],
-          "widgetProps": {},
-          "opProps": {}
+          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"]
         }
       }
     },
@@ -168,9 +164,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "date": {
-          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"],
-          "widgetProps": {},
-          "opProps": {}
+          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"]
         }
       }
     },
@@ -178,9 +172,7 @@
       "defaultOperator": "equal",
       "widgets": {
         "boolean": {
-          "operators": ["equal", "not_equal"],
-          "widgetProps": {},
-          "opProps": {}
+          "operators": ["equal", "not_equal"]
         }
       }
     }

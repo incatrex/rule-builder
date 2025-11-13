@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.3.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.4.json",
   "title": "Rule Builder Schema",
-  "description": "JSON Schema for validating Rule Builder generated rules - Updated to match actual implementation",
+  "description": "JSON Schema for validating Rule Builder generated rules - Supports IN and NOT IN operators with dynamic cardinality",
   "type": "object",
   "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "content"],
   "properties": {
@@ -198,7 +198,7 @@
           "enum": [
             "equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal",
             "contains", "not_contains", "starts_with", "ends_with", 
-            "is_empty", "is_not_empty", "between", "not_between"
+            "is_empty", "is_not_empty", "between", "not_between", "in", "not_in"
           ],
           "description": "Comparison operator for the condition"
         },
@@ -208,12 +208,12 @@
             {
               "type": "array",
               "items": { "$ref": "#/definitions/ExpressionGroup" },
-              "minItems": 2,
-              "maxItems": 2
+              "minItems": 1,
+              "maxItems": 10
             },
             { "type": "null" }
           ],
-          "description": "Right side expression(s) - single expression for most operators, array of 2 for 'between'/'not_between', or null for 'is_empty'/'is_not_empty'"
+          "description": "Right side expression(s) - single expression for most operators, array of 2 for 'between'/'not_between', array of 1-10 for 'in'/'not_in', or null for 'is_empty'/'is_not_empty'"
         }
       }
     },
