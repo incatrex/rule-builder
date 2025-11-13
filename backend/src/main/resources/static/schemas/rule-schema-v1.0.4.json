@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.5.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.4.json",
   "title": "Rule Builder Schema",
-  "description": "JSON Schema for validating Rule Builder generated rules - Supports custom dropdowns with multiselect, TEST function, and updated DATE.DIFF argument order",
+  "description": "JSON Schema for validating Rule Builder generated rules - Supports IN and NOT IN operators with dynamic cardinality",
   "type": "object",
   "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "content"],
   "properties": {
@@ -290,8 +290,8 @@
               "type": "string",
               "enum": [
                 "MATH.ADD", "MATH.SUBTRACT", "MATH.MULTIPLY", "MATH.DIVIDE", 
-                "MATH.SUM", "MATH.ROUND", "MATH.ABS", "MATH.TEST",
-                "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN", "TEXT.CASE",
+                "MATH.SUM", "MATH.ROUND", "MATH.ABS",
+                "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN",
                 "DATE.DIFF"
               ],
               "description": "Function name in category.function format"

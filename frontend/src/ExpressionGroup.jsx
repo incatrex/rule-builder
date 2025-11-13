@@ -39,15 +39,8 @@ const { Text } = Typography;
  * - darkMode: Dark mode styling
  * - compact: Compact mode
  */
-const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false }) => {
+const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, argDef: propArgDef = null }) => {
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
-  
-  console.log('🎯 ExpressionGroup rendered:', {
-    valueReturnType: value?.returnType,
-    expectedType,
-    valueType: value?.type,
-    expressions: value?.expressions
-  });
   
   // Update expansion state when isLoadedRule changes
   useEffect(() => {
@@ -217,6 +210,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           onChange={(value) => updateExpression(0, value)}
           config={config}
           expectedType={expectedType}
+          allowedSources={allowedSources}
           darkMode={darkMode}
           compact={true}
           isLoadedRule={isLoadedRule}
@@ -330,6 +324,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                   onChange={(value) => updateExpression(0, value)}
                   config={config}
                   expectedType={hasMultipleExpressions() ? 'number' : expectedType}
+                  allowedSources={allowedSources}
                   darkMode={darkMode}
                   compact={compact}
                   isLoadedRule={isLoadedRule}
@@ -340,9 +335,11 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                   onChange={(value) => updateExpression(0, value)}
                   config={config}
                   expectedType={hasMultipleExpressions() ? 'number' : expectedType}
+                  allowedSources={allowedSources}
                   darkMode={darkMode}
                   compact={compact}
                   isLoadedRule={isLoadedRule}
+                  propArgDef={propArgDef}
                 />
               )}
             </div>
@@ -399,6 +396,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                     onChange={(value) => updateExpression(actualIndex, value)}
                     config={config}
                     expectedType="number"
+                    allowedSources={allowedSources}
                     darkMode={darkMode}
                     compact={compact}
                     isLoadedRule={isLoadedRule}
@@ -444,6 +442,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           onChange={(value) => updateExpression(0, value)}
           config={config}
           expectedType={expectedType}
+          allowedSources={allowedSources}
           darkMode={darkMode}
           compact={compact}
           isLoadedRule={isLoadedRule}
@@ -457,9 +456,11 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         onChange={(value) => updateExpression(0, value)}
         config={config}
         expectedType={expectedType}
+        allowedSources={allowedSources}
         darkMode={darkMode}
         compact={compact}
         isLoadedRule={isLoadedRule}
+        propArgDef={propArgDef}
       />
     );
   }
@@ -491,7 +492,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
  * Handles the basic expression types: value, field, function
  * This is what used to be the core of the Expression component
  */
-const BaseExpression = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false }) => {
+const BaseExpression = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, propArgDef }) => {
   // Ensure we always have a valid initial value
   const getInitialValue = () => {
     // If value exists and has a valid source for BaseExpression (not expressionGroup), use it
@@ -588,29 +589,29 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
     }
   };
 
-  // Source selector options
-  const sourceOptions = [
-    { 
-      value: 'value', 
-      label: 'Value', 
-      icon: <NumberOutlined style={{ fontSize: '12px' }} /> 
-    },
-    { 
-      value: 'field', 
-      label: 'Field', 
-      icon: <FieldTimeOutlined style={{ fontSize: '12px' }} /> 
-    },
-    { 
-      value: 'function', 
-      label: 'Function', 
-      icon: <FunctionOutlined style={{ fontSize: '12px' }} /> 
-    },
-    { 
-      value: 'ruleRef', 
-      label: 'Rule', 
-      icon: <LinkOutlined style={{ fontSize: '12px' }} /> 
-    }
-  ];
+  // Source selector options - read from config or use defaults
+  const defaultSources = config?.settings?.defaultValueSources || ['value', 'field', 'function', 'ruleRef'];
+  const availableSources = allowedSources || defaultSources;
+  
+  const sourceIconMap = {
+    'value': <NumberOutlined style={{ fontSize: '12px' }} />,
+    'field': <FieldTimeOutlined style={{ fontSize: '12px' }} />,
+    'function': <FunctionOutlined style={{ fontSize: '12px' }} />,
+    'ruleRef': <LinkOutlined style={{ fontSize: '12px' }} />
+  };
+  
+  const sourceLabelMap = {
+    'value': 'Value',
+    'field': 'Field',
+    'function': 'Function',
+    'ruleRef': 'Rule'
+  };
+  
+  const sourceOptions = availableSources.map(source => ({
+    value: source,
+    label: sourceLabelMap[source] || source,
+    icon: sourceIconMap[source]
+  }));
 
   const renderSourceSelector = () => {
     // Don't render if source is not set
@@ -653,14 +654,36 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
     );
   };
 
-  const renderValueInput = () => {
+  const renderValueInput = (customArgDef = null) => {
     const returnType = expressionData.returnType || 'text';
+    const currentArgDef = customArgDef;
     
-    console.log('🎨 Rendering value input:', {
-      returnType,
-      expressionData,
-      expectedType
-    });
+    // Check if this is a custom dropdown argument
+    if (currentArgDef?.widget === 'select' && currentArgDef?.options) {
+      return (
+        <Select
+          value={expressionData.value || currentArgDef.defaultValue}
+          onChange={(val) => handleValueChange({ value: val })}
+          style={{ width: '120px', minWidth: '120px' }}
+          placeholder="Select option"
+          options={currentArgDef.options}
+        />
+      );
+    }
+    
+    // Check if this is a custom multiselect dropdown argument
+    if (currentArgDef?.widget === 'multiselect' && currentArgDef?.options) {
+      return (
+        <Select
+          mode="multiple"
+          value={expressionData.value || [currentArgDef.defaultValue].filter(Boolean)}
+          onChange={(val) => handleValueChange({ value: val })}
+          style={{ width: '150px', minWidth: '150px' }}
+          placeholder="Select options"
+          options={currentArgDef.options}
+        />
+      );
+    }
     
     switch (returnType) {
       case 'number':
@@ -816,8 +839,8 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                 args.push({
                   name: `arg${i + 1}`,
                   value: createExpressionGroup(
-                    funcDef.dynamicArgs.argType || 'text',
-                    funcDef.dynamicArgs.defaultValue || ''
+                    funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
+                    funcDef.dynamicArgs.defaultValue ?? ''
                   )
                 });
               }
@@ -827,7 +850,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                 name: argName,
                 value: createExpressionGroup(
                   funcDef.args[argName].type || 'text',
-                  ''
+                  funcDef.args[argName].defaultValue ?? ''
                 )
               }));
             }
@@ -1015,8 +1038,8 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
           args.push({
             name: `arg${i + 1}`,
             value: createExpressionGroup(
-              funcDef.dynamicArgs.argType || 'text',
-              funcDef.dynamicArgs.defaultValue || ''
+              funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
+              funcDef.dynamicArgs.defaultValue ?? ''
             )
           });
         }
@@ -1026,7 +1049,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
           name: argName,
           value: createExpressionGroup(
             funcDef.args[argName].type || 'text',
-            ''
+            funcDef.args[argName].defaultValue ?? ''
           )
         }));
       }
@@ -1117,8 +1140,9 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
             {expressionData.function.args.map((arg, index) => {
               // Handle both dynamic and static args
               const argDef = funcDef.args?.[arg.name] || (funcDef.dynamicArgs ? {
-                type: funcDef.dynamicArgs.argType,
-                label: `Argument ${index + 1}`
+                type: funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType, // Support both new 'type' and legacy 'argType'
+                label: `Argument ${index + 1}`,
+                valueSources: funcDef.dynamicArgs.valueSources
               } : null);
               
               return (
@@ -1172,6 +1196,8 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                       }}
                       config={config}
                       expectedType={argDef?.type}
+                      allowedSources={argDef?.valueSources}
+                      argDef={argDef}
                       darkMode={darkMode}
                       compact={true}
                       isLoadedRule={isLoadedRule}
@@ -1194,7 +1220,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
                   newArgs.push({
                     name: `arg${newArgs.length + 1}`,
                     value: createExpressionGroup(
-                      funcDef.dynamicArgs.argType || 'text',
+                      funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
                       funcDef.dynamicArgs.defaultValue ?? ''
                     )
                   });
@@ -1224,7 +1250,7 @@ const BaseExpression = ({ value, onChange, config, expectedType, darkMode = fals
         
         {/* Value Input based on source */}
         <div style={{ flex: 1 }}>
-          {source === 'value' && renderValueInput()}
+          {source === 'value' && renderValueInput(propArgDef)}
           {source === 'field' && renderFieldSelector()}
           {source === 'ruleRef' && renderRuleSelector()}
           {source === 'function' && (

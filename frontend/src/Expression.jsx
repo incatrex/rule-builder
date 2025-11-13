@@ -26,7 +26,7 @@ const { Text } = Typography;
  * - darkMode: Dark mode styling
  * - compact: Compact mode
  */
-const Expression = ({ value, onChange, config, expectedType, darkMode = false, compact = false }) => {
+const Expression = ({ value, onChange, config, expectedType, argDef = null, darkMode = false, compact = false }) => {
   const [source, setSource] = useState(value?.source || 'value');
   const [expressionData, setExpressionData] = useState(value || { source: 'value', returnType: expectedType || 'text', value: '' });
   const [isExpanded, setIsExpanded] = useState(true);
@@ -187,12 +187,28 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
   };
 
   const renderSourceSelector = () => {
-    const sourceOptions = [
-      { label: 'Value', value: 'value', icon: <NumberOutlined /> },
-      { label: 'Field', value: 'field', icon: <FieldTimeOutlined /> },
-      { label: 'Function', value: 'function', icon: <FunctionOutlined /> },
-      { label: 'Rule', value: 'ruleRef', icon: <LinkOutlined /> }
-    ];
+    // Read available sources from config or use defaults
+    const availableSources = config?.settings?.defaultValueSources || ['value', 'field', 'function', 'ruleRef'];
+    
+    const sourceIconMap = {
+      'value': <NumberOutlined />,
+      'field': <FieldTimeOutlined />,
+      'function': <FunctionOutlined />,
+      'ruleRef': <LinkOutlined />
+    };
+    
+    const sourceLabelMap = {
+      'value': 'Value',
+      'field': 'Field',
+      'function': 'Function',
+      'ruleRef': 'Rule'
+    };
+    
+    const sourceOptions = availableSources.map(src => ({
+      label: sourceLabelMap[src] || src,
+      value: src,
+      icon: sourceIconMap[src]
+    }));
     
     return (
       <Select
@@ -230,6 +246,19 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
 
   const renderValueInput = () => {
     const returnType = expressionData.returnType || 'text';
+    
+    // Check if this is a custom dropdown argument
+    if (argDef?.widget === 'select' && argDef?.options) {
+      return (
+        <Select
+          value={expressionData.value || argDef.defaultValue}
+          onChange={(val) => handleValueChange({ value: val })}
+          style={{ width: '100%' }}
+          placeholder="Select option"
+          options={argDef.options}
+        />
+      );
+    }
     
     switch (returnType) {
       case 'number':
@@ -323,7 +352,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                     name: `arg${i + 1}`,
                     value: { 
                       source: 'value', 
-                      returnType: funcDef.dynamicArgs.argType || 'text',
+                      returnType: funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
                       value: funcDef.dynamicArgs.defaultValue ?? ''
                     }
                   });
@@ -335,7 +364,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                   value: { 
                     source: 'value', 
                     returnType: funcDef.args[argKey].type || 'text',
-                    value: ''
+                    value: funcDef.args[argKey].defaultValue ?? ''
                   }
                 }));
               }
@@ -390,7 +419,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                   {expressionData.function.args.map((arg, index) => {
                     const isDynamicArgs = funcDef?.dynamicArgs;
                     const argDef = isDynamicArgs ? null : funcDef.args[arg.name];
-                    const expectedArgType = isDynamicArgs ? funcDef.dynamicArgs.argType : argDef?.type;
+                    const expectedArgType = isDynamicArgs ? (funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType) : argDef?.type;
                     
                     return (
                       <div key={index} style={{ 
@@ -432,6 +461,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                             }}
                             config={config}
                             expectedType={expectedArgType}
+                            argDef={argDef}
                             darkMode={darkMode}
                             compact
                           />
@@ -453,7 +483,7 @@ const Expression = ({ value, onChange, config, expectedType, darkMode = false, c
                           name: `arg${newArgs.length + 1}`,
                           value: { 
                             source: 'value', 
-                            returnType: funcDef.dynamicArgs.argType || 'text',
+                            returnType: funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
                             value: funcDef.dynamicArgs.defaultValue ?? ''
                           }
                         });
