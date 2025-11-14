@@ -126,7 +126,18 @@
       "defaultOperator": "equal",
       "widgets": {
         "text": {
-          "operators": ["equal", "not_equal", "contains", "not_contains", "starts_with", "ends_with", "is_empty", "is_not_empty", "in", "not_in"]
+          "operators": [
+            "equal",
+            "not_equal",
+            "contains",
+            "not_contains",
+            "starts_with",
+            "ends_with",
+            "is_empty",
+            "is_not_empty",
+            "in",
+            "not_in"
+          ]
         }
       }
     },
@@ -134,7 +145,20 @@
       "defaultOperator": "equal",
       "widgets": {
         "number": {
-          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"]
+          "operators": [
+            "equal",
+            "not_equal",
+            "less",
+            "less_or_equal",
+            "greater",
+            "greater_or_equal",
+            "between",
+            "not_between",
+            "is_empty",
+            "is_not_empty",
+            "in",
+            "not_in"
+          ]
         }
       }
     },
@@ -142,7 +166,20 @@
       "defaultOperator": "equal",
       "widgets": {
         "date": {
-          "operators": ["equal", "not_equal", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "is_empty", "is_not_empty", "in", "not_in"]
+          "operators": [
+            "equal",
+            "not_equal",
+            "less",
+            "less_or_equal",
+            "greater",
+            "greater_or_equal",
+            "between",
+            "not_between",
+            "is_empty",
+            "is_not_empty",
+            "in",
+            "not_in"
+          ]
         }
       }
     },
@@ -256,19 +293,6 @@
               "label": "Number",
               "type": "number",
               "valueSources": ["value", "field", "function"]
-            },
-            "testDropdown": {
-              "label": "Test Dropdown",
-              "type": "text",
-              "widget": "multiselect",
-              "defaultValue": "OPTION1",
-              "options": [
-                { "value": "OPTION1", "label": "Option 1" },
-                { "value": "OPTION2", "label": "Option 2" },
-                { "value": "OPTION3", "label": "Option 3" },
-                { "value": "OPTION4", "label": "Option 4" }
-              ],
-              "valueSources": ["value"]
             }
           }
         }
@@ -361,16 +385,6 @@
           "label": "DIFF",
           "returnType": "number",
           "args": {
-            "date1": {
-              "label": "Date 1",
-              "type": "date",
-              "valueSources": ["value", "field", "function", "ruleRef"]
-            },
-            "date2": {
-              "label": "Date 2",
-              "type": "date",
-              "valueSources": ["value", "field", "function", "ruleRef"]
-            },
             "units": {
               "label": "Units",
               "type": "text",
@@ -382,6 +396,16 @@
                 { "value": "YEAR", "label": "Year" }
               ],
               "valueSources": ["value"]
+            },
+            "date1": {
+              "label": "Date 1",
+              "type": "date",
+              "valueSources": ["value", "field", "function", "ruleRef"]
+            },
+            "date2": {
+              "label": "Date 2",
+              "type": "date",
+              "valueSources": ["value", "field", "function", "ruleRef"]
             }
           }
         }

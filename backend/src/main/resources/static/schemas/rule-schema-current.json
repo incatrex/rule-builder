@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.6.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.7.json",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Renamed BaseExpression to Expression for consistency with UI components",
   "type": "object",
@@ -290,7 +290,7 @@
               "type": "string",
               "enum": [
                 "MATH.ADD", "MATH.SUBTRACT", "MATH.MULTIPLY", "MATH.DIVIDE", 
-                "MATH.SUM", "MATH.ROUND", "MATH.ABS", "MATH.TEST",
+                "MATH.SUM", "MATH.ROUND", "MATH.ABS",
                 "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN", "TEXT.CASE",
                 "DATE.DIFF"
               ],
