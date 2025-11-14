@@ -1,7 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Card, Space, Input, Select, Typography, Button, message } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { RuleService, ConfigService } from './services';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
 import ExpressionGroup from './ExpressionGroup';
@@ -33,19 +33,14 @@ const { TextArea } = Input;
  * - loadRuleData(data): Loads rule data from JSON
  */
 const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, selectedRuleUuid }, ref) => {
-  // Generate a UUID
-  const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  };
+  // Initialize services
+  const ruleService = new RuleService();
+  const configService = new ConfigService();
 
   const [ruleData, setRuleData] = useState({
     structure: 'condition',
     returnType: 'boolean',
-    uuId: generateUUID(),
+    uuId: null, // Will be generated server-side
     version: 1,
     ruleType: 'Reporting',
     metadata: {
@@ -68,21 +63,18 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   }, []);
 
   useEffect(() => {
-    // Load rule types from backend API
+    // Load rule types from backend API using service
     const loadRuleTypes = async () => {
       try {
-        const response = await fetch('/api/ruleTypes');
-        if (response.ok) {
-          const ruleTypesData = await response.json();
-          if (Array.isArray(ruleTypesData) && ruleTypesData.length > 0) {
-            setRuleTypes(ruleTypesData);
-            // Update the current ruleType if it's not in the new list
-            if (!ruleTypesData.includes(ruleData.ruleType)) {
-              handleChange({ ruleType: ruleTypesData[0] });
-            }
+        const config = await configService.getConfig();
+        if (config.ruleTypes && Array.isArray(config.ruleTypes) && config.ruleTypes.length > 0) {
+          setRuleTypes(config.ruleTypes);
+          // Update the current ruleType if it's not in the new list
+          if (!config.ruleTypes.includes(ruleData.ruleType)) {
+            handleChange({ ruleType: config.ruleTypes[0] });
           }
         } else {
-          console.error('Failed to load rule types, status:', response.status);
+          console.warn('No rule types found in config, using defaults');
         }
       } catch (error) {
         console.error('Error loading rule types:', error);
@@ -111,12 +103,12 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   const loadVersionsForRule = async (uuid) => {
     try {
       setLoadingVersions(true);
-      const response = await axios.get(`/api/rules/versions/${uuid}`);
-      const versions = response.data.map(v => ({
+      const versions = await ruleService.getRuleVersions(uuid);
+      const versionOptions = versions.map(v => ({
         value: v,
         label: `${v}`
       }));
-      setAvailableVersions(versions);
+      setAvailableVersions(versionOptions);
     } catch (error) {
       console.error('Error loading versions:', error);
       setAvailableVersions([]);
@@ -126,29 +118,27 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   };
 
   const handleVersionChange = async (version) => {
-    if (!selectedRuleUuid || !ruleData.metadata.id) {
+    if (!selectedRuleUuid) {
       handleChange({ version });
       return;
     }
 
     try {
-      // Load the selected version from the backend
-      const response = await axios.get(
-        `/api/rules/${ruleData.metadata.id}/${selectedRuleUuid}/${version}`
-      );
+      // Load the selected version from the backend using the service
+      const ruleVersionData = await ruleService.getRuleVersion(selectedRuleUuid, version);
       
-      if (response.data) {
+      if (ruleVersionData) {
         // Load the rule data for the selected version
-        const structure = response.data.structure || 'condition';
-        const content = response.data.content || response.data[structure] || null;
+        const structure = ruleVersionData.structure || 'condition';
+        const content = ruleVersionData.content || ruleVersionData[structure] || null;
         
         setRuleData({
           structure,
-          returnType: response.data.returnType || 'boolean',
-          ruleType: response.data.ruleType || 'Reporting',
-          uuId: response.data.uuId || selectedRuleUuid,
-          version: response.data.version || version,
-          metadata: response.data.metadata || { id: '', description: '' },
+          returnType: ruleVersionData.returnType || 'boolean',
+          ruleType: ruleVersionData.ruleType || 'Reporting',
+          uuId: ruleVersionData.uuId || selectedRuleUuid,
+          version: ruleVersionData.version || version,
+          metadata: ruleVersionData.metadata || { id: '', description: '' },
           content: content
         });
         
@@ -280,22 +270,33 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     }
 
     try {
-      // Increment version BEFORE saving
-      const newVersion = ruleData.version + 1;
-      const ruleOutput = {
-        ...getRuleOutput(),
-        version: newVersion
-      };
+      const ruleOutput = getRuleOutput();
+      let result;
       
-      await axios.post(`/api/rules/${ruleData.metadata.id}/${newVersion}`, ruleOutput);
+      if (ruleData.uuId) {
+        // Update existing rule (creates new version automatically)
+        result = await ruleService.updateRule(ruleData.uuId, ruleOutput);
+        message.success(`Rule updated: ${result.ruleId} v${result.version}`);
+      } else {
+        // Create new rule (server generates UUID)
+        result = await ruleService.createRule(ruleOutput);
+        message.success(`Rule created: ${result.ruleId} v${result.version}`);
+      }
       
-      // Update the version in state to match what was saved
-      handleChange({ version: newVersion });
+      // Update the local state with server response
+      handleChange({ 
+        uuId: result.uuid,
+        version: result.version 
+      });
       
-      message.success(`Rule saved: ${ruleData.metadata.id} v${newVersion}`);
+      // Refresh available versions if we have a selected rule
+      if (selectedRuleUuid === result.uuid || !selectedRuleUuid) {
+        await loadVersionsForRule(result.uuid);
+      }
+      
     } catch (error) {
       console.error('Error saving rule:', error);
-      message.error('Failed to save rule');
+      message.error('Failed to save rule: ' + (error.response?.data?.error || error.message));
     }
   };
 
@@ -384,7 +385,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         structure,
         returnType: data.returnType || 'boolean',
         ruleType: data.ruleType || 'Reporting',
-        uuId: generateUUID(),
+        uuId: null, // Will be generated server-side on save
         version: 1,
         metadata: data.metadata || { id: '', description: '' },
         content: null

@@ -1,7 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Space, message, Input, Alert } from 'antd';
-import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { Card, Button, Space, message, Input, Alert, Tag } from 'antd';
+import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined, MenuFoldOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
+
+/**
+ * Generate a placeholder UUID for validation purposes
+ */
+const generatePlaceholderUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
+/**
+ * Add placeholder UUID to rule data for validation if needed
+ */
+const addPlaceholderUUID = (data) => {
+  if (!data || typeof data !== 'object') {
+    return data;
+  }
+
+  // Check if this looks like rule data without a UUID
+  if ((data.structure || data.metadata) && (!data.uuId || data.uuId === null)) {
+    return {
+      ...data,
+      uuId: generatePlaceholderUUID(),
+      __placeholderUUID: true // Flag to indicate this is a placeholder
+    };
+  }
+
+  return data;
+};
+
+/**
+ * Remove placeholder UUID flags from rule data before saving
+ */
+const removePlaceholderFlags = (data) => {
+  if (!data || typeof data !== 'object') {
+    return data;
+  }
+
+  const cleaned = { ...data };
+  if (cleaned.__placeholderUUID) {
+    delete cleaned.__placeholderUUID;
+    // Don't delete the UUID itself - let the service handle that
+  }
+
+  return cleaned;
+};
 
 /**
  * JsonEditor Component
@@ -24,11 +72,18 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
   const [isValidating, setIsValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
   const [schemaInfo, setSchemaInfo] = useState(null);
+  const [hasPlaceholderUUID, setHasPlaceholderUUID] = useState(false);
 
   // Update local state when data prop changes (only when not editing)
   useEffect(() => {
     if (data && !isEditing) {
-      const formatted = JSON.stringify(data, null, 2);
+      // Add placeholder UUID if needed for validation
+      const dataWithPlaceholder = addPlaceholderUUID(data);
+      const hasPlaceholder = dataWithPlaceholder.__placeholderUUID === true;
+      
+      setHasPlaceholderUUID(hasPlaceholder);
+      
+      const formatted = JSON.stringify(dataWithPlaceholder, null, 2);
       setJsonText(formatted);
       setDisplayText(formatted);
       setIsValid(true);
@@ -36,13 +91,29 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
       // Handle null/undefined data
       setJsonText('');
       setDisplayText('');
+      setHasPlaceholderUUID(false);
     }
   }, [data, isEditing]);
 
   const handleEdit = () => {
     setIsEditing(true);
     // If there's no display text, initialize with empty object
-    setJsonText(displayText || '{}');
+    const initialText = displayText || '{}';
+    setJsonText(initialText);
+    
+    // Check if we need to add placeholder UUID to current text
+    try {
+      const parsedData = JSON.parse(initialText);
+      const withPlaceholder = addPlaceholderUUID(parsedData);
+      const hasPlaceholder = withPlaceholder.__placeholderUUID === true;
+      
+      if (hasPlaceholder) {
+        setHasPlaceholderUUID(true);
+        setJsonText(JSON.stringify(withPlaceholder, null, 2));
+      }
+    } catch (error) {
+      // If JSON is invalid, just use the original text
+    }
   };
 
   const handleCancel = () => {
@@ -50,6 +121,7 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
     setJsonText(displayText);
     setIsValid(true);
     setValidationErrors([]);
+    // Don't reset hasPlaceholderUUID here - it should persist
   };
 
   const handleUpdate = async () => {
@@ -57,12 +129,15 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
       const parsed = JSON.parse(jsonText);
       setIsValid(true);
       
+      // Clean placeholder flags before validation
+      const cleanedForValidation = removePlaceholderFlags(parsed);
+      
       // Validate against schema
       setIsValidating(true);
       setValidationErrors([]);
       
       try {
-        const response = await axios.post('/api/rules/validate', parsed);
+        const response = await axios.post('/api/rules/validate', cleanedForValidation);
         const validationResult = response.data;
         
         // Store schema info
@@ -77,7 +152,8 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
           setValidationErrors([]);
           
           if (onChange) {
-            onChange(parsed);
+            // Pass the cleaned data (without placeholder flags) to the parent
+            onChange(cleanedForValidation);
             message.success('JSON validated and updated successfully');
           }
         } else {
@@ -115,6 +191,28 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
   // Helper function to render the JSON editor content
   const renderContent = () => (
     <>
+      {/* Placeholder UUID Notice */}
+      {hasPlaceholderUUID && (
+        <div style={{
+          padding: '12px',
+          background: '#e6f7ff',
+          border: '1px solid #91d5ff',
+          borderRadius: '6px',
+          marginBottom: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <InfoCircleOutlined style={{ color: '#1890ff' }} />
+          <div>
+            <Tag color="blue" style={{ margin: 0, marginRight: '8px' }}>PLACEHOLDER UUID</Tag>
+            <span style={{ fontSize: '12px', color: '#595959' }}>
+              A temporary UUID has been added for validation. The server will generate the final UUID when the rule is saved.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Use textarea for both editing and viewing modes */}
       <textarea
         value={isEditing ? jsonText : displayText}
@@ -355,6 +453,28 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
         }
       }}
     >
+      {/* Placeholder UUID Notice */}
+      {hasPlaceholderUUID && (
+        <div style={{
+          padding: '12px',
+          background: '#e6f7ff',
+          border: '1px solid #91d5ff',
+          borderRadius: '6px',
+          margin: '0 0 8px 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <InfoCircleOutlined style={{ color: '#1890ff' }} />
+          <div>
+            <Tag color="blue" style={{ margin: 0, marginRight: '8px' }}>PLACEHOLDER UUID</Tag>
+            <span style={{ fontSize: '12px', color: '#595959' }}>
+              A temporary UUID has been added for validation. The server will generate the final UUID when the rule is saved.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Use textarea for both editing and viewing modes */}
       <textarea
         value={isEditing ? jsonText : displayText}

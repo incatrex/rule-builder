@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /**
  * HTTP Helper - Base service for making API calls
  */
@@ -175,17 +177,24 @@ class RuleService {
 
   /**
    * Convert rule to SQL
-   * @param {string} uuid - Rule UUID
-   * @param {number} version - Optional version (uses latest if not provided)
+   * @param {string|Object} ruleOrUuid - Rule UUID string or rule object
+   * @param {number} version - Optional version (only used when ruleOrUuid is a UUID)
    * @returns {Object} - SQL conversion result
    */
-  async convertToSql(uuid, version = null) {
-    const endpoint = version 
-      ? `/rules/${uuid}/versions/${version}/sql`
-      : `/rules/${uuid}/sql`;
-    
-    const response = await this.http.post(endpoint);
-    return response.data;
+  async convertToSql(ruleOrUuid, version = null) {
+    if (typeof ruleOrUuid === 'object') {
+      // Rule object provided - use the /rules/to-sql endpoint
+      const response = await this.http.post('/rules/to-sql', ruleOrUuid);
+      return response.data;
+    } else {
+      // UUID string provided - use the versioned endpoint
+      const endpoint = version 
+        ? `/rules/${ruleOrUuid}/versions/${version}/sql`
+        : `/rules/${ruleOrUuid}/sql`;
+      
+      const response = await this.http.post(endpoint);
+      return response.data;
+    }
   }
 
   /**

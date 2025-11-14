@@ -1,4 +1,4 @@
-import { HttpHelper } from './RuleService.js';
+import { HttpHelper, RuleService } from './RuleService.js';
 
 /**
  * Configuration Service - Manages application configuration
@@ -99,4 +99,4 @@ class FieldService {
   }
 }
 
-export { ConfigService, FieldService };
+export { ConfigService, FieldService, RuleService, HttpHelper };
