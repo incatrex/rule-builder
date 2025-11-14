@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.10.json",
-  "title": "Rule Builder Schema - v1.0.10",
-  "description": "JSON Schema serving as single source of truth for validation and UI configuration with strict function validation",
-  "version": "1.0.10",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.9.json",
+  "title": "Rule Builder Schema - v1.0.9",
+  "description": "JSON Schema serving as single source of truth for validation and UI configuration with sophisticated function validation",
+  "version": "1.0.9",
   
   "type": "object",
   "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "content"],
@@ -109,8 +109,6 @@
                     "maxItems": 2,
                     "items": [
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "num1" },
                           "value": {
@@ -119,12 +117,9 @@
                               { "properties": { "returnType": { "const": "number" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       },
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "num2" },
                           "value": {
@@ -133,11 +128,9 @@
                               { "properties": { "returnType": { "const": "number" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       }
-                    ],
-                    "additionalItems": false
+                    ]
                   }
                 }
               }
@@ -151,8 +144,6 @@
                     "maxItems": 2,
                     "items": [
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "num1" },
                           "value": {
@@ -161,12 +152,9 @@
                               { "properties": { "returnType": { "const": "number" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       },
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "num2" },
                           "value": {
@@ -175,11 +163,9 @@
                               { "properties": { "returnType": { "const": "number" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       }
-                    ],
-                    "additionalItems": false
+                    ]
                   }
                 }
               }
@@ -193,8 +179,6 @@
                     "maxItems": 2,
                     "items": [
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "dividend" },
                           "value": {
@@ -203,12 +187,9 @@
                               { "properties": { "returnType": { "const": "number" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       },
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "divisor" },
                           "value": {
@@ -217,11 +198,9 @@
                               { "properties": { "returnType": { "const": "number" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       }
-                    ],
-                    "additionalItems": false
+                    ]
                   }
                 }
               }
@@ -235,8 +214,6 @@
                     "maxItems": 2,
                     "items": [
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "text" },
                           "value": {
@@ -245,25 +222,36 @@
                               { "properties": { "returnType": { "const": "text" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       },
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "caseType" },
                           "value": {
                             "allOf": [
                               { "$ref": "#/definitions/ExpressionGroup" },
-                              { "properties": { "returnType": { "const": "text" } } }
+                              { "properties": { "returnType": { "const": "text" } } },
+                              {
+                                "anyOf": [
+                                  {
+                                    "properties": {
+                                      "expressions": {
+                                        "items": {
+                                          "properties": {
+                                            "type": { "const": "value" },
+                                            "value": { "enum": ["UPPER", "LOWER", "TITLE"] }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       }
-                    ],
-                    "additionalItems": false
+                    ]
                   }
                 }
               }
@@ -277,22 +265,33 @@
                     "maxItems": 3,
                     "items": [
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "units" },
                           "value": {
                             "allOf": [
                               { "$ref": "#/definitions/ExpressionGroup" },
-                              { "properties": { "returnType": { "const": "text" } } }
+                              { "properties": { "returnType": { "const": "text" } } },
+                              {
+                                "anyOf": [
+                                  {
+                                    "properties": {
+                                      "expressions": {
+                                        "items": {
+                                          "properties": {
+                                            "type": { "const": "value" },
+                                            "value": { "enum": ["DAY", "MONTH", "YEAR"] }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       },
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "date1" },
                           "value": {
@@ -301,12 +300,9 @@
                               { "properties": { "returnType": { "const": "date" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       },
                       {
-                        "type": "object",
-                        "required": ["name", "value"],
                         "properties": {
                           "name": { "const": "date2" },
                           "value": {
@@ -315,11 +311,9 @@
                               { "properties": { "returnType": { "const": "date" } } }
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       }
-                    ],
-                    "additionalItems": false
+                    ]
                   }
                 }
               }

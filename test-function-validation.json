@@ -1,0 +1,240 @@
+{
+  "validMathAdd": {
+    "structure": "expression",
+    "returnType": "number",
+    "ruleType": "Transformation",
+    "uuId": "12345678-1234-1234-1234-123456789abc",
+    "version": 1,
+    "metadata": {
+      "id": "test-math-add",
+      "description": "Test valid MATH.ADD"
+    },
+    "content": {
+      "type": "expressionGroup",
+      "returnType": "number",
+      "expressions": [
+        {
+          "type": "function",
+          "returnType": "number",
+          "function": {
+            "name": "MATH.ADD",
+            "args": [
+              {
+                "name": "arg1",
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "number",
+                  "expressions": [
+                    { "type": "value", "returnType": "number", "value": 5 }
+                  ],
+                  "operators": []
+                }
+              },
+              {
+                "name": "arg2", 
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "number",
+                  "expressions": [
+                    { "type": "value", "returnType": "number", "value": 10 }
+                  ],
+                  "operators": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "operators": []
+    }
+  },
+
+  "invalidMathAdd_WrongArgNames": {
+    "structure": "expression",
+    "returnType": "number",
+    "ruleType": "Transformation",
+    "uuId": "12345678-1234-1234-1234-123456789abc",
+    "version": 1,
+    "metadata": {
+      "id": "test-math-add-invalid",
+      "description": "Test invalid MATH.ADD with wrong argument names"
+    },
+    "content": {
+      "type": "expressionGroup",
+      "returnType": "number",
+      "expressions": [
+        {
+          "type": "function",
+          "returnType": "number",
+          "function": {
+            "name": "MATH.ADD",
+            "args": [
+              {
+                "name": "wrongName",
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "number",
+                  "expressions": [
+                    { "type": "value", "returnType": "number", "value": 5 }
+                  ],
+                  "operators": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "operators": []
+    }
+  },
+
+  "validMathSubtract": {
+    "structure": "expression",
+    "returnType": "number",
+    "ruleType": "Transformation",
+    "uuId": "12345678-1234-1234-1234-123456789abc",
+    "version": 1,
+    "metadata": {
+      "id": "test-math-subtract",
+      "description": "Test valid MATH.SUBTRACT"
+    },
+    "content": {
+      "type": "expressionGroup",
+      "returnType": "number",
+      "expressions": [
+        {
+          "type": "function",
+          "returnType": "number",
+          "function": {
+            "name": "MATH.SUBTRACT",
+            "args": [
+              {
+                "name": "num1",
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "number",
+                  "expressions": [
+                    { "type": "value", "returnType": "number", "value": 15 }
+                  ],
+                  "operators": []
+                }
+              },
+              {
+                "name": "num2",
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "number",
+                  "expressions": [
+                    { "type": "value", "returnType": "number", "value": 5 }
+                  ],
+                  "operators": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "operators": []
+    }
+  },
+
+  "invalidMathSubtract_WrongOrder": {
+    "structure": "expression",
+    "returnType": "number",
+    "ruleType": "Transformation",
+    "uuId": "12345678-1234-1234-1234-123456789abc",
+    "version": 1,
+    "metadata": {
+      "id": "test-math-subtract-invalid",
+      "description": "Test invalid MATH.SUBTRACT with wrong argument order"
+    },
+    "content": {
+      "type": "expressionGroup",
+      "returnType": "number",
+      "expressions": [
+        {
+          "type": "function",
+          "returnType": "number",
+          "function": {
+            "name": "MATH.SUBTRACT",
+            "args": [
+              {
+                "name": "num2",
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "number",
+                  "expressions": [
+                    { "type": "value", "returnType": "number", "value": 5 }
+                  ],
+                  "operators": []
+                }
+              },
+              {
+                "name": "num1",
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "number",
+                  "expressions": [
+                    { "type": "value", "returnType": "number", "value": 15 }
+                  ],
+                  "operators": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "operators": []
+    }
+  },
+
+  "invalidTextCase_WrongArgType": {
+    "structure": "expression",
+    "returnType": "text",
+    "ruleType": "Transformation",
+    "uuId": "12345678-1234-1234-1234-123456789abc",
+    "version": 1,
+    "metadata": {
+      "id": "test-text-case-invalid",
+      "description": "Test invalid TEXT.CASE with wrong argument type"
+    },
+    "content": {
+      "type": "expressionGroup",
+      "returnType": "text",
+      "expressions": [
+        {
+          "type": "function",
+          "returnType": "text",
+          "function": {
+            "name": "TEXT.CASE",
+            "args": [
+              {
+                "name": "text",
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "number",
+                  "expressions": [
+                    { "type": "value", "returnType": "number", "value": 123 }
+                  ],
+                  "operators": []
+                }
+              },
+              {
+                "name": "caseType",
+                "value": {
+                  "type": "expressionGroup",
+                  "returnType": "text",
+                  "expressions": [
+                    { "type": "value", "returnType": "text", "value": "UPPER" }
+                  ],
+                  "operators": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "operators": []
+    }
+  }
+}
