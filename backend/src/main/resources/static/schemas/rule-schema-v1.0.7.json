@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.8.json",
-  "title": "Rule Builder Schema - v1.0.8",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.7.json",
+  "title": "Rule Builder Schema - v1.0.7",
   "description": "JSON Schema serving as single source of truth for validation and UI configuration",
-  "version": "1.0.8",
+  "version": "1.0.7",
   
   "type": "object",
   "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "content"],

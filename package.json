@@ -1,0 +1,23 @@
+{
+  "name": "rule-builder",
+  "version": "1.0.0",
+  "description": "Rule Builder with Schema-Driven Configuration",
+  "private": true,
+  "scripts": {
+    "generate-config": "node scripts/generate-config.js",
+    "test": "cd frontend && npm test",
+    "test:backend": "cd backend && mvn test",
+    "install:frontend": "cd frontend && npm install",
+    "start:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && mvn spring-boot:run",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && mvn clean package"
+  },
+  "keywords": ["rule-builder", "schema-driven", "json-schema", "ui-generator"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {},
+  "workspaces": [
+    "frontend"
+  ]
+}

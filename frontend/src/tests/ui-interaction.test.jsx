@@ -160,7 +160,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       // FIXED: Should now add a text expression!
       expect(capturedOutput.expressions).toHaveLength(2);
       
-      // Note: Still creates expressionGroup wrapper (Bug #4), but type is correct
+      // Still creates expressionGroup wrapper (documented behavior)
       expect(capturedOutput.expressions[1].type).toBe('expressionGroup');
       expect(capturedOutput.expressions[1].returnType).toBe('text');
       expect(capturedOutput.expressions[1].expressions[0].type).toBe('value');

@@ -272,19 +272,33 @@ public class RuleBuilderService {
         ObjectNode result = objectMapper.createObjectNode();
         result.put("valid", errors.isEmpty());
         
-        // Add schema information
+        // Add enhanced schema information
         JsonNode schemaNode = ruleSchema.getSchemaNode();
         ObjectNode schemaInfo = objectMapper.createObjectNode();
+        
+        // Set filename
         schemaInfo.put("filename", "rule-schema-current.json");
-        if (schemaNode.has("$id")) {
-            schemaInfo.put("id", schemaNode.get("$id").asText());
-        }
+        
+        // Set schema title
         if (schemaNode.has("title")) {
             schemaInfo.put("title", schemaNode.get("title").asText());
         }
-        if (schemaNode.has("$schema")) {
-            schemaInfo.put("draft", schemaNode.get("$schema").asText());
+        
+        // Set schema version
+        if (schemaNode.has("version")) {
+            schemaInfo.put("version", schemaNode.get("version").asText());
         }
+        
+        // Set JSON Schema draft version
+        if (schemaNode.has("$schema")) {
+            schemaInfo.put("jsonSchemaDraft", schemaNode.get("$schema").asText());
+        }
+        
+        // Set schema ID
+        if (schemaNode.has("$id")) {
+            schemaInfo.put("id", schemaNode.get("$id").asText());
+        }
+        
         result.set("schema", schemaInfo);
         
         if (!errors.isEmpty()) {

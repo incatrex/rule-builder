@@ -196,17 +196,17 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
           </div>
           {schemaInfo.title && (
             <div style={{ marginBottom: '2px' }}>
-              <strong>Schema:</strong> {schemaInfo.title}
+              <strong>Schema Title:</strong> {schemaInfo.title}
             </div>
           )}
-          {schemaInfo.id && (
+          {schemaInfo.version && (
             <div style={{ marginBottom: '2px' }}>
-              <strong>Schema ID:</strong> {schemaInfo.id}
+              <strong>Schema Version:</strong> {schemaInfo.version}
             </div>
           )}
-          {schemaInfo.draft && (
+          {schemaInfo.jsonSchemaDraft && (
             <div>
-              <strong>JSON Schema:</strong> {schemaInfo.draft}
+              <strong>JSON Schema:</strong> {schemaInfo.jsonSchemaDraft}
             </div>
           )}
         </div>
@@ -435,17 +435,17 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
           </div>
           {schemaInfo.title && (
             <div style={{ marginBottom: '2px' }}>
-              <strong>Schema:</strong> {schemaInfo.title}
+              <strong>Schema Title:</strong> {schemaInfo.title}
             </div>
           )}
-          {schemaInfo.id && (
+          {schemaInfo.version && (
             <div style={{ marginBottom: '2px' }}>
-              <strong>Schema ID:</strong> {schemaInfo.id}
+              <strong>Schema Version:</strong> {schemaInfo.version}
             </div>
           )}
-          {schemaInfo.draft && (
+          {schemaInfo.jsonSchemaDraft && (
             <div>
-              <strong>JSON Schema:</strong> {schemaInfo.draft}
+              <strong>JSON Schema:</strong> {schemaInfo.jsonSchemaDraft}
             </div>
           )}
         </div>
