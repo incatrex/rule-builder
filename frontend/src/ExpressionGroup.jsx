@@ -249,7 +249,17 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     
     if (expr.type === 'expressionGroup') {
       if (expr.expressions && expr.expressions.length > 1) {
-        return '(...)'; // Nested group
+        // Build compact representation for nested group
+        const nestedSummaries = expr.expressions.map((nestedExpr, index) => {
+          const summary = getExpressionSummary(nestedExpr);
+          let operator = '';
+          if (index > 0 && expr.operators?.[index - 1]) {
+            const operatorSymbol = expr.operators[index - 1].split(' ')[0];
+            operator = ` ${operatorSymbol} `;
+          }
+          return operator + summary;
+        });
+        return `(${nestedSummaries.join('')})`;
       } else if (expr.expressions && expr.expressions.length === 1) {
         return getExpressionSummary(expr.expressions[0]);
       }
