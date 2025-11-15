@@ -204,19 +204,25 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
 
   const renderCompactView = () => {
     if (!hasMultipleExpressions()) {
-      // Single expression - render the child directly without parentheses
-      return (
-        <ExpressionGroup
-          value={groupData.expressions?.[0]}
-          onChange={(value) => updateExpression(0, value)}
-          config={config}
-          expectedType={expectedType}
-          allowedSources={allowedSources}
-          darkMode={darkMode}
-          compact={true}
-          isLoadedRule={isLoadedRule}
-        />
-      );
+      // Single expression - show it with add button capability in expanded view if not in compact mode
+      if (compact) {
+        // If we're in compact mode, render the child directly
+        return (
+          <ExpressionGroup
+            value={groupData.expressions?.[0]}
+            onChange={(value) => updateExpression(0, value)}
+            config={config}
+            expectedType={expectedType}
+            allowedSources={allowedSources}
+            darkMode={darkMode}
+            compact={true}
+            isLoadedRule={isLoadedRule}
+          />
+        );
+      } else {
+        // If we're not in compact mode, render in expanded view to show the add button
+        return renderExpandedView();
+      }
     }
 
     // Multiple expressions - show compact operation notation
