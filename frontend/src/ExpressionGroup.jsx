@@ -10,10 +10,10 @@ const { Text } = Typography;
 /**
  * ExpressionGroup Component
  * 
- * Replaces the Expression component with support for mathematical operations.
+ * Replaces the Expression component with support for operations.
  * Every expression is now an ExpressionGroup that can contain:
  * - A single expression (simple case)
- * - Multiple expressions connected by operators (mathematical expressions)
+ * - Multiple expressions connected by operators (expression operations)
  * 
  * JSON Structure (NEW SCHEMA):
  * {
@@ -109,7 +109,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   };
 
   const inferReturnType = (data) => {
-    // If we have mathematical operators, result should be number
+    // If we have operators, determine result type based on operator type
     if (data.operators && data.operators.length > 0) {
       const hasNumericalOperators = data.operators.some(op => 
         ['+', '-', '*', '/'].includes(op)
@@ -119,7 +119,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       }
     }
     
-    // Start with first expression's return type, but default to number for mathematical expressions
+    // Start with first expression's return type, but default to number for numeric operations
     let type = data.expressions && data.expressions.length > 0 
       ? getExpressionReturnType(data.expressions[0]) 
       : 'number';
@@ -131,7 +131,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   };
 
   const getExpressionReturnType = (expr) => {
-    if (!expr) return 'number'; // Default to number for mathematical expressions
+    if (!expr) return 'number'; // Default to number for numeric operations
     if (expr.type === 'expressionGroup') {
       return expr.returnType || 'number';
     }
@@ -191,11 +191,11 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   };
 
   const canAddOperators = () => {
-    // Allow operators for numeric (arithmetic) and text (concatenation) types
+    // Allow operators for supported types (numeric, text, date, boolean)
     const firstType = groupData.expressions && groupData.expressions.length > 0
       ? getExpressionReturnType(groupData.expressions[0])
       : 'number';
-    return firstType === 'number' || firstType === 'text';
+    return ['number', 'text', 'date', 'boolean'].includes(firstType);
   };
 
   const hasMultipleExpressions = () => {
@@ -219,12 +219,15 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       );
     }
 
-    // Multiple expressions - show compact mathematical notation
+    // Multiple expressions - show compact operation notation
     const expressionSummaries = (groupData.expressions || []).map((expr, index) => {
       const summary = getExpressionSummary(expr);
-      const operator = index > 0 && groupData.operators?.[index - 1] 
-        ? ` ${groupData.operators[index - 1]} ` 
-        : '';
+      let operator = '';
+      if (index > 0 && groupData.operators?.[index - 1]) {
+        // Extract just the operator symbol for compact view
+        const operatorSymbol = groupData.operators[index - 1].split(' ')[0];
+        operator = ` ${operatorSymbol} `;
+      }
       return operator + summary;
     });
 
@@ -269,14 +272,16 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   const expressionPreview = useMemo(() => {
     // Use the same logic as expanded view for consistency
     if (!groupData.expressions || groupData.expressions.length === 0) {
-      return 'Mathematical Expression';
+      return 'Expression Operations';
     }
     
     const summaries = groupData.expressions.map((expr, index) => {
       const summary = getExpressionSummary(expr);
       if (index === 0) return summary;
-      const operator = groupData.operators?.[index - 1] || '+';
-      return `${operator} ${summary}`;
+      // Extract just the operator symbol for preview
+      const fullOperator = groupData.operators?.[index - 1] || '+';
+      const operatorSymbol = fullOperator.split(' ')[0];
+      return `${operatorSymbol} ${summary}`;
     });
     
     return summaries.join(' ');
@@ -341,6 +346,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                   compact={compact}
                   isLoadedRule={isLoadedRule}
                   propArgDef={propArgDef}
+                  disableOperations={true}  // Disable operations since ExpressionGroup handles them
                 />
               )}
             </div>
@@ -369,14 +375,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           
           // Determine operator options based on expression type
           const firstType = getExpressionReturnType(groupData.expressions[0]);
-          const operatorOptions = firstType === 'text' 
-            ? [{ value: '+', label: '+' }] // Only concatenation for text
-            : [
-                { value: '+', label: '+' },
-                { value: '-', label: '-' },
-                { value: '*', label: '*' },
-                { value: '/', label: '/' }
-              ];
+          const operatorOptions = getOperatorOptions(firstType);
           
           return (
             <div key={actualIndex} style={{ paddingLeft: '16px' }}>
@@ -385,9 +384,25 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                 <Select
                   value={groupData.operators?.[index] || '+'}
                   onChange={(op) => updateOperator(index, op)}
-                  style={{ width: '50px' }}
+                  style={{ 
+                    width: '50px', 
+                    minWidth: '50px'
+                  }}
                   size="small"
                   options={operatorOptions}
+                  labelRender={(props) => {
+                    // When closed, show only the operator symbol (extract from value like "+ (Add)" -> "+")
+                    const operatorSymbol = props.value ? props.value.split(' ')[0] : '+';
+                    return (
+                      <span style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                        {operatorSymbol}
+                      </span>
+                    );
+                  }}
+                  optionRender={(option) => (
+                    // When dropdown is open, show full descriptive label
+                    <span>{option.label}</span>
+                  )}
                 />
                 
                 {/* Expression */}
@@ -423,7 +438,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         {!canAddOperators() && groupData.expressions?.length > 1 && (
           <div style={{ paddingLeft: '16px' }}>
             <Text type="warning" style={{ fontSize: '11px' }}>
-              ⚠ Operations require numeric or text expressions
+              ⚠ Operations require compatible expression types
             </Text>
           </div>
         )}
@@ -462,6 +477,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         compact={compact}
         isLoadedRule={isLoadedRule}
         propArgDef={propArgDef}
+        disableOperations={true}  // Disable operations since ExpressionGroup handles them
       />
     );
   }
@@ -487,6 +503,35 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   );
 };
 
+// Helper function to get available operators based on return type
+const getOperatorOptions = (returnType) => {
+  switch (returnType) {
+    case 'text':
+      return [
+        { value: '+', label: '+ (Concatenate)' },
+        { value: '&', label: '& (Join)' }
+      ];
+    case 'number':
+      return [
+        { value: '+', label: '+ (Add)' },
+        { value: '-', label: '- (Subtract)' },
+        { value: '*', label: '* (Multiply)' },
+        { value: '/', label: '/ (Divide)' }
+      ];
+    case 'date':
+      return [
+        { value: '+', label: '+ (Add Days)' },
+        { value: '-', label: '- (Subtract Days)' }
+      ];
+    case 'boolean':
+      return [
+        { value: '&', label: '& (AND)' },
+        { value: '|', label: '| (OR)' }
+      ];
+    default:
+      return [{ value: '+', label: '+' }];
+  }
+};
 
 // Helper functions
 // Helper function to get field display name from field path

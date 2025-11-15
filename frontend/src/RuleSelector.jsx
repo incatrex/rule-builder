@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Select, message } from 'antd';
-import axios from 'axios';
+import { RuleService } from './services/RuleService.js';
 
 /**
  * RuleSelector Component
@@ -26,6 +26,9 @@ const RuleSelector = ({
 }) => {
   const [ruleList, setRuleList] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Initialize RuleService
+  const ruleService = new RuleService();
 
   useEffect(() => {
     loadRuleIds();
@@ -34,10 +37,10 @@ const RuleSelector = ({
   const loadRuleIds = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/rules/ids');
+      const ruleIds = await ruleService.getRuleIds();
       
       // Transform the data for the Select component
-      const options = response.data.map(rule => {
+      const options = ruleIds.map(rule => {
         // Build display label with folder path if present
         const folderPrefix = rule.folderPath ? `${rule.folderPath}/` : '';
         const returnTypeLabel = showReturnType && rule.returnType ? ` [${rule.returnType}]` : '';
@@ -79,14 +82,16 @@ const RuleSelector = ({
 
     try {
       // Load the latest version of the selected rule
-      const response = await axios.get(
-        `/api/rules/${selectedRule.ruleId}/${selectedRule.uuid}/${selectedRule.latestVersion}`
+      const ruleData = await ruleService.getRuleByVersion(
+        selectedRule.ruleId, 
+        selectedRule.uuid, 
+        selectedRule.latestVersion
       );
       
-      if (response.data) {
+      if (ruleData) {
         // Pass back both the rule data and metadata
         onChange({
-          ruleData: response.data,
+          ruleData: ruleData,
           metadata: {
             ruleId: selectedRule.ruleId,
             uuid: selectedRule.uuid,

@@ -3,14 +3,15 @@ import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import RuleSelector from './RuleSelector';
+import ExpressionGroup from './ExpressionGroup';
 
 const { Text } = Typography;
 
 /**
  * Expression Component
  * 
- * A unified component for building expressions with mathematical operation support.
- * Can handle both simple expressions and mathematical operations.
+ * A unified component for building expressions with operation support.
+ * Can handle both simple expressions and multi-expression operations.
  * 
  * Simple Expression Structure:
  * - value: { type: 'value', returnType: 'text', value: 'hello' }
@@ -18,7 +19,7 @@ const { Text } = Typography;
  * - function: { type: 'function', returnType: 'number', function: { name: 'MATH.ADD', args: [...] } }
  * - ruleRef: { type: 'ruleRef', returnType: 'boolean', id: 'RULE_ID', uuid: 'abc-123', version: 1 }
  * 
- * Mathematical Expression Structure:
+ * Expression Group Structure:
  * {
  *   "type": "expressionGroup",
  *   "returnType": "number|text|date|boolean", // inferred from expressions
@@ -41,7 +42,7 @@ const { Text } = Typography;
  * - isLoadedRule: Whether this is a loaded rule (affects expansion state)
  * - allowedSources: Allowed value sources for filtering
  */
-const Expression = ({ value, onChange, config, expectedType, propArgDef = null, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null }) => {
+const Expression = ({ value, onChange, config, expectedType, propArgDef = null, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, disableOperations = false }) => {
   // Normalize the value to ensure it's a proper structure
   const normalizeValue = (val) => {
     if (!val) {
@@ -87,10 +88,10 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     }
   }, [value]);
 
-  // Handle mathematical expression groups
+  // Handle expression groups
   if (expressionData.type === 'expressionGroup') {
     return (
-      <ExpressionGroupRenderer 
+      <ExpressionGroup
         value={expressionData}
         onChange={onChange}
         config={config}
@@ -99,20 +100,20 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
         compact={compact}
         isLoadedRule={isLoadedRule}
         allowedSources={allowedSources}
-        propArgDef={propArgDef}
+        argDef={propArgDef}
       />
     );
   }
 
-  // Check if we can add mathematical operators
+  // Check if we can add operators
   const canAddOperators = () => {
     const currentType = expressionData.returnType || expectedType;
     return currentType === 'number' || currentType === 'text';
   };
 
-  // Create mathematical expression group
-  const createMathExpression = () => {
-    const mathGroup = {
+  // Create expression group
+  const createExpressionGroup = () => {
+    const expressionGroup = {
       type: 'expressionGroup',
       returnType: expressionData.returnType || 'number',
       expressions: [expressionData, { 
@@ -122,9 +123,9 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       }],
       operators: ['+']
     };
-    setExpressionData(mathGroup);
+    setExpressionData(expressionGroup);
     if (onChange) {
-      onChange(mathGroup);
+      onChange(expressionGroup);
     }
   };
 
@@ -301,7 +302,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       <Select
         value={source}
         onChange={handleSourceChange}
-        style={{ width: isDropdownOpen ? 100 : 50, minWidth: 50, transition: 'width 0.2s' }}
+        style={{ width: isDropdownOpen ? 120 : 50, minWidth: 50, transition: 'width 0.2s' }}
         size="small"
         onDropdownVisibleChange={setIsDropdownOpen}
         // When closed, show only icon
@@ -321,8 +322,8 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
         options={sourceOptions}
         optionRender={(option) => (
           <Space size={4}>
-            {option.data.icon}
-            <span>{option.data.label}</span>
+            {option.icon}
+            <span>{option.label}</span>
           </Space>
         )}
         onClick={(e) => e.stopPropagation()}
@@ -566,6 +567,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                             darkMode={darkMode}
                             compact
                             isLoadedRule={isLoadedRule}
+                            disableOperations={disableOperations}
                           />
                         </Space>
                       </div>
@@ -692,416 +694,25 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
             {source === 'function' && renderFunctionBuilder()}
             {source === 'ruleRef' && renderRuleSelector()}
           </div>
-          {/* Add Mathematical Operation Button */}
-          {canAddOperators() && !compact && (
+          {/* Add Operation Button */}
+          {canAddOperators() && !compact && !disableOperations && (
             <Button
               type="text"
               size="small"
               icon={<PlusOutlined />}
-              onClick={createMathExpression}
+              onClick={createExpressionGroup}
               style={{ 
                 minWidth: 'auto', 
                 padding: '0 4px',
                 color: darkMode ? '#52c41a' : '#52c41a' // Green color to indicate add action
               }}
-              title="Add Mathematical Operation"
+              title="Add Operation"
             />
           )}
         </Space>
       </div>
     </Space.Compact>
   );
-};
-
-/**
- * ExpressionGroupRenderer Component
- * 
- * Renders mathematical expression groups with operators between expressions
- */
-const ExpressionGroupRenderer = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, propArgDef = null }) => {
-  const [groupData, setGroupData] = useState(value || {
-    type: 'expressionGroup',
-    returnType: expectedType || 'number',
-    expressions: [{ type: 'value', returnType: expectedType || 'number', value: '' }],
-    operators: []
-  });
-  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
-
-  // Update expansion state when isLoadedRule changes
-  useEffect(() => {
-    if (isLoadedRule) {
-      setIsExpanded(false);
-    }
-  }, [isLoadedRule]);
-
-  // Sync with external changes
-  useEffect(() => {
-    if (value) {
-      setGroupData(value);
-    }
-  }, [value]);
-
-  // Notify parent of changes
-  const handleChange = (updates) => {
-    const newData = { ...groupData, ...updates };
-    
-    // Auto-infer return type from expressions
-    const inferredType = inferReturnType(newData);
-    if (inferredType) {
-      newData.returnType = inferredType;
-    }
-    
-    setGroupData(newData);
-    if (onChange) {
-      onChange(newData);
-    }
-  };
-
-  const inferReturnType = (data) => {
-    // If we have mathematical operators, result should be number
-    if (data.operators && data.operators.length > 0) {
-      const hasNumericalOperators = data.operators.some(op => 
-        ['+', '-', '*', '/'].includes(op)
-      );
-      if (hasNumericalOperators) {
-        return 'number';
-      }
-    }
-    
-    // Start with first expression's return type
-    let type = data.expressions && data.expressions.length > 0 
-      ? getExpressionReturnType(data.expressions[0]) 
-      : 'number';
-    
-    return type;
-  };
-
-  const getExpressionReturnType = (expr) => {
-    if (!expr) return 'number';
-    if (expr.type === 'expressionGroup') {
-      return expr.returnType || 'number';
-    }
-    return expr.returnType || 'number';
-  };
-
-  const updateExpression = (index, newExpression) => {
-    const expressions = [...(groupData.expressions || [])];
-    expressions[index] = newExpression;
-    handleChange({ expressions });
-  };
-
-  const updateOperator = (index, newOperator) => {
-    const operators = [...(groupData.operators || [])];
-    operators[index] = newOperator;
-    handleChange({ operators });
-  };
-
-  const addExpression = () => {
-    const expressions = [...(groupData.expressions || [])];
-    const operators = [...(groupData.operators || [])];
-    
-    // Determine the type from existing expressions
-    const existingType = expressions.length > 0 
-      ? getExpressionReturnType(expressions[0])
-      : 'number';
-    
-    // Add new expression matching the existing type
-    expressions.push({ 
-      type: 'value', 
-      returnType: existingType, 
-      value: existingType === 'text' ? '' : 0 
-    });
-    
-    // Add operator before the new expression
-    if (expressions.length > 1) {
-      operators.push('+');
-    }
-    
-    handleChange({ expressions, operators });
-  };
-
-  const removeExpression = (index) => {
-    const expressions = [...(groupData.expressions || [])];
-    const operators = [...(groupData.operators || [])];
-    
-    expressions.splice(index, 1);
-    
-    // Remove corresponding operator
-    if (index > 0) {
-      operators.splice(index - 1, 1);
-    } else if (operators.length > 0) {
-      operators.splice(0, 1);
-    }
-    
-    handleChange({ expressions, operators });
-  };
-
-  const hasMultipleExpressions = () => {
-    return groupData.expressions && groupData.expressions.length > 1;
-  };
-
-  const canAddOperators = () => {
-    const firstType = groupData.expressions && groupData.expressions.length > 0
-      ? getExpressionReturnType(groupData.expressions[0])
-      : 'number';
-    return firstType === 'number' || firstType === 'text';
-  };
-
-  // Get expression summary for compact view
-  const getExpressionSummary = (expr) => {
-    if (!expr) return '?';
-    
-    if (expr.type === 'expressionGroup') {
-      if (expr.expressions && expr.expressions.length > 1) {
-        return '(...)'; // Nested group
-      } else if (expr.expressions && expr.expressions.length === 1) {
-        return getExpressionSummary(expr.expressions[0]);
-      }
-      return '?';
-    }
-    
-    switch (expr.type) {
-      case 'value':
-        return expr.value !== undefined ? String(expr.value) : '?';
-      case 'field':
-        return getFieldDisplayName(expr.field, config?.fields) || '?';
-      case 'function':
-        return expr.function?.name?.split('.').pop() || 'func';
-      default:
-        return '?';
-    }
-  };
-
-  const renderCompactView = () => {
-    if (!hasMultipleExpressions()) {
-      // Single expression - render the child directly
-      return (
-        <Expression
-          value={groupData.expressions?.[0]}
-          onChange={(value) => updateExpression(0, value)}
-          config={config}
-          expectedType={expectedType}
-          allowedSources={allowedSources}
-          darkMode={darkMode}
-          compact={true}
-          isLoadedRule={isLoadedRule}
-          propArgDef={propArgDef}
-        />
-      );
-    }
-
-    // Multiple expressions - show compact mathematical notation
-    const expressionSummaries = (groupData.expressions || []).map((expr, index) => {
-      const summary = getExpressionSummary(expr);
-      const operator = index > 0 && groupData.operators?.[index - 1] 
-        ? ` ${groupData.operators[index - 1]} ` 
-        : '';
-      return operator + summary;
-    });
-
-    return (
-      <Space size={4} style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(true)}>
-        <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
-        <Text code style={{ fontSize: '12px' }}>
-          ({expressionSummaries.join('')})
-        </Text>
-        <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
-          {groupData.returnType}
-        </Tag>
-      </Space>
-    );
-  };
-
-  const renderExpandedView = () => {
-    return (
-      <Space direction="vertical" style={{ width: '100%' }} size="small">
-        {/* Header for multi-expression groups */}
-        {hasMultipleExpressions() && (
-          <Space size={4} style={{ marginBottom: '4px' }}>
-            <Button
-              type="text"
-              size="small"
-              icon={<DownOutlined />}
-              onClick={() => setIsExpanded(false)}
-              style={{ padding: 0, minWidth: 'auto', color: darkMode ? '#888' : '#666' }}
-            />
-            <Text 
-              type="secondary" 
-              style={{ 
-                fontSize: '11px',
-                fontFamily: 'monospace',
-                maxWidth: '200px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Mathematical Expression
-            </Text>
-            <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
-              {groupData.returnType}
-            </Tag>
-          </Space>
-        )}
-
-        {/* First Expression with Add Button */}
-        <div style={{ paddingLeft: hasMultipleExpressions() ? '16px' : '0' }}>
-          <Space style={{ width: '100%' }} size="small">
-            <div style={{ flex: 1 }}>
-              <Expression
-                value={groupData.expressions?.[0]}
-                onChange={(value) => updateExpression(0, value)}
-                config={config}
-                expectedType={hasMultipleExpressions() ? 'number' : expectedType}
-                allowedSources={allowedSources}
-                darkMode={darkMode}
-                compact={compact}
-                isLoadedRule={isLoadedRule}
-                propArgDef={propArgDef}
-              />
-            </div>
-            
-            {/* Add Operation Button */}
-            {canAddOperators() && (
-              <Button
-                type="text"
-                size="small"
-                icon={<PlusOutlined />}
-                onClick={addExpression}
-                style={{ 
-                  minWidth: 'auto', 
-                  padding: '0 4px',
-                  color: darkMode ? '#52c41a' : '#52c41a'
-                }}
-                title="Add Operation"
-              />
-            )}
-          </Space>
-        </div>
-
-        {/* Additional Expressions with Operators */}
-        {(groupData.expressions || []).slice(1).map((expr, index) => {
-          const actualIndex = index + 1;
-          
-          // Determine operator options based on expression type
-          const firstType = getExpressionReturnType(groupData.expressions[0]);
-          const operatorOptions = firstType === 'text' 
-            ? [{ value: '+', label: '+' }] // Only concatenation for text
-            : [
-                { value: '+', label: '+' },
-                { value: '-', label: '-' },
-                { value: '*', label: '*' },
-                { value: '/', label: '/' }
-              ];
-          
-          return (
-            <div key={actualIndex} style={{ paddingLeft: '16px' }}>
-              <Space style={{ width: '100%' }} size="small">
-                {/* Operator */}
-                <Select
-                  value={groupData.operators?.[index] || '+'}
-                  onChange={(op) => updateOperator(index, op)}
-                  style={{ width: '50px' }}
-                  size="small"
-                  options={operatorOptions}
-                />
-                
-                {/* Expression */}
-                <div style={{ flex: 1 }}>
-                  <Expression
-                    value={expr}
-                    onChange={(value) => updateExpression(actualIndex, value)}
-                    config={config}
-                    expectedType="number"
-                    allowedSources={allowedSources}
-                    darkMode={darkMode}
-                    compact={compact}
-                    isLoadedRule={isLoadedRule}
-                    propArgDef={propArgDef}
-                  />
-                </div>
-
-                {/* Remove Button */}
-                <Button
-                  type="text"
-                  size="small"
-                  danger
-                  icon={<CloseOutlined />}
-                  onClick={() => removeExpression(actualIndex)}
-                  style={{ minWidth: 'auto', padding: '0 4px' }}
-                  title="Remove Operation"
-                />
-              </Space>
-            </div>
-          );
-        })}
-      </Space>
-    );
-  };
-
-  // For single expressions in compact mode, render without the group wrapper
-  if (compact && !hasMultipleExpressions()) {
-    const firstExpression = groupData.expressions?.[0];
-    
-    return (
-      <Expression
-        value={firstExpression}
-        onChange={(value) => updateExpression(0, value)}
-        config={config}
-        expectedType={expectedType}
-        allowedSources={allowedSources}
-        darkMode={darkMode}
-        compact={compact}
-        isLoadedRule={isLoadedRule}
-        propArgDef={propArgDef}
-      />
-    );
-  }
-
-  return (
-    <div style={{ 
-      width: '100%',
-      padding: '8px',
-      borderRadius: '6px',
-      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
-      border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'}`,
-      transition: 'all 0.2s ease'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)';
-    }}
-    >
-      {isExpanded ? renderExpandedView() : renderCompactView()}
-    </div>
-  );
-};
-
-// Helper function to get field display name from field path
-const getFieldDisplayName = (fieldPath, fields) => {
-  if (!fieldPath || !fields) return fieldPath || '?';
-  
-  const pathParts = fieldPath.split('.');
-  let currentFields = fields;
-  let displayName = '';
-  
-  for (let i = 0; i < pathParts.length; i++) {
-    const part = pathParts[i];
-    const field = currentFields[part];
-    
-    if (!field) return fieldPath; // Fallback to original path
-    
-    if (i > 0) displayName += ' > ';
-    displayName += field.label || part;
-    
-    if (field.subfields) {
-      currentFields = field.subfields;
-    }
-  }
-  
-  return displayName;
 };
 
 /**

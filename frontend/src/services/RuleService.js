@@ -114,6 +114,27 @@ class RuleService {
   }
 
   /**
+   * Get all rule IDs with metadata
+   * @returns {Array} - Array of rule summaries with {ruleId, uuid, latestVersion, folderPath, returnType}
+   */
+  async getRuleIds() {
+    const response = await this.http.get('/rules/ids');
+    return response.data;
+  }
+
+  /**
+   * Get specific rule version by ruleId and uuid
+   * @param {string} ruleId - Rule ID
+   * @param {string} uuid - Rule UUID
+   * @param {number} version - Version number
+   * @returns {Object} - Rule object
+   */
+  async getRuleByVersion(ruleId, uuid, version) {
+    const response = await this.http.get(`/rules/${ruleId}/${uuid}/${version}`);
+    return response.data;
+  }
+
+  /**
    * Get specific rule (latest version)
    * @param {string} uuid - Rule UUID
    * @returns {Object} - Rule object
@@ -140,7 +161,7 @@ class RuleService {
    * @returns {Array} - Array of version numbers
    */
   async getRuleVersions(uuid) {
-    const response = await this.http.get(`/rules/${uuid}/versions`);
+    const response = await this.http.get(`/rules/versions/${uuid}`);
     return response.data;
   }
 
