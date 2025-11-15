@@ -1,7 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { CloseOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import ExpressionGroup, { createExpressionGroup } from './ExpressionGroup';
+import { SmartExpression } from './utils/expressionUtils.jsx';
+
+// Helper function to create direct expressions (schema-compliant)
+const createDirectExpression = (type = 'value', returnType = 'text', value = '') => {
+  const expression = {
+    type,
+    returnType,
+  };
+  
+  if (type === 'value') {
+    expression.value = value;
+  } else if (type === 'field') {
+    expression.field = value;
+  } else if (type === 'function') {
+    expression.function = { name: null, args: [] };
+  } else if (type === 'ruleRef') {
+    expression.id = null;
+    expression.uuid = null;
+    expression.version = 1;
+  }
+  
+  return expression;
+};
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -26,9 +48,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
   const [conditionData, setConditionData] = useState(value || {
     returnType: 'boolean',
     name: 'New Condition',
-    left: createExpressionGroup('number', null),
-    operator: null,
-    right: createExpressionGroup('number', '')
+    left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+    operator: 'equal',
+    right: createDirectExpression('value', 'number', 0)
   });
   const [editingName, setEditingName] = useState(false);
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
@@ -125,15 +147,17 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       // No right side value needed
       newRight = null;
     } else if (cardinality === 1) {
-      // Single right side value - must be ExpressionGroup
-      newRight = createExpressionGroup(
+      // Single right side value - direct expression (schema-compliant)
+      newRight = createDirectExpression(
+        'value',
         conditionData.left?.returnType || 'text',
         ''
       );
     } else {
-      // Multiple right side values (array of ExpressionGroups)
+      // Multiple right side values (array of direct expressions)
       newRight = Array(cardinality).fill(null).map(() => 
-        createExpressionGroup(
+        createDirectExpression(
+          'value',
           conditionData.left?.returnType || 'text',
           ''
         )
@@ -153,7 +177,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
     if (maxCard && Array.isArray(conditionData.right) && conditionData.right.length < maxCard) {
       const newRight = [
         ...conditionData.right,
-        createExpressionGroup(conditionData.left?.returnType || 'text', '')
+        createDirectExpression('value', conditionData.left?.returnType || 'text', '')
       ];
       handleChange({ right: newRight });
     }
@@ -178,6 +202,8 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       operator: conditionData.operator,
       currentRight: conditionData.right
     });
+    
+    console.log('🔍 DEBUG: newLeft structure:', JSON.stringify(newLeft, null, 2));
     
     // When left side changes type, update right side to match if operator exists
     const operatorDef = getOperatorDef(conditionData.operator);
@@ -301,7 +327,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
         <div style={{ minWidth: '300px', flex: 1 }}>
-          <ExpressionGroup
+          <SmartExpression
             value={conditionData.left}
             onChange={handleLeftChange}
             config={config}
@@ -328,7 +354,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         {/* Right Expression(s) */}
         {cardinality === 1 && (
           <div style={{ minWidth: '300px', flex: 1 }}>
-            <ExpressionGroup
+            <SmartExpression
               value={conditionData.right}
               onChange={(newRight) => handleChange({ right: newRight })}
               config={config}
@@ -357,7 +383,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
                   </Text>
                 )}
                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center', minWidth: '300px', flex: 1 }}>
-                  <ExpressionGroup
+                  <SmartExpression
                     value={rightVal}
                     onChange={(newVal) => {
                       const updatedRight = [...conditionData.right];

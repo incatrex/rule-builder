@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Button, Collapse, Input, Typography, Tag, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
-import ExpressionGroup, { createExpressionGroup } from './ExpressionGroup';
+import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -27,7 +27,7 @@ const { Panel } = Collapse;
 const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false }) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
-    elseClause: createExpressionGroup('number', ''),
+    elseClause: createDirectExpression('value', 'number', 0),
     elseResultName: 'Default'
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
@@ -60,12 +60,41 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
     const updated = { ...caseData, ...updates };
     setCaseData(updated);
     
-    // Remove UI-only properties but keep the internal structure intact for components
-    const { elseExpanded: _, ...cleanData } = updated;
+    // Remove UI-only properties recursively before passing to parent
+    const cleanData = removeUIProperties(updated);
     
-    // Pass the data through without transformation for internal component use
-    // JSON transformation should only happen at final export stage
+    // Pass the cleaned data to parent component
     onChange(cleanData);
+  };
+
+  // Helper function to recursively remove UI-only properties
+  const removeUIProperties = (obj) => {
+    if (!obj || typeof obj !== 'object') {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(removeUIProperties);
+    }
+
+    const cleaned = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Skip UI-only properties
+      if (key.startsWith('editing') || 
+          key === 'elseExpanded' || 
+          key.includes('Expanded') ||
+          key.includes('editing')) {
+        continue;
+      }
+      
+      // Recursively clean nested objects
+      if (value && typeof value === 'object') {
+        cleaned[key] = removeUIProperties(value);
+      } else {
+        cleaned[key] = value;
+      }
+    }
+    return cleaned;
   };
 
   const addWhenClause = () => {
@@ -82,13 +111,13 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
             type: 'condition',
             returnType: 'boolean',
             name: 'Condition 1',
-            left: createExpressionGroup('number', null),
-            operator: null,
-            right: createExpressionGroup('number', '')
+            left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+            operator: 'equal',
+            right: createDirectExpression('value', 'number', 0)
           }
         ]
       },
-      then: createExpressionGroup('number', ''),
+      then: createDirectExpression('value', 'number', 0),
       resultName: `Result ${caseData.whenClauses.length + 1}`
     };
     handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });
@@ -229,7 +258,7 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                     )}
                     <Text strong>:</Text>
                   </Space>
-                  <ExpressionGroup
+                  <SmartExpression
                     value={clause.then}
                     onChange={(newThen) => updateWhenClause(index, { then: newThen })}
                     config={config}
@@ -289,7 +318,7 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
               </Space>
             }
           >
-            <ExpressionGroup
+            <SmartExpression
               value={caseData.elseClause}
               onChange={(newElse) => handleChange({ elseClause: newElse })}
               config={config}

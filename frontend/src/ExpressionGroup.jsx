@@ -3,7 +3,7 @@ import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import RuleSelector from './RuleSelector';
-import Expression from './Expression';
+import { SmartExpression } from './utils/expressionUtils';
 
 const { Text } = Typography;
 
@@ -50,39 +50,31 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     }
   }, [isLoadedRule]);
   
-  // Normalize the value to ensure it's a proper ExpressionGroup structure
-  const normalizeValue = (val) => {
-    if (!val) {
-      return {
-        type: 'expressionGroup',
-        returnType: expectedType || 'number',
-        expressions: [{ type: 'value', returnType: expectedType || 'number', value: '' }],
-        operators: []
-      };
+  // Validate that this is a proper multi-expression ExpressionGroup
+  const validateExpressionGroup = (val) => {
+    console.log('🔍 VALIDATION: ExpressionGroup received value:', val);
+    console.log('🔍 VALIDATION: Type check:', val?.type);
+    console.log('🔍 VALIDATION: Expressions check:', val?.expressions?.length);
+    
+    if (!val || val.type !== 'expressionGroup') {
+      throw new Error('ExpressionGroup component requires data with type="expressionGroup"');
     }
     
-    // If it's already an ExpressionGroup, return as-is
-    if (val.type === 'expressionGroup') {
-      return val;
+    if (!val.expressions || val.expressions.length < 2) {
+      throw new Error('ExpressionGroup component requires 2 or more expressions. Use Expression component for single expressions.');
     }
     
-    // If it's a simple Expression (field, value, function), wrap it in expressions array
-    return {
-      type: 'expressionGroup',
-      returnType: val.returnType || expectedType || 'number',
-      expressions: [val],
-      operators: []
-    };
+    return val;
   };
   
-  const [groupData, setGroupData] = useState(normalizeValue(value));
+  const [groupData, setGroupData] = useState(() => validateExpressionGroup(value));
   const isUpdatingFromProps = useRef(false);
 
   // Sync with external changes
   useEffect(() => {
     if (value) {
       isUpdatingFromProps.current = true;
-      setGroupData(normalizeValue(value));
+      setGroupData(validateExpressionGroup(value));
       setTimeout(() => {
         isUpdatingFromProps.current = false;
       }, 0);
@@ -203,29 +195,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   };
 
   const renderCompactView = () => {
-    if (!hasMultipleExpressions()) {
-      // Single expression - show it with add button capability in expanded view if not in compact mode
-      if (compact) {
-        // If we're in compact mode, render the child directly
-        return (
-          <ExpressionGroup
-            value={groupData.expressions?.[0]}
-            onChange={(value) => updateExpression(0, value)}
-            config={config}
-            expectedType={expectedType}
-            allowedSources={allowedSources}
-            darkMode={darkMode}
-            compact={true}
-            isLoadedRule={isLoadedRule}
-          />
-        );
-      } else {
-        // If we're not in compact mode, render in expanded view to show the add button
-        return renderExpandedView();
-      }
-    }
-
-    // Multiple expressions - show compact operation notation
+    // ExpressionGroup always has multiple expressions - show compact operation notation
     const expressionSummaries = (groupData.expressions || []).map((expr, index) => {
       const summary = getExpressionSummary(expr);
       let operator = '';
@@ -306,65 +276,50 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   const renderExpandedView = () => {
     return (
       <Space direction="vertical" style={{ width: '100%' }} size="small">
-        {/* Header for multi-expression groups */}
-        {hasMultipleExpressions() && (
-          <Space size={4} style={{ marginBottom: '4px' }}>
-            <Button
-              type="text"
-              size="small"
-              icon={<DownOutlined />}
-              onClick={() => setIsExpanded(false)}
-              style={{ padding: 0, minWidth: 'auto', color: darkMode ? '#888' : '#666' }}
-            />
-            <Text 
-              type="secondary" 
-              style={{ 
-                fontSize: '11px',
-                fontFamily: 'monospace',
-                maxWidth: '200px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}
-              title="Click to expand expression"
-            >
-              {expressionPreview}
-            </Text>
-            <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
-              {groupData.returnType}
-            </Tag>
-          </Space>
-        )}
+        {/* Header - ExpressionGroup always has multiple expressions */}
+        <Space size={4} style={{ marginBottom: '4px' }}>
+          <Button
+            type="text"
+            size="small"
+            icon={<DownOutlined />}
+            onClick={() => setIsExpanded(false)}
+            style={{ padding: 0, minWidth: 'auto', color: darkMode ? '#888' : '#666' }}
+          />
+          <Text 
+            type="secondary" 
+            style={{ 
+              fontSize: '11px',
+              fontFamily: 'monospace',
+              maxWidth: '200px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+            title="Click to collapse expression group"
+          >
+            {expressionPreview}
+          </Text>
+          <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
+            {groupData.returnType}
+          </Tag>
+        </Space>
 
         {/* First Expression with Add Button */}
-        <div style={{ paddingLeft: hasMultipleExpressions() ? '16px' : '0' }}>
+        <div style={{ paddingLeft: '16px' }}>
           <Space style={{ width: '100%' }} size="small">
             <div style={{ flex: 1 }}>
-              {groupData.expressions?.[0]?.type === 'expressionGroup' ? (
-                <ExpressionGroup
-                  value={groupData.expressions[0]}
-                  onChange={(value) => updateExpression(0, value)}
-                  config={config}
-                  expectedType={hasMultipleExpressions() ? 'number' : expectedType}
-                  allowedSources={allowedSources}
-                  darkMode={darkMode}
-                  compact={compact}
-                  isLoadedRule={isLoadedRule}
-                />
-              ) : (
-                <Expression
-                  value={groupData.expressions?.[0]}
-                  onChange={(value) => updateExpression(0, value)}
-                  config={config}
-                  expectedType={hasMultipleExpressions() ? 'number' : expectedType}
-                  allowedSources={allowedSources}
-                  darkMode={darkMode}
-                  compact={compact}
-                  isLoadedRule={isLoadedRule}
-                  propArgDef={propArgDef}
-                  disableOperations={true}  // Disable operations since ExpressionGroup handles them
-                />
-              )}
+              <SmartExpression
+                value={groupData.expressions?.[0]}
+                onChange={(value) => updateExpression(0, value)}
+                config={config}
+                expectedType="number"
+                allowedSources={allowedSources}
+                darkMode={darkMode}
+                compact={compact}
+                isLoadedRule={isLoadedRule}
+                propArgDef={propArgDef}
+                disableOperations={true}  // Disable operations since ExpressionGroup handles them
+              />
             </div>
             
             {/* Add Operation Button */}
@@ -423,7 +378,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                 
                 {/* Expression */}
                 <div style={{ flex: 1 }}>
-                  <ExpressionGroup
+                  <SmartExpression
                     value={expr}
                     onChange={(value) => updateExpression(actualIndex, value)}
                     config={config}
@@ -451,7 +406,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         })}
 
         {/* Type Warning */}
-        {!canAddOperators() && groupData.expressions?.length > 1 && (
+        {!canAddOperators() && (
           <div style={{ paddingLeft: '16px' }}>
             <Text type="warning" style={{ fontSize: '11px' }}>
               ⚠ Operations require compatible expression types
@@ -461,42 +416,6 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       </Space>
     );
   };
-
-  // For single expressions in compact mode, render without the group wrapper
-  if (compact && !hasMultipleExpressions()) {
-    const firstExpression = groupData.expressions?.[0];
-    
-    // Check if it's a nested ExpressionGroup or Expression
-    if (firstExpression?.type === 'expressionGroup') {
-      return (
-        <ExpressionGroup
-          value={firstExpression}
-          onChange={(value) => updateExpression(0, value)}
-          config={config}
-          expectedType={expectedType}
-          allowedSources={allowedSources}
-          darkMode={darkMode}
-          compact={compact}
-          isLoadedRule={isLoadedRule}
-        />
-      );
-    }
-    
-    return (
-      <Expression
-        value={firstExpression}
-        onChange={(value) => updateExpression(0, value)}
-        config={config}
-        expectedType={expectedType}
-        allowedSources={allowedSources}
-        darkMode={darkMode}
-        compact={compact}
-        isLoadedRule={isLoadedRule}
-        propArgDef={propArgDef}
-        disableOperations={true}  // Disable operations since ExpressionGroup handles them
-      />
-    );
-  }
 
   return (
     <div style={{ 

@@ -4,7 +4,7 @@ import { SaveOutlined } from '@ant-design/icons';
 import { RuleService, ConfigService } from './services';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
-import ExpressionGroup from './ExpressionGroup';
+import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -175,39 +175,19 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                   type: 'condition',
                   returnType: 'boolean',
                   name: 'Condition 1',
-                  left: { 
-                    type: 'expressionGroup',
-                    returnType: 'number',
-                    expressions: [{ type: 'field', returnType: 'number', field: null }],
-                    operators: []
-                  },
-                  operator: null,
-                  right: { 
-                    type: 'expressionGroup',
-                    returnType: 'number',
-                    expressions: [{ type: 'value', returnType: 'number', value: '' }],
-                    operators: []
-                  }
+                  left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+                  operator: 'equal',
+                  right: createDirectExpression('value', 'number', 0)
                 }
               ]
             },
-            then: {
-              type: 'expressionGroup',
-              returnType: 'number',
-              expressions: [{ type: 'value', returnType: 'number', value: '' }],
-              operators: []
-            },
+            then: createDirectExpression('value', 'number', 0),
             resultName: 'Result 1',
             editingName: false,
             editingResultName: false
           }
         ],
-        elseClause: { 
-          type: 'expressionGroup',
-          returnType: 'number',
-          expressions: [{ type: 'value', returnType: 'number', value: '' }],
-          operators: []
-        },
+        elseClause: createDirectExpression('value', 'number', 0),
         elseResultName: 'Default',
         elseExpanded: true
       };
@@ -219,34 +199,27 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         conjunction: 'AND',
         not: false,
         conditions: [
-          // Auto-add an empty condition
+          // Auto-add an empty condition with direct expressions (schema-compliant)
           {
             type: 'condition',
             returnType: 'boolean',
             name: 'Condition 1',
-            left: { 
-              type: 'expressionGroup',
+            left: {
+              type: 'field',
               returnType: 'number',
-              expressions: [{ type: 'field', returnType: 'number', field: null }],
-              operators: []
+              field: 'TABLE1.NUMBER_FIELD_01' // Use a default valid field
             },
-            operator: null,
-            right: { 
-              type: 'expressionGroup',
+            operator: 'equal', // Use a default valid operator
+            right: {
+              type: 'value',
               returnType: 'number',
-              expressions: [{ type: 'value', returnType: 'number', value: '' }],
-              operators: []
+              value: 0 // Use a default valid value
             }
           }
         ]
       };
     } else if (structure === 'expression') {
-      content = {
-        type: 'expressionGroup',
-        returnType: 'number',
-        expressions: [{ type: 'value', returnType: 'number', value: '' }],
-        operators: []
-      };
+      content = createDirectExpression('value', 'number', 0);
     }
     
     handleChange({ 
@@ -614,7 +587,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
           )}
 
           {ruleData.structure === 'expression' && ruleData.content && (
-            <ExpressionGroup
+            <SmartExpression
               value={ruleData.content}
               onChange={(content) => handleChange({ content })}
               config={config}

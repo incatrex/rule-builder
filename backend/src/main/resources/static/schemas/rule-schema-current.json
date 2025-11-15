@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v1.0.7.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v1.1.0.json",
   "title": "Rule Builder Schema",
-  "description": "JSON Schema for validating Rule Builder generated rules - Renamed BaseExpression to Expression for consistency with UI components",
+  "description": "JSON Schema for validating Rule Builder generated rules - Aligned Expression/ExpressionGroup pattern with Condition/ConditionGroup for consistency. ExpressionGroup requires 2+ expressions.",
   "type": "object",
   "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "content"],
   "properties": {
@@ -81,7 +81,12 @@
       },
       "then": {
         "properties": {
-          "content": { "$ref": "#/definitions/ExpressionGroup" }
+          "content": {
+            "oneOf": [
+              { "$ref": "#/definitions/Expression" },
+              { "$ref": "#/definitions/ExpressionGroup" }
+            ]
+          }
         }
       }
     }
@@ -98,7 +103,10 @@
           "description": "Array of WHEN/THEN clause pairs"
         },
         "elseClause": {
-          "$ref": "#/definitions/ExpressionGroup",
+          "oneOf": [
+            { "$ref": "#/definitions/Expression" },
+            { "$ref": "#/definitions/ExpressionGroup" }
+          ],
           "description": "Optional ELSE clause with default result"
         },
         "elseResultName": {
@@ -117,7 +125,10 @@
           "description": "The condition that must be true for this clause"
         },
         "then": {
-          "$ref": "#/definitions/ExpressionGroup",
+          "oneOf": [
+            { "$ref": "#/definitions/Expression" },
+            { "$ref": "#/definitions/ExpressionGroup" }
+          ],
           "description": "The result to return if the WHEN condition is true"
         },
         "resultName": {
@@ -190,7 +201,10 @@
           "description": "Unique identifier for UI management (optional)"
         },
         "left": {
-          "$ref": "#/definitions/ExpressionGroup",
+          "oneOf": [
+            { "$ref": "#/definitions/Expression" },
+            { "$ref": "#/definitions/ExpressionGroup" }
+          ],
           "description": "Left side expression of the condition"
         },
         "operator": {
@@ -204,10 +218,16 @@
         },
         "right": {
           "oneOf": [
+            { "$ref": "#/definitions/Expression" },
             { "$ref": "#/definitions/ExpressionGroup" },
             {
               "type": "array",
-              "items": { "$ref": "#/definitions/ExpressionGroup" },
+              "items": {
+                "oneOf": [
+                  { "$ref": "#/definitions/Expression" },
+                  { "$ref": "#/definitions/ExpressionGroup" }
+                ]
+              },
               "minItems": 1,
               "maxItems": 10
             },
@@ -233,14 +253,14 @@
         },
         "expressions": {
           "type": "array",
-          "minItems": 1,
+          "minItems": 2,
           "items": {
             "oneOf": [
               { "$ref": "#/definitions/Expression" },
               { "$ref": "#/definitions/ExpressionGroup" }
             ]
           },
-          "description": "Array of expressions - can be expressions or nested expression groups"
+          "description": "Array of expressions - always 2 or more expressions with operators between them"
         },
         "operators": {
           "type": "array",
@@ -308,8 +328,11 @@
                     "description": "Argument name"
                   },
                   "value": {
-                    "$ref": "#/definitions/ExpressionGroup",
-                    "description": "Argument value as expression group"
+                    "oneOf": [
+                      { "$ref": "#/definitions/Expression" },
+                      { "$ref": "#/definitions/ExpressionGroup" }
+                    ],
+                    "description": "Argument value as expression or expression group"
                   }
                 },
                 "additionalProperties": false

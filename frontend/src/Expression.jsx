@@ -88,21 +88,50 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     }
   }, [value]);
 
-  // Handle expression groups
+  // Handle single-item expression groups by extracting the expression
   if (expressionData.type === 'expressionGroup') {
-    return (
-      <ExpressionGroup
-        value={expressionData}
-        onChange={onChange}
-        config={config}
-        expectedType={expectedType}
-        darkMode={darkMode}
-        compact={compact}
-        isLoadedRule={isLoadedRule}
-        allowedSources={allowedSources}
-        argDef={propArgDef}
-      />
-    );
+    if (expressionData.expressions && expressionData.expressions.length === 1) {
+      // Single-item ExpressionGroup - extract the expression and handle it directly
+      const singleExpression = expressionData.expressions[0];
+      
+      // Update the expression data to the single expression but keep ExpressionGroup wrapper for saving
+      const handleSingleExpressionChange = (newExpression) => {
+        // If the inner Expression created a multi-item ExpressionGroup, pass it through unchanged
+        if (newExpression.type === 'expressionGroup' && newExpression.expressions?.length > 1) {
+          console.log('🔄 Inner Expression created multi-item group, passing through:', newExpression);
+          if (onChange) onChange(newExpression);
+          return;
+        }
+        
+        // Otherwise, wrap single expression in ExpressionGroup
+        const updatedGroup = {
+          ...expressionData,
+          expressions: [newExpression],
+          returnType: newExpression.returnType || expressionData.returnType
+        };
+        if (onChange) onChange(updatedGroup);
+      };
+      
+      // Re-render with the single expression
+      return (
+        <Expression
+          value={singleExpression}
+          onChange={handleSingleExpressionChange}
+          config={config}
+          expectedType={expectedType}
+          darkMode={darkMode}
+          compact={compact}
+          isLoadedRule={isLoadedRule}
+          allowedSources={allowedSources}
+          propArgDef={propArgDef}
+          disableOperations={disableOperations}
+        />
+      );
+    } else {
+      // Multi-item ExpressionGroup - let parent handle routing via SmartExpression
+      console.warn('Expression component received multi-item ExpressionGroup. Parent should re-route to ExpressionGroup.');
+      return null;
+    }
   }
 
   // Check if we can add operators
@@ -111,20 +140,33 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     return currentType === 'number' || currentType === 'text';
   };
 
-  // Create expression group
+  // Create expression group - converts this Expression to a multi-expression ExpressionGroup
   const createExpressionGroup = () => {
+    console.log('🚀 DEBUG: createExpressionGroup called with current data:', expressionData);
+    
+    // Extract the actual expression from single-item ExpressionGroup if needed
+    let actualExpression = expressionData;
+    if (expressionData.type === 'expressionGroup' && expressionData.expressions?.length === 1) {
+      actualExpression = expressionData.expressions[0];
+      console.log('🚀 DEBUG: Extracted single expression from group:', actualExpression);
+    }
+    
     const expressionGroup = {
       type: 'expressionGroup',
-      returnType: expressionData.returnType || 'number',
-      expressions: [expressionData, { 
+      returnType: actualExpression.returnType || 'number',
+      expressions: [actualExpression, { 
         type: 'value', 
-        returnType: expressionData.returnType || 'number', 
-        value: expressionData.returnType === 'text' ? '' : 0 
+        returnType: actualExpression.returnType || 'number', 
+        value: actualExpression.returnType === 'text' ? '' : 0 
       }],
       operators: ['+']
     };
-    setExpressionData(expressionGroup);
+    
+    console.log('🚀 DEBUG: Created expressionGroup:', expressionGroup);
+    
+    // Only notify parent - don't update local state since this component will be replaced
     if (onChange) {
+      console.log('🚀 DEBUG: Calling onChange with expressionGroup');
       onChange(expressionGroup);
     }
   };
@@ -700,7 +742,10 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
               type="text"
               size="small"
               icon={<PlusOutlined />}
-              onClick={createExpressionGroup}
+              onClick={() => {
+                console.log('🟢 PLUS BUTTON CLICKED! About to call createExpressionGroup');
+                createExpressionGroup();
+              }}
               style={{ 
                 minWidth: 'auto', 
                 padding: '0 4px',
@@ -716,8 +761,8 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
 };
 
 /**
- * Factory function to create a new empty ExpressionGroup structure
- * This ensures the structure is defined in one place
+ * Factory function to create a new single-item ExpressionGroup structure
+ * This ensures the structure is defined in one place and follows the new pattern
  */
 export const createExpressionGroup = (returnType = 'text', defaultValue = '') => ({
   type: 'expressionGroup',

@@ -223,21 +223,20 @@ describe('Round-trip Integration Tests', () => {
       expect(content.expressions[0].type).toBe('expressionGroup');
       expect(content.expressions[0].expressions[0].type).toBe('function');
       
-      // Find the ADD function
+      // Find the ADD function (now directly in expressions, not wrapped in ExpressionGroup)
       const addFunction = content.expressions.find(expr => 
-        expr.type === 'expressionGroup' && 
-        expr.expressions?.[0]?.type === 'function' &&
-        expr.expressions?.[0]?.function?.name === 'MATH.ADD'
+        expr.type === 'function' &&
+        expr.function?.name === 'MATH.ADD'
       );
       
       expect(addFunction).toBeDefined();
-      expect(addFunction.expressions[0].function.args).toBeDefined();
-      expect(addFunction.expressions[0].function.args.length).toBe(2);
+      expect(addFunction.function.args).toBeDefined();
+      expect(addFunction.function.args.length).toBe(2);
       
-      // Verify arg1 has nested ExpressionGroup
-      const arg1Value = addFunction.expressions[0].function.args[0].value;
+      // Verify arg1 has nested ExpressionGroup (this should still be preserved for multi-expression groups)
+      const arg1Value = addFunction.function.args[0].value;
       expect(arg1Value.type).toBe('expressionGroup');
-      expect(arg1Value.expressions[0].type).toBe('expressionGroup');
+      expect(arg1Value.expressions.length).toBeGreaterThan(1); // Multi-expression group preserved
     });
   });
 

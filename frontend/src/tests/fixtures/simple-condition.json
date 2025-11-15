@@ -21,63 +21,35 @@
         "returnType": "boolean",
         "name": "Numeric Equality with Function",
         "left": {
-          "type": "expressionGroup",
+          "type": "function",
           "returnType": "number",
-          "expressions": [
-            {
-              "type": "function",
-              "returnType": "number",
-              "function": {
-                "name": "MATH.ADD",
-                "args": [
-                  {
-                    "name": "arg1",
-                    "value": {
-                      "type": "expressionGroup",
-                      "returnType": "number",
-                      "expressions": [
-                        {
-                          "type": "field",
-                          "returnType": "number",
-                          "field": "TABLE1.NUMBER_FIELD_01"
-                        }
-                      ],
-                      "operators": []
-                    }
-                  },
-                  {
-                    "name": "arg2",
-                    "value": {
-                      "type": "expressionGroup",
-                      "returnType": "number",
-                      "expressions": [
-                        {
-                          "type": "value",
-                          "returnType": "number",
-                          "value": 10
-                        }
-                      ],
-                      "operators": []
-                    }
-                  }
-                ]
+          "function": {
+            "name": "MATH.ADD",
+            "args": [
+              {
+                "name": "arg1",
+                "value": {
+                  "type": "field",
+                  "returnType": "number",
+                  "field": "TABLE1.NUMBER_FIELD_01"
+                }
+              },
+              {
+                "name": "arg2",
+                "value": {
+                  "type": "value",
+                  "returnType": "number",
+                  "value": 10
+                }
               }
-            }
-          ],
-          "operators": []
+            ]
+          }
         },
         "operator": "equal",
         "right": {
-          "type": "expressionGroup",
+          "type": "field",
           "returnType": "number",
-          "expressions": [
-            {
-              "type": "field",
-              "returnType": "number",
-              "field": "TABLE2.NUMBER_FIELD_02"
-            }
-          ],
-          "operators": []
+          "field": "TABLE2.NUMBER_FIELD_02"
         }
       },
       {
@@ -86,63 +58,35 @@
         "returnType": "boolean",
         "name": "Greater Than with Nested Math",
         "left": {
-          "type": "expressionGroup",
+          "type": "function",
           "returnType": "number",
-          "expressions": [
-            {
-              "type": "function",
-              "returnType": "number",
-              "function": {
-                "name": "MATH.MULTIPLY",
-                "args": [
-                  {
-                    "name": "arg1",
-                    "value": {
-                      "type": "expressionGroup",
-                      "returnType": "number",
-                      "expressions": [
-                        {
-                          "type": "field",
-                          "returnType": "number",
-                          "field": "TABLE1.NUMBER_FIELD_02"
-                        }
-                      ],
-                      "operators": []
-                    }
-                  },
-                  {
-                    "name": "arg2",
-                    "value": {
-                      "type": "expressionGroup",
-                      "returnType": "number",
-                      "expressions": [
-                        {
-                          "type": "value",
-                          "returnType": "number",
-                          "value": 1.5
-                        }
-                      ],
-                      "operators": []
-                    }
-                  }
-                ]
+          "function": {
+            "name": "MATH.MULTIPLY",
+            "args": [
+              {
+                "name": "arg1",
+                "value": {
+                  "type": "field",
+                  "returnType": "number",
+                  "field": "TABLE1.NUMBER_FIELD_02"
+                }
+              },
+              {
+                "name": "arg2",
+                "value": {
+                  "type": "value",
+                  "returnType": "number",
+                  "value": 1.5
+                }
               }
-            }
-          ],
-          "operators": []
+            ]
+          }
         },
         "operator": "greater",
         "right": {
-          "type": "expressionGroup",
+          "type": "value",
           "returnType": "number",
-          "expressions": [
-            {
-              "type": "value",
-              "returnType": "number",
-              "value": 100
-            }
-          ],
-          "operators": []
+          "value": 100
         }
       },
       {
@@ -158,29 +102,15 @@
             "returnType": "boolean",
             "name": "Text Contains Check",
             "left": {
-              "type": "expressionGroup",
+              "type": "field",
               "returnType": "text",
-              "expressions": [
-                {
-                  "type": "field",
-                  "returnType": "text",
-                  "field": "TABLE1.TEXT_FIELD_01"
-                }
-              ],
-              "operators": []
+              "field": "TABLE1.TEXT_FIELD_01"
             },
             "operator": "contains",
             "right": {
-              "type": "expressionGroup",
+              "type": "value",
               "returnType": "text",
-              "expressions": [
-                {
-                  "type": "value",
-                  "returnType": "text",
-                  "value": "APPROVED"
-                }
-              ],
-              "operators": []
+              "value": "APPROVED"
             }
           },
           {
@@ -189,63 +119,35 @@
             "returnType": "boolean",
             "name": "Text Starts With",
             "left": {
-              "type": "expressionGroup",
+              "type": "function",
               "returnType": "text",
-              "expressions": [
-                {
-                  "type": "function",
-                  "returnType": "text",
-                  "function": {
-                    "name": "TEXT.CONCAT",
-                    "args": [
-                      {
-                        "name": "arg1",
-                        "value": {
-                          "type": "expressionGroup",
-                          "returnType": "text",
-                          "expressions": [
-                            {
-                              "type": "field",
-                              "returnType": "text",
-                              "field": "TABLE1.TEXT_FIELD_02"
-                            }
-                          ],
-                          "operators": []
-                        }
-                      },
-                      {
-                        "name": "arg2",
-                        "value": {
-                          "type": "expressionGroup",
-                          "returnType": "text",
-                          "expressions": [
-                            {
-                              "type": "value",
-                              "returnType": "text",
-                              "value": "_SUFFIX"
-                            }
-                          ],
-                          "operators": []
-                        }
-                      }
-                    ]
+              "function": {
+                "name": "TEXT.CONCAT",
+                "args": [
+                  {
+                    "name": "arg1",
+                    "value": {
+                      "type": "field",
+                      "returnType": "text",
+                      "field": "TABLE1.TEXT_FIELD_02"
+                    }
+                  },
+                  {
+                    "name": "arg2",
+                    "value": {
+                      "type": "value",
+                      "returnType": "text",
+                      "value": "_SUFFIX"
+                    }
                   }
-                }
-              ],
-              "operators": []
+                ]
+              }
             },
             "operator": "starts_with",
             "right": {
-              "type": "expressionGroup",
+              "type": "value",
               "returnType": "text",
-              "expressions": [
-                {
-                  "type": "value",
-                  "returnType": "text",
-                  "value": "TEST"
-                }
-              ],
-              "operators": []
+              "value": "TEST"
             }
           }
         ]
@@ -256,42 +158,21 @@
         "returnType": "boolean",
         "name": "Between Check",
         "left": {
-          "type": "expressionGroup",
+          "type": "field",
           "returnType": "number",
-          "expressions": [
-            {
-              "type": "field",
-              "returnType": "number",
-              "field": "TABLE2.NUMBER_FIELD_01"
-            }
-          ],
-          "operators": []
+          "field": "TABLE2.NUMBER_FIELD_01"
         },
         "operator": "between",
         "right": [
           {
-            "type": "expressionGroup",
+            "type": "value",
             "returnType": "number",
-            "expressions": [
-              {
-                "type": "value",
-                "returnType": "number",
-                "value": 50
-              }
-            ],
-            "operators": []
+            "value": 50
           },
           {
-            "type": "expressionGroup",
+            "type": "value",
             "returnType": "number",
-            "expressions": [
-              {
-                "type": "value",
-                "returnType": "number",
-                "value": 150
-              }
-            ],
-            "operators": []
+            "value": 150
           }
         ]
       },
@@ -301,16 +182,9 @@
         "returnType": "boolean",
         "name": "Is Not Empty Check",
         "left": {
-          "type": "expressionGroup",
+          "type": "field",
           "returnType": "text",
-          "expressions": [
-            {
-              "type": "field",
-              "returnType": "text",
-              "field": "TABLE2.TEXT_FIELD_01"
-            }
-          ],
-          "operators": []
+          "field": "TABLE2.TEXT_FIELD_01"
         },
         "operator": "is_not_empty",
         "right": null
