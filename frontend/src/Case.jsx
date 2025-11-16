@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Button, Collapse, Input, Typography, Tag, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
-import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
+import Expression from './Expression';
+import { createDirectExpression } from './utils/expressionUtils.jsx';
 
 const { Text } = Typography;
 
@@ -255,7 +256,7 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                       )}
                       <Text strong>:</Text>
                     </Space>
-                    <SmartExpression
+                    <Expression
                       value={clause.then}
                       onChange={(newThen) => updateWhenClause(index, { then: newThen })}
                       config={config}
@@ -314,7 +315,7 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
               </Space>
             ),
             children: (
-              <SmartExpression
+              <Expression
                 value={caseData.elseClause}
                 onChange={(newElse) => handleChange({ elseClause: newElse })}
                 config={config}

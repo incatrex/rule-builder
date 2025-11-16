@@ -3,7 +3,7 @@ import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import RuleSelector from './RuleSelector';
-import { SmartExpression } from './utils/expressionUtils';
+import Expression from './Expression';
 
 const { Text } = Typography;
 
@@ -305,7 +305,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         <div style={{ paddingLeft: '16px' }}>
           <Space style={{ width: '100%' }} size="small">
             <div style={{ flex: 1 }}>
-              <SmartExpression
+              <Expression
                 value={groupData.expressions?.[0]}
                 onChange={(value) => updateExpression(0, value)}
                 config={config}
@@ -375,7 +375,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                 
                 {/* Expression */}
                 <div style={{ flex: 1 }}>
-                  <SmartExpression
+                  <Expression
                     value={expr}
                     onChange={(value) => updateExpression(actualIndex, value)}
                     config={config}

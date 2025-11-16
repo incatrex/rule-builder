@@ -14,7 +14,7 @@ import { describe, test, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { SmartExpression } from '../utils/expressionUtils';
+import Expression from '../Expression';
 
 // Mock config
 const mockConfig = {
@@ -91,7 +91,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <SmartExpression
+        <Expression
           value={initialValue}
           onChange={handleChange}
           config={mockConfig}
@@ -138,7 +138,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <SmartExpression
+        <Expression
           value={initialValue}
           onChange={handleChange}
           config={mockConfig}
@@ -186,7 +186,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <SmartExpression
+        <Expression
           value={initialValue}
           onChange={handleChange}
           config={mockConfig}
@@ -222,7 +222,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <SmartExpression
+        <Expression
           value={desiredValue}
           onChange={handleChange}
           config={mockConfig}
@@ -257,7 +257,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <SmartExpression
+        <Expression
           value={numericExpression}
           onChange={handleChange}
           config={mockConfig}

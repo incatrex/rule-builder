@@ -7,6 +7,11 @@ import Expression from '../Expression';
 import ExpressionGroup from '../ExpressionGroup';
 
 /**
+ * @deprecated SmartExpression is no longer needed. Use Expression component directly.
+ * The Expression component now handles routing internally - it delegates multi-item
+ * expressionGroups to ExpressionGroup automatically. This utility is kept for backward
+ * compatibility but should not be used in new code.
+ * 
  * Smart component that renders either Expression or ExpressionGroup based on data structure
  * @param {Object} props - Component props
  * @param {Object} props.value - Expression data (Expression or ExpressionGroup)
@@ -22,16 +27,11 @@ import ExpressionGroup from '../ExpressionGroup';
  * @returns {React.Component} Either Expression or ExpressionGroup component
  */
 export const SmartExpression = (props) => {
+  console.warn('SmartExpression is deprecated. Use Expression component directly instead.');
   const { value, ...otherProps } = props;
   
-  // Determine which component to use based on data structure
-  if (value?.type === 'expressionGroup' && value.expressions?.length > 1) {
-    // Multi-expression group -> use ExpressionGroup
-    return <ExpressionGroup value={value} {...otherProps} />;
-  } else {
-    // Single expression or single-item group -> use Expression
-    return <Expression value={value} {...otherProps} />;
-  }
+  // Just delegate to Expression - it handles routing now
+  return <Expression value={value} {...otherProps} />;
 };
 
 /**

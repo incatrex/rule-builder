@@ -10,8 +10,8 @@ config:
 [ ] Add GROUP.COUNT function with COUNT(field, groupBy multiselect)
 
 [ ] Componentize RuleBuilder
-    [ ] BaseExpression vs Expression
-    [ ] HttpHelper(using Axios) + Services for each component
+    [x] BaseExpression vs Expression
+    [x] HttpHelper(using Axios) + Services for each component
 
 [ ] use schema for config (or derive config from schema)
 
@@ -22,4 +22,14 @@ config:
 
 [x] Change "content" to "definition" in schema
 
-[ ] No RuleTypes found in config, using defaults -
+[ ] No RuleTypes found in config, using defaults
+
+[ ] Re-work validation
+
+[ ] Add Logic service + Component/Panel
+
+[ ] Change Condition name style to match ConditionGroup
+
+[ ] Fix ... after Expresion operators
+
+[ ] Adding ExpressionGroup automatically collapses?
