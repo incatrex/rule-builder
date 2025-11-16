@@ -20,6 +20,6 @@ config:
 
 [ ] Fix double + + showing in expression
 
-[ ] Change "content" to "definition" in schema
+[x] Change "content" to "definition" in schema
 
 [ ] No RuleTypes found in config, using defaults -

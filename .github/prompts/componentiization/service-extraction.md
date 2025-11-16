@@ -84,3 +84,27 @@ const rule = await RuleService.rules.get(ruleId, uuid, version);
 Please clarify these points so I can implement the exact architecture you envision!
 
 Claude Sonnet 4 • 1x
+
+
+
+GET    /api/ruleTypes
+GET    /api/rules/ids
+GET    /api/rules/versions/{uuid}
+POST   /api/rules/validate
+POST   /api/rules/to-sql
+
+
+
+GET    /api/rule/{uuid}/history
+POST   /api/rule/{uuid}/restore/{version}
+
+GET    /api/ruleBuilder/config  
+GET    /api/fields
+
+POST   /api/rule/{ruleId}/{version}
+GET    /api/rules/{ruleId}/{uuid}/{version}
+
+
+
+
+GET     /api/rule/{uuid}/history

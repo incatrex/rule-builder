@@ -4,6 +4,7 @@ import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, Clos
 import moment from 'moment';
 import RuleSelector from './RuleSelector';
 import ExpressionGroup from './ExpressionGroup';
+import { SmartExpression } from './utils/expressionUtils';
 
 const { Text } = Typography;
 
@@ -69,20 +70,30 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   const initialValue = normalizeValue(value);
   const [source, setSource] = useState(initialValue.type || 'value');
   const [expressionData, setExpressionData] = useState(initialValue);
-  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
+  // In compact mode (nested), start expanded. Otherwise, collapse if it's a loaded rule
+  const [isExpanded, setIsExpanded] = useState(compact ? true : !isLoadedRule);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Update expansion state when isLoadedRule changes
+  // Update expansion state when isLoadedRule or compact changes
   useEffect(() => {
-    if (isLoadedRule) {
-      setIsExpanded(false); // Collapse when rule is loaded
+    if (compact) {
+      setIsExpanded(true); // Always start expanded in compact mode
+    } else if (isLoadedRule) {
+      setIsExpanded(false); // Collapse when rule is loaded (non-compact mode)
     }
-  }, [isLoadedRule]);
+  }, [isLoadedRule, compact]);
 
   // Sync with external changes
   useEffect(() => {
     if (value) {
       const normalized = normalizeValue(value);
+      console.log('[Expression] Syncing with external value:', {
+        value,
+        normalized,
+        type: normalized.type,
+        compact,
+        isLoadedRule
+      });
       setSource(normalized.type || 'value');
       setExpressionData(normalized);
     }
@@ -90,7 +101,15 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
 
   // Handle single-item expression groups by extracting the expression
   if (expressionData.type === 'expressionGroup') {
+    console.log('[Expression] Detected expressionGroup:', {
+      expressionData,
+      expressionCount: expressionData.expressions?.length,
+      compact,
+      isLoadedRule
+    });
+    
     if (expressionData.expressions && expressionData.expressions.length === 1) {
+      console.log('[Expression] Single-item expressionGroup - extracting expression');
       // Single-item ExpressionGroup - extract the expression and handle it directly
       const singleExpression = expressionData.expressions[0];
       
@@ -128,6 +147,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       );
     } else {
       // Multi-item ExpressionGroup - let parent handle routing via SmartExpression
+      console.log('[Expression] Multi-item expressionGroup - should be handled by ExpressionGroup component');
       return null;
     }
   }
@@ -462,9 +482,86 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     );
   };
 
+  const getFunctionSummary = (funcData) => {
+    if (!funcData || !funcData.name) return '?';
+    
+    const funcName = funcData.name.split('.').pop();
+    const args = funcData.args || [];
+    
+    const argSummaries = args.map(arg => {
+      if (!arg.value) return '?';
+      const expr = arg.value;
+      
+      switch (expr.type) {
+        case 'value':
+          return expr.value !== undefined ? String(expr.value) : '?';
+        case 'field':
+          return getFieldDisplayName(expr.field, config?.fields) || '?';
+        case 'function':
+          return getFunctionSummary(expr.function);
+        case 'expressionGroup':
+          if (expr.expressions && expr.expressions.length > 1) {
+            const nestedSummaries = expr.expressions.map((nestedExpr, index) => {
+              const summary = nestedExpr.type === 'value' ? (nestedExpr.value !== undefined ? String(nestedExpr.value) : '?')
+                : nestedExpr.type === 'field' ? getFieldDisplayName(nestedExpr.field, config?.fields) || '?'
+                : nestedExpr.type === 'function' ? getFunctionSummary(nestedExpr.function)
+                : '?';
+              let operator = '';
+              if (index > 0 && expr.operators?.[index - 1]) {
+                const operatorSymbol = expr.operators[index - 1].split(' ')[0];
+                operator = ` ${operatorSymbol} `;
+              }
+              return operator + summary;
+            });
+            return `(${nestedSummaries.join('')})`;
+          } else if (expr.expressions && expr.expressions.length === 1) {
+            return getFunctionSummary(expr.expressions[0]);
+          }
+          return '?';
+        default:
+          return '?';
+      }
+    });
+    
+    return `${funcName}(${argSummaries.join(', ')})`;
+  };
+
+  const getFieldDisplayName = (fieldPath, fields) => {
+    if (!fieldPath || !fields) return fieldPath;
+    
+    const parts = fieldPath.split('.');
+    let current = fields;
+    
+    for (const part of parts) {
+      if (!current[part]) return fieldPath;
+      current = current[part];
+      
+      if (current.type === '!struct' && current.subfields) {
+        current = current.subfields;
+      }
+    }
+    
+    return current.label || parts[parts.length - 1];
+  };
+
   const renderFunctionBuilder = () => {
     const funcTreeData = buildFuncTreeData(config?.funcs || {});
     const funcDef = getFuncDef(expressionData.function?.name);
+    
+    // Render collapsed view when not expanded and function has args
+    if (!isExpanded && funcDef && expressionData.function?.args && expressionData.function.args.length > 0) {
+      return (
+        <Space size={4} style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(true)}>
+          <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
+          <Text code style={{ fontSize: '12px' }}>
+            {getFunctionSummary(expressionData.function)}
+          </Text>
+          <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
+            {expressionData.returnType || 'unknown'}
+          </Tag>
+        </Space>
+      );
+    }
     
     return (
       <Card
@@ -475,86 +572,90 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
         }}
       >
         <Space direction="vertical" style={{ width: '100%' }} size="small">
-          {/* Function selector */}
-          <TreeSelect
-            value={expressionData.function?.name || null}
-            onChange={(funcPath) => {
-              const funcDef = getFuncDef(funcPath);
-              let initialArgs = [];
-              
-              if (funcDef?.dynamicArgs) {
-                // Handle dynamic args - create minimum number of args
-                const minArgs = funcDef.dynamicArgs.minArgs || 2;
-                for (let i = 0; i < minArgs; i++) {
-                  initialArgs.push({
-                    name: `arg${i + 1}`,
+          {/* Function selector with collapse button */}
+          <Space size={4} style={{ width: '100%' }}>
+            {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && (
+              <Button
+                type="text"
+                size="small"
+                icon={isExpanded ? <DownOutlined /> : <RightOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
+                style={{ padding: 0, color: darkMode ? '#e0e0e0' : 'inherit', flexShrink: 0 }}
+              />
+            )}
+            <TreeSelect
+              value={expressionData.function?.name || null}
+              onChange={(funcPath) => {
+                const funcDef = getFuncDef(funcPath);
+                let initialArgs = [];
+                
+                if (funcDef?.dynamicArgs) {
+                  // Handle dynamic args - create minimum number of args
+                  const minArgs = funcDef.dynamicArgs.minArgs || 2;
+                  for (let i = 0; i < minArgs; i++) {
+                    initialArgs.push({
+                      name: `arg${i + 1}`,
+                      value: { 
+                        type: 'value', 
+                        returnType: funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
+                        value: funcDef.dynamicArgs.defaultValue ?? ''
+                      }
+                    });
+                  }
+                } else if (funcDef?.args) {
+                  // Handle fixed args
+                  initialArgs = Object.keys(funcDef.args).map(argKey => ({
+                    name: argKey,
                     value: { 
                       type: 'value', 
-                      returnType: funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
-                      value: funcDef.dynamicArgs.defaultValue ?? ''
+                      returnType: funcDef.args[argKey].type || 'text',
+                      value: funcDef.args[argKey].defaultValue ?? ''
                     }
-                  });
+                  }));
                 }
-              } else if (funcDef?.args) {
-                // Handle fixed args
-                initialArgs = Object.keys(funcDef.args).map(argKey => ({
-                  name: argKey,
-                  value: { 
-                    type: 'value', 
-                    returnType: funcDef.args[argKey].type || 'text',
-                    value: funcDef.args[argKey].defaultValue ?? ''
+                
+                handleValueChange({ 
+                  returnType: funcDef?.returnType || expectedType || 'text',
+                  function: {
+                    name: funcPath,
+                    args: initialArgs
                   }
-                }));
-              }
-              
-              handleValueChange({ 
-                returnType: funcDef?.returnType || expectedType || 'text',
-                function: {
-                  name: funcPath,
-                  args: initialArgs
-                }
-              });
-            }}
-            treeData={funcTreeData}
-            placeholder="Select function"
-            style={{ width: '100%' }}
-            showSearch
-            treeDefaultExpandAll
-            popupClassName="compact-tree-select"
-            treeIcon={false}
-            onClick={(e) => e.stopPropagation()}
-            onFocus={(e) => e.stopPropagation()}
-          />
+                });
+                
+                // Expand when a function is selected
+                setIsExpanded(true);
+              }}
+              treeData={funcTreeData}
+              placeholder="Select function"
+              style={{ flex: 1 }}
+              showSearch
+              treeDefaultExpandAll
+              popupClassName="compact-tree-select"
+              treeIcon={false}
+              onClick={(e) => e.stopPropagation()}
+              onFocus={(e) => e.stopPropagation()}
+            />
+          </Space>
 
           {/* Function arguments */}
-          {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && (
+          {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && isExpanded && (
             <Card
               size="small"
               title={
-                <Space>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={isExpanded ? <DownOutlined /> : <RightOutlined />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsExpanded(!isExpanded);
-                    }}
-                    style={{ padding: 0, color: darkMode ? '#e0e0e0' : 'inherit' }}
-                  />
-                  <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
-                    Arguments
-                  </Text>
-                </Space>
+                <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
+                  Arguments
+                </Text>
               }
               style={{
                 background: darkMode ? '#2a2a2a' : '#fafafa',
                 border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`
               }}
             >
-              {isExpanded && (
-                <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                  {expressionData.function.args.map((arg, index) => {
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                {expressionData.function.args.map((arg, index) => {
                     const isDynamicArgs = funcDef?.dynamicArgs;
                     const argDef = isDynamicArgs ? null : funcDef.args[arg.name];
                     const expectedArgType = isDynamicArgs ? (funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType) : argDef?.type;
@@ -590,9 +691,10 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                               />
                             )}
                           </Space>
-                          <Expression
+                          <SmartExpression
                             value={arg.value}
                             onChange={(newValue) => {
+                              console.log(`[Function Arg ${index}] onChange called with:`, newValue);
                               const updatedArgs = [...expressionData.function.args];
                               updatedArgs[index] = { ...arg, value: newValue };
                               handleValueChange({ function: { ...expressionData.function, args: updatedArgs } });
@@ -635,7 +737,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                     </Button>
                   )}
                 </Space>
-              )}
             </Card>
           )}
         </Space>
