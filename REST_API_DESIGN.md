@@ -126,7 +126,7 @@ GET    /api/fields/schema
     "id": "customer-age-validation",
     "description": "Validates customer age requirements"
   },
-  "content": {
+  "definition": {
     "type": "condition",
     "name": "Age Check",
     "left": { /* expression group */ },
@@ -147,7 +147,7 @@ GET    /api/fields/schema
     "returnType": "boolean",
     "ruleType": "Validation", 
     "metadata": { /* same as request */ },
-    "content": { /* same as request */ }
+    "definition": { /* same as request */ }
   },
   "message": "Rule created successfully",
   "createdAt": "2025-11-14T15:30:00Z"
@@ -165,7 +165,7 @@ GET    /api/fields/schema
     "id": "customer-age-validation",
     "description": "Updated: Validates customer age requirements with new logic"
   },
-  "content": {
+  "definition": {
     /* updated rule content */
   }
 }

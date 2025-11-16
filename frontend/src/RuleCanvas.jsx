@@ -58,7 +58,7 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
 // Convert rule structure to nodes and edges
 const convertRuleToGraph = (rule) => {
-  if (!rule || !rule.content) {
+  if (!rule || !rule.definition) {
     return { nodes: [], edges: [] };
   }
 
@@ -90,11 +90,11 @@ const convertRuleToGraph = (rule) => {
 
   // Process based on structure type
   if (rule.structure === 'condition') {
-    processConditionGroup(rule.content, rootId, nodes, edges, getNodeId);
+    processConditionGroup(rule.definition, rootId, nodes, edges, getNodeId);
   } else if (rule.structure === 'case') {
-    processCaseExpression(rule.content, rootId, nodes, edges, getNodeId);
+    processCaseExpression(rule.definition, rootId, nodes, edges, getNodeId);
   } else if (rule.structure === 'expression') {
-    processExpression(rule.content, rootId, nodes, edges, getNodeId);
+    processExpression(rule.definition, rootId, nodes, edges, getNodeId);
   }
 
   return { nodes, edges };
@@ -542,7 +542,7 @@ const RuleCanvas = ({ rule, darkMode = false, showExpandButton = true }) => {
     }, 1000);
   };
 
-  if (!rule || !rule.content) {
+  if (!rule || !rule.definition) {
     return (
       <div style={{ 
         height: '100%', 

@@ -8,7 +8,7 @@
     "id": "SIMPLE_CONDITION",
     "description": "Demonstrates all operators, nested condition groups, and various expression types"
   },
-  "content": {
+  "definition": {
     "type": "conditionGroup",
     "returnType": "boolean",
     "name": "Main Validation Group",

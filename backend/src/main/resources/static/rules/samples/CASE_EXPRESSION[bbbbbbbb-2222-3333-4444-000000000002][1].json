@@ -8,7 +8,7 @@
     "id": "CASE_EXPRESSION",
     "description": "Comprehensive case expression demonstrating all operators, functions, nested structures, and expression groups"
   },
-  "content": {
+  "definition": {
     "whenClauses": [
       {
         "resultName": "High Value with Complex Math",

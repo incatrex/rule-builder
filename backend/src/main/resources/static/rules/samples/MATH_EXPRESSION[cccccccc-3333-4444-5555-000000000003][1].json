@@ -8,7 +8,7 @@
     "id": "MATH_EXPRESSION",
     "description": "Comprehensive mathematical expression demonstrating nested expression groups, all math functions, operators, and complex calculations"
   },
-  "content": {
+  "definition": {
     "type": "expressionGroup",
     "returnType": "number",
     "expressions": [

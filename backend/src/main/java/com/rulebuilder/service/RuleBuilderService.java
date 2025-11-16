@@ -390,7 +390,7 @@ public class RuleBuilderService {
         int maxVersion = findMaxVersion(directory, allVersionsPattern);
         
         // Read the source rule
-        JsonNode ruleContent = objectMapper.readTree(sourceFile);
+        JsonNode ruleDefinition = objectMapper.readTree(sourceFile);
         
         // Extract ruleId from filename
         Matcher matcher = sourcePattern.matcher(sourceFile.getName());
@@ -401,7 +401,7 @@ public class RuleBuilderService {
         
         // Save as new version (maxVersion + 1)
         int newVersion = maxVersion + 1;
-        saveRule(ruleId, String.valueOf(newVersion), ruleContent);
+        saveRule(ruleId, String.valueOf(newVersion), ruleDefinition);
     }
 
     /**

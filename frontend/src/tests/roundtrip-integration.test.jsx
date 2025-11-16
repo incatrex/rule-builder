@@ -209,22 +209,22 @@ describe('Round-trip Integration Tests', () => {
       // Verify core structure matches
       expect(normalizedOutput.structure).toBe(normalizedInput.structure);
       expect(normalizedOutput.returnType).toBe(normalizedInput.returnType);
-      expect(normalizedOutput.content.type).toBe(normalizedInput.content.type);
-      expect(normalizedOutput.content.expressions.length).toBe(normalizedInput.content.expressions.length);
+      expect(normalizedOutput.definition.type).toBe(normalizedInput.definition.type);
+      expect(normalizedOutput.definition.expressions.length).toBe(normalizedInput.definition.expressions.length);
       
       // Deep comparison of content
-      expect(normalizedOutput.content).toEqual(normalizedInput.content);
+      expect(normalizedOutput.definition).toEqual(normalizedInput.definition);
     }, 10000);
 
     test('preserves deeply nested ExpressionGroups', () => {
-      const content = MATH_EXPRESSION.content;
+      const definition = MATH_EXPRESSION.definition;
       
       // Verify the JSON has nested ExpressionGroups
-      expect(content.expressions[0].type).toBe('expressionGroup');
-      expect(content.expressions[0].expressions[0].type).toBe('function');
+      expect(definition.expressions[0].type).toBe('expressionGroup');
+      expect(definition.expressions[0].expressions[0].type).toBe('function');
       
       // Find the ADD function (now directly in expressions, not wrapped in ExpressionGroup)
-      const addFunction = content.expressions.find(expr => 
+      const addFunction = definition.expressions.find(expr => 
         expr.type === 'function' &&
         expr.function?.name === 'MATH.ADD'
       );
@@ -249,20 +249,20 @@ describe('Round-trip Integration Tests', () => {
       
       expect(normalizedOutput.structure).toBe(normalizedInput.structure);
       expect(normalizedOutput.returnType).toBe(normalizedInput.returnType);
-      expect(normalizedOutput.content.type).toBe(normalizedInput.content.type);
+      expect(normalizedOutput.definition.type).toBe(normalizedInput.definition.type);
       
       // Deep comparison
-      expect(normalizedOutput.content).toEqual(normalizedInput.content);
+      expect(normalizedOutput.definition).toEqual(normalizedInput.definition);
     }, 10000);
 
     test('preserves nested condition groups', () => {
-      const content = SIMPLE_CONDITION.content;
+      const definition = SIMPLE_CONDITION.definition;
       
-      expect(content.type).toBe('conditionGroup');
-      expect(content.conditions.length).toBeGreaterThan(0);
+      expect(definition.type).toBe('conditionGroup');
+      expect(definition.conditions.length).toBeGreaterThan(0);
       
       // Find nested condition groups
-      const hasNestedGroup = content.conditions.some(cond => 
+      const hasNestedGroup = definition.conditions.some(cond => 
         cond.type === 'conditionGroup'
       );
       
@@ -279,27 +279,27 @@ describe('Round-trip Integration Tests', () => {
       
       expect(normalizedOutput.structure).toBe(normalizedInput.structure);
       expect(normalizedOutput.returnType).toBe(normalizedInput.returnType);
-      expect(normalizedOutput.content.whenClauses.length).toBe(normalizedInput.content.whenClauses.length);
+      expect(normalizedOutput.definition.whenClauses.length).toBe(normalizedInput.definition.whenClauses.length);
       
       // Deep comparison
-      expect(normalizedOutput.content).toEqual(normalizedInput.content);
+      expect(normalizedOutput.definition).toEqual(normalizedInput.definition);
     }, 10000);
 
     test('preserves all when/then clauses', () => {
-      const content = CASE_EXPRESSION.content;
+      const definition = CASE_EXPRESSION.definition;
       
-      expect(content.whenClauses).toBeDefined();
-      expect(content.whenClauses.length).toBeGreaterThan(0);
+      expect(definition.whenClauses).toBeDefined();
+      expect(definition.whenClauses.length).toBeGreaterThan(0);
       
       // Verify each when clause has proper structure
-      content.whenClauses.forEach((clause, index) => {
+      definition.whenClauses.forEach((clause, index) => {
         expect(clause.when).toBeDefined();
         expect(clause.then).toBeDefined();
         expect(clause.when.type).toBe('conditionGroup');
       });
       
       // Verify else clause
-      expect(content.elseClause).toBeDefined();
+      expect(definition.elseClause).toBeDefined();
     });
   });
 
@@ -312,7 +312,7 @@ describe('Round-trip Integration Tests', () => {
         expect(sample).toHaveProperty('uuId');
         expect(sample).toHaveProperty('version');
         expect(sample).toHaveProperty('metadata');
-        expect(sample).toHaveProperty('content');
+        expect(sample).toHaveProperty('definition');
       });
     });
 

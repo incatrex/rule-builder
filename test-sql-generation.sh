@@ -12,7 +12,7 @@ curl -X POST http://localhost:8080/api/rules/to-sql \
   -d '{
     "structure": "condition",
     "returnType": "boolean",
-    "content": {
+    "definition": {
       "type": "conditionGroup",
       "conjunction": "AND",
       "conditions": [
@@ -57,7 +57,7 @@ curl -X POST http://localhost:8080/api/rules/to-sql \
   -d '{
     "structure": "case",
     "returnType": "text",
-    "content": {
+    "definition": {
       "whenClauses": [
         {
           "when": {
@@ -131,7 +131,7 @@ curl -X POST http://localhost:8080/api/rules/to-sql \
   -d '{
     "structure": "expression",
     "returnType": "text",
-    "content": {
+    "definition": {
       "type": "function",
       "function": {
         "name": "TEXT.CONCAT",
