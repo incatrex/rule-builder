@@ -4,7 +4,8 @@ import { SaveOutlined } from '@ant-design/icons';
 import { RuleService, ConfigService } from './services';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
-import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
+import Expression from './Expression';
+import { createDirectExpression } from './utils/expressionUtils.jsx';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -583,7 +584,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
           )}
 
           {ruleData.structure === 'expression' && ruleData.definition && (
-            <SmartExpression
+            <Expression
               value={ruleData.definition}
               onChange={(definition) => handleChange({ definition })}
               config={config}

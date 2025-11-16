@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
-import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
+import Expression from "./Expression";
+import { createDirectExpression } from './utils/expressionUtils.jsx';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -280,7 +281,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
         <div style={{ minWidth: '300px', flex: 1 }}>
-          <SmartExpression
+          <Expression
             value={conditionData.left}
             onChange={handleLeftChange}
             config={config}
@@ -307,7 +308,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         {/* Right Expression(s) */}
         {cardinality === 1 && (
           <div style={{ minWidth: '300px', flex: 1 }}>
-            <SmartExpression
+            <Expression
               value={conditionData.right}
               onChange={(newRight) => handleChange({ right: newRight })}
               config={config}
@@ -330,7 +331,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
                   </Text>
                 )}
                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center', minWidth: '300px', flex: 1 }}>
-                  <SmartExpression
+                  <Expression
                     value={rightVal}
                     onChange={(newVal) => {
                       const updatedRight = [...conditionData.right];

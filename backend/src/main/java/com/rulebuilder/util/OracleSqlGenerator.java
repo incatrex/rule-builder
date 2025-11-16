@@ -44,15 +44,15 @@ public class OracleSqlGenerator {
      */
     public String generateSql(JsonNode rule) throws Exception {
         String structure = rule.get("structure").asText();
-        JsonNode content = rule.get("content");
+        JsonNode definition = rule.get("definition");
         
         switch (structure) {
             case "condition":
-                return generateConditionSql(content);
+                return generateConditionSql(definition);
             case "case":
-                return generateCaseSql(content);
+                return generateCaseSql(definition);
             case "expression":
-                return generateExpressionSql(content);
+                return generateExpressionSql(definition);
             default:
                 throw new IllegalArgumentException("Unknown structure: " + structure);
         }

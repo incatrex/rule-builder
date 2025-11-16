@@ -4,7 +4,6 @@ import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, Clos
 import moment from 'moment';
 import RuleSelector from './RuleSelector';
 import ExpressionGroup from './ExpressionGroup';
-import { SmartExpression } from './utils/expressionUtils';
 
 const { Text } = Typography;
 
@@ -87,13 +86,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   useEffect(() => {
     if (value) {
       const normalized = normalizeValue(value);
-      console.log('[Expression] Syncing with external value:', {
-        value,
-        normalized,
-        type: normalized.type,
-        compact,
-        isLoadedRule
-      });
       setSource(normalized.type || 'value');
       setExpressionData(normalized);
     }
@@ -101,15 +93,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
 
   // Handle single-item expression groups by extracting the expression
   if (expressionData.type === 'expressionGroup') {
-    console.log('[Expression] Detected expressionGroup:', {
-      expressionData,
-      expressionCount: expressionData.expressions?.length,
-      compact,
-      isLoadedRule
-    });
-    
     if (expressionData.expressions && expressionData.expressions.length === 1) {
-      console.log('[Expression] Single-item expressionGroup - extracting expression');
       // Single-item ExpressionGroup - extract the expression and handle it directly
       const singleExpression = expressionData.expressions[0];
       
@@ -145,9 +129,23 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
           disableOperations={disableOperations}
         />
       );
+    } else if (expressionData.expressions && expressionData.expressions.length > 1) {
+      // Multi-item ExpressionGroup - delegate to ExpressionGroup component
+      return (
+        <ExpressionGroup
+          value={expressionData}
+          onChange={onChange}
+          config={config}
+          expectedType={expectedType}
+          darkMode={darkMode}
+          compact={compact}
+          isLoadedRule={isLoadedRule}
+          allowedSources={allowedSources}
+          argDef={propArgDef}
+        />
+      );
     } else {
-      // Multi-item ExpressionGroup - let parent handle routing via SmartExpression
-      console.log('[Expression] Multi-item expressionGroup - should be handled by ExpressionGroup component');
+      // Empty expressionGroup - treat as empty expression
       return null;
     }
   }
@@ -691,10 +689,9 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                               />
                             )}
                           </Space>
-                          <SmartExpression
+                          <Expression
                             value={arg.value}
                             onChange={(newValue) => {
-                              console.log(`[Function Arg ${index}] onChange called with:`, newValue);
                               const updatedArgs = [...expressionData.function.args];
                               updatedArgs[index] = { ...arg, value: newValue };
                               handleValueChange({ function: { ...expressionData.function, args: updatedArgs } });
