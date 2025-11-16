@@ -26,10 +26,16 @@ config:
 
 [ ] Re-work validation
 
-[ ] Add Logic service + Component/Panel
+[ ] Add Business Logic service + Component/Panel
 
 [ ] Change Condition name style to match ConditionGroup
 
 [ ] Fix ... after Expresion operators
 
 [ ] Adding ExpressionGroup automatically collapses?
+
+[ ] Unit Test Coverage
+
+[ ] Review / Simplify components
+
+[ ] Rule Version History not working

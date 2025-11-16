@@ -86,13 +86,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   useEffect(() => {
     if (value) {
       const normalized = normalizeValue(value);
-      console.log('[Expression] Syncing with external value:', {
-        value,
-        normalized,
-        type: normalized.type,
-        compact,
-        isLoadedRule
-      });
       setSource(normalized.type || 'value');
       setExpressionData(normalized);
     }
@@ -100,15 +93,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
 
   // Handle single-item expression groups by extracting the expression
   if (expressionData.type === 'expressionGroup') {
-    console.log('[Expression] Detected expressionGroup:', {
-      expressionData,
-      expressionCount: expressionData.expressions?.length,
-      compact,
-      isLoadedRule
-    });
-    
     if (expressionData.expressions && expressionData.expressions.length === 1) {
-      console.log('[Expression] Single-item expressionGroup - extracting expression');
       // Single-item ExpressionGroup - extract the expression and handle it directly
       const singleExpression = expressionData.expressions[0];
       
@@ -146,7 +131,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       );
     } else if (expressionData.expressions && expressionData.expressions.length > 1) {
       // Multi-item ExpressionGroup - delegate to ExpressionGroup component
-      console.log('[Expression] Multi-item expressionGroup - delegating to ExpressionGroup component');
       return (
         <ExpressionGroup
           value={expressionData}
@@ -162,7 +146,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       );
     } else {
       // Empty expressionGroup - treat as empty expression
-      console.log('[Expression] Empty expressionGroup - treating as empty expression');
       return null;
     }
   }
@@ -709,7 +692,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                           <Expression
                             value={arg.value}
                             onChange={(newValue) => {
-                              console.log(`[Function Arg ${index}] onChange called with:`, newValue);
                               const updatedArgs = [...expressionData.function.args];
                               updatedArgs[index] = { ...arg, value: newValue };
                               handleValueChange({ function: { ...expressionData.function, args: updatedArgs } });
