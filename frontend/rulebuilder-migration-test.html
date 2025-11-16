@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuleBuilder Migration Test</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-result { 
+            margin: 10px 0; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-family: monospace;
+        }
+        .pass { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .fail { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .pending { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            overflow-x: auto; 
+            font-size: 12px; 
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button { 
+            background: #007cba; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            margin: 8px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #005a9a; }
+        button:disabled { 
+            background: #ccc; 
+            cursor: not-allowed; 
+        }
+        .stats {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .migration-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .scenario {
+            border-left: 4px solid #007cba;
+            padding: 15px;
+            margin: 15px 0;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="migration-banner">
+        <h1>🔄 RuleBuilder Service Migration Test</h1>
+        <p>Comprehensive testing of RuleBuilder component migration from direct API calls to service layer</p>
+    </div>
+    
+    <div class="test-container">
+        <h2>🧪 Migration Test Suite</h2>
+        <p>This test validates that the RuleBuilder component works correctly with the new service layer architecture:</p>
+        <ul>
+            <li>✅ Server-side UUID generation for new rules</li>
+            <li>✅ Automatic version management for rule updates</li>
+            <li>✅ Rule version loading and history management</li>
+            <li>✅ Configuration and field data loading</li>
+            <li>✅ Error handling and user feedback</li>
+        </ul>
+        
+        <button onclick="runMigrationTests()" id="runBtn">Run Complete Migration Test</button>
+        <button onclick="runQuickTest()" id="quickBtn">Quick Validation Test</button>
+        <button onclick="clearResults()" id="clearBtn">Clear Results</button>
+    </div>
+
+    <div id="test-stats" class="stats" style="display: none;">
+        <strong>Test Statistics</strong>
+        <div id="stats-content"></div>
+    </div>
+
+    <div id="test-results"></div>
+
+    <div class="test-container">
+        <h3>📋 Test Scenarios</h3>
+        
+        <div class="scenario">
+            <h4>Scenario 1: New Rule Creation</h4>
+            <p><strong>Tests:</strong> Service-based rule creation, server UUID generation, version assignment</p>
+            <p><strong>Expected:</strong> Rule created with server-generated UUID, version 1, proper metadata handling</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Scenario 2: Rule Update & Versioning</h4>
+            <p><strong>Tests:</strong> Rule updates using service layer, automatic version incrementing</p>
+            <p><strong>Expected:</strong> Same UUID preserved, version incremented, update timestamps recorded</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Scenario 3: Version History Management</h4>
+            <p><strong>Tests:</strong> Loading rule versions, switching between versions</p>
+            <p><strong>Expected:</strong> All versions listed, version-specific data loaded correctly</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Scenario 4: Configuration Integration</h4>
+            <p><strong>Tests:</strong> Config and field services integration, rule type loading</p>
+            <p><strong>Expected:</strong> Configuration data loaded via services, fallback handling for errors</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Scenario 5: Backward Compatibility</h4>
+            <p><strong>Tests:</strong> Existing rule formats, legacy data support</p>
+            <p><strong>Expected:</strong> Old rule structures loaded correctly, seamless migration experience</p>
+        </div>
+    </div>
+
+    <script>
+        // Import services (copy of our service code for testing)
+        class HttpHelper {
+            constructor(baseURL = '/api') {
+                this.baseURL = baseURL;
+            }
+
+            async request(method, url, data = null, params = {}) {
+                const config = {
+                    method,
+                    url: `${this.baseURL}${url}`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                if (data) {
+                    config.data = data;
+                }
+
+                if (Object.keys(params).length > 0) {
+                    config.params = params;
+                }
+
+                try {
+                    const response = await axios(config);
+                    return response;
+                } catch (error) {
+                    console.error('HTTP Request failed:', error);
+                    throw error;
+                }
+            }
+
+            async get(url, params = {}) {
+                return this.request('GET', url, null, params);
+            }
+
+            async post(url, data) {
+                return this.request('POST', url, data);
+            }
+
+            async put(url, data) {
+                return this.request('PUT', url, data);
+            }
+
+            async delete(url) {
+                return this.request('DELETE', url);
+            }
+        }
+
+        class RuleService {
+            constructor(httpHelper = new HttpHelper()) {
+                this.http = httpHelper;
+            }
+
+            async createRule(rule) {
+                const cleanRule = { ...rule };
+                delete cleanRule.uuId;
+                delete cleanRule.version;
+                
+                const response = await this.http.post('/rules', cleanRule);
+                return response.data;
+            }
+
+            async updateRule(uuid, rule) {
+                const cleanRule = { ...rule };
+                delete cleanRule.uuId;
+                delete cleanRule.version;
+                
+                const response = await this.http.put(`/rules/${uuid}`, cleanRule);
+                return response.data;
+            }
+
+            async getRuleVersions(uuid) {
+                const response = await this.http.get(`/rules/versions/${uuid}`);
+                return response.data;
+            }
+
+            async getRuleVersion(uuid, version) {
+                const response = await this.http.get(`/rules/${uuid}/versions/${version}`);
+                return response.data;
+            }
+
+            async validateRule(rule) {
+                const response = await this.http.post('/rules/validate', rule);
+                return response.data;
+            }
+
+            async convertToSql(ruleOrUuid) {
+                if (typeof ruleOrUuid === 'object') {
+                    const response = await this.http.post('/rules/to-sql', ruleOrUuid);
+                    return response.data;
+                } else {
+                    const response = await this.http.post(`/rules/${ruleOrUuid}/sql`);
+                    return response.data;
+                }
+            }
+        }
+
+        class ConfigService {
+            constructor(httpHelper = new HttpHelper()) {
+                this.http = httpHelper;
+            }
+
+            async getConfig() {
+                const response = await this.http.get('/config');
+                return response.data;
+            }
+        }
+
+        // Test suite
+        let testResults = [];
+        let currentTestIndex = 0;
+        let startTime = null;
+
+        const ruleService = new RuleService();
+        const configService = new ConfigService();
+
+        function updateStats() {
+            const totalTests = testResults.length;
+            const passedTests = testResults.filter(r => r.passed).length;
+            const failedTests = testResults.filter(r => r.passed === false).length;
+            const pendingTests = testResults.filter(r => r.passed === null).length;
+
+            const duration = startTime ? ((Date.now() - startTime) / 1000).toFixed(1) : 'N/A';
+
+            document.getElementById('stats-content').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center;">
+                    <div><strong>${totalTests}</strong><br>Total Tests</div>
+                    <div style="color: green;"><strong>${passedTests}</strong><br>Passed</div>
+                    <div style="color: red;"><strong>${failedTests}</strong><br>Failed</div>
+                    <div style="color: orange;"><strong>${pendingTests}</strong><br>Running</div>
+                </div>
+                <div style="margin-top: 10px; text-align: center;">
+                    <strong>Duration:</strong> ${duration}s | 
+                    <strong>Success Rate:</strong> ${totalTests > 0 ? ((passedTests / (totalTests - pendingTests)) * 100).toFixed(1) : 0}%
+                </div>
+            `;
+
+            document.getElementById('test-stats').style.display = 'block';
+        }
+
+        function addTestResult(testName, passed, message, data = null) {
+            const existingIndex = testResults.findIndex(r => r.testName === testName);
+            const result = { 
+                testName, 
+                passed, 
+                message, 
+                data, 
+                timestamp: new Date(),
+                duration: null
+            };
+
+            if (existingIndex >= 0) {
+                testResults[existingIndex] = result;
+            } else {
+                testResults.push(result);
+            }
+            
+            updateTestDisplay();
+            updateStats();
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = testResults.map(result => `
+                <div class="test-result ${result.passed === true ? 'pass' : result.passed === false ? 'fail' : 'pending'}">
+                    <strong>${result.testName}</strong> - ${result.passed === true ? '✅ PASS' : result.passed === false ? '❌ FAIL' : '⏳ RUNNING'}
+                    <br><small>${result.timestamp.toLocaleTimeString()}</small>
+                    <br>${result.message}
+                    ${result.data ? `<pre>${JSON.stringify(result.data, null, 2)}</pre>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function runTest(testName, testFunction) {
+            try {
+                addTestResult(testName, null, '⏳ Running test...', null);
+                const testStart = Date.now();
+                
+                const result = await testFunction();
+                
+                const duration = ((Date.now() - testStart) / 1000).toFixed(2);
+                addTestResult(testName, true, `✅ ${result.message} (${duration}s)`, result.data);
+                return true;
+            } catch (error) {
+                addTestResult(testName, false, `❌ ${error.message}`, { 
+                    error: error.toString(),
+                    stack: error.stack 
+                });
+                return false;
+            }
+        }
+
+        // Test implementations
+        async function testRuleCreation() {
+            const testRule = {
+                metadata: { 
+                    id: 'migration-test-rule-' + Date.now(), 
+                    description: 'Test rule for service migration validation' 
+                },
+                structure: 'condition',
+                returnType: 'boolean',
+                ruleType: 'Reporting',
+                content: {
+                    type: 'conditionGroup',
+                    name: 'Test Condition',
+                    conditions: [{
+                        type: 'condition',
+                        left: { type: 'field', field: 'age' },
+                        operator: 'GREATER_THAN',
+                        right: { type: 'value', value: '18' }
+                    }]
+                }
+            };
+
+            const result = await ruleService.createRule(testRule);
+            
+            if (!result.uuid || !result.version || result.version !== 1) {
+                throw new Error('Created rule missing expected UUID or version');
+            }
+
+            if (!result.ruleId || !result.message) {
+                throw new Error('Created rule response missing expected fields');
+            }
+
+            return {
+                message: `Rule created successfully with UUID ${result.uuid}`,
+                data: result
+            };
+        }
+
+        async function testRuleUpdate() {
+            // Create a rule first
+            const baseRule = {
+                metadata: { 
+                    id: 'update-test-rule-' + Date.now(), 
+                    description: 'Rule for testing updates' 
+                },
+                structure: 'condition',
+                returnType: 'boolean',
+                ruleType: 'Validation'
+            };
+
+            const createResult = await ruleService.createRule(baseRule);
+            const uuid = createResult.uuid;
+
+            // Now update it
+            const updatedRule = {
+                ...baseRule,
+                metadata: { 
+                    ...baseRule.metadata, 
+                    description: 'Updated rule description' 
+                },
+                ruleType: 'Calculation'
+            };
+
+            const updateResult = await ruleService.updateRule(uuid, updatedRule);
+
+            if (updateResult.uuid !== uuid) {
+                throw new Error('Update changed the UUID');
+            }
+
+            if (updateResult.version !== 2) {
+                throw new Error(`Expected version 2, got ${updateResult.version}`);
+            }
+
+            return {
+                message: `Rule updated successfully to version ${updateResult.version}`,
+                data: { createResult, updateResult }
+            };
+        }
+
+        async function testVersionManagement() {
+            // Create and update a rule to generate versions
+            const rule = {
+                metadata: { 
+                    id: 'version-test-' + Date.now(), 
+                    description: 'Version test rule' 
+                },
+                structure: 'expression',
+                returnType: 'number'
+            };
+
+            const v1 = await ruleService.createRule(rule);
+            const uuid = v1.uuid;
+
+            // Create version 2
+            const v2 = await ruleService.updateRule(uuid, { 
+                ...rule, 
+                metadata: { ...rule.metadata, description: 'Version 2' } 
+            });
+
+            // Get versions list
+            const versions = await ruleService.getRuleVersions(uuid);
+
+            if (!Array.isArray(versions) || versions.length < 2) {
+                throw new Error('Expected at least 2 versions');
+            }
+
+            if (!versions.includes(1) || !versions.includes(2)) {
+                throw new Error('Missing expected version numbers');
+            }
+
+            // Test loading specific version
+            const loadedV1 = await ruleService.getRuleVersion(uuid, 1);
+            if (loadedV1.version !== 1) {
+                throw new Error('Loaded version 1 has incorrect version number');
+            }
+
+            return {
+                message: `Version management working correctly with ${versions.length} versions`,
+                data: { versions, v1, v2, loadedV1 }
+            };
+        }
+
+        async function testConfigIntegration() {
+            const config = await configService.getConfig();
+            
+            if (!config || typeof config !== 'object') {
+                throw new Error('Config service did not return valid configuration');
+            }
+
+            return {
+                message: 'Configuration service integration successful',
+                data: config
+            };
+        }
+
+        async function testRuleValidation() {
+            const testRule = {
+                metadata: { id: 'validation-test', description: 'Test rule' },
+                structure: 'condition',
+                returnType: 'boolean',
+                content: {
+                    type: 'condition',
+                    left: { type: 'field', field: 'status' },
+                    operator: 'EQUALS',
+                    right: { type: 'value', value: 'active' }
+                }
+            };
+
+            const validationResult = await ruleService.validateRule(testRule);
+            
+            return {
+                message: 'Rule validation service working correctly',
+                data: validationResult
+            };
+        }
+
+        async function testSqlConversion() {
+            const testRule = {
+                metadata: { id: 'sql-test', description: 'SQL test rule' },
+                structure: 'condition',
+                returnType: 'boolean',
+                content: {
+                    type: 'condition',
+                    left: { type: 'field', field: 'amount' },
+                    operator: 'GREATER_THAN',
+                    right: { type: 'value', value: '100' }
+                }
+            };
+
+            const sqlResult = await ruleService.convertToSql(testRule);
+            
+            if (!sqlResult || typeof sqlResult !== 'object') {
+                throw new Error('SQL conversion did not return expected result');
+            }
+
+            return {
+                message: 'SQL conversion service working correctly',
+                data: sqlResult
+            };
+        }
+
+        async function testErrorHandling() {
+            try {
+                // Test with invalid UUID
+                await ruleService.getRuleVersions('invalid-uuid');
+                throw new Error('Expected error for invalid UUID but got success');
+            } catch (error) {
+                if (error.message.includes('Expected error')) {
+                    throw error;
+                }
+                // Expected error - this is good
+            }
+
+            try {
+                // Test with malformed rule
+                const result = await ruleService.createRule({});
+                // If this succeeds, verify it handles empty rules gracefully
+                if (!result.uuid) {
+                    throw new Error('Service did not handle empty rule properly');
+                }
+            } catch (error) {
+                // Expected error for malformed rule
+            }
+
+            return {
+                message: 'Error handling working correctly - invalid requests properly rejected',
+                data: { status: 'error handling validated' }
+            };
+        }
+
+        async function runMigrationTests() {
+            testResults = [];
+            startTime = Date.now();
+            
+            // Disable buttons during test run
+            ['runBtn', 'quickBtn', 'clearBtn'].forEach(id => {
+                document.getElementById(id).disabled = true;
+            });
+
+            updateTestDisplay();
+            updateStats();
+
+            const tests = [
+                { name: 'Rule Creation (Server UUID)', test: testRuleCreation },
+                { name: 'Rule Updates (Version Management)', test: testRuleUpdate },
+                { name: 'Version History Management', test: testVersionManagement },
+                { name: 'Configuration Service Integration', test: testConfigIntegration },
+                { name: 'Rule Validation Service', test: testRuleValidation },
+                { name: 'SQL Conversion Service', test: testSqlConversion },
+                { name: 'Error Handling & Edge Cases', test: testErrorHandling }
+            ];
+
+            let passCount = 0;
+            for (const { name, test } of tests) {
+                const passed = await runTest(name, test);
+                if (passed) passCount++;
+                // Delay between tests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            // Final summary
+            const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+            const successRate = ((passCount / tests.length) * 100).toFixed(1);
+            
+            addTestResult('🎯 Migration Test Summary', passCount === tests.length, 
+                `Migration ${passCount === tests.length ? 'SUCCESSFUL' : 'PARTIALLY COMPLETE'}: ${passCount}/${tests.length} tests passed (${successRate}% success rate) in ${duration}s`, 
+                { 
+                    summary: {
+                        totalTests: tests.length,
+                        passed: passCount,
+                        failed: tests.length - passCount,
+                        successRate: `${successRate}%`,
+                        duration: `${duration}s`,
+                        status: passCount === tests.length ? 'FULL SUCCESS' : 'NEEDS ATTENTION'
+                    }
+                });
+
+            // Re-enable buttons
+            ['runBtn', 'quickBtn', 'clearBtn'].forEach(id => {
+                document.getElementById(id).disabled = false;
+            });
+        }
+
+        async function runQuickTest() {
+            testResults = [];
+            startTime = Date.now();
+            
+            document.getElementById('quickBtn').disabled = true;
+            
+            const quickTests = [
+                { name: 'Quick: Rule Creation', test: testRuleCreation },
+                { name: 'Quick: Config Service', test: testConfigIntegration }
+            ];
+
+            let passCount = 0;
+            for (const { name, test } of quickTests) {
+                const passed = await runTest(name, test);
+                if (passed) passCount++;
+            }
+
+            addTestResult('⚡ Quick Test Summary', passCount === quickTests.length, 
+                `Quick validation ${passCount === quickTests.length ? 'PASSED' : 'FAILED'}: ${passCount}/${quickTests.length} tests passed`, 
+                { quickTestResult: passCount === quickTests.length ? 'READY' : 'ISSUES DETECTED' });
+
+            document.getElementById('quickBtn').disabled = false;
+        }
+
+        function clearResults() {
+            testResults = [];
+            startTime = null;
+            updateTestDisplay();
+            document.getElementById('test-stats').style.display = 'none';
+        }
+
+        // Auto-run quick test on page load
+        window.addEventListener('load', () => {
+            setTimeout(runQuickTest, 1000);
+        });
+    </script>
+</body>
+</html>

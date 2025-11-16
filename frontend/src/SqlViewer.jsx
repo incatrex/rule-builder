@@ -3,12 +3,16 @@ import { Button, message, Spin } from 'antd';
 import { CopyOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { RuleService } from './services/RuleService.js';
 
 const SqlViewer = forwardRef(({ ruleData, darkMode = false, onRefresh }, ref) => {
   const [sql, setSql] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const lastRuleDataRef = useRef(null);
+  
+  // Initialize RuleService
+  const ruleService = new RuleService();
 
   useImperativeHandle(ref, () => ({
     refresh: () => {
@@ -35,19 +39,7 @@ const SqlViewer = forwardRef(({ ruleData, darkMode = false, onRefresh }, ref) =>
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/rules/to-sql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(ruleData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const result = await ruleService.convertToSql(ruleData);
       
       if (result.errors && result.errors.length > 0) {
         setError(result.errors.join(', '));

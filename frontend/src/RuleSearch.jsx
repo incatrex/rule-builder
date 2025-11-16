@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Select, Space, message } from 'antd';
 import { PlusOutlined, SearchOutlined, MenuFoldOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { RuleService } from './services/RuleService.js';
 
 /**
  * RuleSearch Component
@@ -15,6 +15,9 @@ const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false, onCollapse = nu
   const [ruleList, setRuleList] = useState([]);
   const [selectedRuleKey, setSelectedRuleKey] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // Initialize RuleService
+  const ruleService = new RuleService();
 
   useEffect(() => {
     loadRuleIds();
@@ -23,10 +26,10 @@ const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false, onCollapse = nu
   const loadRuleIds = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/rules/ids');
+      const ruleIds = await ruleService.getRuleIds();
       
       // Transform the data for the Select component
-      const options = response.data.map(rule => {
+      const options = ruleIds.map(rule => {
         // Build display label with folder path if present
         const folderPrefix = rule.folderPath ? `${rule.folderPath}/` : '';
         const displayLabel = `${folderPrefix}${rule.ruleId} (v${rule.latestVersion})`;
@@ -61,13 +64,15 @@ const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false, onCollapse = nu
 
     try {
       // Load the latest version of the selected rule
-      const response = await axios.get(
-        `/api/rules/${selectedRule.ruleId}/${selectedRule.uuid}/${selectedRule.latestVersion}`
+      const ruleData = await ruleService.getRuleByVersion(
+        selectedRule.ruleId, 
+        selectedRule.uuid, 
+        selectedRule.latestVersion
       );
       
-      if (response.data) {
+      if (ruleData) {
         setSelectedRuleKey(value);
-        onRuleSelect(response.data, selectedRule.uuid);
+        onRuleSelect(ruleData, selectedRule.uuid);
       }
     } catch (error) {
       console.error('Error loading rule:', error);

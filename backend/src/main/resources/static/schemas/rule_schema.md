@@ -17,7 +17,7 @@ Based on actual UI component implementation and JSON structures used by the Rule
     "id": string, // Rule identifier/name
     "description": string
   },
-  "content": ConditionGroup | ExpressionGroup | CaseContent
+  "definition": ConditionGroup | ExpressionGroup | CaseDefinition
 }
 ```
 
@@ -216,7 +216,7 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
 {
   "structure": "condition",
   "returnType": "boolean",
-  "content": {
+  "definition": {
     "type": "conditionGroup",
     "name": "Main Condition",
     "conjunction": "AND",

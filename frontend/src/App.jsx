@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Layout, ConfigProvider, theme, Switch, Space, Spin, message, Button, Tabs } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { ConfigService } from './services/ConfigService.js';
+import { FieldService } from './services/FieldService.js';
+import { RuleService } from './services/RuleService.js';
 import RuleBuilder from './RuleBuilder';
 import RuleSearch from './RuleSearch';
 import RuleHistory from './RuleHistory';
@@ -23,6 +25,11 @@ const App = () => {
   const [searchPanelCollapsed, setSearchPanelCollapsed] = useState(false);
   const [jsonPanelCollapsed, setJsonPanelCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('json');
+  
+  // Initialize services
+  const configService = new ConfigService();
+  const fieldService = new FieldService();
+  const ruleService = new RuleService();
   
   // Check if this is canvas-only mode
   const isCanvasMode = new URLSearchParams(window.location.search).get('canvas') === 'true';
@@ -111,11 +118,8 @@ const App = () => {
   const loadConfiguration = async () => {
     try {
       setLoading(true);
-      const fieldsResponse = await axios.get('/api/fields');
-      const fieldsData = fieldsResponse.data;
-      
-      const configResponse = await axios.get('/api/config');
-      const configData = configResponse.data;
+      const fieldsData = await fieldService.getFields();
+      const configData = await configService.getConfig();
 
       const fields = fieldsData;
 
@@ -180,8 +184,8 @@ const App = () => {
   const handleViewVersion = async (uuid, version) => {
     try {
       // Find the rule ID from the current selection or search for it
-      const ruleIdsResponse = await axios.get('/api/rules/ids');
-      const ruleInfo = ruleIdsResponse.data.find(r => r.uuid === uuid);
+      const ruleIds = await ruleService.getRuleIds();
+      const ruleInfo = ruleIds.find(r => r.uuid === uuid);
       
       if (!ruleInfo) {
         message.error('Rule not found');
@@ -189,12 +193,14 @@ const App = () => {
       }
 
       // Load the specific version
-      const response = await axios.get(
-        `/api/rules/${ruleInfo.ruleId}/${uuid}/${version}`
+      const ruleData = await ruleService.getRuleByVersion(
+        ruleInfo.ruleId, 
+        uuid, 
+        version
       );
       
-      if (response.data && ruleBuilderRef.current) {
-        ruleBuilderRef.current.loadRuleData(response.data);
+      if (ruleData && ruleBuilderRef.current) {
+        ruleBuilderRef.current.loadRuleData(ruleData);
         message.success(`Loaded version ${version}`);
       }
     } catch (error) {
@@ -207,16 +213,18 @@ const App = () => {
     // Reload the current rule to show the new version
     if (selectedRuleUuid && ruleBuilderRef.current) {
       try {
-        const ruleIdsResponse = await axios.get('/api/rules/ids');
-        const ruleInfo = ruleIdsResponse.data.find(r => r.uuid === selectedRuleUuid);
+        const ruleIds = await ruleService.getRuleIds();
+        const ruleInfo = ruleIds.find(r => r.uuid === selectedRuleUuid);
         
         if (ruleInfo) {
-          const response = await axios.get(
-            `/api/rules/${ruleInfo.ruleId}/${selectedRuleUuid}/${ruleInfo.latestVersion}`
+          const ruleData = await ruleService.getRuleByVersion(
+            ruleInfo.ruleId, 
+            selectedRuleUuid, 
+            ruleInfo.latestVersion
           );
           
-          if (response.data) {
-            ruleBuilderRef.current.loadRuleData(response.data);
+          if (ruleData) {
+            ruleBuilderRef.current.loadRuleData(ruleData);
           }
         }
       } catch (error) {

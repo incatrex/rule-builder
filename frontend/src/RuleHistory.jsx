@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Tag, message } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { RuleService } from './services/RuleService.js';
 
 const RuleHistory = ({ selectedRuleUuid, onViewVersion, onRestoreComplete, darkMode }) => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Initialize RuleService
+  const ruleService = new RuleService();
 
   useEffect(() => {
     if (selectedRuleUuid) {
@@ -17,15 +21,11 @@ const RuleHistory = ({ selectedRuleUuid, onViewVersion, onRestoreComplete, darkM
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/rules/${selectedRuleUuid}/history`);
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data);
-      } else {
-        message.error('Failed to load rule history');
-      }
+      const historyData = await ruleService.getRuleHistory(selectedRuleUuid);
+      setHistory(historyData);
     } catch (error) {
-      message.error('Error loading rule history: ' + error.message);
+      console.error('Error loading rule history:', error);
+      message.error('Failed to load rule history');
     } finally {
       setLoading(false);
     }
@@ -47,23 +47,15 @@ const RuleHistory = ({ selectedRuleUuid, onViewVersion, onRestoreComplete, darkM
       cancelText: 'Cancel',
       onOk: async () => {
         try {
-          const response = await fetch(
-            `http://localhost:8080/api/rules/${selectedRuleUuid}/restore/${record.version}`,
-            { method: 'POST' }
-          );
-          
-          if (response.ok) {
-            message.success(`Version ${record.version} restored successfully`);
-            await fetchHistory(); // Refresh history
-            if (onRestoreComplete) {
-              onRestoreComplete();
-            }
-          } else {
-            const errorText = await response.text();
-            message.error('Failed to restore version: ' + errorText);
+          await ruleService.restoreRuleVersion(selectedRuleUuid, record.version);
+          message.success(`Version ${record.version} restored successfully`);
+          await fetchHistory(); // Refresh history
+          if (onRestoreComplete) {
+            onRestoreComplete();
           }
         } catch (error) {
-          message.error('Error restoring version: ' + error.message);
+          console.error('Error restoring version:', error);
+          message.error('Failed to restore version: ' + error.message);
         }
       },
     });

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JsonEditor Placeholder UUID Demo</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .demo-container {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .demo-banner {
+            background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .scenario {
+            border-left: 4px solid #52c41a;
+            padding: 15px;
+            margin: 15px 0;
+            background: #f6ffed;
+            border-radius: 0 8px 8px 0;
+        }
+        .example-json {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: Monaco, monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .before { 
+            background: #fff2e8; 
+            border: 1px solid #ffd591;
+        }
+        .after { 
+            background: #f6ffed; 
+            border: 1px solid #b7eb8f;
+        }
+        .highlight {
+            background: #ffec3d;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .benefit {
+            background: #e6f7ff;
+            padding: 10px;
+            border-left: 4px solid #1890ff;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-banner">
+        <h1>🆔 JsonEditor Placeholder UUID Feature</h1>
+        <p>Demonstration of how JsonEditor now automatically adds placeholder UUIDs for new rules to enable validation</p>
+    </div>
+    
+    <div class="demo-container">
+        <h2>🎯 Problem & Solution</h2>
+        
+        <div class="scenario">
+            <h4>Problem</h4>
+            <p>Previously, new rules without UUIDs couldn't be validated in the JsonEditor because the validation schema requires a UUID field.</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Solution</h4>
+            <p>JsonEditor now automatically detects new rules (without UUID) and adds a <span class="highlight">placeholder UUID</span> for validation purposes. The placeholder is clearly marked and will be replaced by the server when the rule is saved.</p>
+        </div>
+    </div>
+
+    <div class="demo-container">
+        <h2>📋 How It Works</h2>
+        
+        <div class="before-after">
+            <div class="before">
+                <h4>❌ Before (Validation Failed)</h4>
+                <div class="example-json">
+{
+  "structure": "condition",
+  "returnType": "boolean", 
+  "ruleType": "Reporting",
+  "metadata": {
+    "id": "my-new-rule",
+    "description": "A new rule"
+  },
+  "definition": {
+    "type": "conditionGroup",
+    "conditions": []
+  }
+  // ❌ No uuId - validation fails
+}</div>
+                <p>🚫 <strong>Result:</strong> Schema validation fails due to missing UUID</p>
+            </div>
+            
+            <div class="after">
+                <h4>✅ After (Validation Passes)</h4>
+                <div class="example-json">
+{
+  "structure": "condition",
+  "returnType": "boolean",
+  "ruleType": "Reporting", 
+  "<span class="highlight">uuId</span>": "<span class="highlight">a1b2c3d4-e5f6-7890-abcd-ef1234567890</span>",
+  "<span class="highlight">__placeholderUUID</span>": <span class="highlight">true</span>,
+  "metadata": {
+    "id": "my-new-rule", 
+    "description": "A new rule"
+  },
+  "definition": {
+    "type": "conditionGroup",
+    "conditions": []
+  }
+}</div>
+                <p>✅ <strong>Result:</strong> Schema validation passes with placeholder UUID</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-container">
+        <h2>🔄 User Experience Flow</h2>
+        
+        <div class="scenario">
+            <h4>Step 1: New Rule Created</h4>
+            <p>User creates a new rule in RuleBuilder. The rule has no UUID yet (will be server-generated).</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Step 2: Switch to JSON Editor</h4>
+            <p>User switches to JSON Editor tab to view/edit the JSON. JsonEditor detects missing UUID and automatically adds a placeholder.</p>
+            
+            <div style="background: #e6f7ff; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                <strong>🔵 PLACEHOLDER UUID Notice Appears:</strong><br>
+                "A temporary UUID has been added for validation. The server will generate the final UUID when the rule is saved."
+            </div>
+        </div>
+        
+        <div class="scenario">
+            <h4>Step 3: Validation Works</h4>
+            <p>User can now validate the rule successfully in JsonEditor because the placeholder UUID satisfies the schema requirements.</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Step 4: Save Rule</h4>
+            <p>When rule is saved, the placeholder UUID and flag are automatically removed. Server generates the final UUID.</p>
+        </div>
+    </div>
+
+    <div class="demo-container">
+        <h2>⚙️ Technical Implementation</h2>
+        
+        <h4>Detection Logic</h4>
+        <div class="example-json">
+// Detects if rule needs placeholder UUID
+if ((data.structure || data.metadata) && (!data.uuId || data.uuId === null)) {
+    // Add placeholder UUID for validation
+    return {
+        ...data,
+        uuId: generatePlaceholderUUID(),
+        __placeholderUUID: true  // Flag for tracking
+    };
+}</div>
+
+        <h4>Cleanup Logic</h4>
+        <div class="example-json">
+// Removes placeholder flags before saving
+const removePlaceholderFlags = (data) => {
+    const cleaned = { ...data };
+    if (cleaned.__placeholderUUID) {
+        delete cleaned.__placeholderUUID;
+        // UUID itself is removed by RuleService
+    }
+    return cleaned;
+};</div>
+    </div>
+
+    <div class="demo-container">
+        <h2>🎉 Benefits</h2>
+        
+        <div class="benefit">
+            <strong>✅ Seamless Validation</strong><br>
+            New rules can be validated in JsonEditor without manual UUID entry
+        </div>
+        
+        <div class="benefit">
+            <strong>✅ Clear User Feedback</strong><br>
+            Placeholder UUID is clearly marked with visual indicator and explanation
+        </div>
+        
+        <div class="benefit">
+            <strong>✅ Server-Side UUID Authority</strong><br>
+            Maintains server-controlled UUID generation while enabling validation
+        </div>
+        
+        <div class="benefit">
+            <strong>✅ No Breaking Changes</strong><br>
+            Existing rules with UUIDs work exactly as before
+        </div>
+        
+        <div class="benefit">
+            <strong>✅ Automatic Cleanup</strong><br>
+            Placeholder UUIDs are automatically removed when saving
+        </div>
+    </div>
+
+    <div class="demo-container">
+        <h2>🧪 Test Scenarios</h2>
+        
+        <div class="scenario">
+            <h4>Scenario A: New Rule Without UUID</h4>
+            <p><strong>Input:</strong> Rule with no uuId field</p>
+            <p><strong>Expected:</strong> Placeholder UUID added, validation passes, notice shown</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Scenario B: New Rule with null UUID</h4>
+            <p><strong>Input:</strong> Rule with uuId: null</p>
+            <p><strong>Expected:</strong> Placeholder UUID replaces null, validation passes, notice shown</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Scenario C: Existing Rule with UUID</h4>
+            <p><strong>Input:</strong> Rule with valid uuId</p>
+            <p><strong>Expected:</strong> No changes, no notice, validation works as normal</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Scenario D: Edit Mode</h4>
+            <p><strong>Input:</strong> User clicks Edit on rule with placeholder UUID</p>
+            <p><strong>Expected:</strong> Placeholder UUID preserved in edit mode for consistent validation</p>
+        </div>
+        
+        <div class="scenario">
+            <h4>Scenario E: Save Operation</h4>
+            <p><strong>Input:</strong> User saves rule with placeholder UUID</p>
+            <p><strong>Expected:</strong> Placeholder flag removed, cleaned data passed to parent, RuleService handles UUID generation</p>
+        </div>
+    </div>
+
+    <div class="demo-container">
+        <h2>🔧 Implementation Complete</h2>
+        
+        <p>The JsonEditor component has been enhanced with the following new functions:</p>
+        
+        <ul>
+            <li><code>generatePlaceholderUUID()</code> - Creates temporary UUIDs for validation</li>
+            <li><code>addPlaceholderUUID()</code> - Detects and adds placeholder UUIDs when needed</li>
+            <li><code>removePlaceholderFlags()</code> - Cleans placeholder data before saving</li>
+        </ul>
+        
+        <p>The enhancement is backward compatible and doesn't affect existing rules with valid UUIDs. The feature seamlessly integrates with the new service-based architecture and server-side UUID generation.</p>
+        
+        <div style="background: #f6ffed; padding: 15px; border-radius: 8px; border: 1px solid #b7eb8f; text-align: center;">
+            <strong>✅ JsonEditor Placeholder UUID Feature: READY FOR PRODUCTION</strong>
+        </div>
+    </div>
+
+</body>
+</html>

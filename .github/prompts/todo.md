@@ -17,3 +17,9 @@ config:
 
 [ ] Fold Rule Structure component (structure/returnType) into Rule Defintion
     [ ] change "content" in JSON to match "defintion"?
+
+[ ] Fix double + + showing in expression
+
+[x] Change "content" to "definition" in schema
+
+[ ] No RuleTypes found in config, using defaults -

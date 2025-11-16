@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Button, Collapse, Input, Typography, Tag, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
-import ExpressionGroup, { createExpressionGroup } from './ExpressionGroup';
+import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
 
 const { Text } = Typography;
-const { Panel } = Collapse;
 
 /**
  * Case Component
@@ -27,7 +26,7 @@ const { Panel } = Collapse;
 const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false }) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
-    elseClause: createExpressionGroup('number', ''),
+    elseClause: createDirectExpression('value', 'number', 0),
     elseResultName: 'Default'
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
@@ -60,12 +59,41 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
     const updated = { ...caseData, ...updates };
     setCaseData(updated);
     
-    // Remove UI-only properties but keep the internal structure intact for components
-    const { elseExpanded: _, ...cleanData } = updated;
+    // Remove UI-only properties recursively before passing to parent
+    const cleanData = removeUIProperties(updated);
     
-    // Pass the data through without transformation for internal component use
-    // JSON transformation should only happen at final export stage
+    // Pass the cleaned data to parent component
     onChange(cleanData);
+  };
+
+  // Helper function to recursively remove UI-only properties
+  const removeUIProperties = (obj) => {
+    if (!obj || typeof obj !== 'object') {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(removeUIProperties);
+    }
+
+    const cleaned = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Skip UI-only properties
+      if (key.startsWith('editing') || 
+          key === 'elseExpanded' || 
+          key.includes('Expanded') ||
+          key.includes('editing')) {
+        continue;
+      }
+      
+      // Recursively clean nested objects
+      if (value && typeof value === 'object') {
+        cleaned[key] = removeUIProperties(value);
+      } else {
+        cleaned[key] = value;
+      }
+    }
+    return cleaned;
   };
 
   const addWhenClause = () => {
@@ -82,13 +110,13 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
             type: 'condition',
             returnType: 'boolean',
             name: 'Condition 1',
-            left: createExpressionGroup('number', null),
-            operator: null,
-            right: createExpressionGroup('number', '')
+            left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+            operator: 'equal',
+            right: createDirectExpression('value', 'number', 0)
           }
         ]
       },
-      then: createExpressionGroup('number', ''),
+      then: createDirectExpression('value', 'number', 0),
       resultName: `Result ${caseData.whenClauses.length + 1}`
     };
     handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });
@@ -113,14 +141,12 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
           activeKey={activeKeys} 
           onChange={setActiveKeys}
           style={{ marginBottom: '16px' }}
-        >
-          {caseData.whenClauses.map((clause, index) => {
+          items={caseData.whenClauses.map((clause, index) => {
             const isExpanded = activeKeys.includes(String(index));
             
-            return (
-            <Panel
-              key={String(index)}
-              header={
+            return {
+              key: String(index),
+              label: (
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Space>
                     <Text strong>WHEN</Text>
@@ -177,8 +203,8 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                     )}
                   </Space>
                 </Space>
-              }
-              extra={
+              ),
+              extra: (
                 <DeleteOutlined
                   onClick={(e) => {
                     e.stopPropagation();
@@ -186,62 +212,62 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                   }}
                   style={{ color: 'red' }}
                 />
-              }
-            >
-              <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                {/* Condition Group */}
-                <div style={{ 
-                  padding: '16px', 
-                  background: darkMode ? '#2a2a2a' : '#f9f9f9',
-                  borderRadius: '4px'
-                }}>
-                  <ConditionGroup
-                    value={clause.when}
-                    onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
-                    config={config}
-                    darkMode={darkMode}
-                    isLoadedRule={isLoadedRule}
-                  />
-                </div>
+              ),
+              children: (
+                <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                  {/* Condition Group */}
+                  <div style={{ 
+                    padding: '16px', 
+                    background: darkMode ? '#2a2a2a' : '#f9f9f9',
+                    borderRadius: '4px'
+                  }}>
+                    <ConditionGroup
+                      value={clause.when}
+                      onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
+                      config={config}
+                      darkMode={darkMode}
+                      isLoadedRule={isLoadedRule}
+                    />
+                  </div>
 
-                {/* THEN Result */}
-                <div>
-                  <Space style={{ marginBottom: '8px' }}>
-                    <Text strong>THEN</Text>
-                    {editingStates[`${index}_result`] ? (
-                      <Input
-                        size="small"
-                        value={clause.resultName || `Result ${index + 1}`}
-                        onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
-                        onPressEnter={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
-                        onBlur={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
-                        autoFocus
-                        style={{ width: '150px' }}
-                      />
-                    ) : (
-                      <>
-                        <Text code>{clause.resultName || `Result ${index + 1}`}</Text>
-                        <EditOutlined 
-                          style={{ fontSize: '12px', cursor: 'pointer' }}
-                          onClick={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: true }))}
+                  {/* THEN Result */}
+                  <div>
+                    <Space style={{ marginBottom: '8px' }}>
+                      <Text strong>THEN</Text>
+                      {editingStates[`${index}_result`] ? (
+                        <Input
+                          size="small"
+                          value={clause.resultName || `Result ${index + 1}`}
+                          onChange={(e) => updateWhenClause(index, { resultName: e.target.value })}
+                          onPressEnter={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
+                          onBlur={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: false }))}
+                          autoFocus
+                          style={{ width: '150px' }}
                         />
-                      </>
-                    )}
-                    <Text strong>:</Text>
-                  </Space>
-                  <ExpressionGroup
-                    value={clause.then}
-                    onChange={(newThen) => updateWhenClause(index, { then: newThen })}
-                    config={config}
-                    darkMode={darkMode}
-                    isLoadedRule={isLoadedRule}
-                  />
-                </div>
-              </Space>
-            </Panel>
-            );
+                      ) : (
+                        <>
+                          <Text code>{clause.resultName || `Result ${index + 1}`}</Text>
+                          <EditOutlined 
+                            style={{ fontSize: '12px', cursor: 'pointer' }}
+                            onClick={() => setEditingStates(prev => ({ ...prev, [`${index}_result`]: true }))}
+                          />
+                        </>
+                      )}
+                      <Text strong>:</Text>
+                    </Space>
+                    <SmartExpression
+                      value={clause.then}
+                      onChange={(newThen) => updateWhenClause(index, { then: newThen })}
+                      config={config}
+                      darkMode={darkMode}
+                      isLoadedRule={isLoadedRule}
+                    />
+                  </div>
+                </Space>
+              )
+            };
           })}
-        </Collapse>
+        />
 
         {/* Add WHEN Button */}
         <Button 
@@ -257,10 +283,9 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
         <Collapse 
           activeKey={elseExpanded ? ['else'] : []} 
           onChange={(keys) => setElseExpanded(keys.includes('else'))}
-        >
-          <Panel
-            key="else"
-            header={
+          items={[{
+            key: 'else',
+            label: (
               <Space>
                 <Text strong>ELSE</Text>
                 {editingElseResultName ? (
@@ -287,17 +312,18 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                   </>
                 )}
               </Space>
-            }
-          >
-            <ExpressionGroup
-              value={caseData.elseClause}
-              onChange={(newElse) => handleChange({ elseClause: newElse })}
-              config={config}
-              darkMode={darkMode}
-              isLoadedRule={isLoadedRule}
-            />
-          </Panel>
-        </Collapse>
+            ),
+            children: (
+              <SmartExpression
+                value={caseData.elseClause}
+                onChange={(newElse) => handleChange({ elseClause: newElse })}
+                config={config}
+                darkMode={darkMode}
+                isLoadedRule={isLoadedRule}
+              />
+            )
+          }]}
+        />
       </Space>
   );
 };

@@ -14,7 +14,7 @@ import { describe, test, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import ExpressionGroup from '../ExpressionGroup';
+import { SmartExpression } from '../utils/expressionUtils';
 
 // Mock config
 const mockConfig = {
@@ -91,7 +91,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <ExpressionGroup
+        <SmartExpression
           value={initialValue}
           onChange={handleChange}
           config={mockConfig}
@@ -112,12 +112,10 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       // Verify the output
       expect(capturedOutput.expressions).toHaveLength(2);
       
-      // BUG: The new expression is an expressionGroup, not a value!
-      // It wraps a single value inside an expressionGroup
-      expect(capturedOutput.expressions[1].type).toBe('expressionGroup');
+      // FIXED: New expressions are now plain value objects (no unnecessary wrapping)
+      expect(capturedOutput.expressions[1].type).toBe('value');
       expect(capturedOutput.expressions[1].returnType).toBe('number');
-      expect(capturedOutput.expressions[1].expressions[0].type).toBe('value');
-      expect(capturedOutput.expressions[1].expressions[0].value).toBe(0);
+      expect(capturedOutput.expressions[1].value).toBe(0);
       expect(capturedOutput.operators).toEqual(['+']);
     });
 
@@ -140,7 +138,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <ExpressionGroup
+        <SmartExpression
           value={initialValue}
           onChange={handleChange}
           config={mockConfig}
@@ -160,12 +158,10 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       // FIXED: Should now add a text expression!
       expect(capturedOutput.expressions).toHaveLength(2);
       
-      // Note: Still creates expressionGroup wrapper (Bug #4), but type is correct
-      expect(capturedOutput.expressions[1].type).toBe('expressionGroup');
+      // FIXED: New expressions are now plain value objects (no unnecessary wrapping)
+      expect(capturedOutput.expressions[1].type).toBe('value');
       expect(capturedOutput.expressions[1].returnType).toBe('text');
-      expect(capturedOutput.expressions[1].expressions[0].type).toBe('value');
-      expect(capturedOutput.expressions[1].expressions[0].returnType).toBe('text');
-      expect(capturedOutput.expressions[1].expressions[0].value).toBe('');
+      expect(capturedOutput.expressions[1].value).toBe('');
       expect(capturedOutput.operators).toEqual(['+']);
     });
   });
@@ -190,7 +186,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <ExpressionGroup
+        <SmartExpression
           value={initialValue}
           onChange={handleChange}
           config={mockConfig}
@@ -226,7 +222,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <ExpressionGroup
+        <SmartExpression
           value={desiredValue}
           onChange={handleChange}
           config={mockConfig}
@@ -261,7 +257,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <ExpressionGroup
+        <SmartExpression
           value={numericExpression}
           onChange={handleChange}
           config={mockConfig}
@@ -302,17 +298,16 @@ describe('Bug Documentation', () => {
         impact: 'No misleading warning for valid operations'
       },
       {
-        status: 'REMAINING',
+        status: 'FIXED',
         bug: 'New expressions wrapped in expressionGroup',
-        cause: 'addExpression() creates nested structure',
-        impact: 'Expressions have extra nesting level',
-        workaround: 'Still functional, just verbose JSON'
+        fix: 'Architecture refactoring removes unnecessary nesting',
+        impact: 'Clean JSON structure with proper Expression/ExpressionGroup separation'
       }
     ];
 
     // This test documents the fixes
-    expect(bugs.filter(b => b.status === 'FIXED')).toHaveLength(3);
-    expect(bugs.filter(b => b.status === 'REMAINING')).toHaveLength(1);
+    expect(bugs.filter(b => b.status === 'FIXED')).toHaveLength(4);
+    expect(bugs.filter(b => b.status === 'REMAINING')).toHaveLength(0);
     
     bugs.forEach(bug => {
       if (bug.status === 'FIXED') {

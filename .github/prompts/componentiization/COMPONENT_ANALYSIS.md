@@ -80,7 +80,7 @@
       "id": "string",
       "description": "string"
     },
-    "content": { /* rule-specific content */ }
+    "definition": { /* rule-specific content */ }
   }
   ```
 - **Purpose:** Load full rule data for editing

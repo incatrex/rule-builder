@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
-import { CloseOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import ExpressionGroup, { createExpressionGroup } from './ExpressionGroup';
+import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
+import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
 
+const { Option } = Select;
 const { Text } = Typography;
-const { Panel } = Collapse;
 
 /**
  * Condition Component
@@ -26,9 +26,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
   const [conditionData, setConditionData] = useState(value || {
     returnType: 'boolean',
     name: 'New Condition',
-    left: createExpressionGroup('number', null),
-    operator: null,
-    right: createExpressionGroup('number', '')
+    left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+    operator: 'equal',
+    right: createDirectExpression('value', 'number', 0)
   });
   const [editingName, setEditingName] = useState(false);
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
@@ -102,12 +102,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
   const handleOperatorChange = (operatorKey) => {
     const operatorDef = getOperatorDef(operatorKey);
     
-    console.log('🔄 handleOperatorChange:', {
-      operatorKey,
-      operatorDef,
-      leftReturnType: conditionData.left?.returnType
-    });
-    
     // Support both fixed and dynamic cardinality
     let cardinality;
     if (operatorDef?.defaultCardinality !== undefined) {
@@ -118,29 +112,27 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
     }
     
-    console.log('📊 Cardinality calculated:', cardinality);
-    
     let newRight;
     if (cardinality === 0) {
       // No right side value needed
       newRight = null;
     } else if (cardinality === 1) {
-      // Single right side value - must be ExpressionGroup
-      newRight = createExpressionGroup(
+      // Single right side value - direct expression (schema-compliant)
+      newRight = createDirectExpression(
+        'value',
         conditionData.left?.returnType || 'text',
         ''
       );
     } else {
-      // Multiple right side values (array of ExpressionGroups)
+      // Multiple right side values (array of direct expressions)
       newRight = Array(cardinality).fill(null).map(() => 
-        createExpressionGroup(
+        createDirectExpression(
+          'value',
           conditionData.left?.returnType || 'text',
           ''
         )
       );
     }
-    
-    console.log('📦 New right side created:', newRight);
     
     handleChange({ operator: operatorKey, right: newRight });
   };
@@ -153,7 +145,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
     if (maxCard && Array.isArray(conditionData.right) && conditionData.right.length < maxCard) {
       const newRight = [
         ...conditionData.right,
-        createExpressionGroup(conditionData.left?.returnType || 'text', '')
+        createDirectExpression('value', conditionData.left?.returnType || 'text', '')
       ];
       handleChange({ right: newRight });
     }
@@ -172,17 +164,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
 
   // Handle left expression change
   const handleLeftChange = (newLeft) => {
-    console.log('⬅️ handleLeftChange called:', {
-      newLeft,
-      oldLeft: conditionData.left,
-      operator: conditionData.operator,
-      currentRight: conditionData.right
-    });
-    
     // When left side changes type, update right side to match if operator exists
     const operatorDef = getOperatorDef(conditionData.operator);
     
-    console.log('📋 Operator definition:', operatorDef);
     
     // Support both fixed and dynamic cardinality
     let cardinality;
@@ -193,11 +177,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
     }
     
-    console.log('📊 Cardinality for returnType propagation:', cardinality);
     
     let newRight = conditionData.right;
     if (cardinality === 1 && newRight && newRight.returnType !== newLeft.returnType) {
-      console.log('🔄 Updating single right returnType:', newLeft.returnType);
       // Update returnType deeply in ExpressionGroup
       newRight = { 
         ...newRight, 
@@ -208,7 +190,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         })) || newRight.expressions
       };
     } else if (cardinality > 1 && Array.isArray(newRight)) {
-      console.log('🔄 Updating array right returnTypes:', newLeft.returnType);
       // Update returnType deeply in each ExpressionGroup in the array
       newRight = newRight.map(r => ({ 
         ...r, 
@@ -220,7 +201,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       }));
     }
     
-    console.log('✅ Final right side:', newRight);
     
     handleChange({ left: newLeft, right: newRight });
   };
@@ -247,10 +227,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         borderLeft: '3px solid #1890ff',
         marginBottom: '8px'
       }}
-    >
-      <Panel
-        key="condition"
-        header={
+      items={[{
+        key: 'condition',
+        label: (
           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Space size="small">
               {editingName ? (
@@ -296,12 +275,12 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
               />
             )}
           </Space>
-        }
-      >
+        ),
+        children: (
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
         <div style={{ minWidth: '300px', flex: 1 }}>
-          <ExpressionGroup
+          <SmartExpression
             value={conditionData.left}
             onChange={handleLeftChange}
             config={config}
@@ -328,7 +307,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         {/* Right Expression(s) */}
         {cardinality === 1 && (
           <div style={{ minWidth: '300px', flex: 1 }}>
-            <ExpressionGroup
+            <SmartExpression
               value={conditionData.right}
               onChange={(newRight) => handleChange({ right: newRight })}
               config={config}
@@ -343,12 +322,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         {cardinality > 1 && Array.isArray(conditionData.right) && (
           <>
             {conditionData.right.map((rightVal, index) => {
-              console.log(`📝 Rendering right value [${index}]:`, {
-                rightVal,
-                leftReturnType: conditionData.left?.returnType,
-                expectedType: conditionData.left?.returnType
-              });
-              
               return (
               <React.Fragment key={index}>
                 {index > 0 && (
@@ -357,7 +330,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
                   </Text>
                 )}
                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center', minWidth: '300px', flex: 1 }}>
-                  <ExpressionGroup
+                  <SmartExpression
                     value={rightVal}
                     onChange={(newVal) => {
                       const updatedRight = [...conditionData.right];
@@ -398,8 +371,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
           </>
         )}
       </Space>
-      </Panel>
-    </Collapse>
+        )
+      }]}
+    />
   );
 };
 

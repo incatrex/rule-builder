@@ -1,10 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v1.2.0.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v1.1.0.json",
   "title": "Rule Builder Schema",
-  "description": "JSON Schema for validating Rule Builder generated rules - Changed 'content' to 'definition' for clearer semantic meaning. ExpressionGroup requires 2+ expressions.",
+  "description": "JSON Schema for validating Rule Builder generated rules - Aligned Expression/ExpressionGroup pattern with Condition/ConditionGroup for consistency. ExpressionGroup requires 2+ expressions.",
   "type": "object",
-  "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "definition"],
+  "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "content"],
   "properties": {
     "structure": {
       "type": "string",
@@ -46,9 +46,9 @@
       },
       "additionalProperties": false
     },
-    "definition": {
+    "content": {
       "type": "object",
-      "description": "The actual rule definition, structure depends on the 'structure' field"
+      "description": "The actual rule content, structure depends on the 'structure' field"
     }
   },
   "additionalProperties": false,

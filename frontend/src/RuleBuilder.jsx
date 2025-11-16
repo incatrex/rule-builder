@@ -1,10 +1,10 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Card, Space, Input, Select, Typography, Button, message } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { RuleService, ConfigService } from './services';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
-import ExpressionGroup from './ExpressionGroup';
+import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -33,26 +33,21 @@ const { TextArea } = Input;
  * - loadRuleData(data): Loads rule data from JSON
  */
 const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, selectedRuleUuid }, ref) => {
-  // Generate a UUID
-  const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  };
+  // Initialize services
+  const ruleService = new RuleService();
+  const configService = new ConfigService();
 
   const [ruleData, setRuleData] = useState({
     structure: 'condition',
     returnType: 'boolean',
-    uuId: generateUUID(),
+    uuId: null, // Will be generated server-side
     version: 1,
     ruleType: 'Reporting',
     metadata: {
       id: '',
       description: ''
     },
-    content: null
+    definition: null
   });
 
   const [availableVersions, setAvailableVersions] = useState([]);
@@ -61,28 +56,25 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   const [isLoadedRule, setIsLoadedRule] = useState(false);
 
   useEffect(() => {
-    // Initialize content based on structure
-    if (!ruleData.content) {
-      initializeContent(ruleData.structure);
+    // Initialize definition based on structure
+    if (!ruleData.definition) {
+      initializeDefinition(ruleData.structure);
     }
   }, []);
 
   useEffect(() => {
-    // Load rule types from backend API
+    // Load rule types from backend API using service
     const loadRuleTypes = async () => {
       try {
-        const response = await fetch('/api/ruleTypes');
-        if (response.ok) {
-          const ruleTypesData = await response.json();
-          if (Array.isArray(ruleTypesData) && ruleTypesData.length > 0) {
-            setRuleTypes(ruleTypesData);
-            // Update the current ruleType if it's not in the new list
-            if (!ruleTypesData.includes(ruleData.ruleType)) {
-              handleChange({ ruleType: ruleTypesData[0] });
-            }
+        const config = await configService.getConfig();
+        if (config.ruleTypes && Array.isArray(config.ruleTypes) && config.ruleTypes.length > 0) {
+          setRuleTypes(config.ruleTypes);
+          // Update the current ruleType if it's not in the new list
+          if (!config.ruleTypes.includes(ruleData.ruleType)) {
+            handleChange({ ruleType: config.ruleTypes[0] });
           }
         } else {
-          console.error('Failed to load rule types, status:', response.status);
+          // Silently use defaults if no rule types found in config
         }
       } catch (error) {
         console.error('Error loading rule types:', error);
@@ -111,12 +103,12 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   const loadVersionsForRule = async (uuid) => {
     try {
       setLoadingVersions(true);
-      const response = await axios.get(`/api/rules/versions/${uuid}`);
-      const versions = response.data.map(v => ({
+      const versions = await ruleService.getRuleVersions(uuid);
+      const versionOptions = versions.map(v => ({
         value: v,
         label: `${v}`
       }));
-      setAvailableVersions(versions);
+      setAvailableVersions(versionOptions);
     } catch (error) {
       console.error('Error loading versions:', error);
       setAvailableVersions([]);
@@ -126,30 +118,28 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
   };
 
   const handleVersionChange = async (version) => {
-    if (!selectedRuleUuid || !ruleData.metadata.id) {
+    if (!selectedRuleUuid) {
       handleChange({ version });
       return;
     }
 
     try {
-      // Load the selected version from the backend
-      const response = await axios.get(
-        `/api/rules/${ruleData.metadata.id}/${selectedRuleUuid}/${version}`
-      );
+      // Load the selected version from the backend using the service
+      const ruleVersionData = await ruleService.getRuleVersion(selectedRuleUuid, version);
       
-      if (response.data) {
+      if (ruleVersionData) {
         // Load the rule data for the selected version
-        const structure = response.data.structure || 'condition';
-        const content = response.data.content || response.data[structure] || null;
+        const structure = ruleVersionData.structure || 'condition';
+        const definition = ruleVersionData.definition || ruleVersionData[structure] || null;
         
         setRuleData({
           structure,
-          returnType: response.data.returnType || 'boolean',
-          ruleType: response.data.ruleType || 'Reporting',
-          uuId: response.data.uuId || selectedRuleUuid,
-          version: response.data.version || version,
-          metadata: response.data.metadata || { id: '', description: '' },
-          content: content
+          returnType: ruleVersionData.returnType || 'boolean',
+          ruleType: ruleVersionData.ruleType || 'Reporting',
+          uuId: ruleVersionData.uuId || selectedRuleUuid,
+          version: ruleVersionData.version || version,
+          metadata: ruleVersionData.metadata || { id: '', description: '' },
+          definition: content
         });
         
         setIsLoadedRule(true);
@@ -165,11 +155,11 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     setRuleData(prev => ({ ...prev, ...updates }));
   };
 
-  const initializeContent = (structure) => {
-    let content = null;
+  const initializeDefinition = (structure) => {
+    let definition = null;
     
     if (structure === 'case') {
-      content = {
+      definition = {
         whenClauses: [
           // Start with one default WHEN clause like CustomCaseBuilder
           {
@@ -185,82 +175,55 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                   type: 'condition',
                   returnType: 'boolean',
                   name: 'Condition 1',
-                  left: { 
-                    type: 'expressionGroup',
-                    returnType: 'number',
-                    expressions: [{ type: 'field', returnType: 'number', field: null }],
-                    operators: []
-                  },
-                  operator: null,
-                  right: { 
-                    type: 'expressionGroup',
-                    returnType: 'number',
-                    expressions: [{ type: 'value', returnType: 'number', value: '' }],
-                    operators: []
-                  }
+                  left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+                  operator: 'equal',
+                  right: createDirectExpression('value', 'number', 0)
                 }
               ]
             },
-            then: {
-              type: 'expressionGroup',
-              returnType: 'number',
-              expressions: [{ type: 'value', returnType: 'number', value: '' }],
-              operators: []
-            },
+            then: createDirectExpression('value', 'number', 0),
             resultName: 'Result 1',
             editingName: false,
             editingResultName: false
           }
         ],
-        elseClause: { 
-          type: 'expressionGroup',
-          returnType: 'number',
-          expressions: [{ type: 'value', returnType: 'number', value: '' }],
-          operators: []
-        },
+        elseClause: createDirectExpression('value', 'number', 0),
         elseResultName: 'Default',
         elseExpanded: true
       };
     } else if (structure === 'condition') {
-      content = {
+      definition = {
         type: 'conditionGroup',
         returnType: 'boolean',
         name: 'Main Condition',
         conjunction: 'AND',
         not: false,
         conditions: [
-          // Auto-add an empty condition
+          // Auto-add an empty condition with direct expressions (schema-compliant)
           {
             type: 'condition',
             returnType: 'boolean',
             name: 'Condition 1',
-            left: { 
-              type: 'expressionGroup',
+            left: {
+              type: 'field',
               returnType: 'number',
-              expressions: [{ type: 'field', returnType: 'number', field: null }],
-              operators: []
+              field: 'TABLE1.NUMBER_FIELD_01' // Use a default valid field
             },
-            operator: null,
-            right: { 
-              type: 'expressionGroup',
+            operator: 'equal', // Use a default valid operator
+            right: {
+              type: 'value',
               returnType: 'number',
-              expressions: [{ type: 'value', returnType: 'number', value: '' }],
-              operators: []
+              value: 0 // Use a default valid value
             }
           }
         ]
       };
     } else if (structure === 'expression') {
-      content = {
-        type: 'expressionGroup',
-        returnType: 'number',
-        expressions: [{ type: 'value', returnType: 'number', value: '' }],
-        operators: []
-      };
+      definition = createDirectExpression('value', 'number', 0);
     }
     
     handleChange({ 
-      content,
+      definition,
       returnType: structure === 'expression' ? 'number' : (structure === 'condition' ? 'boolean' : ruleData.returnType)
     });
   };
@@ -270,7 +233,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       structure: newStructure,
       returnType: newStructure === 'case' || newStructure === 'condition' ? 'boolean' : 'number'
     });
-    initializeContent(newStructure);
+    initializeDefinition(newStructure);
   };
 
   const handleSaveRule = async () => {
@@ -280,30 +243,41 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
     }
 
     try {
-      // Increment version BEFORE saving
-      const newVersion = ruleData.version + 1;
-      const ruleOutput = {
-        ...getRuleOutput(),
-        version: newVersion
-      };
+      const ruleOutput = getRuleOutput();
+      let result;
       
-      await axios.post(`/api/rules/${ruleData.metadata.id}/${newVersion}`, ruleOutput);
+      if (ruleData.uuId) {
+        // Update existing rule (creates new version automatically)
+        result = await ruleService.updateRule(ruleData.uuId, ruleOutput);
+        message.success(`Rule updated: ${result.ruleId} v${result.version}`);
+      } else {
+        // Create new rule (server generates UUID)
+        result = await ruleService.createRule(ruleOutput);
+        message.success(`Rule created: ${result.ruleId} v${result.version}`);
+      }
       
-      // Update the version in state to match what was saved
-      handleChange({ version: newVersion });
+      // Update the local state with server response
+      handleChange({ 
+        uuId: result.uuid,
+        version: result.version 
+      });
       
-      message.success(`Rule saved: ${ruleData.metadata.id} v${newVersion}`);
+      // Refresh available versions if we have a selected rule
+      if (selectedRuleUuid === result.uuid || !selectedRuleUuid) {
+        await loadVersionsForRule(result.uuid);
+      }
+      
     } catch (error) {
       console.error('Error saving rule:', error);
-      message.error('Failed to save rule');
+      message.error('Failed to save rule: ' + (error.response?.data?.error || error.message));
     }
   };
 
   const getRuleOutput = () => {
     // Clean UI state properties before saving
-    const cleanContent = removeUIState(ruleData.content);
+    const cleanDefinition = removeUIState(ruleData.definition);
     
-    // Use 'content' key for consistency with editing
+    // Use 'definition' key for consistency with editing
     return {
       structure: ruleData.structure,
       returnType: ruleData.returnType,
@@ -311,7 +285,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       uuId: ruleData.uuId,
       version: ruleData.version,
       metadata: ruleData.metadata,
-      content: cleanContent
+      definition: cleanDefinition
     };
   };
 
@@ -354,9 +328,9 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       const structure = data.structure || 'condition';
       
       // Support both formats:
-      // 1. Content format (new): { structure: "case", content: {...} }
+      // 1. Definition format (new): { structure: "case", definition: {...} }
       // 2. Dynamic key format (old): { structure: "case", case: {...} }
-      let content = data.content || data[structure] || null;
+      let content = data.definition || data[structure] || null;
       
       setRuleData({
         structure,
@@ -365,7 +339,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         uuId: data.uuId || generateUUID(),
         version: data.version || 1,
         metadata: data.metadata || { id: '', description: '' },
-        content: content
+        definition: content
       });
       
       setIsLoadedRule(true); // Signal that this is a loaded rule (should be collapsed)
@@ -373,7 +347,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       // If content is null, initialize it based on structure
       if (!content) {
         setTimeout(() => {
-          initializeContent(structure);
+          initializeDefinition(structure);
         }, 0);
       }
     },
@@ -384,17 +358,17 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         structure,
         returnType: data.returnType || 'boolean',
         ruleType: data.ruleType || 'Reporting',
-        uuId: generateUUID(),
+        uuId: null, // Will be generated server-side on save
         version: 1,
         metadata: data.metadata || { id: '', description: '' },
-        content: null
+        definition: null
       });
       
       setIsLoadedRule(false); // Signal that this is a new rule (should be expanded)
       
       // Initialize content based on structure
       setTimeout(() => {
-        initializeContent(structure);
+        initializeDefinition(structure);
       }, 0);
     }
   }));
@@ -515,74 +489,6 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
           </Space>
         </Card>
 
-        {/* Structure Selection */}
-        <Card
-          title="Rule Structure"
-          style={{
-            background: darkMode ? '#1f1f1f' : '#ffffff',
-            border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
-          }}
-        >
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            <div>
-              <Text 
-                strong 
-                style={{ 
-                  display: 'block', 
-                  marginBottom: '8px',
-                  color: darkMode ? '#e0e0e0' : 'inherit'
-                }}
-              >
-                Structure Type:
-              </Text>
-              <Select
-                value={ruleData.structure}
-                onChange={handleStructureChange}
-                style={{ width: '100%' }}
-                options={[
-                  { 
-                    value: 'condition', 
-                    label: 'Simple Condition - Single boolean condition or group' 
-                  },
-                  { 
-                    value: 'case', 
-                    label: 'Case Expression - Multiple conditions with different results' 
-                  },
-                  { 
-                    value: 'expression', 
-                    label: 'Mathematical Expression - Single value, field, or function' 
-                  }
-                ]}
-              />
-            </div>
-
-            <div>
-              <Text 
-                strong 
-                style={{ 
-                  display: 'block', 
-                  marginBottom: '8px',
-                  color: darkMode ? '#e0e0e0' : 'inherit'
-                }}
-              >
-                Return Type:
-              </Text>
-              <Select
-                value={ruleData.returnType}
-                onChange={(returnType) => handleChange({ returnType })}
-                style={{ width: '100%' }}
-                disabled={ruleData.structure === 'case' || ruleData.structure === 'condition'}
-                options={[
-                  { value: 'boolean', label: 'Boolean' },
-                  { value: 'text', label: 'Text' },
-                  { value: 'number', label: 'Number' },
-                  { value: 'date', label: 'Date' }
-                ]}
-              />
-            </div>
-          </Space>
-        </Card>
-
         {/* Rule Content */}
         <Card
           title="Rule Definition"
@@ -591,20 +497,84 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
             border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
           }}
         >
-          {ruleData.structure === 'case' && ruleData.content && (
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            {/* Structure and Return Type Selection */}
+            <Space 
+              style={{ width: '100%', flexWrap: 'wrap' }} 
+              size="middle"
+            >
+              <div style={{ flex: 1, minWidth: '300px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Text 
+                  strong 
+                  style={{ 
+                    color: darkMode ? '#e0e0e0' : 'inherit',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Structure:
+                </Text>
+                <Select
+                  value={ruleData.structure}
+                  onChange={handleStructureChange}
+                  style={{ flex: 1 }}
+                  options={[
+                    { 
+                      value: 'condition', 
+                      label: 'Simple Condition - Single boolean condition or group' 
+                    },
+                    { 
+                      value: 'case', 
+                      label: 'Case Expression - Multiple conditions with different results' 
+                    },
+                    { 
+                      value: 'expression', 
+                      label: 'Mathematical Expression - Single value, field, or function' 
+                    }
+                  ]}
+                />
+              </div>
+
+              <div style={{ minWidth: '150px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Text 
+                  strong 
+                  style={{ 
+                    color: darkMode ? '#e0e0e0' : 'inherit',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Returns:
+                </Text>
+                <Select
+                  value={ruleData.returnType}
+                  onChange={(returnType) => handleChange({ returnType })}
+                  style={{ flex: 1, minWidth: '100px' }}
+                  disabled={ruleData.structure === 'case' || ruleData.structure === 'condition'}
+                  options={[
+                    { value: 'boolean', label: 'Boolean' },
+                    { value: 'text', label: 'Text' },
+                    { value: 'number', label: 'Number' },
+                    { value: 'date', label: 'Date' }
+                  ]}
+                />
+              </div>
+            </Space>
+
+            {/* Rule Content Based on Structure */}
+            <div>
+          {ruleData.structure === 'case' && ruleData.definition && (
             <Case
-              value={ruleData.content}
-              onChange={(content) => handleChange({ content })}
+              value={ruleData.definition}
+              onChange={(definition) => handleChange({ definition })}
               config={config}
               darkMode={darkMode}
               isLoadedRule={isLoadedRule}
             />
           )}
 
-          {ruleData.structure === 'condition' && ruleData.content && (
+          {ruleData.structure === 'condition' && ruleData.definition && (
             <ConditionGroup
-              value={ruleData.content}
-              onChange={(content) => handleChange({ content })}
+              value={ruleData.definition}
+              onChange={(definition) => handleChange({ definition })}
               config={config}
               darkMode={darkMode}
               isLoadedRule={isLoadedRule}
@@ -612,16 +582,18 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
             />
           )}
 
-          {ruleData.structure === 'expression' && ruleData.content && (
-            <ExpressionGroup
-              value={ruleData.content}
-              onChange={(content) => handleChange({ content })}
+          {ruleData.structure === 'expression' && ruleData.definition && (
+            <SmartExpression
+              value={ruleData.definition}
+              onChange={(definition) => handleChange({ definition })}
               config={config}
               expectedType={ruleData.returnType}
               darkMode={darkMode}
               isLoadedRule={isLoadedRule}
             />
           )}
+            </div>
+          </Space>
         </Card>
       </Space>
     </div>
