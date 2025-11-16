@@ -28,7 +28,7 @@ const mockConfig = {
       }
     }
   },
-  funcs: {
+  functions: {
     MATH: {
       type: '!struct',
       label: 'Math Functions',

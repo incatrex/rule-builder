@@ -42,7 +42,7 @@ beforeEach(() => {
         json: () => Promise.resolve({
           conjunctions: { AND: { label: "AND" }, OR: { label: "OR" } },
           operators: {},
-          funcs: { MATH: { subfields: {} } },
+          functions: { MATH: { subfields: {} } },
           widgets: { text: { type: "text" } },
           types: { text: { defaultOperator: "equal" } },
           settings: {}

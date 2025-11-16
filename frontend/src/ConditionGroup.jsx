@@ -83,7 +83,7 @@ const DraggableItem = ({ id, children, darkMode }) => {
  * Props:
  * - value: ConditionGroup object { name, returnType, conjunction, conditions }
  * - onChange: Callback when group changes
- * - config: Config with operators, fields, funcs
+ * - config: Config with operators, fields, functions
  * - darkMode: Dark mode styling
  * - onRemove: Callback to remove this group
  * - depth: Nesting depth for styling

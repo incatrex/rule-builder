@@ -99,28 +99,6 @@
       "separator": ","
     }
   },
-  "widgets": {
-    "text": {
-      "type": "text"
-    },
-    "number": {
-      "type": "number"
-    },
-    "date": {
-      "type": "date",
-      "dateFormat": "YYYY-MM-DD",
-      "valueFormat": "YYYY-MM-DD"
-    },
-    "boolean": {
-      "type": "boolean"
-    },
-    "select": {
-      "type": "select"
-    },
-    "multiselect": {
-      "type": "multiselect"
-    }
-  },
   "types": {
     "text": {
       "defaultOperator": "equal",
@@ -192,7 +170,7 @@
       }
     }
   },
-  "funcs": {
+  "functions": {
     "MATH": {
       "label": "MATH Functions",
       "type": "!struct",

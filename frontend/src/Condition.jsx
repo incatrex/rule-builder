@@ -19,7 +19,7 @@ const { Text } = Typography;
  * Props:
  * - value: Condition object { name, left, operator, right }
  * - onChange: Callback when condition changes
- * - config: Config with operators, fields, funcs
+ * - config: Config with operators, fields, functions
  * - darkMode: Dark mode styling
  * - onRemove: Callback to remove this condition
  */

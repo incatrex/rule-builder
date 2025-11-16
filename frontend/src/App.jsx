@@ -123,16 +123,16 @@ const App = () => {
 
       const fields = fieldsData;
 
-      // Convert flat funcs structure (TEXT.CONCAT) to hierarchical (TEXT -> CONCAT)
-      const buildHierarchicalFuncs = (flatFuncs) => {
+      // Convert flat functions structure (TEXT.CONCAT) to hierarchical (TEXT -> CONCAT)
+      const buildHierarchicalFunctions = (flatFunctions) => {
         const hierarchical = {};
         
-        Object.keys(flatFuncs).forEach(key => {
+        Object.keys(flatFunctions).forEach(key => {
           const parts = key.split('.');
           
           if (parts.length === 1) {
             // No dot - keep as is
-            hierarchical[key] = flatFuncs[key];
+            hierarchical[key] = flatFunctions[key];
           } else {
             // Has dot - create hierarchy
             const [category, ...rest] = parts;
@@ -148,7 +148,7 @@ const App = () => {
             // Build the nested structure
             let current = hierarchical[category].subfields;
             const functionName = rest.join('.');
-            current[functionName] = flatFuncs[key];
+            current[functionName] = flatFunctions[key];
           }
         });
         
@@ -159,7 +159,7 @@ const App = () => {
       const ruleConfigData = {
         operators: configData.operators,
         fields: fields,
-        funcs: buildHierarchicalFuncs(configData.funcs),
+        functions: buildHierarchicalFunctions(configData.functions),
         types: configData.types
       };
       

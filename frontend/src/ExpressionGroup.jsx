@@ -35,7 +35,7 @@ const { Text } = Typography;
  * Props:
  * - value: Current expression group object
  * - onChange: Callback when expression group changes
- * - config: Config with operators, fields, funcs
+ * - config: Config with operators, fields, functions
  * - expectedType: Expected return type for filtering (text, number, date, boolean)
  * - darkMode: Dark mode styling
  * - compact: Compact mode
@@ -512,11 +512,11 @@ const getFieldDefinition = (fieldPath, fields) => {
   return null;
 };
 
-const getFunctionDefinition = (funcPath, funcs) => {
-  if (!funcs || !funcPath) return null;
+const getFunctionDefinition = (funcPath, functions) => {
+  if (!functions || !funcPath) return null;
   
   const parts = funcPath.split('.');
-  let current = funcs;
+  let current = functions;
   
   for (const part of parts) {
     if (current[part]) {

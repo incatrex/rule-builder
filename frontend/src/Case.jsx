@@ -21,7 +21,7 @@ const { Text } = Typography;
  * Props:
  * - value: Case object { whenClauses: [{ when, then, resultName }], elseClause, elseResultName }
  * - onChange: Callback when case changes
- * - config: Config with operators, fields, funcs
+ * - config: Config with operators, fields, functions
  * - darkMode: Dark mode styling
  */
 const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false }) => {
