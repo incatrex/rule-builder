@@ -15,10 +15,10 @@ config:
 
 [ ] use schema for config (or derive config from schema)
 
-[ ] Fold Rule Structure component (structure/returnType) into Rule Defintion
+[x] Fold Rule Structure component (structure/returnType) into Rule Defintion
     [ ] change "content" in JSON to match "defintion"?
 
-[ ] Fix double + + showing in expression
+[x] Fix double + + showing in expression
 
 [x] Change "content" to "definition" in schema
 
