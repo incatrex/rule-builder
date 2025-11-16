@@ -52,9 +52,6 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   
   // Validate that this is a proper multi-expression ExpressionGroup
   const validateExpressionGroup = (val) => {
-    console.log('🔍 VALIDATION: ExpressionGroup received value:', val);
-    console.log('🔍 VALIDATION: Type check:', val?.type);
-    console.log('🔍 VALIDATION: Expressions check:', val?.expressions?.length);
     
     if (!val || val.type !== 'expressionGroup') {
       throw new Error('ExpressionGroup component requires data with type="expressionGroup"');

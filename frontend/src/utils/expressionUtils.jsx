@@ -24,22 +24,12 @@ import ExpressionGroup from '../ExpressionGroup';
 export const SmartExpression = (props) => {
   const { value, ...otherProps } = props;
   
-  // Debug logging
-  console.log('SmartExpression routing:', {
-    type: value?.type,
-    expressionsLength: value?.expressions?.length,
-    isMultiExpression: value?.type === 'expressionGroup' && value.expressions?.length > 1,
-    fullData: value
-  });
-  
   // Determine which component to use based on data structure
   if (value?.type === 'expressionGroup' && value.expressions?.length > 1) {
     // Multi-expression group -> use ExpressionGroup
-    console.log('→ Routing to ExpressionGroup with', value.expressions?.length, 'expressions');
     return <ExpressionGroup value={value} {...otherProps} />;
   } else {
     // Single expression or single-item group -> use Expression
-    console.log('→ Routing to Expression');
     return <Expression value={value} {...otherProps} />;
   }
 };

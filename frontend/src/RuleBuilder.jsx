@@ -74,7 +74,7 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
             handleChange({ ruleType: config.ruleTypes[0] });
           }
         } else {
-          console.warn('No rule types found in config, using defaults');
+          // Silently use defaults if no rule types found in config
         }
       } catch (error) {
         console.error('Error loading rule types:', error);

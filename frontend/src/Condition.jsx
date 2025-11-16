@@ -1,32 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
-import { CloseOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { SmartExpression } from './utils/expressionUtils.jsx';
+import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
+import { SmartExpression, createDirectExpression } from './utils/expressionUtils.jsx';
 
-// Helper function to create direct expressions (schema-compliant)
-const createDirectExpression = (type = 'value', returnType = 'text', value = '') => {
-  const expression = {
-    type,
-    returnType,
-  };
-  
-  if (type === 'value') {
-    expression.value = value;
-  } else if (type === 'field') {
-    expression.field = value;
-  } else if (type === 'function') {
-    expression.function = { name: null, args: [] };
-  } else if (type === 'ruleRef') {
-    expression.id = null;
-    expression.uuid = null;
-    expression.version = 1;
-  }
-  
-  return expression;
-};
-
+const { Option } = Select;
 const { Text } = Typography;
-const { Panel } = Collapse;
 
 /**
  * Condition Component
@@ -124,12 +102,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
   const handleOperatorChange = (operatorKey) => {
     const operatorDef = getOperatorDef(operatorKey);
     
-    console.log('🔄 handleOperatorChange:', {
-      operatorKey,
-      operatorDef,
-      leftReturnType: conditionData.left?.returnType
-    });
-    
     // Support both fixed and dynamic cardinality
     let cardinality;
     if (operatorDef?.defaultCardinality !== undefined) {
@@ -139,8 +111,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       // Fixed cardinality (e.g., between, equal, etc.)
       cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
     }
-    
-    console.log('📊 Cardinality calculated:', cardinality);
     
     let newRight;
     if (cardinality === 0) {
@@ -163,8 +133,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         )
       );
     }
-    
-    console.log('📦 New right side created:', newRight);
     
     handleChange({ operator: operatorKey, right: newRight });
   };
@@ -196,19 +164,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
 
   // Handle left expression change
   const handleLeftChange = (newLeft) => {
-    console.log('⬅️ handleLeftChange called:', {
-      newLeft,
-      oldLeft: conditionData.left,
-      operator: conditionData.operator,
-      currentRight: conditionData.right
-    });
-    
-    console.log('🔍 DEBUG: newLeft structure:', JSON.stringify(newLeft, null, 2));
-    
     // When left side changes type, update right side to match if operator exists
     const operatorDef = getOperatorDef(conditionData.operator);
     
-    console.log('📋 Operator definition:', operatorDef);
     
     // Support both fixed and dynamic cardinality
     let cardinality;
@@ -219,11 +177,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
     }
     
-    console.log('📊 Cardinality for returnType propagation:', cardinality);
     
     let newRight = conditionData.right;
     if (cardinality === 1 && newRight && newRight.returnType !== newLeft.returnType) {
-      console.log('🔄 Updating single right returnType:', newLeft.returnType);
       // Update returnType deeply in ExpressionGroup
       newRight = { 
         ...newRight, 
@@ -234,7 +190,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         })) || newRight.expressions
       };
     } else if (cardinality > 1 && Array.isArray(newRight)) {
-      console.log('🔄 Updating array right returnTypes:', newLeft.returnType);
       // Update returnType deeply in each ExpressionGroup in the array
       newRight = newRight.map(r => ({ 
         ...r, 
@@ -246,7 +201,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
       }));
     }
     
-    console.log('✅ Final right side:', newRight);
     
     handleChange({ left: newLeft, right: newRight });
   };
@@ -273,10 +227,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         borderLeft: '3px solid #1890ff',
         marginBottom: '8px'
       }}
-    >
-      <Panel
-        key="condition"
-        header={
+      items={[{
+        key: 'condition',
+        label: (
           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Space size="small">
               {editingName ? (
@@ -322,8 +275,8 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
               />
             )}
           </Space>
-        }
-      >
+        ),
+        children: (
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
         <div style={{ minWidth: '300px', flex: 1 }}>
@@ -369,12 +322,6 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         {cardinality > 1 && Array.isArray(conditionData.right) && (
           <>
             {conditionData.right.map((rightVal, index) => {
-              console.log(`📝 Rendering right value [${index}]:`, {
-                rightVal,
-                leftReturnType: conditionData.left?.returnType,
-                expectedType: conditionData.left?.returnType
-              });
-              
               return (
               <React.Fragment key={index}>
                 {index > 0 && (
@@ -424,8 +371,9 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
           </>
         )}
       </Space>
-      </Panel>
-    </Collapse>
+        )
+      }]}
+    />
   );
 };
 

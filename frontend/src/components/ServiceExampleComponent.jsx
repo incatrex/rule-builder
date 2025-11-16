@@ -58,7 +58,6 @@ const ServiceExampleComponent = () => {
       // Server will generate UUID automatically
       const result = await ruleService.createRule(newRule);
       
-      console.log('Created rule:', result);
       
       // Add the new rule to the list
       setRules(prev => [result.rule, ...prev]);
@@ -77,7 +76,6 @@ const ServiceExampleComponent = () => {
       // Server will create new version automatically
       const result = await ruleService.updateRule(uuid, updates);
       
-      console.log('Updated rule:', result);
       
       // Update the rule in the list
       setRules(prev => 
@@ -117,7 +115,6 @@ const ServiceExampleComponent = () => {
       const sqlResult = await ruleService.convertToSql(uuid);
       
       // Display SQL result (could open modal, navigate to SQL viewer, etc.)
-      console.log('SQL:', sqlResult);
       alert(`SQL: ${sqlResult.sql}`);
       
     } catch (err) {

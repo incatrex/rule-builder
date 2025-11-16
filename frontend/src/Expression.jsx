@@ -98,7 +98,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       const handleSingleExpressionChange = (newExpression) => {
         // If the inner Expression created a multi-item ExpressionGroup, pass it through unchanged
         if (newExpression.type === 'expressionGroup' && newExpression.expressions?.length > 1) {
-          console.log('🔄 Inner Expression created multi-item group, passing through:', newExpression);
           if (onChange) onChange(newExpression);
           return;
         }
@@ -129,7 +128,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       );
     } else {
       // Multi-item ExpressionGroup - let parent handle routing via SmartExpression
-      console.warn('Expression component received multi-item ExpressionGroup. Parent should re-route to ExpressionGroup.');
       return null;
     }
   }
@@ -142,13 +140,11 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
 
   // Create expression group - converts this Expression to a multi-expression ExpressionGroup
   const createExpressionGroup = () => {
-    console.log('🚀 DEBUG: createExpressionGroup called with current data:', expressionData);
     
     // Extract the actual expression from single-item ExpressionGroup if needed
     let actualExpression = expressionData;
     if (expressionData.type === 'expressionGroup' && expressionData.expressions?.length === 1) {
       actualExpression = expressionData.expressions[0];
-      console.log('🚀 DEBUG: Extracted single expression from group:', actualExpression);
     }
     
     const expressionGroup = {
@@ -162,11 +158,9 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       operators: ['+']
     };
     
-    console.log('🚀 DEBUG: Created expressionGroup:', expressionGroup);
     
     // Only notify parent - don't update local state since this component will be replaced
     if (onChange) {
-      console.log('🚀 DEBUG: Calling onChange with expressionGroup');
       onChange(expressionGroup);
     }
   };
@@ -743,7 +737,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
               size="small"
               icon={<PlusOutlined />}
               onClick={() => {
-                console.log('🟢 PLUS BUTTON CLICKED! About to call createExpressionGroup');
                 createExpressionGroup();
               }}
               style={{ 

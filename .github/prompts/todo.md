@@ -22,4 +22,4 @@ config:
 
 [ ] Change "content" to "definition" in schema
 
-[ ] No RuleTypes found in config, using defaults
+[ ] No RuleTypes found in config, using defaults -
