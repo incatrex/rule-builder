@@ -499,22 +499,24 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
         >
           <Space direction="vertical" style={{ width: '100%' }} size="middle">
             {/* Structure and Return Type Selection */}
-            <Space style={{ width: '100%' }} size="middle">
-              <div style={{ flex: 1 }}>
+            <Space 
+              style={{ width: '100%', flexWrap: 'wrap' }} 
+              size="middle"
+            >
+              <div style={{ flex: 1, minWidth: '300px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Text 
                   strong 
                   style={{ 
-                    display: 'block', 
-                    marginBottom: '8px',
-                    color: darkMode ? '#e0e0e0' : 'inherit'
+                    color: darkMode ? '#e0e0e0' : 'inherit',
+                    whiteSpace: 'nowrap'
                   }}
                 >
-                  Structure Type:
+                  Structure:
                 </Text>
                 <Select
                   value={ruleData.structure}
                   onChange={handleStructureChange}
-                  style={{ width: '100%' }}
+                  style={{ flex: 1 }}
                   options={[
                     { 
                       value: 'condition', 
@@ -532,21 +534,20 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
                 />
               </div>
 
-              <div style={{ width: '150px', flexShrink: 0 }}>
+              <div style={{ minWidth: '150px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Text 
                   strong 
                   style={{ 
-                    display: 'block', 
-                    marginBottom: '8px',
-                    color: darkMode ? '#e0e0e0' : 'inherit'
+                    color: darkMode ? '#e0e0e0' : 'inherit',
+                    whiteSpace: 'nowrap'
                   }}
                 >
-                  Return Type:
+                  Returns:
                 </Text>
                 <Select
                   value={ruleData.returnType}
                   onChange={(returnType) => handleChange({ returnType })}
-                  style={{ width: '100%' }}
+                  style={{ flex: 1, minWidth: '100px' }}
                   disabled={ruleData.structure === 'case' || ruleData.structure === 'condition'}
                   options={[
                     { value: 'boolean', label: 'Boolean' },
