@@ -97,16 +97,8 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     conditions: []
   });
   const [editingName, setEditingName] = useState(false);
+  // Only use isLoadedRule for initial state, not continuous monitoring
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule || (isLoadedRule && isSimpleCondition)); // UI state only - start collapsed for loaded rules, except simple conditions
-
-  // Update expansion state when isLoadedRule changes
-  useEffect(() => {
-    if (isLoadedRule && !isSimpleCondition) {
-      setIsExpanded(false); // Collapse when rule is loaded, unless it's a simple condition
-    } else if (isLoadedRule && isSimpleCondition) {
-      setIsExpanded(true); // Keep expanded for simple condition structure
-    }
-  }, [isLoadedRule, isSimpleCondition]);
 
   useEffect(() => {
     if (value) {

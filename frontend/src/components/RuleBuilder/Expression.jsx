@@ -89,18 +89,16 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   const initialValue = normalizeValue(value);
   const [source, setSource] = useState(initialValue.type || 'value');
   const [expressionData, setExpressionData] = useState(initialValue);
-  // In compact mode (nested), start expanded. Otherwise, collapse if it's a loaded rule
+  // In compact mode (nested), start expanded. Otherwise, use isLoadedRule only for initial state
   const [isExpanded, setIsExpanded] = useState(compact ? true : !isLoadedRule);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Update expansion state when isLoadedRule or compact changes
+  // Update expansion state only when compact changes (not isLoadedRule)
   useEffect(() => {
     if (compact) {
-      setIsExpanded(true); // Always start expanded in compact mode
-    } else if (isLoadedRule) {
-      setIsExpanded(false); // Collapse when rule is loaded (non-compact mode)
+      setIsExpanded(true); // Always expanded in compact mode
     }
-  }, [isLoadedRule, compact]);
+  }, [compact]);
 
   // Sync with external changes
   useEffect(() => {
@@ -151,6 +149,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       );
     } else if (expressionData.expressions && expressionData.expressions.length > 1) {
       // Multi-item ExpressionGroup - delegate to ExpressionGroup component
+      // Note: Don't pass isLoadedRule here - newly created ExpressionGroups should start expanded
       return (
         <ExpressionGroup
           value={expressionData}
@@ -159,7 +158,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
           expectedType={expectedType}
           darkMode={darkMode}
           compact={compact}
-          isLoadedRule={isLoadedRule}
+          isLoadedRule={false}
           allowedSources={allowedSources}
           argDef={propArgDef}
         />

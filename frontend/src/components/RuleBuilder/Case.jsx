@@ -31,17 +31,10 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
   const [activeKeys, setActiveKeys] = useState([]);
+  // Only use isLoadedRule for initial state, not continuous monitoring
   const [elseExpanded, setElseExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
   const [editingStates, setEditingStates] = useState({}); // Track editing state for each clause
   const isInitialLoad = useRef(true);
-
-  // Update expansion state when isLoadedRule changes
-  useEffect(() => {
-    if (isLoadedRule) {
-      setElseExpanded(false); // Collapse when rule is loaded
-      setActiveKeys([]); // Collapse all when clauses when rule is loaded
-    }
-  }, [isLoadedRule]);
 
   useEffect(() => {
     if (value) {
