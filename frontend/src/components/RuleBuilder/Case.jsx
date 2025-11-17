@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Button, Collapse, Input, Typography, Tag, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
-import Expression from './Expression';
-import { createDirectExpression } from './utils/expressionUtils.jsx';
+import Expression, { createDirectExpression } from './Expression';
 
 const { Text } = Typography;
 

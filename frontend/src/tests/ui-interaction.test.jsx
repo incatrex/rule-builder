@@ -14,7 +14,7 @@ import { describe, test, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import Expression from '../Expression';
+import Expression from '../components/RuleBuilder/Expression';
 
 // Mock config
 const mockConfig = {

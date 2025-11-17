@@ -1,9 +1,9 @@
 import React from 'react';
-import { Card, Space, Input, Select, Typography, Button } from 'antd';
-import { SaveOutlined } from '@ant-design/icons';
-import Case from '../../Case';
-import ConditionGroup from '../../ConditionGroup';
-import Expression from '../../Expression';
+import { Card, Select, Input, Switch, Button, Space, Tag, Divider, Typography } from 'antd';
+import { SaveOutlined, ClearOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import Case from './Case';
+import ConditionGroup from './ConditionGroup';
+import Expression from './Expression';
 import './RuleBuilder.css';
 
 const { Text } = Typography;

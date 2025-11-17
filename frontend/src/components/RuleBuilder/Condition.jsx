@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
-import Expression from "./Expression";
-import { createDirectExpression } from './utils/expressionUtils.jsx';
+import Expression, { createDirectExpression } from "./Expression";
 
 const { Option } = Select;
 const { Text } = Typography;

@@ -38,24 +38,6 @@ config:
 
 [ ] Review / Simplify components
 
-[ ] Rule Version History not working
+[x] Rule Version History not working
 
-
-Test:
-
-Create new rule: v1
-    NAME = "TEST_RULE_1"
-    Condition Group = "Condition v1"
-    NUMBER_FIELD_01 = NUMBER_FIELD_02
-    Save
-    Version 1 should show in RuleHistory
-
-Load TEST_RULE_1
-    Check that version 1 is loaded in Version History
-    Change Condition Grooup = "Conditiion v2"
-    NUMBER_FIELD_02 = NUMBER_FIELD02
-    Save
-
-Load TEST_RULE_1
-    Check that version 1 and version 2 are in Version History
 

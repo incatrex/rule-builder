@@ -8,6 +8,26 @@ import ExpressionGroup from './ExpressionGroup';
 const { Text } = Typography;
 
 /**
+ * Factory function to create expression objects
+ * @param {string} type - Expression type (value, field, function, ruleRef)
+ * @param {string} returnType - Return type
+ * @param {*} value - Initial value
+ * @returns {Object} Expression structure
+ */
+export const createDirectExpression = (type = 'value', returnType = 'text', value = '') => {
+  const expression = {
+    type,
+    returnType,
+    ...(type === 'value' && { value }),
+    ...(type === 'field' && { field: value || null }),
+    ...(type === 'function' && { function: { name: value || null, args: [] } }),
+    ...(type === 'ruleRef' && { id: value || null, uuid: null, version: 1 })
+  };
+
+  return expression;
+};
+
+/**
  * Expression Component
  * 
  * A unified component for building expressions with operation support.

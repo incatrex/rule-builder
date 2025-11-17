@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { message } from 'antd';
-import { createDirectExpression } from '../../utils/expressionUtils.jsx';
+import { createDirectExpression } from './Expression';
 
 /**
  * useRuleBuilder Hook
