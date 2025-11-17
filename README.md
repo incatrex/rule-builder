@@ -1,15 +1,19 @@
 # Rule Builder Application
 
-A full-stack application for building and managing business rules with a visual query builder interface. The application consists of a Java Spring Boot backend and a React frontend using the react-awesome-query-builder library with Ant Design components.
+A full-stack application for building and managing business rules with a visual interface. The application consists of a Java Spring Boot backend and a React frontend with a custom-built rule builder UI using Ant Design components.
 
 ## Features
 
-- 🎨 **Visual Rule Builder**: Intuitive drag-and-drop interface for creating complex business rules
+- 🎨 **Visual Rule Builder**: Intuitive interface for creating complex business rules
+- 📊 **Three Rule Structures**: Simple Conditions, Case Expressions, and Expressions
 - 🔧 **Configurable Fields**: Support for text, number, date, and boolean field types
 - 📐 **Rich Operators**: Comprehensive set of comparison and logical operators
 - 🧮 **Built-in Functions**: Text manipulation, mathematical operations, and date functions
-- 💾 **Rule Persistence**: Save and load rules with versioning
+- 💾 **Rule Persistence**: Save and load rules with automatic versioning
+- 📜 **Version History**: View and restore previous versions of rules
+- 🔄 **SQL Generation**: Convert rules to Oracle SQL WHERE clauses or CASE expressions
 - 🔄 **Hot Reload**: Development mode with automatic reload for both frontend and backend
+- ✅ **Testing**: Comprehensive unit tests (Vitest) and E2E tests (Playwright)
 - 🐳 **Dev Container**: Ready-to-use VS Code development container with all dependencies
 
 ## Project Structure
@@ -22,28 +26,40 @@ rule-builder/
 │   │   │   ├── java/com/rulebuilder/
 │   │   │   │   ├── RuleBuilderApplication.java    # Main application
 │   │   │   │   ├── controller/                    # REST controllers
-│   │   │   │   └── service/                       # Business logic
+│   │   │   │   ├── service/                       # Business logic
+│   │   │   │   └── util/                          # SQL generation
 │   │   │   └── resources/
 │   │   │       ├── application.properties         # Configuration
 │   │   │       └── static/
 │   │   │           ├── fields.json                # Field definitions
-│   │   │           ├── config.json                # Query builder config
+│   │   │           ├── config.json                # Rule builder config
+│   │   │           ├── ruleTypes.json             # Rule type definitions
+│   │   │           ├── schemas/                   # JSON schemas
 │   │   │           └── rules/                     # Saved rules
 │   │   └── test/                                  # Backend tests
 │   └── pom.xml                                    # Maven dependencies
 ├── frontend/                   # React application
 │   ├── src/
-│   │   ├── App.jsx                                # Main React component
-│   │   ├── main.jsx                               # Application entry point
-│   │   └── index.css                              # Global styles
-│   ├── index.html                                 # HTML template
+│   │   ├── App.jsx                                # Main application
+│   │   ├── components/
+│   │   │   ├── RuleBuilder/                       # Rule builder components
+│   │   │   └── RuleHistory/                       # Version history
+│   │   ├── services/                              # API services
+│   │   ├── tests/                                 # Vitest unit tests
+│   │   ├── JsonEditor.jsx                         # JSON editor component
+│   │   ├── SqlViewer.jsx                          # SQL viewer component
+│   │   └── RuleSearch.jsx                         # Rule search dropdown
+│   ├── e2e/                                       # Playwright E2E tests
 │   ├── package.json                               # npm dependencies
-│   └── vite.config.js                             # Vite configuration
+│   ├── vite.config.js                             # Vite configuration
+│   └── vitest.config.js                           # Vitest configuration
 ├── scripts/                    # Utility scripts
 │   ├── install.sh                                 # Install all dependencies
 │   ├── start-backend.sh                           # Start backend server
 │   ├── start-frontend.sh                          # Start frontend dev server
-│   └── test.sh                                    # Run all tests
+│   ├── test.sh                                    # Run unit tests
+│   ├── test-integration.sh                        # Run E2E tests
+│   └── test-sql-api.sh                            # Test SQL API manually
 └── .devcontainer/              # VS Code dev container config
     └── devcontainer.json
 ```
@@ -85,7 +101,7 @@ rule-builder/
    ```bash
    ./scripts/start-frontend.sh
    ```
-   Frontend will be available at http://localhost:3000
+   Frontend will be available at http://localhost:3003
 
 ### Option 2: Local Development
 
@@ -118,41 +134,57 @@ rule-builder/
    cd frontend
    npm run dev
    ```
-   Frontend will be available at http://localhost:3000
+   Frontend will be available at http://localhost:3003
 
 ## API Endpoints
 
-The backend provides the following REST API endpoints:
+The backend provides the following REST endpoints:
 
-### GET `/api/fields`
-Returns the field configuration for the query builder.
+### Configuration Endpoints
+- `GET /api/config` - Get rule builder configuration
+- `GET /api/fields` - Get available field definitions
+- `GET /api/ruleTypes` - Get rule type definitions
 
-**Response**: JSON object containing field definitions
+### Rule Management Endpoints
+- `GET /api/rules/ids` - Get list of all rule IDs (sorted alphabetically by folder, then by ID)
+- `GET /api/rules/{ruleId}` - Get a specific rule by ID
+- `GET /api/rules/{uuid}/latest` - Get the latest version of a rule by UUID
+- `POST /api/rules` - Save a new rule or create a new version
+- `DELETE /api/rules/{ruleId}` - Delete a rule by ID
 
-### GET `/api/config`
-Returns the complete configuration for react-awesome-query-builder including conjunctions, operators, widgets, functions, and settings.
+### Rule History Endpoints
+- `GET /api/rules/{uuid}/history` - Get version history for a rule
+- `POST /api/rules/{uuid}/restore/{version}` - Restore a specific version of a rule as a new version
 
-**Response**: JSON object containing query builder configuration
+### SQL Generation Endpoints
+- `POST /api/sql/generate` - Generate Oracle SQL from a rule structure
+  - Supports three rule types:
+    - **Simple Condition**: Generates WHERE clause from conditions
+    - **Case Expression**: Generates CASE statement from cases
+    - **Expression**: Generates expression with functions and operators
 
-### POST `/api/rules/{ruleId}/{version}`
-Saves a rule with the specified ID and version.
-
-**Parameters**:
-- `ruleId`: Unique identifier for the rule
-- `version`: Version number of the rule
-
-**Request Body**: JSON representation of the rule tree
-
-**Response**: Success message
-
-### GET `/api/rules/{ruleId}/{version}`
-Retrieves a previously saved rule.
-
-**Parameters**:
-- `ruleId`: Unique identifier for the rule
-- `version`: Version number of the rule
-
-**Response**: JSON representation of the rule tree
+Example request body for SQL generation:
+```json
+{
+  "type": "condition",
+  "structure": {
+    "condition": {
+      "and": [
+        {
+          "field": "AGE",
+          "operator": ">=",
+          "value": 18
+        },
+        {
+          "field": "STATUS",
+          "operator": "=",
+          "value": "ACTIVE"
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Configuration
 
@@ -202,10 +234,62 @@ The application comes pre-configured with the following fields:
 
 ## Running Tests
 
-### Run All Tests
+The application has two types of tests:
+
+### Unit Tests (Vitest)
+Fast component tests that don't require backend:
+
 ```bash
 ./scripts/test.sh
 ```
+
+This runs:
+- **Backend tests**: Maven tests (Java)
+- **Frontend tests**: Vitest tests in `frontend/src/tests/`
+
+### E2E Tests (Playwright)
+Complete workflow tests with backend and frontend running:
+
+```bash
+./scripts/test-integration.sh
+```
+
+This automatically:
+1. Starts backend server (if not running)
+2. Starts frontend dev server (if not running)
+3. Runs Playwright tests in `frontend/e2e/`
+4. Cleans up any servers it started
+
+**E2E Test Coverage**:
+- Rule versioning workflow (create, modify, view history, restore)
+- Complete user journey from empty canvas to saved rule
+- Version history UI and restore functionality
+
+### Manual API Testing
+
+Test SQL generation API directly:
+
+```bash
+./scripts/test-sql-api.sh
+```
+
+Tests SQL generation for conditions, case expressions, and mathematical expressions.
+
+### Testing Best Practices
+
+The application uses `data-testid` attributes for reliable test selectors:
+
+```jsx
+// Component implementation
+<Input data-testid="rule-id-input" />
+<Button data-testid="rule-save-button">Save</Button>
+
+// E2E test usage
+await page.getByTestId('rule-id-input').fill('MY_RULE');
+await page.getByTestId('rule-save-button').click();
+```
+
+This pattern ensures tests remain stable even when UI styling or structure changes.
 
 ### Run Backend Tests Only
 ```bash
@@ -246,7 +330,7 @@ Both the backend and frontend support hot reload during development:
 
 ### CORS Configuration
 
-The backend is pre-configured to allow cross-origin requests from the frontend development server (http://localhost:3000).
+The backend is pre-configured to allow cross-origin requests from the frontend development server (http://localhost:3003).
 
 ## Customization
 
@@ -271,7 +355,7 @@ Edit `backend/src/main/resources/static/config.json` and modify the `operators` 
 
 ### Frontend won't start
 - Ensure Node.js 20 is installed: `node --version`
-- Check if port 3000 is available
+- Check if port 3003 is available
 - Verify npm dependencies are installed: `npm install`
 
 ### Rule save/load not working
@@ -293,8 +377,9 @@ Edit `backend/src/main/resources/static/config.json` and modify the `operators` 
 - **React 18.2**: UI framework
 - **Vite 5**: Build tool and dev server
 - **Ant Design 5**: UI component library
-- **react-awesome-query-builder 6.4**: Query builder component
 - **Axios**: HTTP client
+- **Vitest**: Unit testing framework
+- **Playwright**: E2E testing framework
 - **npm**: Package manager
 
 ## License
