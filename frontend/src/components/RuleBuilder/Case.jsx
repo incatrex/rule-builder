@@ -209,18 +209,14 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
               children: (
                 <Space direction="vertical" style={{ width: '100%' }} size="middle">
                   {/* Condition Group */}
-                  <div style={{ 
-                    padding: '16px', 
-                    background: darkMode ? '#2a2a2a' : '#f9f9f9',
-                    borderRadius: '4px'
-                  }}>
+                  <div>
                     <ConditionGroup
                       value={clause.when}
                       onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
                       config={config}
                       darkMode={darkMode}
-                      isLoadedRule={false}
-                      forceExpanded={true}
+                      compact={true}
+                      isLoadedRule={isLoadedRule}
                     />
                   </div>
 
