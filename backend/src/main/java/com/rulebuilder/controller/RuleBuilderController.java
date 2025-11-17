@@ -51,16 +51,6 @@ public class RuleBuilderController {
         }
     }
 
-    @GetMapping("/ruleTypes")
-    public ResponseEntity<JsonNode> getRuleTypes() {
-        try {
-            JsonNode ruleTypes = ruleBuilderService.getRuleTypes();
-            return ResponseEntity.ok(ruleTypes);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
     @PostMapping("/rules/{ruleId}/{version}")
     public ResponseEntity<String> saveRule(
             @PathVariable String ruleId,

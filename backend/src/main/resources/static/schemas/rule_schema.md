@@ -3,6 +3,9 @@
 
 Based on actual UI component implementation and JSON structures used by the Rule Builder application.
 
+**Schema Version:** v1.2.0  
+**JSON Schema Draft:** Draft 7 (http://json-schema.org/draft-07/schema#)
+
 ## Core Data Structures
 
 ### Rule (Top Level)
@@ -11,29 +14,29 @@ Based on actual UI component implementation and JSON structures used by the Rule
   "structure": "case" | "condition" | "expression",
   "returnType": "boolean" | "number" | "text" | "date",
   "ruleType": "Reporting" | "Transformation" | "Aggregation" | "Validation",
-  "uuId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", // UUID v4 format
+  "uuId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", // UUID v4 format (mixed case supported)
   "version": number,
   "metadata": {
     "id": string, // Rule identifier/name
     "description": string
   },
-  "definition": ConditionGroup | ExpressionGroup | CaseDefinition
+  "definition": ConditionGroup | ExpressionGroup | CaseContent
 }
 ```
 
 ### ExpressionGroup (Core Expression Container)
-Used for all expression handling - replaces simple Expression types.
+Used for all expression handling - wraps expressions for mathematical operations and complex nesting.
 ```jsonc
 {
   "type": "expressionGroup",
   "returnType": "boolean" | "number" | "text" | "date",
   "expressions": [
-    Expression | ExpressionGroup, // Recursive nesting supported
+    Expression | ExpressionGroup, // Recursive nesting supported, minimum 2 items required
     Expression | ExpressionGroup,
     // ...
   ],
   "operators": [
-    "+" | "-" | "*" | "/", // Mathematical operators
+    "+" | "-" | "*" | "/" | "&" | "&&" | "||", // Operators between expressions
     // ... always one less than expressions array length
   ]
 }
@@ -65,14 +68,14 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
     "args": [
       {
         "name": string, // argument name from function definition
-        "value": ExpressionGroup // recursive - any expression can be an argument
+        "value": Expression | ExpressionGroup // any expression can be an argument
       }
     ]
   }
 }
 ```
 
-### ConditionGroup (Logical Group Container)
+### ConditionGroup (Logical Group Container) - chains condtions with conjuctions (AND/OR)
 ```jsonc
 {
   "type": "conditionGroup",
@@ -81,7 +84,7 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
   "conjunction": "AND" | "OR",
   "not": boolean,
   "conditions": [
-    Condition | ConditionGroup // Recursive nesting supported
+    Condition | ConditionGroup // Recursive nesting supported, can be empty array
   ]
 }
 ```
@@ -92,13 +95,13 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
   "type": "condition",
   "returnType": "boolean", 
   "name": string,
-  "id": string, // unique identifier for UI management
-  "left": ExpressionGroup,
-  "operator": string, // from config.operators (e.g., "equal", "greater_or_equal", "contains", "in", "not_in")
-  "right": ExpressionGroup | [ExpressionGroup, ...] | null 
-  // - Single ExpressionGroup for most operators
-  // - Array of 2 ExpressionGroups for "between"/"not_between" 
-  // - Array of 1-10 ExpressionGroups for "in"/"not_in" (dynamic cardinality)
+  "id": string, // unique identifier for UI management (optional)
+  "left": Expression | ExpressionGroup,
+  "operator": string, // from schema operators (e.g., "equal", "greater_or_equal", "contains", "in", "not_in")
+  "right": Expression | ExpressionGroup | [Expression | ExpressionGroup, ...] | null 
+  // - Single Expression/ExpressionGroup for most operators
+  // - Array of 2 for "between"/"not_between" 
+  // - Array of 1-10 for "in"/"not_in" (dynamic cardinality)
   // - null for "is_empty"/"is_not_empty"
 }
 ```
@@ -109,11 +112,11 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
   "whenClauses": [
     {
       "when": ConditionGroup,
-      "then": ExpressionGroup,
+      "then": Expression | ExpressionGroup,
       "resultName": string // optional display name
     }
   ],
-  "elseClause": ExpressionGroup,
+  "elseClause": Expression | ExpressionGroup,
   "elseResultName": string // optional display name
 }
 ```
@@ -129,10 +132,13 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
 - **Membership**: `"in"`, `"not_in"` (supports 1-10 values with dynamic cardinality)
 
 ### Mathematical Operators
-- `"+"` (addition)
-- `"-"` (subtraction) 
-- `"*"` (multiplication)
-- `"/"` (division)
+- `"+"` (addition / add)
+- `"-"` (subtraction / subtract)
+- `"*"` (multiplication / multiply)
+- `"/"` (division / divide)
+- `"&"` (concatenate / concat)
+- `"&&"` (logical AND / and)
+- `"||"` (logical OR / or)
 
 ### Return Types
 - `"boolean"` - true/false values
@@ -140,8 +146,8 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
 - `"text"` - string values
 - `"date"` - date values (YYYY-MM-DD format)
 
-### Function Categories (from config.json)
-- **MATH**: `ADD`, `SUBTRACT`, `MULTIPLY`, `DIVIDE`, `SUM`, `ROUND`, `ABS`, `TEST`
+### Function Categories (from schema x-ui-functions)
+- **MATH**: `ADD`, `SUBTRACT`, `MULTIPLY`, `DIVIDE`, `SUM`, `ROUND`, `ABS`
 - **TEXT**: `CONCAT`, `MID`, `LEN`, `CASE` (supports caseType dropdown)
 - **DATE**: `DIFF` (supports units dropdown: DAY, MONTH, YEAR)
 
@@ -151,25 +157,30 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
 
 ### Function Argument Configuration Patterns
 
-#### Standard Arguments
+#### Standard Arguments (from schema x-ui-functions)
+Arguments are defined as an array in the schema:
 ```json
-"args": {
-  "argName": {
+"args": [
+  {
+    "name": "argName",
     "label": "Display Label",
     "type": "text" | "number" | "date" | "boolean",
+    "required": true | false,
     "defaultValue": any, // optional default value
     "valueSources": ["value", "field", "function", "ruleRef"] // what input types are allowed
   }
-}
+]
 ```
 
 #### Custom Dropdown Arguments
 ```json
-"args": {
-  "argName": {
+"args": [
+  {
+    "name": "argName",
     "label": "Display Label", 
     "type": "text",
     "widget": "select",
+    "required": true,
     "defaultValue": "OPTION_VALUE",
     "options": [
       { "value": "OPTION_VALUE", "label": "Display Label" },
@@ -177,16 +188,18 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
     ],
     "valueSources": ["value"] // typically only "value" for predefined options
   }
-}
+]
 ```
 
 #### Custom Multiselect Arguments  
 ```json
-"args": {
-  "argName": {
+"args": [
+  {
+    "name": "argName",
     "label": "Display Label",
     "type": "text", 
     "widget": "multiselect",
+    "required": true,
     "defaultValue": "OPTION_VALUE",
     "options": [
       { "value": "OPTION1", "label": "Option 1" },
@@ -195,12 +208,14 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
     ],
     "valueSources": ["value"]
   }
-}
+]
 ```
 
 #### Dynamic Arguments
+Functions with variable-length arguments use this pattern:
 ```json
-"dynamicArgs": {
+"dynamicArgs": true,
+"argSpec": {
   "type": "number", // type for all dynamic arguments
   "minArgs": 2,
   "maxArgs": 10,
@@ -257,6 +272,7 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
 ```
 
 ### Function with Arguments  
+Functions accept Expression or ExpressionGroup as argument values:
 ```json
 {
   "type": "function",
@@ -327,37 +343,6 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
 }
 ```
 
-### Function with Multiselect Dropdown Argument
-```json
-{
-  "type": "function",
-  "returnType": "number",
-  "function": {
-    "name": "MATH.TEST",
-    "args": [
-      {
-        "name": "number",
-        "value": {
-          "type": "expressionGroup",
-          "returnType": "number",
-          "expressions": [{"type": "value", "returnType": "number", "value": 42}],
-          "operators": []
-        }
-      },
-      {
-        "name": "testDropdown",
-        "value": {
-          "type": "expressionGroup", 
-          "returnType": "text",
-          "expressions": [{"type": "value", "returnType": "text", "value": ["OPTION1", "OPTION3"]}],
-          "operators": []
-        }
-      }
-    ]
-  }
-}
-```
-
 ### IN Operator with Multiple Values
 ```json
 {
@@ -396,13 +381,15 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
 
 ## Key Implementation Notes
 
-1. **ExpressionGroup is Universal**: All expressions are wrapped in ExpressionGroup containers, even simple ones
-2. **Recursive Structure**: ExpressionGroups can contain other ExpressionGroups, enabling complex nesting
-3. **Mathematical Operations**: Handled via the `operators` array in ExpressionGroup
-4. **Function Arguments**: Always wrapped in ExpressionGroup containers for consistency
-5. **UI State Management**: Each condition has an `id` field for React key management
-6. **Type Safety**: `returnType` fields ensure type compatibility across the system
-7. **Schema Version**: v1.0.6 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) for compatibility with networknt validator. Renamed BaseExpression to Expression to match UI component naming.
-8. **Content Validation**: Schema uses `if/then/else` conditional pattern based on the `structure` field to determine which content type to validate against (CaseContent, ConditionGroup, or ExpressionGroup)
-9. **Null Right Side**: Condition `right` property can be `null` for operators like `is_empty` and `is_not_empty` that don't require a comparison value
-10. **Dynamic Cardinality**: The `in` and `not_in` operators support variable-length arrays (1-10 values) with configurable separators and +/- buttons in the UI
+1. **Expression Flexibility**: The schema allows both `Expression` and `ExpressionGroup` in most contexts (condition left/right, function arguments, case then/else clauses) for maximum flexibility
+2. **ExpressionGroup Requirements**: ExpressionGroup requires minimum 2 expressions with operators array having exactly one less element than expressions
+3. **Recursive Structure**: Both ExpressionGroups and ConditionGroups support recursive nesting, enabling complex rule structures
+4. **Mathematical Operations**: Handled via the `operators` array in ExpressionGroup, supporting 7 operators: +, -, *, /, &, &&, ||
+5. **Function Arguments**: Accept Expression or ExpressionGroup as values, providing flexibility in how arguments are constructed
+6. **UI State Management**: Condition `id` field is optional and used for React key management in the UI
+7. **Type Safety**: `returnType` fields ensure type compatibility across the system
+8. **Schema Version**: v1.2.0 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) with x-ui-* extensions for UI configuration
+9. **Validation Approach**: Schema uses `if/then/else` conditional pattern based on the `structure` field to determine which content type to validate against (CaseContent, ConditionGroup, or ExpressionGroup)
+10. **Null Right Side**: Condition `right` property can be `null` for operators like `is_empty` and `is_not_empty` that don't require a comparison value
+11. **Dynamic Cardinality**: The `in` and `not_in` operators support variable-length arrays (1-10 values) with configurable separators and +/- buttons in the UI
+12. **Empty Condition Groups**: ConditionGroup `conditions` array can be empty (minItems: 0), allowing initialization of groups before adding conditions

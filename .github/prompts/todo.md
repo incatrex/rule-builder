@@ -2,9 +2,9 @@ config:
 
 [x] widgetProps and opProps not used.
 [x] valueSources from config not currently used
-[ ] widget.operators - only used for Condition operators
-[ ] widget type property not used - currently hardcoded mapping to returnType
-[ ] widget-specific props (dateFormat, valueFormat) not used - date is currently hardcoded as 'YYYY-MM-DD'
+[x] widget.operators - only used for Condition operators
+[x] widget type property not used - currently hardcoded mapping to returnType
+[x] widget-specific props (dateFormat, valueFormat) not used - date is currently hardcoded as 'YYYY-MM-DD'
 
 [x] Add custom dropdown for DATE.DIFF (DAY, MONTH, YEAR)
 [ ] Add GROUP.COUNT function with COUNT(field, groupBy multiselect)
@@ -13,7 +13,7 @@ config:
     [x] BaseExpression vs Expression
     [x] HttpHelper(using Axios) + Services for each component
 
-[ ] use schema for config (or derive config from schema)
+[x] use schema for config (or derive config from schema)
 
 [x] Fold Rule Structure component (structure/returnType) into Rule Defintion
     [ ] change "content" in JSON to match "defintion"?
@@ -22,7 +22,7 @@ config:
 
 [x] Change "content" to "definition" in schema
 
-[ ] No RuleTypes found in config, using defaults
+[x] No RuleTypes found in config, using defaults
 
 [ ] Re-work validation
 
@@ -30,7 +30,7 @@ config:
 
 [ ] Change Condition name style to match ConditionGroup
 
-[ ] Fix ... after Expresion operators
+[x] Fix ... after Expresion operators
 
 [ ] Adding ExpressionGroup automatically collapses?
 

@@ -245,7 +245,8 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
           marginBottom: '8px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '8px',
+          flexShrink: 0
         }}>
           <InfoCircleOutlined style={{ color: '#1890ff' }} />
           <div>
@@ -264,7 +265,7 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
         readOnly={!isEditing}
         style={{
           width: '100%',
-          height: '100%',
+          flex: 1,
           fontFamily: 'monospace',
           fontSize: '14px',
           lineHeight: '1.6',
@@ -276,14 +277,15 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
           color: darkMode ? '#e0e0e0' : '#000000',
           resize: 'none',
           outline: 'none',
-          cursor: isEditing ? 'text' : 'default'
+          cursor: isEditing ? 'text' : 'default',
+          boxSizing: 'border-box'
         }}
         placeholder={isEditing ? `{\n  "structure": "case",\n  "returnType": "boolean"\n}` : "No JSON data to display"}
       />
       
       {/* Validation Errors */}
       {validationErrors.length > 0 && (
-        <div style={{ padding: '16px', maxHeight: '200px', overflow: 'auto' }}>
+        <div style={{ padding: '16px', maxHeight: '200px', overflow: 'auto', flexShrink: 0 }}>
           <Alert
             message="Schema Validation Errors"
             description={
@@ -314,7 +316,8 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
             background: darkMode ? '#1f1f1f' : '#ffffff',
             padding: '4px 8px',
             borderRadius: '4px',
-            border: '1px solid #ff4d4f'
+            border: '1px solid #ff4d4f',
+            zIndex: 10
           }}
         >
           Invalid JSON - Fix errors before updating
@@ -330,7 +333,8 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
             background: darkMode ? '#141414' : '#fafafa',
             fontSize: '11px',
             color: darkMode ? '#8c8c8c' : '#595959',
-            fontFamily: 'Monaco, Menlo, monospace'
+            fontFamily: 'Monaco, Menlo, monospace',
+            flexShrink: 0
           }}
         >
           <div style={{ marginBottom: '2px' }}>
@@ -364,7 +368,6 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
         display: 'flex',
         flexDirection: 'column',
         background: darkMode ? '#1f1f1f' : '#ffffff',
-        overflow: 'hidden',
         width: '100%'
       }}>
         <div style={{ 
@@ -410,11 +413,12 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
         </div>
         <div style={{ 
           flex: 1,
-          padding: isEditing ? 0 : '8px',
+          padding: '8px',
           position: 'relative',
-          overflow: 'auto',
           width: '100%',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           {renderContent()}
         </div>

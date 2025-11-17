@@ -40,8 +40,6 @@
 /* Container */
 .rule-builder-container {
   padding: var(--rule-builder-padding);
-  height: 100%;
-  overflow: var(--rule-builder-overflow);
 }
 
 /* Card styling */
