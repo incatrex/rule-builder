@@ -1,0 +1,88 @@
+/**
+ * RuleBuilder Component Styles
+ * 
+ * Uses CSS variables for theming to allow easy customization
+ * without modifying component code.
+ */
+
+:root {
+  /* Container */
+  --rule-builder-padding: 16px;
+  --rule-builder-overflow: auto;
+  
+  /* Card */
+  --rule-builder-card-bg: #ffffff;
+  --rule-builder-card-border: #d9d9d9;
+  --rule-builder-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  
+  /* Labels */
+  --rule-builder-label-color: rgba(0, 0, 0, 0.85);
+  --rule-builder-label-font-weight: 600;
+  --rule-builder-label-margin-bottom: 8px;
+  
+  /* Save Button */
+  --rule-builder-save-btn-bg: #1890ff;
+  --rule-builder-save-btn-hover-bg: #40a9ff;
+  --rule-builder-save-btn-color: #ffffff;
+  
+  /* Content */
+  --rule-builder-content-spacing: 16px;
+}
+
+/* Dark mode support */
+[data-theme="dark"] {
+  --rule-builder-card-bg: #1f1f1f;
+  --rule-builder-card-border: #434343;
+  --rule-builder-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --rule-builder-label-color: #e0e0e0;
+}
+
+/* Container */
+.rule-builder-container {
+  padding: var(--rule-builder-padding);
+  height: 100%;
+  overflow: var(--rule-builder-overflow);
+}
+
+/* Card styling */
+.rule-builder-card {
+  background: var(--rule-builder-card-bg);
+  border-color: var(--rule-builder-card-border);
+  box-shadow: var(--rule-builder-card-shadow);
+}
+
+/* Labels */
+.rule-builder-label {
+  color: var(--rule-builder-label-color);
+  font-weight: var(--rule-builder-label-font-weight);
+  margin-bottom: var(--rule-builder-label-margin-bottom);
+}
+
+/* Save button */
+.rule-builder-save-btn {
+  background-color: var(--rule-builder-save-btn-bg);
+  border-color: var(--rule-builder-save-btn-bg);
+  color: var(--rule-builder-save-btn-color);
+}
+
+.rule-builder-save-btn:hover:not(:disabled) {
+  background-color: var(--rule-builder-save-btn-hover-bg);
+  border-color: var(--rule-builder-save-btn-hover-bg);
+}
+
+.rule-builder-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Content area */
+.rule-builder-content {
+  margin-top: var(--rule-builder-content-spacing);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rule-builder-container {
+    padding: 12px;
+  }
+}
