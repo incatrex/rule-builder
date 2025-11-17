@@ -74,17 +74,15 @@ const ResizablePanels = ({
       ref={containerRef}
       style={{ 
         display: 'flex', 
-        height: '100%',
         width: '100%',
         position: 'relative',
-        userSelect: isDragging ? 'none' : 'auto'
+        userSelect: isDragging ? 'none' : 'auto',
+        alignItems: 'stretch'
       }}
     >
       {/* Left Panel */}
       <div style={{ 
         width: isCollapsed ? '100%' : `${actualLeftWidth}%`, 
-        height: '100%', 
-        overflow: 'hidden',
         flex: isCollapsed ? '1' : 'none',
         display: 'flex',
         flexDirection: 'column'
@@ -98,7 +96,7 @@ const ResizablePanels = ({
           onMouseDown={handleMouseDown}
           style={{
             width: '8px',
-            height: '100%',
+            alignSelf: 'stretch',
             background: darkMode ? '#434343' : '#d9d9d9',
             cursor: 'col-resize',
             position: 'relative',
@@ -122,7 +120,7 @@ const ResizablePanels = ({
           {/* Drag Handle Icon */}
           <div
             style={{
-              position: 'absolute',
+              position: 'sticky',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
@@ -140,8 +138,6 @@ const ResizablePanels = ({
       {!isCollapsed && (
         <div style={{ 
           width: `${rightWidth}%`, 
-          height: '100%', 
-          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column'
         }}>

@@ -293,13 +293,14 @@ const App = () => {
         </Header>
         <Content style={{ padding: '50px' }}>
           {ruleConfig ? (
-            <div style={{ height: 'calc(100vh - 200px)', display: 'flex', gap: '0px' }}>
+            <div style={{ height: 'calc(100vh - 200px)', display: 'flex', gap: '16px' }}>
               {/* Collapsible Left Panel - Rule Search */}
               <div style={{ 
                 width: searchPanelCollapsed ? '0px' : '300px',
                 minWidth: searchPanelCollapsed ? '0px' : '250px',
                 transition: 'width 0.3s ease',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                height: '100%'
               }}>
                 <RuleSearch
                   ref={ruleSearchRef}
@@ -316,8 +317,7 @@ const App = () => {
                   display: 'flex', 
                   flexDirection: 'column',
                   justifyContent: 'flex-start',
-                  paddingTop: '8px',
-                  paddingRight: '8px'
+                  paddingTop: '8px'
                 }}>
                   <Button 
                     type="text"
@@ -337,168 +337,141 @@ const App = () => {
                 </div>
               )}
               
-              {/* Middle and Right Panels */}
+              {/* Center Panel - Scrollable RuleBuilder */}
               <div style={{ 
                 flex: 1, 
-                display: 'flex', 
-                gap: '0px', 
-                position: 'relative',
-                overflow: 'hidden',
-                minWidth: 0
+                overflow: 'auto',
+                minWidth: 0,
+                height: '100%'
               }}>
-                <div style={{ 
-                  flex: 1, 
-                  display: 'flex',
-                  overflow: 'hidden',
-                  minWidth: 0
-                }}>
-                  <ResizablePanels
-                    leftPanel={
-                      <div style={{ 
-                        height: '100%', 
-                        display: 'flex', 
-                        flexDirection: 'column',
-                        overflow: 'hidden'
-                        }}>
-                        <div style={{ flexShrink: 0, height: 'auto', maxHeight: '40%', overflow: 'auto' }}>
-                          <RuleHistory
-                            selectedRuleUuid={selectedRuleUuid}
-                            onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
-                            onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
-                            onViewVersion={handleViewVersion}
-                            onRestoreComplete={handleRestoreComplete}
-                            darkMode={darkMode}
-                          />
-                        </div>
-                        <div style={{ flex: 1, overflow: 'hidden' }}>
-                          <RuleBuilder
-                            ref={ruleBuilderRef}
-                            config={ruleConfig}
-                            darkMode={darkMode}
-                            selectedRuleUuid={selectedRuleUuid}
-                            onRuleChange={(data) => setRuleBuilderData(data)}
-                            onSaveSuccess={() => {
-                              // Refresh the rule search dropdown after successful save
-                              if (ruleSearchRef.current) {
-                                ruleSearchRef.current.refresh();
-                              }
-                            }}
-                          />
-                        </div>
-                      </div>
+                <RuleHistory
+                  selectedRuleUuid={selectedRuleUuid}
+                  onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
+                  onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
+                  onViewVersion={handleViewVersion}
+                  onRestoreComplete={handleRestoreComplete}
+                  darkMode={darkMode}
+                />
+                <RuleBuilder
+                  ref={ruleBuilderRef}
+                  config={ruleConfig}
+                  darkMode={darkMode}
+                  selectedRuleUuid={selectedRuleUuid}
+                  onRuleChange={(data) => setRuleBuilderData(data)}
+                  onSaveSuccess={() => {
+                    // Refresh the rule search dropdown after successful save
+                    if (ruleSearchRef.current) {
+                      ruleSearchRef.current.refresh();
                     }
-                    rightPanel={
-                      <div style={{ 
-                        height: '100%', 
-                        display: 'flex', 
-                        flexDirection: 'column',
-                        backgroundColor: darkMode ? '#141414' : '#ffffff',
-                        overflow: 'hidden'
-                      }}>
-                        <div style={{ 
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '16px',
-                          borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`,
-                          flexShrink: 0
-                        }}>
-                          <Tabs 
-                            activeKey={activeTab}
-                            onChange={handleTabChange}
-                            items={[
-                              {
-                                key: 'json',
-                                label: 'JSON',
-                              },
-                              {
-                                key: 'sql',
-                                label: 'SQL',
-                              },
-                              {
-                                key: 'canvas',
-                                label: 'Canvas',
-                              },
-                            ]}
-                            style={{ flex: 1, marginBottom: '-16px' }}
-                          />
-                          <Button 
-                            type="text"
-                            icon={<MenuFoldOutlined />}
-                            onClick={() => setJsonPanelCollapsed(true)}
-                            style={{ 
-                              marginLeft: '16px',
-                              flexShrink: 0
-                            }}
-                            title="Collapse Panel"
-                          />
-                        </div>
-                        <div style={{ 
-                          flex: 1, 
-                          overflow: 'hidden',
-                          display: 'flex',
-                          flexDirection: 'column'
-                        }}>
-                          {activeTab === 'json' && (
-                            <JsonEditor
-                              data={ruleBuilderData}
-                              onChange={(newData) => {
-                                if (ruleBuilderRef.current) {
-                                  ruleBuilderRef.current.loadRuleData(newData);
-                                }
-                              }}
-                              darkMode={darkMode}
-                              title={null}
-                              onCollapse={null}
-                            />
-                          )}
-                          {activeTab === 'sql' && (
-                            <SqlViewer
-                              ref={sqlViewerRef}
-                              ruleData={ruleBuilderData}
-                              darkMode={darkMode}
-                            />
-                          )}
-                          {activeTab === 'canvas' && (
-                            <RuleCanvas
-                              rule={ruleBuilderData}
-                              darkMode={darkMode}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    }
-                    darkMode={darkMode}
-                    defaultLeftWidth={60}
-                    minLeftWidth={30}
-                    maxLeftWidth={80}
-                    rightPanelCollapsed={jsonPanelCollapsed}
-                  />
-                </div>
-                
-                {/* Expand JSON Button - Only shown when collapsed */}
-                {jsonPanelCollapsed && (
-                  <Button 
-                    type="text"
-                    icon={<MenuUnfoldOutlined />}
-                    onClick={() => setJsonPanelCollapsed(false)}
-                    style={{ 
-                      position: 'absolute',
-                      top: '8px',
-                      right: '8px',
-                      width: '32px',
-                      height: '32px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
-                      backgroundColor: darkMode ? '#1f1f1f' : '#ffffff',
-                      zIndex: 10
-                    }}
-                    title="Show JSON Panel"
-                  />
-                )}
+                  }}
+                />
               </div>
+
+              {/* Right Panel - JSON/SQL/Canvas */}
+              {!jsonPanelCollapsed && (
+                <div style={{ 
+                  width: '500px',
+                  minWidth: '400px',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  backgroundColor: darkMode ? '#141414' : '#ffffff',
+                  border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
+                  borderRadius: '2px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '16px',
+                    borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`,
+                    flexShrink: 0
+                  }}>
+                    <Tabs 
+                      activeKey={activeTab}
+                      onChange={handleTabChange}
+                      items={[
+                        {
+                          key: 'json',
+                          label: 'JSON',
+                        },
+                        {
+                          key: 'sql',
+                          label: 'SQL',
+                        },
+                        {
+                          key: 'canvas',
+                          label: 'Canvas',
+                        },
+                      ]}
+                      style={{ flex: 1, marginBottom: '-16px' }}
+                    />
+                    <Button 
+                      type="text"
+                      icon={<MenuFoldOutlined />}
+                      onClick={() => setJsonPanelCollapsed(true)}
+                      style={{ 
+                        marginLeft: '16px',
+                        flexShrink: 0
+                      }}
+                      title="Collapse Panel"
+                    />
+                  </div>
+                  <div style={{ 
+                    flex: 1,
+                    overflow: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}>
+                    {activeTab === 'json' && (
+                      <JsonEditor
+                        data={ruleBuilderData}
+                        onChange={(newData) => {
+                          if (ruleBuilderRef.current) {
+                            ruleBuilderRef.current.loadRuleData(newData);
+                          }
+                        }}
+                        darkMode={darkMode}
+                        title={null}
+                        onCollapse={null}
+                      />
+                    )}
+                    {activeTab === 'sql' && (
+                      <SqlViewer
+                        ref={sqlViewerRef}
+                        ruleData={ruleBuilderData}
+                        darkMode={darkMode}
+                      />
+                    )}
+                    {activeTab === 'canvas' && (
+                      <RuleCanvas
+                        rule={ruleBuilderData}
+                        darkMode={darkMode}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+                
+              {/* Expand JSON Button - Only shown when collapsed */}
+              {jsonPanelCollapsed && (
+                <Button 
+                  type="text"
+                  icon={<MenuUnfoldOutlined />}
+                  onClick={() => setJsonPanelCollapsed(false)}
+                  style={{ 
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
+                    backgroundColor: darkMode ? '#1f1f1f' : '#ffffff'
+                  }}
+                  title="Show JSON Panel"
+                />
+              )}
             </div>
           ) : <Spin />}
         </Content>

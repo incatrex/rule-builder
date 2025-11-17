@@ -4,8 +4,6 @@
 .rule-history-container {
   padding: 16px;
   padding-bottom: 0;
-  height: 100%;
-  overflow: auto;
 }
 
 .rule-history {
