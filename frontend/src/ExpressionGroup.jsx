@@ -446,17 +446,29 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
 
 // Helper function to get available operators based on return type from config
 const getOperatorOptions = (returnType, config) => {
-  // Operators must come from config.expressionOperators
-  if (!config?.expressionOperators?.[returnType]) {
-    console.error(`No expressionOperators found in config for type: ${returnType}`);
+  // Operators must come from config.expressionOperators filtered by validExpressionOperators
+  if (!config?.expressionOperators) {
+    console.error(`No expressionOperators found in config`);
     return [];
   }
   
-  const expressionOps = config.expressionOperators[returnType];
-  return Object.entries(expressionOps).map(([key, op]) => ({
-    value: op.symbol,
-    label: `${op.symbol} (${op.label})`
-  }));
+  // Check if the type has validExpressionOperators defined
+  if (!config?.types?.[returnType]?.validExpressionOperators) {
+    console.error(`No validExpressionOperators found for type: ${returnType}`);
+    return [];
+  }
+  
+  const validOps = config.types[returnType].validExpressionOperators;
+  
+  return validOps
+    .filter(key => config.expressionOperators[key]) // Make sure operator exists
+    .map(key => {
+      const op = config.expressionOperators[key];
+      return {
+        value: op.symbol,
+        label: `${op.symbol} (${op.label})`
+      };
+    });
 };
 
 // Helper functions

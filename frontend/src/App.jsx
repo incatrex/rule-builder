@@ -157,7 +157,7 @@ const App = () => {
       
       // Create ruleConfig for RuleBuilder
       const ruleConfigData = {
-        operators: configData.operators,
+        conditionOperators: configData.conditionOperators,
         fields: fields,
         functions: buildHierarchicalFunctions(configData.functions),
         types: configData.types,

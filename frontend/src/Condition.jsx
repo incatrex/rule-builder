@@ -55,48 +55,40 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
 
   // Get available operators based on left expression return type
   const getAvailableOperators = () => {
-    if (!config?.operators) return [];
+    if (!config?.conditionOperators) return [];
     
     const leftType = conditionData.left?.returnType;
     if (!leftType) {
       // If no left type, return all operators
-      return Object.keys(config.operators).map(opKey => ({
+      return Object.keys(config.conditionOperators).map(opKey => ({
         value: opKey,
-        label: config.operators[opKey].label || opKey
+        label: config.conditionOperators[opKey].label || opKey
       }));
     }
 
-    // Check if config has types mapping (from backend config)
-    if (config.types && config.types[leftType] && config.types[leftType].widgets) {
-      const widgets = config.types[leftType].widgets;
-      const availableOps = new Set();
+    // Check if config has types mapping with validConditionOperators
+    if (config.types && config.types[leftType] && config.types[leftType].validConditionOperators) {
+      const validOps = config.types[leftType].validConditionOperators;
       
-      // Collect operators from all widgets for this type
-      Object.values(widgets).forEach(widget => {
-        if (widget.operators) {
-          widget.operators.forEach(op => availableOps.add(op));
-        }
-      });
-      
-      return Array.from(availableOps)
-        .filter(opKey => config.operators[opKey]) // Make sure operator exists
+      return validOps
+        .filter(opKey => config.conditionOperators[opKey]) // Make sure operator exists
         .map(opKey => ({
           value: opKey,
-          label: config.operators[opKey].label || opKey
+          label: config.conditionOperators[opKey].label || opKey
         }));
     }
 
     // Fallback: return all operators if no type mapping
-    return Object.keys(config.operators).map(opKey => ({
+    return Object.keys(config.conditionOperators).map(opKey => ({
       value: opKey,
-      label: config.operators[opKey].label || opKey
+      label: config.conditionOperators[opKey].label || opKey
     }));
   };
 
   // Get operator definition
   const getOperatorDef = (operatorKey) => {
-    if (!operatorKey || !config?.operators) return null;
-    return config.operators[operatorKey];
+    if (!operatorKey || !config?.conditionOperators) return null;
+    return config.conditionOperators[operatorKey];
   };
 
   // Handle operator change and adjust right side based on cardinality

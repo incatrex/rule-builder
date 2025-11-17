@@ -1,15 +1,13 @@
 {
   "conjunctions": {
     "AND": {
-      "label": "AND",
-      "formatConj": "AND"
+      "label": "AND"
     },
     "OR": {
-      "label": "OR",
-      "formatConj": "OR"
+      "label": "OR"
     }
   },
-  "operators": {
+  "conditionOperators": {
     "equal": {
       "label": "=",
       "cardinality": 1
@@ -84,134 +82,96 @@
     }
   },
   "expressionOperators": {
-    "number": {
-      "add": {
-        "symbol": "+",
-        "label": "Add",
-        "description": "Addition"
-      },
-      "subtract": {
-        "symbol": "-",
-        "label": "Subtract",
-        "description": "Subtraction"
-      },
-      "multiply": {
-        "symbol": "*",
-        "label": "Multiply",
-        "description": "Multiplication"
-      },
-      "divide": {
-        "symbol": "/",
-        "label": "Divide",
-        "description": "Division"
-      }
+    "add": {
+      "symbol": "+",
+      "label": "Add"
     },
-    "text": {
-      "concat": {
-        "symbol": "+",
-        "label": "Concatenate",
-        "description": "String concatenation"
-      },
-      "join": {
-        "symbol": "&",
-        "label": "Join",
-        "description": "Join strings"
-      }
+    "subtract": {
+      "symbol": "-",
+      "label": "Subtract"
     },
-    "date": {
-      "add": {
-        "symbol": "+",
-        "label": "Add Days",
-        "description": "Add days to date"
-      },
-      "subtract": {
-        "symbol": "-",
-        "label": "Subtract Days",
-        "description": "Subtract days from date"
-      }
+    "multiply": {
+      "symbol": "*",
+      "label": "Multiply"
     },
-    "boolean": {
-      "and": {
-        "symbol": "&",
-        "label": "AND",
-        "description": "Logical AND"
-      },
-      "or": {
-        "symbol": "|",
-        "label": "OR",
-        "description": "Logical OR"
-      }
+    "divide": {
+      "symbol": "/",
+      "label": "Divide"
+    },
+    "concat": {
+      "symbol": "&",
+      "label": "Concatenate"
+    },
+    "and": {
+      "symbol": "&&",
+      "label": "AND"
+    },
+    "or": {
+      "symbol": "||",
+      "label": "OR"
     }
   },
   "types": {
     "text": {
-      "defaultOperator": "equal",
-      "widgets": {
-        "text": {
-          "operators": [
-            "equal",
-            "not_equal",
-            "contains",
-            "not_contains",
-            "starts_with",
-            "ends_with",
-            "is_empty",
-            "is_not_empty",
-            "in",
-            "not_in"
-          ]
-        }
-      }
+      "defaultConditionOperator": "equal",
+      "validConditionOperators": [
+        "equal",
+        "not_equal",
+        "contains",
+        "not_contains",
+        "starts_with",
+        "ends_with",
+        "is_empty",
+        "is_not_empty",
+        "in",
+        "not_in"
+      ],
+      "defaultExpressionOperator": "concat",
+      "validExpressionOperators": ["concat"]
     },
     "number": {
-      "defaultOperator": "equal",
-      "widgets": {
-        "number": {
-          "operators": [
-            "equal",
-            "not_equal",
-            "less",
-            "less_or_equal",
-            "greater",
-            "greater_or_equal",
-            "between",
-            "not_between",
-            "is_empty",
-            "is_not_empty",
-            "in",
-            "not_in"
-          ]
-        }
-      }
+      "defaultConditionOperator": "equal",
+      "validConditionOperators": [
+        "equal",
+        "not_equal",
+        "less",
+        "less_or_equal",
+        "greater",
+        "greater_or_equal",
+        "between",
+        "not_between",
+        "is_empty",
+        "is_not_empty",
+        "in",
+        "not_in"
+      ],
+      "defaultExpressionOperator": "add",
+      "validExpressionOperators": ["add", "subtract", "multiply", "divide"]
     },
     "date": {
-      "defaultOperator": "equal",
-      "widgets": {
-        "date": {
-          "operators": [
-            "equal",
-            "not_equal",
-            "less",
-            "less_or_equal",
-            "greater",
-            "greater_or_equal",
-            "between",
-            "not_between",
-            "is_empty",
-            "is_not_empty",
-            "in",
-            "not_in"
-          ]
-        }
-      }
+      "defaultConditionOperator": "equal",
+      "validConditionOperators": [
+        "equal",
+        "not_equal",
+        "less",
+        "less_or_equal",
+        "greater",
+        "greater_or_equal",
+        "between",
+        "not_between",
+        "is_empty",
+        "is_not_empty",
+        "in",
+        "not_in"
+      ],
+      "defaultExpressionOperator": null,
+      "validExpressionOperators": []
     },
     "boolean": {
-      "defaultOperator": "equal",
-      "widgets": {
-        "boolean": {
-          "operators": ["equal", "not_equal"]
-        }
-      }
+      "defaultConditionOperator": "equal",
+      "validConditionOperators": ["equal", "not_equal"],
+      "defaultExpressionOperator": "and",
+      "validExpressionOperators": ["and", "or"]
     }
   },
   "functions": {
@@ -435,36 +395,6 @@
     }
   },
   "settings": {
-    "defaultValueSources": ["value", "field", "function", "ruleRef"],
-    "valueLabel": "Value",
-    "valuePlaceholder": "Value",
-    "fieldLabel": "Field",
-    "operatorLabel": "Operator",
-    "funcLabel": "Function",
-    "fieldPlaceholder": "Select field",
-    "funcPlaceholder": "Select function",
-    "operatorPlaceholder": "Select operator",
-    "deleteLabel": null,
-    "addGroupLabel": "Add group",
-    "addRuleLabel": "Add Condition",
-    "delGroupLabel": null,
-    "notLabel": "NOT",
-    "valueSourcesPopupTitle": "Select value source",
-    "removeRuleConfirmOptions": {
-      "title": "Are you sure delete this rule?",
-      "okText": "Yes",
-      "okType": "danger"
-    },
-    "removeGroupConfirmOptions": {
-      "title": "Are you sure delete this group?",
-      "okText": "Yes",
-      "okType": "danger"
-    },
-    "canReorder": true,
-    "canRegroup": true,
-    "showNot": true,
-    "showLabels": true,
-    "maxNesting": 5,
-    "canLeaveEmptyGroup": true
+    "defaultValueSources": ["value", "field", "function", "ruleRef"]
   }
 }
