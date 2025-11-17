@@ -13,7 +13,7 @@ import { describe, test, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import RuleBuilder from '../RuleBuilder';
+import { RuleBuilder } from '../components/RuleBuilder';
 import mathExpressionJSON from './fixtures/math-expression.json';
 import simpleConditionJSON from './fixtures/simple-condition.json';
 import caseExpressionJSON from './fixtures/case-expression.json';
