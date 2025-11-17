@@ -219,7 +219,8 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                       onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
                       config={config}
                       darkMode={darkMode}
-                      isLoadedRule={isLoadedRule}
+                      isLoadedRule={false}
+                      forceExpanded={true}
                     />
                   </div>
 
