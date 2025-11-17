@@ -123,43 +123,14 @@ const App = () => {
 
       const fields = fieldsData;
 
-      // Convert flat functions structure (TEXT.CONCAT) to hierarchical (TEXT -> CONCAT)
-      const buildHierarchicalFunctions = (flatFunctions) => {
-        const hierarchical = {};
-        
-        Object.keys(flatFunctions).forEach(key => {
-          const parts = key.split('.');
-          
-          if (parts.length === 1) {
-            // No dot - keep as is
-            hierarchical[key] = flatFunctions[key];
-          } else {
-            // Has dot - create hierarchy
-            const [category, ...rest] = parts;
-            
-            if (!hierarchical[category]) {
-              hierarchical[category] = {
-                label: category + ' Functions',
-                type: '!struct',
-                subfields: {}
-              };
-            }
-            
-            // Build the nested structure
-            let current = hierarchical[category].subfields;
-            const functionName = rest.join('.');
-            current[functionName] = flatFunctions[key];
-          }
-        });
-        
-        return hierarchical;
-      };
+      // Note: Schema-generated config already provides hierarchical functions structure
+      // No need to convert - it's already in the format: { MATH: { subfields: { ADD: {...} } } }
       
       // Create ruleConfig for RuleBuilder
       const ruleConfigData = {
         conditionOperators: configData.conditionOperators,
         fields: fields,
-        functions: buildHierarchicalFunctions(configData.functions),
+        functions: configData.functions, // Already hierarchical from schema
         types: configData.types,
         expressionOperators: configData.expressionOperators,
         settings: configData.settings

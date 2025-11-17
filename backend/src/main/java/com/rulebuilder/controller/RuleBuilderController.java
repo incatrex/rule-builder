@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rulebuilder.service.RuleBuilderService;
+import com.rulebuilder.service.SchemaConfigService;
 import com.rulebuilder.util.OracleSqlGenerator;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,9 @@ public class RuleBuilderController {
 
     @Autowired
     private RuleBuilderService ruleBuilderService;
+
+    @Autowired
+    private SchemaConfigService schemaConfigService;
 
     @Autowired
     private OracleSqlGenerator sqlGenerator;
@@ -39,7 +43,8 @@ public class RuleBuilderController {
     @GetMapping("/config")
     public ResponseEntity<JsonNode> getConfig() {
         try {
-            JsonNode config = ruleBuilderService.getConfig();
+            // Config now generated from schema x-ui-* extensions
+            JsonNode config = schemaConfigService.getConfig();
             return ResponseEntity.ok(config);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
