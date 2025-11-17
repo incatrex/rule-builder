@@ -2,8 +2,11 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://api.rulebuilder.com/schemas/rule-v1.2.0.json",
   "title": "Rule Builder Schema",
-  "description": "JSON Schema for validating Rule Builder generated rules - Changed 'content' to 'definition' for clearer semantic meaning. ExpressionGroup requires 2+ expressions.",
+  "description": "JSON Schema for validating Rule Builder generated rules - Single source of truth with x-ui extensions for UI configuration",
   "type": "object",
+  "x-ui-settings": {
+    "defaultValueSources": ["value", "field", "function", "ruleRef"]
+  },
   "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "definition"],
   "properties": {
     "structure": {
@@ -159,7 +162,15 @@
         "conjunction": {
           "type": "string",
           "enum": ["AND", "OR"],
-          "description": "Logical operator combining the conditions in this group"
+          "description": "Logical operator combining the conditions in this group",
+          "x-ui-conjunctions": {
+            "AND": {
+              "label": "AND"
+            },
+            "OR": {
+              "label": "OR"
+            }
+          }
         },
         "not": {
           "type": "boolean",
@@ -214,7 +225,81 @@
             "contains", "not_contains", "starts_with", "ends_with", 
             "is_empty", "is_not_empty", "between", "not_between", "in", "not_in"
           ],
-          "description": "Comparison operator for the condition"
+          "description": "Comparison operator for the condition",
+          "x-ui-operators": {
+            "equal": {
+              "label": "=",
+              "cardinality": 1
+            },
+            "not_equal": {
+              "label": "!=",
+              "cardinality": 1
+            },
+            "less": {
+              "label": "<",
+              "cardinality": 1
+            },
+            "less_or_equal": {
+              "label": "<=",
+              "cardinality": 1
+            },
+            "greater": {
+              "label": ">",
+              "cardinality": 1
+            },
+            "greater_or_equal": {
+              "label": ">=",
+              "cardinality": 1
+            },
+            "contains": {
+              "label": "Contains",
+              "cardinality": 1
+            },
+            "not_contains": {
+              "label": "Not Contains",
+              "cardinality": 1
+            },
+            "starts_with": {
+              "label": "Starts With",
+              "cardinality": 1
+            },
+            "ends_with": {
+              "label": "Ends With",
+              "cardinality": 1
+            },
+            "is_empty": {
+              "label": "Is Empty",
+              "cardinality": 0
+            },
+            "is_not_empty": {
+              "label": "Is Not Empty",
+              "cardinality": 0
+            },
+            "between": {
+              "label": "Between",
+              "cardinality": 2,
+              "separator": "AND"
+            },
+            "not_between": {
+              "label": "Not Between",
+              "cardinality": 2,
+              "separator": "AND"
+            },
+            "in": {
+              "label": "IN",
+              "minCardinality": 1,
+              "maxCardinality": 10,
+              "defaultCardinality": 3,
+              "separator": ","
+            },
+            "not_in": {
+              "label": "NOT IN",
+              "minCardinality": 1,
+              "maxCardinality": 10,
+              "defaultCardinality": 3,
+              "separator": ","
+            }
+          }
         },
         "right": {
           "oneOf": [
@@ -266,9 +351,39 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["+", "-", "*", "/"]
+            "enum": ["+", "-", "*", "/", "&", "&&", "||"]
           },
-          "description": "Mathematical operators between expressions - always one less than expressions length"
+          "description": "Mathematical operators between expressions - always one less than expressions length",
+          "x-ui-expression-operators": {
+            "add": {
+              "symbol": "+",
+              "label": "Add"
+            },
+            "subtract": {
+              "symbol": "-",
+              "label": "Subtract"
+            },
+            "multiply": {
+              "symbol": "*",
+              "label": "Multiply"
+            },
+            "divide": {
+              "symbol": "/",
+              "label": "Divide"
+            },
+            "concat": {
+              "symbol": "&",
+              "label": "Concatenate"
+            },
+            "and": {
+              "symbol": "&&",
+              "label": "AND"
+            },
+            "or": {
+              "symbol": "||",
+              "label": "OR"
+            }
+          }
         }
       },
       "additionalProperties": false
@@ -285,7 +400,70 @@
         "returnType": {
           "type": "string",
           "enum": ["boolean", "number", "text", "date"],
-          "description": "Data type this expression returns"
+          "description": "Data type this expression returns",
+          "x-ui-types": {
+            "text": {
+              "defaultConditionOperator": "equal",
+              "validConditionOperators": [
+                "equal",
+                "not_equal",
+                "contains",
+                "not_contains",
+                "starts_with",
+                "ends_with",
+                "is_empty",
+                "is_not_empty",
+                "in",
+                "not_in"
+              ],
+              "defaultExpressionOperator": "concat",
+              "validExpressionOperators": ["concat"]
+            },
+            "number": {
+              "defaultConditionOperator": "equal",
+              "validConditionOperators": [
+                "equal",
+                "not_equal",
+                "less",
+                "less_or_equal",
+                "greater",
+                "greater_or_equal",
+                "between",
+                "not_between",
+                "is_empty",
+                "is_not_empty",
+                "in",
+                "not_in"
+              ],
+              "defaultExpressionOperator": "add",
+              "validExpressionOperators": ["add", "subtract", "multiply", "divide"]
+            },
+            "date": {
+              "defaultConditionOperator": "equal",
+              "validConditionOperators": [
+                "equal",
+                "not_equal",
+                "less",
+                "less_or_equal",
+                "greater",
+                "greater_or_equal",
+                "between",
+                "not_between",
+                "is_empty",
+                "is_not_empty",
+                "in",
+                "not_in"
+              ],
+              "defaultExpressionOperator": null,
+              "validExpressionOperators": []
+            },
+            "boolean": {
+              "defaultConditionOperator": "equal",
+              "validConditionOperators": ["equal", "not_equal"],
+              "defaultExpressionOperator": "and",
+              "validExpressionOperators": ["and", "or"]
+            }
+          }
         },
         "value": {
           "description": "The literal value (only when type=value)",
@@ -314,7 +492,125 @@
                 "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN", "TEXT.CASE",
                 "DATE.DIFF"
               ],
-              "description": "Function name in category.function format"
+              "description": "Function name in category.function format",
+              "x-ui-functions": {
+                "MATH.ADD": {
+                  "label": "ADD",
+                  "category": "MATH",
+                  "returnType": "number",
+                  "dynamicArgs": true,
+                  "argSpec": {
+                    "type": "number",
+                    "minArgs": 2,
+                    "maxArgs": 10,
+                    "defaultValue": 0,
+                    "valueSources": ["value", "field", "function"]
+                  }
+                },
+                "MATH.SUBTRACT": {
+                  "label": "SUBTRACT",
+                  "category": "MATH",
+                  "returnType": "number",
+                  "args": [
+                    {"name": "num1", "label": "Number 1", "type": "number", "required": true, "defaultValue": 0, "valueSources": ["value", "field", "function"]},
+                    {"name": "num2", "label": "Number 2", "type": "number", "required": true, "defaultValue": 0, "valueSources": ["value", "field", "function"]}
+                  ]
+                },
+                "MATH.MULTIPLY": {
+                  "label": "MULTIPLY",
+                  "category": "MATH",
+                  "returnType": "number",
+                  "args": [
+                    {"name": "num1", "label": "Number 1", "type": "number", "required": true, "valueSources": ["value", "field", "function"]},
+                    {"name": "num2", "label": "Number 2", "type": "number", "required": true, "valueSources": ["value", "field", "function"]}
+                  ]
+                },
+                "MATH.DIVIDE": {
+                  "label": "DIVIDE",
+                  "category": "MATH",
+                  "returnType": "number",
+                  "args": [
+                    {"name": "dividend", "label": "Dividend", "type": "number", "required": true, "valueSources": ["value", "field", "function"]},
+                    {"name": "divisor", "label": "Divisor", "type": "number", "required": true, "valueSources": ["value", "field", "function"]}
+                  ]
+                },
+                "MATH.SUM": {
+                  "label": "SUM",
+                  "category": "MATH",
+                  "returnType": "number",
+                  "dynamicArgs": true,
+                  "argSpec": {
+                    "type": "number",
+                    "minArgs": 2,
+                    "maxArgs": 20,
+                    "defaultValue": 0,
+                    "valueSources": ["value", "field", "function"]
+                  }
+                },
+                "MATH.ROUND": {
+                  "label": "ROUND",
+                  "category": "MATH",
+                  "returnType": "number",
+                  "args": [
+                    {"name": "number", "label": "Number", "type": "number", "required": true, "valueSources": ["value", "field", "function"]},
+                    {"name": "decimals", "label": "Decimals", "type": "number", "required": true, "valueSources": ["value", "field", "function"]}
+                  ]
+                },
+                "MATH.ABS": {
+                  "label": "ABS",
+                  "category": "MATH",
+                  "returnType": "number",
+                  "args": [
+                    {"name": "number", "label": "Number", "type": "number", "required": true, "valueSources": ["value", "field", "function"]}
+                  ]
+                },
+                "TEXT.CONCAT": {
+                  "label": "CONCAT",
+                  "category": "TEXT",
+                  "returnType": "text",
+                  "args": [
+                    {"name": "text1", "label": "Text 1", "type": "text", "required": true, "defaultValue": "", "valueSources": ["value", "field", "function"]},
+                    {"name": "text2", "label": "Text 2", "type": "text", "required": true, "defaultValue": "", "valueSources": ["value", "field", "function"]}
+                  ]
+                },
+                "TEXT.MID": {
+                  "label": "MID",
+                  "category": "TEXT",
+                  "returnType": "text",
+                  "args": [
+                    {"name": "text", "label": "Text", "type": "text", "required": true, "valueSources": ["value", "field", "function"]},
+                    {"name": "start", "label": "Start Position", "type": "number", "required": true, "valueSources": ["value", "field", "function"]},
+                    {"name": "length", "label": "Length", "type": "number", "required": true, "valueSources": ["value", "field", "function"]}
+                  ]
+                },
+                "TEXT.LEN": {
+                  "label": "LEN",
+                  "category": "TEXT",
+                  "returnType": "number",
+                  "args": [
+                    {"name": "text", "label": "Text", "type": "text", "required": true, "valueSources": ["value", "field", "function"]}
+                  ]
+                },
+                "TEXT.CASE": {
+                  "label": "CASE",
+                  "category": "TEXT",
+                  "returnType": "text",
+                  "args": [
+                    {"name": "text", "label": "Text", "type": "text", "required": true, "valueSources": ["value", "field", "function"]},
+                    {"name": "caseType", "label": "Case Type", "type": "text", "required": true, "widget": "select", "defaultValue": "UPPER", "options": [{"value": "UPPER", "label": "Uppercase"}, {"value": "LOWER", "label": "Lowercase"}, {"value": "TITLE", "label": "Title Case"}], "valueSources": ["value"]}
+                  ]
+                },
+                "DATE.DIFF": {
+                  "label": "DIFF",
+                  "category": "DATE",
+                  "returnType": "number",
+                  "args": [
+                    {"name": "units", "label": "Units", "type": "text", "required": true, "widget": "select", "defaultValue": "DAY", "options": [{"value": "DAY", "label": "Day"}, {"value": "MONTH", "label": "Month"}, {"value": "YEAR", "label": "Year"}], "valueSources": ["value"]},
+                    {"name": "date1", "label": "Date 1", "type": "date", "required": true, "valueSources": ["value", "field", "function", "ruleRef"]},
+                    {"name": "date2", "label": "Date 2", "type": "date", "required": true, "valueSources": ["value", "field", "function", "ruleRef"]}
+                  ]
+                }
+              }
             },
             "args": {
               "type": "array",
