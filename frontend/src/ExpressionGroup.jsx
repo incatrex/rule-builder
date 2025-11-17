@@ -42,6 +42,7 @@ const { Text } = Typography;
  */
 const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, argDef: propArgDef = null }) => {
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
+  const [operatorDropdownStates, setOperatorDropdownStates] = useState({});
   
   // Update expansion state when isLoadedRule changes
   useEffect(() => {
@@ -343,7 +344,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           
           // Determine operator options based on expression type
           const firstType = getExpressionReturnType(groupData.expressions[0]);
-          const operatorOptions = getOperatorOptions(firstType);
+          const operatorOptions = getOperatorOptions(firstType, config);
+          const isOperatorDropdownOpen = operatorDropdownStates[index] || false;
           
           return (
             <div key={actualIndex} style={{ paddingLeft: '16px' }}>
@@ -353,17 +355,24 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                   value={groupData.operators?.[index] || '+'}
                   onChange={(op) => updateOperator(index, op)}
                   style={{ 
-                    width: '50px', 
-                    minWidth: '50px'
+                    width: isOperatorDropdownOpen ? '140px' : '50px', 
+                    minWidth: '50px',
+                    transition: 'width 0.2s'
                   }}
                   size="small"
                   options={operatorOptions}
+                  onDropdownVisibleChange={(open) => {
+                    setOperatorDropdownStates(prev => ({ ...prev, [index]: open }));
+                  }}
                   labelRender={(props) => {
-                    // When closed, show only the operator symbol (extract from value like "+ (Add)" -> "+")
-                    const operatorSymbol = props.value ? props.value.split(' ')[0] : '+';
-                    return (
+                    // When closed, show only the operator symbol
+                    // When open, show full label
+                    const option = operatorOptions.find(opt => opt.value === props.value);
+                    return isOperatorDropdownOpen ? (
+                      <span>{option?.label || props.value}</span>
+                    ) : (
                       <span style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                        {operatorSymbol}
+                        {props.value}
                       </span>
                     );
                   }}
@@ -435,34 +444,19 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   );
 };
 
-// Helper function to get available operators based on return type
-const getOperatorOptions = (returnType) => {
-  switch (returnType) {
-    case 'text':
-      return [
-        { value: '+', label: '+ (Concatenate)' },
-        { value: '&', label: '& (Join)' }
-      ];
-    case 'number':
-      return [
-        { value: '+', label: '+ (Add)' },
-        { value: '-', label: '- (Subtract)' },
-        { value: '*', label: '* (Multiply)' },
-        { value: '/', label: '/ (Divide)' }
-      ];
-    case 'date':
-      return [
-        { value: '+', label: '+ (Add Days)' },
-        { value: '-', label: '- (Subtract Days)' }
-      ];
-    case 'boolean':
-      return [
-        { value: '&', label: '& (AND)' },
-        { value: '|', label: '| (OR)' }
-      ];
-    default:
-      return [{ value: '+', label: '+' }];
+// Helper function to get available operators based on return type from config
+const getOperatorOptions = (returnType, config) => {
+  // Operators must come from config.expressionOperators
+  if (!config?.expressionOperators?.[returnType]) {
+    console.error(`No expressionOperators found in config for type: ${returnType}`);
+    return [];
   }
+  
+  const expressionOps = config.expressionOperators[returnType];
+  return Object.entries(expressionOps).map(([key, op]) => ({
+    value: op.symbol,
+    label: `${op.symbol} (${op.label})`
+  }));
 };
 
 // Helper functions

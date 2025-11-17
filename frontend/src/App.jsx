@@ -160,7 +160,9 @@ const App = () => {
         operators: configData.operators,
         fields: fields,
         functions: buildHierarchicalFunctions(configData.functions),
-        types: configData.types
+        types: configData.types,
+        expressionOperators: configData.expressionOperators,
+        settings: configData.settings
       };
       
       setRuleConfig(ruleConfigData);

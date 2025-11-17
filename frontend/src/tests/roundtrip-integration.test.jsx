@@ -136,6 +136,22 @@ const mockConfig = {
     text: ['==', '!=', 'like', 'not_like', 'starts_with', 'ends_with'],
     date: ['==', '!=', '<', '>', '<=', '>='],
     boolean: ['==', '!=']
+  },
+  expressionOperators: {
+    number: {
+      add: { symbol: "+", label: "Add" },
+      subtract: { symbol: "-", label: "Subtract" },
+      multiply: { symbol: "*", label: "Multiply" },
+      divide: { symbol: "/", label: "Divide" }
+    },
+    text: {
+      concat: { symbol: "+", label: "Concatenate" },
+      join: { symbol: "&", label: "Join" }
+    },
+    date: {
+      add: { symbol: "+", label: "Add Days" },
+      subtract: { symbol: "-", label: "Subtract Days" }
+    }
   }
 };
 

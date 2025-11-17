@@ -12,79 +12,64 @@
   "operators": {
     "equal": {
       "label": "=",
-      "labelForFormat": "=",
       "cardinality": 1
     },
     "not_equal": {
       "label": "!=",
-      "labelForFormat": "!=",
       "cardinality": 1
     },
     "less": {
       "label": "<",
-      "labelForFormat": "<",
       "cardinality": 1
     },
     "less_or_equal": {
       "label": "<=",
-      "labelForFormat": "<=",
       "cardinality": 1
     },
     "greater": {
       "label": ">",
-      "labelForFormat": ">",
       "cardinality": 1
     },
     "greater_or_equal": {
       "label": ">=",
-      "labelForFormat": ">=",
       "cardinality": 1
     },
     "contains": {
       "label": "Contains",
-      "labelForFormat": "Contains",
       "cardinality": 1
     },
     "not_contains": {
       "label": "Not Contains",
-      "labelForFormat": "Not Contains",
       "cardinality": 1
     },
     "starts_with": {
       "label": "Starts With",
-      "labelForFormat": "Starts With",
       "cardinality": 1
     },
     "ends_with": {
       "label": "Ends With",
-      "labelForFormat": "Ends With",
       "cardinality": 1
     },
     "is_empty": {
       "label": "Is Empty",
-      "labelForFormat": "Is Empty",
       "cardinality": 0
     },
     "is_not_empty": {
       "label": "Is Not Empty",
-      "labelForFormat": "Is Not Empty",
       "cardinality": 0
     },
     "between": {
       "label": "Between",
-      "labelForFormat": "Between",
       "cardinality": 2,
       "separator": "AND"
     },
     "not_between": {
       "label": "Not Between",
-      "labelForFormat": "Not Between",
       "cardinality": 2,
       "separator": "AND"
     },
     "in": {
       "label": "IN",
-      "labelForFormat": "IN",
       "minCardinality": 1,
       "maxCardinality": 10,
       "defaultCardinality": 3,
@@ -92,11 +77,70 @@
     },
     "not_in": {
       "label": "NOT IN",
-      "labelForFormat": "NOT IN",
       "minCardinality": 1,
       "maxCardinality": 10,
       "defaultCardinality": 3,
       "separator": ","
+    }
+  },
+  "expressionOperators": {
+    "number": {
+      "add": {
+        "symbol": "+",
+        "label": "Add",
+        "description": "Addition"
+      },
+      "subtract": {
+        "symbol": "-",
+        "label": "Subtract",
+        "description": "Subtraction"
+      },
+      "multiply": {
+        "symbol": "*",
+        "label": "Multiply",
+        "description": "Multiplication"
+      },
+      "divide": {
+        "symbol": "/",
+        "label": "Divide",
+        "description": "Division"
+      }
+    },
+    "text": {
+      "concat": {
+        "symbol": "+",
+        "label": "Concatenate",
+        "description": "String concatenation"
+      },
+      "join": {
+        "symbol": "&",
+        "label": "Join",
+        "description": "Join strings"
+      }
+    },
+    "date": {
+      "add": {
+        "symbol": "+",
+        "label": "Add Days",
+        "description": "Add days to date"
+      },
+      "subtract": {
+        "symbol": "-",
+        "label": "Subtract Days",
+        "description": "Subtract days from date"
+      }
+    },
+    "boolean": {
+      "and": {
+        "symbol": "&",
+        "label": "AND",
+        "description": "Logical AND"
+      },
+      "or": {
+        "symbol": "|",
+        "label": "OR",
+        "description": "Logical OR"
+      }
     }
   },
   "types": {

@@ -214,7 +214,7 @@
             "contains", "not_contains", "starts_with", "ends_with", 
             "is_empty", "is_not_empty", "between", "not_between", "in", "not_in"
           ],
-          "description": "Comparison operator for the condition"
+          "description": "Comparison operator for the condition (condition operator, not expression operator)"
         },
         "right": {
           "oneOf": [
@@ -266,9 +266,9 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["+", "-", "*", "/"]
+            "enum": ["+", "-", "*", "/", "&", "|"]
           },
-          "description": "Mathematical operators between expressions - always one less than expressions length"
+          "description": "Expression operators between expressions (mathematical/logical operators, not condition operators) - always one less than expressions length"
         }
       },
       "additionalProperties": false
