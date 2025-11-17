@@ -28,12 +28,13 @@ const { TextArea } = Input;
  * - darkMode: Dark mode styling
  * - onRuleChange: Callback when rule changes
  * - selectedRuleUuid: UUID of currently selected rule
+ * - onSaveSuccess: Optional callback when rule is saved successfully
  * 
  * Exposed Methods (via ref):
  * - getRuleOutput(): Returns the complete rule JSON
  * - loadRuleData(data): Loads rule data from JSON
  */
-const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, selectedRuleUuid }, ref) => {
+const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, selectedRuleUuid, onSaveSuccess }, ref) => {
   // Initialize services
   const ruleService = new RuleService();
   const configService = new ConfigService();
@@ -266,6 +267,11 @@ const RuleBuilder = forwardRef(({ config, darkMode = false, onRuleChange, select
       // Refresh available versions if we have a selected rule
       if (selectedRuleUuid === result.uuid || !selectedRuleUuid) {
         await loadVersionsForRule(result.uuid);
+      }
+      
+      // Call onSaveSuccess callback if provided
+      if (onSaveSuccess) {
+        onSaveSuccess(result);
       }
       
     } catch (error) {

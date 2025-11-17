@@ -6,7 +6,7 @@ import { FieldService } from './services/FieldService.js';
 import { RuleService } from './services/RuleService.js';
 import RuleBuilder from './RuleBuilder';
 import RuleSearch from './RuleSearch';
-import RuleHistory from './RuleHistory';
+import { RuleHistory } from './components/RuleHistory'; // Use refactored version
 import JsonEditor from './JsonEditor';
 import SqlViewer from './SqlViewer';
 import RuleCanvas from './RuleCanvas';
@@ -19,6 +19,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const ruleBuilderRef = useRef(null);
+  const ruleSearchRef = useRef(null);
   const sqlViewerRef = useRef(null);
   const [ruleBuilderData, setRuleBuilderData] = useState(null);
   const [selectedRuleUuid, setSelectedRuleUuid] = useState(null);
@@ -301,6 +302,7 @@ const App = () => {
                 overflow: 'hidden'
               }}>
                 <RuleSearch
+                  ref={ruleSearchRef}
                   onRuleSelect={handleRuleSelect}
                   onNewRule={handleNewRule}
                   darkMode={darkMode}
@@ -357,13 +359,15 @@ const App = () => {
                         display: 'flex', 
                         flexDirection: 'column',
                         overflow: 'hidden'
-                      }}>
+                        }}>
                         <div style={{ 
                           borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`,
                           flexShrink: 0
                         }}>
                           <RuleHistory
                             selectedRuleUuid={selectedRuleUuid}
+                            onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
+                            onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
                             onViewVersion={handleViewVersion}
                             onRestoreComplete={handleRestoreComplete}
                             darkMode={darkMode}
@@ -376,6 +380,12 @@ const App = () => {
                             darkMode={darkMode}
                             selectedRuleUuid={selectedRuleUuid}
                             onRuleChange={(data) => setRuleBuilderData(data)}
+                            onSaveSuccess={() => {
+                              // Refresh the rule search dropdown after successful save
+                              if (ruleSearchRef.current) {
+                                ruleSearchRef.current.refresh();
+                              }
+                            }}
                           />
                         </div>
                       </div>

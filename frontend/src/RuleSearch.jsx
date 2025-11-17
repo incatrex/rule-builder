@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Card, Button, Select, Space, message } from 'antd';
 import { PlusOutlined, SearchOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { RuleService } from './services/RuleService.js';
@@ -10,8 +10,11 @@ import { RuleService } from './services/RuleService.js';
  * - New Rule button to create empty rules
  * - Searchable dropdown to select existing rules
  * - Loads selected rule into RuleBuilder
+ * 
+ * Exposed methods via ref:
+ * - refresh(): Reloads the rule list from the server
  */
-const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false, onCollapse = null }) => {
+const RuleSearch = forwardRef(({ onRuleSelect, onNewRule, darkMode = false, onCollapse = null }, ref) => {
   const [ruleList, setRuleList] = useState([]);
   const [selectedRuleKey, setSelectedRuleKey] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -88,6 +91,11 @@ const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false, onCollapse = nu
   const handleRefresh = () => {
     loadRuleIds();
   };
+
+  // Expose refresh method to parent components via ref
+  useImperativeHandle(ref, () => ({
+    refresh: loadRuleIds,
+  }));
 
   return (
     <Card
@@ -186,6 +194,6 @@ const RuleSearch = ({ onRuleSelect, onNewRule, darkMode = false, onCollapse = nu
       </Space>
     </Card>
   );
-};
+});
 
 export default RuleSearch;
