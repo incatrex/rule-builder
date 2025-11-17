@@ -4,7 +4,7 @@ import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { ConfigService } from './services/ConfigService.js';
 import { FieldService } from './services/FieldService.js';
 import { RuleService } from './services/RuleService.js';
-import RuleBuilder from './RuleBuilder';
+import { RuleBuilder } from './components/RuleBuilder'; // Use refactored version
 import RuleSearch from './RuleSearch';
 import { RuleHistory } from './components/RuleHistory'; // Use refactored version
 import JsonEditor from './JsonEditor';
