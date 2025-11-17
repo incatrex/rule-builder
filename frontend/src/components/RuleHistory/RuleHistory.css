@@ -1,45 +1,35 @@
 /* RuleHistory Component Styles */
 /* Uses CSS variables for easy theming and customization */
 
+.rule-history-container {
+  padding: 16px;
+  padding-bottom: 0;
+  height: 100%;
+  overflow: auto;
+}
+
 .rule-history {
   --rh-background: var(--rh-background, #ffffff);
   --rh-text-color: var(--rh-text-color, #000000);
   --rh-text-secondary: var(--rh-text-secondary, #666666);
   --rh-border-color: var(--rh-border-color, #d9d9d9);
   --rh-primary-color: var(--rh-primary-color, #1890ff);
-  --rh-spacing: var(--rh-spacing, 12px);
   --rh-font-size: var(--rh-font-size, 13px);
   --rh-font-family: var(--rh-font-family, inherit);
   
-  padding: var(--rh-spacing);
-  background: var(--rh-background);
   color: var(--rh-text-color);
   font-family: var(--rh-font-family);
 }
 
-.rule-history__title {
-  margin-top: 0;
-  margin-bottom: var(--rh-spacing);
-  color: var(--rh-text-color);
-  font-size: calc(var(--rh-font-size) + 1px);
-  font-weight: 500;
+.rule-history-card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .rule-history__empty {
-  padding: var(--rh-spacing);
+  padding: 16px 0;
   text-align: center;
   color: var(--rh-text-secondary);
   font-size: var(--rh-font-size);
-}
-
-.rule-history__version-cell {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.rule-history__current-tag {
-  margin-left: 0 !important;
 }
 
 .rule-history__actions {
@@ -47,16 +37,13 @@
   gap: 8px;
 }
 
-/* Dark mode support */
-.rule-history[data-theme="dark"] {
-  --rh-background: #1f1f1f;
-  --rh-text-color: #ffffff;
-  --rh-text-secondary: #999999;
-  --rh-border-color: #434343;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .rule-history-container {
+    padding: 12px;
+    padding-bottom: 0;
+  }
+
   .rule-history {
     --rh-font-size: 12px;
   }

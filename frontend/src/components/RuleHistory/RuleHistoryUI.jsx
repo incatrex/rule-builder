@@ -1,4 +1,4 @@
-import { Table, Button, Modal, Tag } from 'antd';
+import { Table, Button, Modal, Card } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import './RuleHistory.css';
 
@@ -76,19 +76,6 @@ export const RuleHistoryUI = ({
       key: 'version',
       width: showRuleId ? '12%' : '15%',
       className: classNames.columnVersion,
-      render: (version, record, index) => (
-        <span className={classNames.versionCell || 'rule-history__version-cell'}>
-          {version}
-          {index === 0 && (
-            <Tag 
-              color="blue" 
-              className={classNames.currentTag || 'rule-history__current-tag'}
-            >
-              Current
-            </Tag>
-          )}
-        </span>
-      ),
     },
     {
       title: 'Modified By',
@@ -146,38 +133,53 @@ export const RuleHistoryUI = ({
 
   const rootClassName = unstyled 
     ? className 
-    : `rule-history ${classNames.root || ''} ${className}`.trim();
+    : `rule-history-container ${classNames.root || ''} ${className}`.trim();
 
   if (!hasRuleSelected) {
     return (
-      <div 
-        className={classNames.empty || 'rule-history__empty'}
-        style={{ ...themeVars, ...sx }}
-      >
-        {messages.noRuleSelected}
+      <div className={rootClassName}>
+        <Card
+          title={messages.title}
+          className="rule-history-card"
+          style={{
+            background: theme?.background || '#ffffff',
+            border: `1px solid ${theme?.borderColor || '#d9d9d9'}`,
+            ...themeVars,
+            ...sx
+          }}
+        >
+          <div className={classNames.empty || 'rule-history__empty'}>
+            {messages.noRuleSelected}
+          </div>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div 
-      className={rootClassName}
-      style={{ ...themeVars, ...sx }}
-      data-component="rule-history"
-    >
-      <h4 className={classNames.title || 'rule-history__title'}>
-        {messages.title}
-      </h4>
-      <Table
-        className={classNames.table || 'rule-history__table'}
-        columns={columns}
-        dataSource={history}
-        loading={loading}
-        rowKey={(record) => `${record.ruleId}-${record.version}`}
-        pagination={pageSize ? { pageSize } : false}
-        size="small"
-        scroll={{ y: scrollY }}
-      />
+    <div className={rootClassName}>
+      <Card
+        title={messages.title}
+        className="rule-history-card"
+        style={{
+          background: theme?.background || '#ffffff',
+          border: `1px solid ${theme?.borderColor || '#d9d9d9'}`,
+          ...themeVars,
+          ...sx
+        }}
+        data-component="rule-history"
+      >
+        <Table
+          className={classNames.table || 'rule-history__table'}
+          columns={columns}
+          dataSource={history}
+          loading={loading}
+          rowKey={(record) => `${record.ruleId}-${record.version}`}
+          pagination={pageSize ? { pageSize } : false}
+          size="small"
+          scroll={{ y: scrollY }}
+        />
+      </Card>
     </div>
   );
 };

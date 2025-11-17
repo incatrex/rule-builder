@@ -360,10 +360,7 @@ const App = () => {
                         flexDirection: 'column',
                         overflow: 'hidden'
                         }}>
-                        <div style={{ 
-                          borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`,
-                          flexShrink: 0
-                        }}>
+                        <div style={{ flexShrink: 0, height: 'auto', maxHeight: '40%', overflow: 'auto' }}>
                           <RuleHistory
                             selectedRuleUuid={selectedRuleUuid}
                             onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
