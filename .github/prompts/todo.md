@@ -28,15 +28,16 @@ config:
 
 [ ] Add Business Logic service + Component/Panel
 
-[ ] Change Condition name style to match ConditionGroup
+[x] Change Condition name style to match ConditionGroup
 
 [x] Fix ... after Expresion operators
 
-[ ] Adding ExpressionGroup automatically collapses?
+[x] Adding ExpressionGroup automatically collapses?
 
 [ ] Unit Test Coverage
 
 [ ] Review / Simplify components
 
-[ ] Rule Version History not working
+[x] Rule Version History not working
+
 

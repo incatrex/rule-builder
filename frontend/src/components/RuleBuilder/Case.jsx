@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Button, Collapse, Input, Typography, Tag, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
-import Expression from './Expression';
-import { createDirectExpression } from './utils/expressionUtils.jsx';
+import Expression, { createDirectExpression } from './Expression';
 
 const { Text } = Typography;
 
@@ -32,17 +31,10 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
   const [activeKeys, setActiveKeys] = useState([]);
+  // Only use isLoadedRule for initial state, not continuous monitoring
   const [elseExpanded, setElseExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
   const [editingStates, setEditingStates] = useState({}); // Track editing state for each clause
   const isInitialLoad = useRef(true);
-
-  // Update expansion state when isLoadedRule changes
-  useEffect(() => {
-    if (isLoadedRule) {
-      setElseExpanded(false); // Collapse when rule is loaded
-      setActiveKeys([]); // Collapse all when clauses when rule is loaded
-    }
-  }, [isLoadedRule]);
 
   useEffect(() => {
     if (value) {
@@ -227,7 +219,8 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                       onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
                       config={config}
                       darkMode={darkMode}
-                      isLoadedRule={isLoadedRule}
+                      isLoadedRule={false}
+                      forceExpanded={true}
                     />
                   </div>
 

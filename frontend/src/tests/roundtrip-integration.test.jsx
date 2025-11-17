@@ -11,7 +11,7 @@
 import { describe, test, expect, vi } from 'vitest';
 import { render, waitFor, act } from '@testing-library/react';
 import React, { useRef, useEffect } from 'react';
-import RuleBuilder from '../RuleBuilder';
+import { RuleBuilder } from '../components/RuleBuilder';
 
 // Import sample JSON files
 import MATH_EXPRESSION from './fixtures/math-expression.json';

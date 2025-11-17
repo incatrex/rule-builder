@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import { useCallback } from 'react';
 import { useRuleHistory } from './useRuleHistory';
 import { RuleHistoryUI } from './RuleHistoryUI';
 
@@ -108,14 +109,14 @@ export const RuleHistory = ({
   scrollY,
 }) => {
   // Handle errors with notifications if enabled
-  const handleError = (error) => {
+  const handleError = useCallback((error) => {
     if (showNotifications) {
       message.error(error.message || 'An error occurred');
     }
     if (onError) {
       onError(error);
     }
-  };
+  }, [showNotifications, onError]);
 
   // Use the logic hook
   const {
@@ -131,14 +132,14 @@ export const RuleHistory = ({
   });
 
   // Handle view action
-  const handleView = (record) => {
+  const handleView = useCallback((record) => {
     if (onViewVersion) {
       onViewVersion(selectedRuleUuid, record.version);
     }
-  };
+  }, [onViewVersion, selectedRuleUuid]);
 
   // Handle restore with notification
-  const handleRestore = async (record) => {
+  const handleRestore = useCallback(async (record) => {
     try {
       await restoreVersion(record.version);
       
@@ -156,7 +157,7 @@ export const RuleHistory = ({
       // Error already handled by useRuleHistory hook
       throw error;
     }
-  };
+  }, [restoreVersion, showNotifications, messages, onRestoreComplete]);
 
   // Support legacy darkMode prop by converting to theme
   const effectiveTheme = theme || (darkMode ? {

@@ -88,7 +88,7 @@ const DraggableItem = ({ id, children, darkMode }) => {
  * - onRemove: Callback to remove this group
  * - depth: Nesting depth for styling
  */
-const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, depth = 0, isLoadedRule = false, isSimpleCondition = false }) => {
+const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, depth = 0, isLoadedRule = false, isSimpleCondition = false, forceExpanded = false }) => {
   const [groupData, setGroupData] = useState(value || {
     type: 'conditionGroup',
     returnType: 'boolean',
@@ -97,16 +97,9 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     conditions: []
   });
   const [editingName, setEditingName] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(!isLoadedRule || (isLoadedRule && isSimpleCondition)); // UI state only - start collapsed for loaded rules, except simple conditions
-
-  // Update expansion state when isLoadedRule changes
-  useEffect(() => {
-    if (isLoadedRule && !isSimpleCondition) {
-      setIsExpanded(false); // Collapse when rule is loaded, unless it's a simple condition
-    } else if (isLoadedRule && isSimpleCondition) {
-      setIsExpanded(true); // Keep expanded for simple condition structure
-    }
-  }, [isLoadedRule, isSimpleCondition]);
+  // Only use isLoadedRule for initial state, not continuous monitoring
+  // If forceExpanded is true, always start expanded regardless of isLoadedRule
+  const [isExpanded, setIsExpanded] = useState(forceExpanded || !isLoadedRule || (isLoadedRule && isSimpleCondition)); // UI state only - start collapsed for loaded rules, except simple conditions
 
   useEffect(() => {
     if (value) {
@@ -246,6 +239,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
               <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
               {editingName ? (
                 <Input
+                  data-testid={`conditionGroup-${depth}-name-input`}
                   size="small"
                   value={groupData.name || ''}
                   onChange={(e) => handleChange({ name: e.target.value })}
@@ -259,6 +253,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
                 <>
                   <Text code>{groupData.name || 'Unnamed Group'}</Text>
                   <EditOutlined 
+                    data-testid={`conditionGroup-${depth}-name-edit-icon`}
                     style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
                     onClick={(e) => {
                       e.stopPropagation();

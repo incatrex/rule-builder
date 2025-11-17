@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
-import Expression from "./Expression";
-import { createDirectExpression } from './utils/expressionUtils.jsx';
+import Expression, { createDirectExpression } from "./Expression";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -32,14 +31,8 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
     right: createDirectExpression('value', 'number', 0)
   });
   const [editingName, setEditingName] = useState(false);
+  // Only use isLoadedRule for initial state, not continuous monitoring
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
-
-  // Update expansion state when isLoadedRule changes
-  useEffect(() => {
-    if (isLoadedRule) {
-      setIsExpanded(false); // Collapse when rule is loaded
-    }
-  }, [isLoadedRule]);
 
   useEffect(() => {
     if (value) {
@@ -241,7 +234,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
                 />
               ) : (
                 <>
-                  <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
+                  <Text code style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
                     {conditionData.name || 'Unnamed Condition'}
                   </Text>
                   <EditOutlined 

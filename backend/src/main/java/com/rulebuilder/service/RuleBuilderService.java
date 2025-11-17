@@ -127,15 +127,27 @@ public class RuleBuilderService {
         scanDirectory(directory, directory, pattern, ruleMap);
 
         ArrayNode result = objectMapper.createArrayNode();
-        for (RuleInfo ruleInfo : ruleMap.values()) {
-            ObjectNode ruleNode = objectMapper.createObjectNode();
-            ruleNode.put("ruleId", ruleInfo.ruleId);
-            ruleNode.put("uuid", ruleInfo.uuid);
-            ruleNode.put("latestVersion", ruleInfo.version);
-            ruleNode.put("folderPath", ruleInfo.folderPath);
-            ruleNode.put("returnType", ruleInfo.returnType);
-            result.add(ruleNode);
-        }
+        
+        // Sort rules alphabetically by folderPath, then by ruleId
+        ruleMap.values().stream()
+            .sorted((r1, r2) -> {
+                // First compare by folder path
+                int folderCompare = r1.folderPath.compareToIgnoreCase(r2.folderPath);
+                if (folderCompare != 0) {
+                    return folderCompare;
+                }
+                // If same folder, compare by ruleId
+                return r1.ruleId.compareToIgnoreCase(r2.ruleId);
+            })
+            .forEach(ruleInfo -> {
+                ObjectNode ruleNode = objectMapper.createObjectNode();
+                ruleNode.put("ruleId", ruleInfo.ruleId);
+                ruleNode.put("uuid", ruleInfo.uuid);
+                ruleNode.put("latestVersion", ruleInfo.version);
+                ruleNode.put("folderPath", ruleInfo.folderPath);
+                ruleNode.put("returnType", ruleInfo.returnType);
+                result.add(ruleNode);
+            });
 
         return result;
     }

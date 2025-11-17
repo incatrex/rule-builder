@@ -8,16 +8,47 @@ A fully reusable, themeable rule builder component for creating and managing bus
 - **Version Management**: Track and manage multiple versions of rules
 - **Dependency Injection**: Use default services or inject your own
 - **Headless Architecture**: Separate logic (hook) from presentation (UI)
+- **Self-Contained Component**: All child components (Case, Condition, Expression, etc.) included
 - **Fully Themeable**: Customize appearance using CSS variables
 - **TypeScript Ready**: Well-documented props and methods
 - **Backward Compatible**: Drop-in replacement for original RuleBuilder
+
+## Component Structure
+
+The RuleBuilder package includes:
+
+**Main Components:**
+- `RuleBuilder.jsx` - Combined component (hook + UI + services)
+- `RuleBuilderUI.jsx` - Pure presentation component
+- `useRuleBuilder.js` - Custom hook containing all logic
+
+**Child Components (Internal):**
+- `Case.jsx` - Case expression builder
+- `Condition.jsx` - Individual condition component
+- `ConditionGroup.jsx` - Grouped conditions with AND/OR
+- `Expression.jsx` - Expression builder with `createDirectExpression` helper
+- `ExpressionGroup.jsx` - Multi-expression with operators
+- `RuleSelector.jsx` - Rule reference selector
+
+**Other Files:**
+- `Examples.jsx` - Usage examples
+- `RuleBuilder.css` - Component styles
+- `index.js` - Package exports
+
+## External Dependencies
+
+The component depends on two external services (not included in package):
+- `../../services/RuleService.js` - Rule CRUD operations
+- `../../services/ConfigService.js` - Configuration loading
+
+These must be provided by the consuming application or injected via props.
 
 ## Architecture
 
 The component is split into three parts:
 
 1. **`useRuleBuilder.js`** - Custom hook containing all logic
-2. **`RuleBuilderUI.jsx`** - Pure presentation component
+2. **`RuleBuilderUI.jsx`** - Pure presentation component  
 3. **`RuleBuilder.jsx`** - Combined component (hook + UI)
 
 This separation allows you to:
@@ -29,10 +60,14 @@ This separation allows you to:
 ## Installation
 
 ```jsx
-import RuleBuilder from './components/RuleBuilder/RuleBuilder';
-// or
-import { useRuleBuilder } from './components/RuleBuilder/useRuleBuilder';
-import { RuleBuilderUI } from './components/RuleBuilder/RuleBuilderUI';
+// Import main component
+import RuleBuilder from './components/RuleBuilder';
+
+// Or use individual parts
+import { RuleBuilder, useRuleBuilder, RuleBuilderUI, RuleBuilderExamples } from './components/RuleBuilder';
+
+// Note: Services must be available at ../../services/ or injected via props
+import { RuleService, ConfigService } from './services';
 ```
 
 ## Basic Usage
@@ -285,7 +320,7 @@ Multiple conditions with different results:
 
 ### Expression
 
-Single value, field, or mathematical expression:
+Single value, field, function call, or mathematical expression:
 
 ```json
 {
@@ -295,6 +330,24 @@ Single value, field, or mathematical expression:
     "type": "value",
     "returnType": "number",
     "value": 42
+  }
+}
+```
+
+Or a mathematical expression:
+
+```json
+{
+  "structure": "expression",
+  "returnType": "number",
+  "definition": {
+    "type": "expressionGroup",
+    "returnType": "number",
+    "expressions": [
+      { "type": "field", "returnType": "number", "field": "TABLE1.AMOUNT" },
+      { "type": "value", "returnType": "number", "value": 100 }
+    ],
+    "operators": ["+"]
   }
 }
 ```
@@ -375,10 +428,22 @@ const handleSaveSuccess = (result) => {
 ## Best Practices
 
 1. **Always provide a config**: The component needs operators, fields, and functions to work
-2. **Use refs for imperative actions**: Don't try to control the component via props
-3. **Handle onSaveSuccess**: Refresh your rule list or navigate after save
-4. **Validate before save**: The component will warn if metadata.id is missing
-5. **Theme consistently**: Use CSS variables instead of inline styles when possible
+2. **Provide external services**: Ensure RuleService and ConfigService are available or injected
+3. **Use refs for imperative actions**: Don't try to control the component via props
+4. **Handle onSaveSuccess**: Refresh your rule list or navigate after save
+5. **Validate before save**: The component will warn if metadata.id is missing
+6. **Theme consistently**: Use CSS variables instead of inline styles when possible
+
+## Packaging for Reuse
+
+To use this component in another project:
+
+1. **Copy the entire `/components/RuleBuilder/` directory**
+2. **Ensure services are available**: The component imports from `../../services/`
+   - Provide RuleService and ConfigService at that path, OR
+   - Inject them via props: `ruleService={myService}` and `configService={myConfig}`
+3. **Import the component**: `import RuleBuilder from './components/RuleBuilder'`
+4. **Styles**: Make sure to import or bundle `RuleBuilder.css`
 
 ## Troubleshooting
 

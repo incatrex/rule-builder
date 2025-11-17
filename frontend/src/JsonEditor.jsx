@@ -260,6 +260,7 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
 
       {/* Use textarea for both editing and viewing modes */}
       <textarea
+        data-testid="json-editor-textarea"
         value={isEditing ? jsonText : displayText}
         onChange={isEditing ? handleJsonChange : undefined}
         readOnly={!isEditing}

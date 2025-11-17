@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Select, message } from 'antd';
-import { RuleService } from './services/RuleService.js';
+import { RuleService } from '../../services/RuleService.js';
 
 /**
  * RuleSelector Component

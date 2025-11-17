@@ -35,7 +35,7 @@ export const RuleHistoryUI = ({
   // Customization
   messages = {
     noRuleSelected: 'Select a rule to view its version history',
-    title: 'Version History',
+    title: 'Rule History',
     confirmRestore: (ruleId, version) => 
       `Are you sure you want to restore ${ruleId} version ${version}? This will create a new version with the content from version ${version}.`,
     restoreSuccess: (version) => `Version ${version} restored successfully`,
@@ -103,6 +103,7 @@ export const RuleHistoryUI = ({
             size="small" 
             onClick={() => onView(record)}
             className={classNames.viewButton}
+            data-testid={`rule-history-view-v${record.version}`}
           >
             View
           </Button>
@@ -111,6 +112,7 @@ export const RuleHistoryUI = ({
               size="small" 
               onClick={() => handleRestore(record)}
               className={classNames.restoreButton}
+              data-testid={`rule-history-restore-v${record.version}`}
             >
               Restore
             </Button>
