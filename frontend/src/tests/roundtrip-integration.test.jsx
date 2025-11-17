@@ -44,7 +44,7 @@ const mockConfig = {
       }
     }
   },
-  funcs: {
+  functions: {
     MATH: {
       type: '!struct',
       label: 'Math Functions',
@@ -131,11 +131,46 @@ const mockConfig = {
       }
     }
   },
-  operators: {
-    number: ['==', '!=', '<', '>', '<=', '>='],
-    text: ['==', '!=', 'like', 'not_like', 'starts_with', 'ends_with'],
-    date: ['==', '!=', '<', '>', '<=', '>='],
-    boolean: ['==', '!=']
+  conditionOperators: {
+    equal: { label: "Equals" },
+    not_equal: { label: "Not Equals" },
+    less_than: { label: "Less Than" },
+    greater_than: { label: "Greater Than" },
+    less_than_or_equal: { label: "Less Than or Equal" },
+    greater_than_or_equal: { label: "Greater Than or Equal" },
+    like: { label: "Contains" },
+    not_like: { label: "Does Not Contain" },
+    starts_with: { label: "Starts With" },
+    ends_with: { label: "Ends With" }
+  },
+  types: {
+    number: {
+      defaultConditionOperator: "equal",
+      validConditionOperators: ["equal", "not_equal", "less_than", "greater_than", "less_than_or_equal", "greater_than_or_equal"],
+      validExpressionOperators: ["add", "subtract", "multiply", "divide"]
+    },
+    text: {
+      defaultConditionOperator: "equal",
+      validConditionOperators: ["equal", "not_equal", "like", "not_like", "starts_with", "ends_with"],
+      validExpressionOperators: ["concat"]
+    },
+    date: {
+      defaultConditionOperator: "equal",
+      validConditionOperators: ["equal", "not_equal", "less_than", "greater_than", "less_than_or_equal", "greater_than_or_equal"],
+      validExpressionOperators: ["add", "subtract"]
+    },
+    boolean: {
+      defaultConditionOperator: "equal",
+      validConditionOperators: ["equal", "not_equal"],
+      validExpressionOperators: []
+    }
+  },
+  expressionOperators: {
+    add: { symbol: "+", label: "Add" },
+    subtract: { symbol: "-", label: "Subtract" },
+    multiply: { symbol: "*", label: "Multiply" },
+    divide: { symbol: "/", label: "Divide" },
+    concat: { symbol: "&", label: "Concatenate" }
   }
 };
 

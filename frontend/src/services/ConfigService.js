@@ -10,7 +10,7 @@ class ConfigService {
 
   /**
    * Get application configuration
-   * @returns {Object} - Configuration object with operators, types, funcs
+   * @returns {Object} - Configuration object with operators, types, functions
    */
   async getConfig() {
     const response = await this.http.get('/config');

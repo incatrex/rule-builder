@@ -35,13 +35,14 @@ const { Text } = Typography;
  * Props:
  * - value: Current expression group object
  * - onChange: Callback when expression group changes
- * - config: Config with operators, fields, funcs
+ * - config: Config with operators, fields, functions
  * - expectedType: Expected return type for filtering (text, number, date, boolean)
  * - darkMode: Dark mode styling
  * - compact: Compact mode
  */
 const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, argDef: propArgDef = null }) => {
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
+  const [operatorDropdownStates, setOperatorDropdownStates] = useState({});
   
   // Update expansion state when isLoadedRule changes
   useEffect(() => {
@@ -343,7 +344,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           
           // Determine operator options based on expression type
           const firstType = getExpressionReturnType(groupData.expressions[0]);
-          const operatorOptions = getOperatorOptions(firstType);
+          const operatorOptions = getOperatorOptions(firstType, config);
+          const isOperatorDropdownOpen = operatorDropdownStates[index] || false;
           
           return (
             <div key={actualIndex} style={{ paddingLeft: '16px' }}>
@@ -353,17 +355,24 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                   value={groupData.operators?.[index] || '+'}
                   onChange={(op) => updateOperator(index, op)}
                   style={{ 
-                    width: '50px', 
-                    minWidth: '50px'
+                    width: isOperatorDropdownOpen ? '140px' : '50px', 
+                    minWidth: '50px',
+                    transition: 'width 0.2s'
                   }}
                   size="small"
                   options={operatorOptions}
+                  onDropdownVisibleChange={(open) => {
+                    setOperatorDropdownStates(prev => ({ ...prev, [index]: open }));
+                  }}
                   labelRender={(props) => {
-                    // When closed, show only the operator symbol (extract from value like "+ (Add)" -> "+")
-                    const operatorSymbol = props.value ? props.value.split(' ')[0] : '+';
-                    return (
+                    // When closed, show only the operator symbol
+                    // When open, show full label
+                    const option = operatorOptions.find(opt => opt.value === props.value);
+                    return isOperatorDropdownOpen ? (
+                      <span>{option?.label || props.value}</span>
+                    ) : (
                       <span style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                        {operatorSymbol}
+                        {props.value}
                       </span>
                     );
                   }}
@@ -435,34 +444,31 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
   );
 };
 
-// Helper function to get available operators based on return type
-const getOperatorOptions = (returnType) => {
-  switch (returnType) {
-    case 'text':
-      return [
-        { value: '+', label: '+ (Concatenate)' },
-        { value: '&', label: '& (Join)' }
-      ];
-    case 'number':
-      return [
-        { value: '+', label: '+ (Add)' },
-        { value: '-', label: '- (Subtract)' },
-        { value: '*', label: '* (Multiply)' },
-        { value: '/', label: '/ (Divide)' }
-      ];
-    case 'date':
-      return [
-        { value: '+', label: '+ (Add Days)' },
-        { value: '-', label: '- (Subtract Days)' }
-      ];
-    case 'boolean':
-      return [
-        { value: '&', label: '& (AND)' },
-        { value: '|', label: '| (OR)' }
-      ];
-    default:
-      return [{ value: '+', label: '+' }];
+// Helper function to get available operators based on return type from config
+const getOperatorOptions = (returnType, config) => {
+  // Operators must come from config.expressionOperators filtered by validExpressionOperators
+  if (!config?.expressionOperators) {
+    console.error(`No expressionOperators found in config`);
+    return [];
   }
+  
+  // Check if the type has validExpressionOperators defined
+  if (!config?.types?.[returnType]?.validExpressionOperators) {
+    console.error(`No validExpressionOperators found for type: ${returnType}`);
+    return [];
+  }
+  
+  const validOps = config.types[returnType].validExpressionOperators;
+  
+  return validOps
+    .filter(key => config.expressionOperators[key]) // Make sure operator exists
+    .map(key => {
+      const op = config.expressionOperators[key];
+      return {
+        value: op.symbol,
+        label: `${op.symbol} (${op.label})`
+      };
+    });
 };
 
 // Helper functions
@@ -512,11 +518,11 @@ const getFieldDefinition = (fieldPath, fields) => {
   return null;
 };
 
-const getFunctionDefinition = (funcPath, funcs) => {
-  if (!funcs || !funcPath) return null;
+const getFunctionDefinition = (funcPath, functions) => {
+  if (!functions || !funcPath) return null;
   
   const parts = funcPath.split('.');
-  let current = funcs;
+  let current = functions;
   
   for (const part of parts) {
     if (current[part]) {

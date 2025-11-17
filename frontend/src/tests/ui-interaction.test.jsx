@@ -28,7 +28,7 @@ const mockConfig = {
       }
     }
   },
-  funcs: {
+  functions: {
     MATH: {
       type: '!struct',
       label: 'Math Functions',
@@ -65,6 +65,18 @@ const mockConfig = {
           }
         }
       }
+    }
+  },
+  expressionOperators: {
+    number: {
+      add: { symbol: "+", label: "Add" },
+      subtract: { symbol: "-", label: "Subtract" },
+      multiply: { symbol: "*", label: "Multiply" },
+      divide: { symbol: "/", label: "Divide" }
+    },
+    text: {
+      concat: { symbol: "+", label: "Concatenate" },
+      join: { symbol: "&", label: "Join" }
     }
   }
 };
