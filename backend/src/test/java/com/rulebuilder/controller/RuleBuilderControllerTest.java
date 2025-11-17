@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rulebuilder.service.RuleBuilderService;
+import com.rulebuilder.service.SchemaConfigService;
 import com.rulebuilder.util.OracleSqlGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,9 @@ public class RuleBuilderControllerTest {
 
     @Mock
     private RuleBuilderService ruleBuilderService;
+
+    @Mock
+    private SchemaConfigService schemaConfigService;
 
     @Mock
     private OracleSqlGenerator sqlGenerator;
@@ -266,7 +270,7 @@ public class RuleBuilderControllerTest {
     void testGetConfig_Success() throws Exception {
         // Arrange
         JsonNode config = objectMapper.createObjectNode().put("setting", "value");
-        when(ruleBuilderService.getConfig()).thenReturn(config);
+        when(schemaConfigService.getConfig()).thenReturn(config);
 
         // Act
         ResponseEntity<JsonNode> response = controller.getConfig();
@@ -274,7 +278,7 @@ public class RuleBuilderControllerTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(config, response.getBody());
-        verify(ruleBuilderService).getConfig();
+        verify(schemaConfigService).getConfig();
     }
 
     @Test
