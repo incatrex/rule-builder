@@ -24,7 +24,7 @@ const { TextArea } = Input;
  *   <case> | <conditionGroup> | <expression>
  * 
  * Props:
- * - config: Config with operators, fields, funcs
+ * - config: Config with operators, fields, functions
  * - darkMode: Dark mode styling
  * - onRuleChange: Callback when rule changes
  * - selectedRuleUuid: UUID of currently selected rule

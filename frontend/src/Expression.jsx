@@ -34,7 +34,7 @@ const { Text } = Typography;
  * Props:
  * - value: Current expression object
  * - onChange: Callback when expression changes
- * - config: Config with operators, fields, funcs
+ * - config: Config with operators, fields, functions
  * - expectedType: Expected return type for filtering (text, number, date, boolean)
  * - darkMode: Dark mode styling
  * - compact: Compact mode
@@ -255,12 +255,12 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   };
 
   // Build tree data from hierarchical functions (same structure as fields)
-  const buildFuncTreeData = (funcsObj, parentKey = '') => {
-    if (!funcsObj) return [];
+  const buildFuncTreeData = (functionsObj, parentKey = '') => {
+    if (!functionsObj) return [];
     
     const treeData = [];
-    Object.keys(funcsObj).forEach(key => {
-      const func = funcsObj[key];
+    Object.keys(functionsObj).forEach(key => {
+      const func = functionsObj[key];
       const fullKey = parentKey ? `${parentKey}.${key}` : key;
       
       if (func.type === '!struct' && func.subfields) {
@@ -292,10 +292,10 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
 
   // Get function definition by path
   const getFuncDef = (funcPath) => {
-    if (!funcPath || !config?.funcs) return null;
+    if (!funcPath || !config?.functions) return null;
     
     const parts = funcPath.split('.');
-    let current = config.funcs;
+    let current = config.functions;
     
     for (const part of parts) {
       if (!current[part]) return null;
@@ -543,7 +543,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   };
 
   const renderFunctionBuilder = () => {
-    const funcTreeData = buildFuncTreeData(config?.funcs || {});
+    const funcTreeData = buildFuncTreeData(config?.functions || {});
     const funcDef = getFuncDef(expressionData.function?.name);
     
     // Render collapsed view when not expanded and function has args

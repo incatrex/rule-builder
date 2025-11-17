@@ -256,7 +256,7 @@ Edit `backend/src/main/resources/static/fields.json` to add or modify field defi
 
 ### Adding New Functions
 
-Edit `backend/src/main/resources/static/config.json` and add function definitions in the `funcs` section.
+Edit `backend/src/main/resources/static/config.json` and add function definitions in the `functions` section.
 
 ### Modifying Operators
 
