@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Layout, ConfigProvider, theme, Switch, Space, Spin, message, Button, Tabs } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { ConfigService } from './services/ConfigService.js';
@@ -149,10 +149,15 @@ const App = () => {
   };
 
   const handleRuleSelect = (ruleData, uuid) => {
-    setSelectedRuleUuid(uuid);
-    if (ruleBuilderRef.current) {
-      ruleBuilderRef.current.loadRuleData(ruleData);
-    }
+    // Clear UUID first to ensure useEffect triggers even if selecting the same rule
+    setSelectedRuleUuid(null);
+    // Use setTimeout to ensure state update happens in next render cycle
+    setTimeout(() => {
+      setSelectedRuleUuid(uuid);
+      if (ruleBuilderRef.current) {
+        ruleBuilderRef.current.loadRuleData(ruleData);
+      }
+    }, 0);
   };
 
   const handleViewVersion = async (uuid, version) => {
@@ -206,6 +211,17 @@ const App = () => {
       }
     }
   };
+
+  // Stable callbacks for RuleHistory to prevent unnecessary re-renders
+  const handleFetchHistory = useCallback(
+    (uuid) => ruleService.getRuleHistory(uuid),
+    []
+  );
+
+  const handleRestoreVersion = useCallback(
+    (uuid, version) => ruleService.restoreRuleVersion(uuid, version),
+    []
+  );
 
   const handleNewRule = () => {
     setSelectedRuleUuid(null);
@@ -346,8 +362,8 @@ const App = () => {
               }}>
                 <RuleHistory
                   selectedRuleUuid={selectedRuleUuid}
-                  onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
-                  onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
+                  onFetchHistory={handleFetchHistory}
+                  onRestoreVersion={handleRestoreVersion}
                   onViewVersion={handleViewVersion}
                   onRestoreComplete={handleRestoreComplete}
                   darkMode={darkMode}
@@ -358,7 +374,16 @@ const App = () => {
                   darkMode={darkMode}
                   selectedRuleUuid={selectedRuleUuid}
                   onRuleChange={(data) => setRuleBuilderData(data)}
-                  onSaveSuccess={() => {
+                  onSaveSuccess={(result) => {
+                    // Update selected UUID if it's a new rule
+                    if (result && result.uuid && !selectedRuleUuid) {
+                      setSelectedRuleUuid(result.uuid);
+                    } else if (selectedRuleUuid) {
+                      // For existing rules, force history refresh by clearing and resetting UUID
+                      setSelectedRuleUuid(null);
+                      setTimeout(() => setSelectedRuleUuid(result.uuid), 0);
+                    }
+                    
                     // Refresh the rule search dropdown after successful save
                     if (ruleSearchRef.current) {
                       ruleSearchRef.current.refresh();

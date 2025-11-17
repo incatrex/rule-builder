@@ -81,6 +81,7 @@ export const RuleBuilderUI = ({
                   Rule ID:
                 </Text>
                 <Input
+                  data-testid="rule-id-input"
                   value={ruleData.metadata.id}
                   onChange={(e) => onMetadataChange({ 
                     ...ruleData.metadata, 
@@ -103,6 +104,7 @@ export const RuleBuilderUI = ({
                   Rule Type:
                 </Text>
                 <Select
+                  data-testid="rule-type-select"
                   value={ruleData.ruleType}
                   onChange={onRuleTypeChange}
                   style={{ width: '100%' }}
@@ -142,6 +144,7 @@ export const RuleBuilderUI = ({
               
               <div style={{ marginTop: '32px' }}>
                 <Button 
+                  data-testid="rule-save-button"
                   type="primary"
                   icon={<SaveOutlined />}
                   onClick={onSave}
@@ -219,7 +222,7 @@ export const RuleBuilderUI = ({
                     },
                     { 
                       value: 'expression', 
-                      label: 'Mathematical Expression - Single value, field, or function' 
+                      label: 'Expression - Single value, field, or function' 
                     }
                   ]}
                 />

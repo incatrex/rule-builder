@@ -155,6 +155,7 @@ const RuleSearch = forwardRef(({ onRuleSelect, onNewRule, darkMode = false, onCo
           
           <Space.Compact style={{ width: '100%' }}>
             <Select
+              data-testid="rule-search-select"
               showSearch
               placeholder="Search rules..."
               value={selectedRuleKey}
@@ -169,6 +170,7 @@ const RuleSearch = forwardRef(({ onRuleSelect, onNewRule, darkMode = false, onCo
               options={ruleList}
             />
             <Button 
+              data-testid="rule-search-refresh-button"
               icon={<SearchOutlined />}
               onClick={handleRefresh}
               size="small"

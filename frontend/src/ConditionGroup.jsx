@@ -246,6 +246,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
               <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
               {editingName ? (
                 <Input
+                  data-testid={`conditionGroup-${depth}-name-input`}
                   size="small"
                   value={groupData.name || ''}
                   onChange={(e) => handleChange({ name: e.target.value })}
@@ -259,6 +260,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
                 <>
                   <Text code>{groupData.name || 'Unnamed Group'}</Text>
                   <EditOutlined 
+                    data-testid={`conditionGroup-${depth}-name-edit-icon`}
                     style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
                     onClick={(e) => {
                       e.stopPropagation();

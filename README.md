@@ -27,8 +27,7 @@ rule-builder/
 │   │   │       ├── application.properties         # Configuration
 │   │   │       └── static/
 │   │   │           ├── fields.json                # Field definitions
-│   │   │           ├── schemas/                   # JSON schemas
-│   │   │           │   └── rule-schema-current.json
+│   │   │           ├── config.json                # Query builder config
 │   │   │           └── rules/                     # Saved rules
 │   │   └── test/                                  # Backend tests
 │   └── pom.xml                                    # Maven dependencies
@@ -257,11 +256,11 @@ Edit `backend/src/main/resources/static/fields.json` to add or modify field defi
 
 ### Adding New Functions
 
-Edit `backend/src/main/resources/static/schemas/rule-schema-current.json` and add function definitions in the `definitions.Functions` section with corresponding `x-ui-*` extensions for UI configuration.
+Edit `backend/src/main/resources/static/config.json` and add function definitions in the `funcs` section.
 
 ### Modifying Operators
 
-Edit `backend/src/main/resources/static/schemas/rule-schema-current.json` and modify the operator definitions with their `x-ui-*` extensions. The schema serves as the single source of truth for both validation and UI configuration.
+Edit `backend/src/main/resources/static/config.json` and modify the `operators` section.
 
 ## Troubleshooting
 

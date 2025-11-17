@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 /**
  * Custom hook for RuleHistory logic
@@ -15,23 +15,26 @@ export const useRuleHistory = ({
   selectedRuleUuid,
   onFetchHistory,
   onRestoreVersion,
-  onError = console.error,
+  onError,
 }) => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (selectedRuleUuid) {
-      fetchHistory();
+  // Stable error handler
+  const handleError = useCallback((err) => {
+    if (onError) {
+      onError(err);
     } else {
-      setHistory([]);
-      setError(null);
+      console.error(err);
     }
-  }, [selectedRuleUuid]);
+  }, [onError]);
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
+    console.log('[useRuleHistory] fetchHistory called for UUID:', selectedRuleUuid);
+    
     if (!onFetchHistory) {
+      console.error('[useRuleHistory] No onFetchHistory callback provided!');
       setError(new Error('onFetchHistory callback is required'));
       return;
     }
@@ -40,22 +43,36 @@ export const useRuleHistory = ({
     setError(null);
     
     try {
+      console.log('[useRuleHistory] Calling onFetchHistory...');
       const historyData = await onFetchHistory(selectedRuleUuid);
+      console.log('[useRuleHistory] Received history data:', historyData);
       setHistory(historyData || []);
     } catch (err) {
-      console.error('Error loading rule history:', err);
+      console.error('[useRuleHistory] Error loading rule history:', err);
       setError(err);
-      onError(err);
+      handleError(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedRuleUuid, onFetchHistory, handleError]);
+
+  useEffect(() => {
+    console.log('[useRuleHistory] useEffect triggered:', { selectedRuleUuid, hasCallback: !!onFetchHistory });
+    if (selectedRuleUuid) {
+      console.log('[useRuleHistory] Calling fetchHistory for UUID:', selectedRuleUuid);
+      fetchHistory();
+    } else {
+      console.log('[useRuleHistory] No UUID selected, clearing history');
+      setHistory([]);
+      setError(null);
+    }
+  }, [selectedRuleUuid, fetchHistory]);
 
   const restoreVersion = async (version) => {
     if (!onRestoreVersion) {
       const err = new Error('onRestoreVersion callback is required');
       setError(err);
-      onError(err);
+      handleError(err);
       return Promise.reject(err);
     }
 
@@ -66,7 +83,7 @@ export const useRuleHistory = ({
     } catch (err) {
       console.error('Error restoring version:', err);
       setError(err);
-      onError(err);
+      handleError(err);
       throw err;
     }
   };
