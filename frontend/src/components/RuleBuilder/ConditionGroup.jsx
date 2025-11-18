@@ -88,7 +88,7 @@ const DraggableItem = ({ id, children, darkMode }) => {
  * - onRemove: Callback to remove this group
  * - depth: Nesting depth for styling
  */
-const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, depth = 0, isLoadedRule = false, isSimpleCondition = false, forceExpanded = false }) => {
+const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, depth = 0, isLoadedRule = false, isSimpleCondition = false, compact = false }) => {
   const [groupData, setGroupData] = useState(value || {
     type: 'conditionGroup',
     returnType: 'boolean',
@@ -98,8 +98,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
   });
   const [editingName, setEditingName] = useState(false);
   // Only use isLoadedRule for initial state, not continuous monitoring
-  // If forceExpanded is true, always start expanded regardless of isLoadedRule
-  const [isExpanded, setIsExpanded] = useState(forceExpanded || !isLoadedRule || (isLoadedRule && isSimpleCondition)); // UI state only - start collapsed for loaded rules, except simple conditions
+  const [isExpanded, setIsExpanded] = useState(!isLoadedRule || (isLoadedRule && isSimpleCondition)); // UI state only - start collapsed for loaded rules, except simple conditions
 
   useEffect(() => {
     if (value) {
@@ -220,6 +219,140 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
   
   const backgroundColor = backgroundColors[Math.min(depth, backgroundColors.length - 1)];
 
+  // Main content that will be rendered either wrapped in Collapse or standalone
+  const groupContent = (
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+      {/* Group Controls - NOT and Conjunction */}
+      <Space wrap>
+        {/* NOT Toggle */}
+        <Switch
+          checked={groupData.not || false}
+          onChange={(not) => handleChange({ not })}
+          checkedChildren="NOT"
+          unCheckedChildren="NOT"
+          size="small"
+        />
+        
+        <Text strong style={{ marginLeft: '8px', marginRight: '4px', color: darkMode ? '#e0e0e0' : 'inherit' }}>
+          Conjunction:
+        </Text>
+        
+        {/* Conjunction Selector */}
+        <Select
+          value={groupData.conjunction}
+          onChange={(conj) => handleChange({ conjunction: conj })}
+          style={{ width: 80 }}
+          size="small"
+          options={[
+            { value: 'AND', label: 'AND' },
+            { value: 'OR', label: 'OR' }
+          ]}
+        />
+      </Space>
+
+      {/* Conditions - with drag-and-drop */}
+      {groupData.conditions && groupData.conditions.length > 0 ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={(groupData.conditions || []).map((c, idx) => String(idx))}
+            strategy={verticalListSortingStrategy}
+          >
+            <Space direction="vertical" size="small" style={{ width: '100%' }}>
+              {(groupData.conditions || []).map((child, index) => {
+                return (
+                  <div key={index}>
+                    {/* Show conjunction between children (except before first child) */}
+                    {index > 0 && (
+                      <div style={{ 
+                        textAlign: 'left', 
+                        margin: '4px 0 8px 0',
+                        paddingLeft: '8px',
+                        color: '#1890ff',
+                        fontWeight: 'bold'
+                      }}>
+                        {groupData.conjunction}
+                      </div>
+                    )}
+                    
+                    <DraggableItem id={String(index)} darkMode={darkMode}>
+                      {/* Render Condition or Nested Group */}
+                      {child.type === 'condition' ? (
+                        <Condition
+                          value={child}
+                          onChange={(newValue) => updateChild(index, newValue)}
+                          config={config}
+                          darkMode={darkMode}
+                          onRemove={() => removeChild(index)}
+                          isLoadedRule={isLoadedRule}
+                        />
+                      ) : (
+                        <ConditionGroup
+                          value={child}
+                          onChange={(newValue) => updateChild(index, newValue)}
+                          config={config}
+                          darkMode={darkMode}
+                          onRemove={() => removeChild(index)}
+                          depth={depth + 1}
+                          isLoadedRule={isLoadedRule}
+                        />
+                      )}
+                    </DraggableItem>
+                  </div>
+                );
+              })}
+            </Space>
+          </SortableContext>
+        </DndContext>
+      ) : (
+        <Text 
+          type="secondary" 
+          style={{ 
+            display: 'block', 
+            textAlign: 'center',
+            padding: '16px',
+            color: darkMode ? '#888888' : '#999999'
+          }}
+        >
+          No conditions yet. Add a condition or group below.
+        </Text>
+      )}
+
+      {/* Add Buttons */}
+      <Space wrap style={{ marginTop: groupData.conditions && groupData.conditions.length > 0 ? '8px' : '0' }}>
+        <Button
+          type="primary"
+          size="small"
+          icon={<PlusOutlined />}
+          onClick={addCondition}
+        >
+          Add Condition
+        </Button>
+        
+        <Button
+          size="small"
+          icon={<PlusOutlined />}
+          onClick={addConditionGroup}
+        >
+          Add Group
+        </Button>
+      </Space>
+    </Space>
+  );
+
+  // Compact mode: render without Collapse wrapper
+  if (compact) {
+    return (
+      <div style={{ width: '100%' }}>
+        {groupContent}
+      </div>
+    );
+  }
+
+  // Normal mode: render with Collapse wrapper and header
   return (
     <Collapse
       activeKey={isExpanded ? ['group'] : []}
@@ -277,126 +410,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
           ) : null
         }
       >
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          {/* Group Controls - NOT and Conjunction */}
-          <Space wrap>
-            {/* NOT Toggle */}
-            <Switch
-              checked={groupData.not || false}
-              onChange={(not) => handleChange({ not })}
-              checkedChildren="NOT"
-              unCheckedChildren="NOT"
-              size="small"
-            />
-            
-            <Text strong style={{ marginLeft: '8px', marginRight: '4px', color: darkMode ? '#e0e0e0' : 'inherit' }}>
-              Conjunction:
-            </Text>
-            
-            {/* Conjunction Selector */}
-            <Select
-              value={groupData.conjunction}
-              onChange={(conj) => handleChange({ conjunction: conj })}
-              style={{ width: 80 }}
-              size="small"
-              options={[
-                { value: 'AND', label: 'AND' },
-                { value: 'OR', label: 'OR' }
-              ]}
-            />
-          </Space>
-
-          {/* Conditions - with drag-and-drop */}
-          {groupData.conditions && groupData.conditions.length > 0 ? (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={(groupData.conditions || []).map((c, idx) => String(idx))}
-                strategy={verticalListSortingStrategy}
-              >
-                <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                  {(groupData.conditions || []).map((child, index) => {
-                    return (
-                      <div key={index}>
-                        {/* Show conjunction between children (except before first child) */}
-                        {index > 0 && (
-                          <div style={{ 
-                            textAlign: 'left', 
-                            margin: '4px 0 8px 0',
-                            paddingLeft: '8px',
-                            color: '#1890ff',
-                            fontWeight: 'bold'
-                          }}>
-                            {groupData.conjunction}
-                          </div>
-                        )}
-                        
-                        <DraggableItem id={String(index)} darkMode={darkMode}>
-                          {/* Render Condition or Nested Group */}
-                          {child.type === 'condition' ? (
-                            <Condition
-                              value={child}
-                              onChange={(newValue) => updateChild(index, newValue)}
-                              config={config}
-                              darkMode={darkMode}
-                              onRemove={() => removeChild(index)}
-                              isLoadedRule={isLoadedRule}
-                            />
-                          ) : (
-                            <ConditionGroup
-                              value={child}
-                              onChange={(newValue) => updateChild(index, newValue)}
-                              config={config}
-                              darkMode={darkMode}
-                              onRemove={() => removeChild(index)}
-                              depth={depth + 1}
-                              isLoadedRule={isLoadedRule}
-                            />
-                          )}
-                        </DraggableItem>
-                      </div>
-                    );
-                  })}
-                </Space>
-              </SortableContext>
-            </DndContext>
-          ) : (
-            <Text 
-              type="secondary" 
-              style={{ 
-                display: 'block', 
-                textAlign: 'center',
-                padding: '16px',
-                color: darkMode ? '#888888' : '#999999'
-              }}
-            >
-              No conditions yet. Add a condition or group below.
-            </Text>
-          )}
-
-          {/* Add Buttons */}
-          <Space wrap style={{ marginTop: groupData.conditions && groupData.conditions.length > 0 ? '8px' : '0' }}>
-            <Button
-              type="primary"
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={addCondition}
-            >
-              Add Condition
-            </Button>
-            
-            <Button
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={addConditionGroup}
-            >
-              Add Group
-            </Button>
-          </Space>
-        </Space>
+        {groupContent}
       </Panel>
     </Collapse>
   );
