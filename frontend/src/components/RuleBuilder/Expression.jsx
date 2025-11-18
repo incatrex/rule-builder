@@ -348,8 +348,15 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   };
 
   const renderSourceSelector = () => {
-    // Read available sources from config or use defaults
-    const availableSources = config?.settings?.defaultValueSources || ['value', 'field', 'function', 'ruleRef'];
+    // Priority order for determining available sources:
+    // 1. allowedSources prop (explicit override)
+    // 2. propArgDef.valueSources (from function argument definition)
+    // 3. config.settings.defaultValueSources (global default)
+    // 4. hardcoded default
+    const availableSources = allowedSources || 
+                           propArgDef?.valueSources || 
+                           config?.settings?.defaultValueSources || 
+                           ['value', 'field', 'function', 'ruleRef'];
     
     const sourceIconMap = {
       'value': <NumberOutlined />,
@@ -370,6 +377,28 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       value: src,
       icon: sourceIconMap[src]
     }));
+    
+    // If there's only one source available, show just the icon (no dropdown)
+    if (availableSources.length === 1) {
+      const singleSource = availableSources[0];
+      const icon = sourceIconMap[singleSource];
+      return (
+        <span 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            width: '32px',
+            height: '24px',
+            fontSize: '14px',
+            color: 'rgba(0, 0, 0, 0.45)'
+          }}
+          title={sourceLabelMap[singleSource]}
+        >
+          {icon}
+        </span>
+      );
+    }
     
     return (
       <Select
@@ -674,7 +703,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
               <Space direction="vertical" style={{ width: '100%' }} size="middle">
                 {expressionData.function.args.map((arg, index) => {
                     const isDynamicArgs = funcDef?.dynamicArgs;
-                    const argDef = isDynamicArgs ? null : funcDef.args[arg.name];
+                    const argDef = isDynamicArgs ? (funcDef.dynamicArgs || funcDef.argSpec) : funcDef.args[arg.name];
                     const expectedArgType = isDynamicArgs ? (funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType) : argDef?.type;
                     
                     return (

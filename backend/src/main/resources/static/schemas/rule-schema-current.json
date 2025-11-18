@@ -493,6 +493,15 @@
               ],
               "description": "Function name in category.function format",
               "x-ui-functions": {
+                "AGGREGATION.COUNT": {
+                  "label": "COUNT",
+                  "category": "AGGREGATION",
+                  "returnType": "number",
+                  "args": [
+                    {"name": "attribute", "label": "Attribute", "type": "text", "required": true, "defaultValue": 0, "valueSources": ["field"]},
+                    {"name": "groupBy", "label": "Group By", "type": "text", "required": false, "defaultValue": 0, "valueSources": ["field"]}
+                  ]
+                },
                 "MATH.ADD": {
                   "label": "ADD",
                   "category": "MATH",
