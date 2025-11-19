@@ -49,7 +49,24 @@ code {
 }
 
 .compact-tree-select .ant-select-tree .ant-select-tree-node-content-wrapper {
-  padding-left: 4px !important;
+  padding: 2px 4px !important;
+}
+
+/* Multiselect wrapping tags */
+.multiselect-wrap-tags .ant-select-selector {
+  height: auto !important;
+  min-height: 32px !important;
+  padding: 2px 4px !important;
+}
+
+.multiselect-wrap-tags .ant-select-selection-overflow {
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+}
+
+.multiselect-wrap-tags .ant-select-selection-overflow-item {
+  flex: 0 0 auto !important;
+  max-width: 100% !important;
 }
 
 .compact-tree-select .ant-select-tree .ant-select-tree-switcher {

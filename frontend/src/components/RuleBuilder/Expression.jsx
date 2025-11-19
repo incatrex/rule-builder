@@ -348,8 +348,15 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   };
 
   const renderSourceSelector = () => {
-    // Read available sources from config or use defaults
-    const availableSources = config?.settings?.defaultValueSources || ['value', 'field', 'function', 'ruleRef'];
+    // Priority order for determining available sources:
+    // 1. allowedSources prop (explicit override)
+    // 2. propArgDef.valueSources (from function argument definition)
+    // 3. config.settings.defaultValueSources (global default)
+    // 4. hardcoded default
+    const availableSources = allowedSources || 
+                           propArgDef?.valueSources || 
+                           config?.settings?.defaultValueSources || 
+                           ['value', 'field', 'function', 'ruleRef'];
     
     const sourceIconMap = {
       'value': <NumberOutlined />,
@@ -370,6 +377,28 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       value: src,
       icon: sourceIconMap[src]
     }));
+    
+    // If there's only one source available, show just the icon (no dropdown)
+    if (availableSources.length === 1) {
+      const singleSource = availableSources[0];
+      const icon = sourceIconMap[singleSource];
+      return (
+        <span 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            width: '32px',
+            height: '24px',
+            fontSize: '14px',
+            color: 'rgba(0, 0, 0, 0.45)'
+          }}
+          title={sourceLabelMap[singleSource]}
+        >
+          {icon}
+        </span>
+      );
+    }
     
     return (
       <Select
@@ -476,6 +505,83 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   const renderFieldSelector = () => {
     const fieldTreeData = buildFieldTreeData(config?.fields || {});
     
+    // Check if this should be a multiselect field picker
+    const isMultiselect = propArgDef?.widget === 'multiselect';
+    
+    console.log('🔍 renderFieldSelector DEBUG:');
+    console.log('  propArgDef:', JSON.stringify(propArgDef, null, 2));
+    console.log('  widget:', propArgDef?.widget);
+    console.log('  isMultiselect:', isMultiselect);
+    console.log('  expressionData.type:', expressionData.type);
+    console.log('  source:', source);
+    
+    if (isMultiselect) {
+      // Helper to get field label from path
+      const getFieldLabel = (path) => {
+        const findInTree = (nodes, targetPath) => {
+          for (const node of nodes) {
+            if (node.value === targetPath) return node.title;
+            if (node.children) {
+              const found = findInTree(node.children, targetPath);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        return findInTree(fieldTreeData, path) || path;
+      };
+      
+      return (
+        <TreeSelect
+          treeCheckable
+          showCheckedStrategy="SHOW_CHILD"
+          value={expressionData.value || []}
+          onChange={(fieldPaths) => {
+            handleValueChange({ 
+              value: fieldPaths,
+              returnType: 'text' // multiselect returns array of field paths
+            });
+          }}
+          treeData={fieldTreeData}
+          placeholder="Select fields"
+          style={{ width: '100%', minWidth: '200px' }}
+          className="multiselect-wrap-tags"
+          popupClassName="compact-tree-select"
+          treeIcon={false}
+          showSearch
+          treeDefaultExpandAll
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          tagRender={(props) => {
+            const { label, value, closable, onClose } = props;
+            return (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '0 7px',
+                marginRight: '4px',
+                background: '#f0f0f0',
+                border: '1px solid #d9d9d9',
+                borderRadius: '2px',
+                fontSize: '12px'
+              }}>
+                {getFieldLabel(value)}
+                {closable && (
+                  <span 
+                    onClick={onClose}
+                    style={{ marginLeft: '4px', cursor: 'pointer', fontSize: '10px' }}
+                  >
+                    ×
+                  </span>
+                )}
+              </span>
+            );
+          }}
+          onClick={(e) => e.stopPropagation()}
+          onFocus={(e) => e.stopPropagation()}
+        />
+      );
+    }
+    
     return (
       <TreeSelect
         value={expressionData.field || null}
@@ -511,8 +617,25 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       
       switch (expr.type) {
         case 'value':
+          // Handle array values (multiselect fields)
+          if (Array.isArray(expr.value)) {
+            if (expr.value.length === 0) return '[]';
+            // Map field paths to display names
+            const fieldLabels = expr.value.map(fieldPath => 
+              getFieldDisplayName(fieldPath, config?.fields) || fieldPath
+            );
+            return `[${fieldLabels.join(', ')}]`;
+          }
           return expr.value !== undefined ? String(expr.value) : '?';
         case 'field':
+          // Handle single field (could also be multiselect stored in value array)
+          if (Array.isArray(expr.value)) {
+            if (expr.value.length === 0) return '[]';
+            const fieldLabels = expr.value.map(fieldPath => 
+              getFieldDisplayName(fieldPath, config?.fields) || fieldPath
+            );
+            return `[${fieldLabels.join(', ')}]`;
+          }
           return getFieldDisplayName(expr.field, config?.fields) || '?';
         case 'function':
           return getFunctionSummary(expr.function);
@@ -623,15 +746,36 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                     });
                   }
                 } else if (funcDef?.args) {
-                  // Handle fixed args
-                  initialArgs = Object.keys(funcDef.args).map(argKey => ({
-                    name: argKey,
-                    value: { 
-                      type: 'value', 
-                      returnType: funcDef.args[argKey].type || 'text',
-                      value: funcDef.args[argKey].defaultValue ?? ''
-                    }
-                  }));
+                  // Handle fixed args - support both array and object formats
+                  
+                  if (Array.isArray(funcDef.args)) {
+                    // Array format: [{name: "arg1", type: "text", ...}, ...]
+                    initialArgs = funcDef.args.map(argDef => {
+                      const initialType = argDef.valueSources?.length === 1 ? argDef.valueSources[0] : 'value';
+                      return {
+                        name: argDef.name,
+                        value: {
+                          type: initialType,
+                          returnType: argDef.type || 'text',
+                          value: argDef.defaultValue ?? ''
+                        }
+                      };
+                    });
+                  } else {
+                    // Object format: {arg1: {type: "text", ...}, ...}
+                    initialArgs = Object.keys(funcDef.args).map(argKey => {
+                      const argDef = funcDef.args[argKey];
+                      const initialType = argDef.valueSources?.length === 1 ? argDef.valueSources[0] : 'value';
+                      return {
+                        name: argKey,
+                        value: { 
+                          type: initialType, 
+                          returnType: argDef.type || 'text',
+                          value: argDef.defaultValue ?? ''
+                        }
+                      };
+                    });
+                  }
                 }
                 
                 handleValueChange({ 
@@ -674,8 +818,26 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
               <Space direction="vertical" style={{ width: '100%' }} size="middle">
                 {expressionData.function.args.map((arg, index) => {
                     const isDynamicArgs = funcDef?.dynamicArgs;
-                    const argDef = isDynamicArgs ? null : funcDef.args[arg.name];
+                    
+                    console.log(`\n🔍 Looking up arg [${index}] "${arg.name}":`)
+                    console.log('  funcDef.args type:', typeof funcDef.args, Array.isArray(funcDef.args) ? 'ARRAY' : 'OBJECT');
+                    console.log('  funcDef.args:', JSON.stringify(funcDef.args, null, 2));
+                    
+                    // Handle both array and object formats for args
+                    let argDef;
+                    if (isDynamicArgs) {
+                      argDef = funcDef.dynamicArgs || funcDef.argSpec;
+                    } else if (Array.isArray(funcDef.args)) {
+                      argDef = funcDef.args.find(a => a.name === arg.name);
+                      console.log('  Using array.find for:', arg.name);
+                    } else {
+                      argDef = funcDef.args[arg.name];
+                      console.log('  Using object lookup for:', arg.name);
+                    }
                     const expectedArgType = isDynamicArgs ? (funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType) : argDef?.type;
+                    
+                    console.log('  argDef result:', JSON.stringify(argDef, null, 2));
+                    console.log('  widget:', argDef?.widget);
                     
                     return (
                       <div key={index} style={{ 
