@@ -499,7 +499,7 @@
                   "returnType": "number",
                   "args": [
                     {"name": "attribute", "label": "Attribute", "type": "text", "required": true, "defaultValue": 0, "valueSources": ["field"]},
-                    {"name": "groupBy", "label": "Group By", "type": "text", "required": false, "defaultValue": 0, "valueSources": ["field"]}
+                    {"name": "groupBy", "label": "Group By", "type": "text", "required": false, "defaultValue": [], "valueSources": ["field"], "widget": "multiselect"}
                   ]
                 },
                 "MATH.ADD": {
