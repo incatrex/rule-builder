@@ -89,16 +89,17 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   const initialValue = normalizeValue(value);
   const [source, setSource] = useState(initialValue.type || 'value');
   const [expressionData, setExpressionData] = useState(initialValue);
-  // In compact mode (nested), start expanded. Otherwise, use isLoadedRule only for initial state
-  const [isExpanded, setIsExpanded] = useState(compact ? true : !isLoadedRule);
+  // Start collapsed for loaded rules, even in compact mode
+  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Update expansion state only when compact changes (not isLoadedRule)
+  // Update expansion state when isLoadedRule changes from true to false (i.e., editing after load)
+  // In compact mode for nested expressions, expand after initial render
   useEffect(() => {
-    if (compact) {
-      setIsExpanded(true); // Always expanded in compact mode
+    if (!isLoadedRule && compact) {
+      setIsExpanded(true); // Expand nested expressions once editing starts
     }
-  }, [compact]);
+  }, [isLoadedRule, compact]);
 
   // Sync with external changes
   useEffect(() => {
@@ -149,7 +150,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       );
     } else if (expressionData.expressions && expressionData.expressions.length > 1) {
       // Multi-item ExpressionGroup - delegate to ExpressionGroup component
-      // Note: Don't pass isLoadedRule here - newly created ExpressionGroups should start expanded
       return (
         <ExpressionGroup
           value={expressionData}
@@ -158,7 +158,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
           expectedType={expectedType}
           darkMode={darkMode}
           compact={compact}
-          isLoadedRule={false}
+          isLoadedRule={isLoadedRule}
           allowedSources={allowedSources}
           argDef={propArgDef}
         />
