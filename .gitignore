@@ -164,6 +164,7 @@ backend/src/main/resources/static/rules/*.json
 
 # IDEs
 .idea/
+.vscode/
 *.iml
 *.ipr
 *.iws
