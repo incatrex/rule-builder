@@ -82,9 +82,9 @@ public class RuleBuilderController {
     }
 
     @GetMapping("/rules/ids")
-    public ResponseEntity<JsonNode> getRuleIds() {
+    public ResponseEntity<JsonNode> getRuleIds(@RequestParam(required = false) String ruleType) {
         try {
-            JsonNode ruleIds = ruleBuilderService.getRuleIds();
+            JsonNode ruleIds = ruleBuilderService.getRuleIds(ruleType);
             return ResponseEntity.ok(ruleIds);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

@@ -949,7 +949,8 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                   id: null,
                   uuid: null,
                   version: null,
-                  returnType: expectedType || 'boolean'
+                  returnType: expectedType || 'boolean',
+                  ruleType: null
                 });
                 return;
               }
@@ -959,12 +960,16 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                 id: metadata.ruleId,
                 uuid: metadata.uuid,
                 version: metadata.version,
-                returnType: metadata.returnType
+                returnType: metadata.returnType,
+                ruleType: metadata.ruleType
               });
             }}
             darkMode={darkMode}
             placeholder="Select a rule..."
             showReturnType={true}
+            showRuleTypeFilter={true}
+            ruleTypes={config.ruleTypes || []}
+            initialRuleType={expressionData.ruleType}
           />
           
           {/* Warning for type mismatch */}
