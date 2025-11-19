@@ -115,10 +115,15 @@ class RuleService {
 
   /**
    * Get all rule IDs with metadata
-   * @returns {Array} - Array of rule summaries with {ruleId, uuid, latestVersion, folderPath, returnType}
+   * @param {string} ruleType - Optional rule type filter (Reporting, Transformation, etc.)
+   * @returns {Array} - Array of rule summaries with {ruleId, uuid, latestVersion, folderPath, returnType, ruleType}
    */
-  async getRuleIds() {
-    const response = await this.http.get('/rules/ids');
+  async getRuleIds(ruleType = null) {
+    const params = {};
+    if (ruleType) {
+      params.ruleType = ruleType;
+    }
+    const response = await this.http.get('/rules/ids', params);
     return response.data;
   }
 

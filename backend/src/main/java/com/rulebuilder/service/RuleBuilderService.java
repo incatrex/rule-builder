@@ -111,7 +111,7 @@ public class RuleBuilderService {
     /**
      * Get all rule IDs with their UUIDs, latest versions, folder paths, and return types
      */
-    public JsonNode getRuleIds() throws IOException {
+    public JsonNode getRuleIds(String ruleTypeFilter) throws IOException {
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
         File directory = new File(rulesDir);
         
@@ -130,6 +130,7 @@ public class RuleBuilderService {
         
         // Sort rules alphabetically by folderPath, then by ruleId
         ruleMap.values().stream()
+            .filter(ruleInfo -> ruleTypeFilter == null || ruleTypeFilter.isEmpty() || ruleTypeFilter.equals(ruleInfo.ruleType))
             .sorted((r1, r2) -> {
                 // First compare by folder path
                 int folderCompare = r1.folderPath.compareToIgnoreCase(r2.folderPath);
@@ -146,6 +147,7 @@ public class RuleBuilderService {
                 ruleNode.put("latestVersion", ruleInfo.version);
                 ruleNode.put("folderPath", ruleInfo.folderPath);
                 ruleNode.put("returnType", ruleInfo.returnType);
+                ruleNode.put("ruleType", ruleInfo.ruleType);
                 result.add(ruleNode);
             });
 
@@ -175,12 +177,16 @@ public class RuleBuilderService {
                     // Use empty string for root, otherwise the folder path
                     String folderPath = relativePath.isEmpty() ? "" : relativePath.replace("\\", "/");
                     
-                    // Read the rule file to get returnType
+                    // Read the rule file to get returnType and ruleType
                     String returnType = "unknown";
+                    String ruleType = "unknown";
                     try {
                         JsonNode ruleJson = objectMapper.readTree(file);
                         if (ruleJson.has("returnType")) {
                             returnType = ruleJson.get("returnType").asText();
+                        }
+                        if (ruleJson.has("ruleType")) {
+                            ruleType = ruleJson.get("ruleType").asText();
                         }
                     } catch (IOException e) {
                         // If we can't read the file, use "unknown"
@@ -190,7 +196,7 @@ public class RuleBuilderService {
                     RuleInfo existing = ruleMap.get(key);
                     
                     if (existing == null || version > existing.version) {
-                        ruleMap.put(key, new RuleInfo(ruleId, uuid, version, folderPath, returnType));
+                        ruleMap.put(key, new RuleInfo(ruleId, uuid, version, folderPath, returnType, ruleType));
                     }
                 }
             }
@@ -255,13 +261,15 @@ public class RuleBuilderService {
         int version;
         String folderPath;
         String returnType;
+        String ruleType;
 
-        RuleInfo(String ruleId, String uuid, int version, String folderPath, String returnType) {
+        RuleInfo(String ruleId, String uuid, int version, String folderPath, String returnType, String ruleType) {
             this.ruleId = ruleId;
             this.uuid = uuid;
             this.version = version;
             this.folderPath = folderPath;
             this.returnType = returnType;
+            this.ruleType = ruleType;
         }
     }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Select, message } from 'antd';
+import { Select, Space, message } from 'antd';
 import { RuleService } from '../../services/RuleService.js';
 
 /**
@@ -15,6 +15,9 @@ import { RuleService } from '../../services/RuleService.js';
  * - placeholder: Optional placeholder text
  * - showReturnType: Boolean to show return type in dropdown
  * - filterReturnType: Optional return type to filter by
+ * - showRuleTypeFilter: Boolean to show rule type filter dropdown
+ * - ruleTypes: Array of available rule types for filter
+ * - initialRuleType: Initial rule type filter value (persisted from JSON)
  */
 const RuleSelector = ({ 
   value, 
@@ -22,22 +25,36 @@ const RuleSelector = ({
   darkMode = false, 
   placeholder = "Search for a rule...",
   showReturnType = false,
-  filterReturnType = null
+  filterReturnType = null,
+  showRuleTypeFilter = false,
+  ruleTypes = ['Reporting', 'Transformation', 'Aggregation', 'Validation'],
+  initialRuleType = null
 }) => {
   const [ruleList, setRuleList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedRuleType, setSelectedRuleType] = useState(initialRuleType);
   
   // Initialize RuleService
   const ruleService = new RuleService();
+  
+  // Ensure ruleTypes is always an array with defaults
+  const safeRuleTypes = Array.isArray(ruleTypes) && ruleTypes.length > 0 
+    ? ruleTypes 
+    : ['Reporting', 'Transformation', 'Aggregation', 'Validation'];
+
+  // Update selectedRuleType when initialRuleType prop changes
+  useEffect(() => {
+    setSelectedRuleType(initialRuleType);
+  }, [initialRuleType]);
 
   useEffect(() => {
     loadRuleIds();
-  }, []);
+  }, [selectedRuleType]);
 
   const loadRuleIds = async () => {
     try {
       setLoading(true);
-      const ruleIds = await ruleService.getRuleIds();
+      const ruleIds = await ruleService.getRuleIds(selectedRuleType);
       
       // Transform the data for the Select component
       const options = ruleIds.map(rule => {
@@ -53,7 +70,8 @@ const RuleSelector = ({
           uuid: rule.uuid,
           latestVersion: rule.latestVersion,
           folderPath: rule.folderPath || '',
-          returnType: rule.returnType || 'unknown'
+          returnType: rule.returnType || 'unknown',
+          ruleType: rule.ruleType || 'unknown'
         };
       });
       
@@ -68,6 +86,14 @@ const RuleSelector = ({
       message.error('Failed to load rule list');
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const handleRuleTypeChange = (ruleType) => {
+    setSelectedRuleType(ruleType);
+    // Clear selected rule when filter changes
+    if (onChange) {
+      onChange(null);
     }
   };
 
@@ -96,7 +122,8 @@ const RuleSelector = ({
             ruleId: selectedRule.ruleId,
             uuid: selectedRule.uuid,
             version: selectedRule.latestVersion,
-            returnType: selectedRule.returnType
+            returnType: selectedRule.returnType,
+            ruleType: selectedRule.ruleType
           }
         });
       }
@@ -107,19 +134,34 @@ const RuleSelector = ({
   };
 
   return (
-    <Select
-      showSearch
-      value={value}
-      placeholder={placeholder}
-      onChange={handleSelect}
-      loading={loading}
-      options={ruleList}
-      filterOption={(input, option) =>
-        option.label.toLowerCase().includes(input.toLowerCase())
-      }
-      style={{ width: '100%' }}
-      dropdownStyle={{ minWidth: '400px' }}
-    />
+    <Space direction="vertical" style={{ width: '100%' }} size="small">
+      {/* Rule Type Filter */}
+      {showRuleTypeFilter && (
+        <Select
+          value={selectedRuleType}
+          onChange={handleRuleTypeChange}
+          placeholder="Filter by Rule Type..."
+          allowClear
+          style={{ width: '100%' }}
+          options={safeRuleTypes.map(type => ({ value: type, label: type }))}
+        />
+      )}
+      
+      {/* Rule Selector */}
+      <Select
+        showSearch
+        value={value}
+        placeholder={placeholder}
+        onChange={handleSelect}
+        loading={loading}
+        options={ruleList}
+        filterOption={(input, option) =>
+          option.label.toLowerCase().includes(input.toLowerCase())
+        }
+        style={{ width: '100%' }}
+        dropdownStyle={{ minWidth: '400px' }}
+      />
+    </Space>
   );
 };
 

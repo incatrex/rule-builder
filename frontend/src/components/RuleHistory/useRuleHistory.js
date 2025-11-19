@@ -31,10 +31,7 @@ export const useRuleHistory = ({
   }, [onError]);
 
   const fetchHistory = useCallback(async () => {
-    console.log('[useRuleHistory] fetchHistory called for UUID:', selectedRuleUuid);
-    
     if (!onFetchHistory) {
-      console.error('[useRuleHistory] No onFetchHistory callback provided!');
       setError(new Error('onFetchHistory callback is required'));
       return;
     }
@@ -43,9 +40,7 @@ export const useRuleHistory = ({
     setError(null);
     
     try {
-      console.log('[useRuleHistory] Calling onFetchHistory...');
       const historyData = await onFetchHistory(selectedRuleUuid);
-      console.log('[useRuleHistory] Received history data:', historyData);
       setHistory(historyData || []);
     } catch (err) {
       console.error('[useRuleHistory] Error loading rule history:', err);
@@ -57,12 +52,9 @@ export const useRuleHistory = ({
   }, [selectedRuleUuid, onFetchHistory, handleError]);
 
   useEffect(() => {
-    console.log('[useRuleHistory] useEffect triggered:', { selectedRuleUuid, hasCallback: !!onFetchHistory });
     if (selectedRuleUuid) {
-      console.log('[useRuleHistory] Calling fetchHistory for UUID:', selectedRuleUuid);
       fetchHistory();
     } else {
-      console.log('[useRuleHistory] No UUID selected, clearing history');
       setHistory([]);
       setError(null);
     }
