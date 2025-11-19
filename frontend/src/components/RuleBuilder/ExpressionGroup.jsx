@@ -42,17 +42,8 @@ const { Text } = Typography;
  */
 const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, argDef: propArgDef = null }) => {
   // Only use isLoadedRule for initial state, not continuous monitoring
-  const [isExpanded, setIsExpanded] = useState(() => {
-    const initialState = !isLoadedRule;
-    console.log('[ExpressionGroup] Initial state:', { isLoadedRule, initialState, valueType: value?.type });
-    return initialState;
-  });
+  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   const [operatorDropdownStates, setOperatorDropdownStates] = useState({});
-  
-  // Debug logging for expansion changes
-  useEffect(() => {
-    console.log('[ExpressionGroup] isExpanded changed to:', isExpanded);
-  }, [isExpanded]);
   
   // Validate that this is a proper multi-expression ExpressionGroup
   const validateExpressionGroup = (val) => {
@@ -74,11 +65,6 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
 
   // Sync with external changes
   useEffect(() => {
-    console.log('[ExpressionGroup] value prop changed', { 
-      hasValue: !!value, 
-      expressionCount: value?.expressions?.length,
-      ageMs: Date.now() - mountTime.current 
-    });
     if (value) {
       isUpdatingFromProps.current = true;
       setGroupData(validateExpressionGroup(value));
