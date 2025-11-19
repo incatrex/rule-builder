@@ -486,6 +486,7 @@
             "name": {
               "type": "string",
               "enum": [
+                "AGGREGATION.COUNT",
                 "MATH.ADD", "MATH.SUBTRACT", "MATH.MULTIPLY", "MATH.DIVIDE", 
                 "MATH.SUM", "MATH.ROUND", "MATH.ABS",
                 "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN", "TEXT.CASE",
