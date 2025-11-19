@@ -152,6 +152,10 @@ mvnw.cmd
 # Frontend build
 frontend/build/
 
+# Test reports
+frontend/playwright-report/
+frontend/test-results/
+
 # Saved rules (ignore root level rules, but keep samples)
 backend/src/main/resources/static/rules/*.json
 !backend/src/main/resources/static/rules/.gitkeep

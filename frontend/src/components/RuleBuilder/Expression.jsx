@@ -508,13 +508,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     // Check if this should be a multiselect field picker
     const isMultiselect = propArgDef?.widget === 'multiselect';
     
-    console.log('🔍 renderFieldSelector DEBUG:');
-    console.log('  propArgDef:', JSON.stringify(propArgDef, null, 2));
-    console.log('  widget:', propArgDef?.widget);
-    console.log('  isMultiselect:', isMultiselect);
-    console.log('  expressionData.type:', expressionData.type);
-    console.log('  source:', source);
-    
     if (isMultiselect) {
       // Helper to get field label from path
       const getFieldLabel = (path) => {
@@ -819,25 +812,16 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                 {expressionData.function.args.map((arg, index) => {
                     const isDynamicArgs = funcDef?.dynamicArgs;
                     
-                    console.log(`\n🔍 Looking up arg [${index}] "${arg.name}":`)
-                    console.log('  funcDef.args type:', typeof funcDef.args, Array.isArray(funcDef.args) ? 'ARRAY' : 'OBJECT');
-                    console.log('  funcDef.args:', JSON.stringify(funcDef.args, null, 2));
-                    
                     // Handle both array and object formats for args
                     let argDef;
                     if (isDynamicArgs) {
                       argDef = funcDef.dynamicArgs || funcDef.argSpec;
                     } else if (Array.isArray(funcDef.args)) {
                       argDef = funcDef.args.find(a => a.name === arg.name);
-                      console.log('  Using array.find for:', arg.name);
                     } else {
                       argDef = funcDef.args[arg.name];
-                      console.log('  Using object lookup for:', arg.name);
                     }
                     const expectedArgType = isDynamicArgs ? (funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType) : argDef?.type;
-                    
-                    console.log('  argDef result:', JSON.stringify(argDef, null, 2));
-                    console.log('  widget:', argDef?.widget);
                     
                     return (
                       <div key={index} style={{ 
