@@ -61,8 +61,27 @@ public class SchemaConfigService {
         config.set("types", extractTypes());
         config.set("functions", extractFunctions());
         config.set("settings", extractSettings());
+        config.set("ruleTypes", extractRuleTypes());
         
         return config;
+    }
+    
+    /**
+     * Extract rule types from schema
+     */
+    private JsonNode extractRuleTypes() {
+        ArrayNode ruleTypes = objectMapper.createArrayNode();
+        
+        // Look for ruleType enum in root properties
+        JsonNode ruleTypeNode = schema.at("/properties/ruleType");
+        if (ruleTypeNode.has("enum")) {
+            JsonNode enumValues = ruleTypeNode.get("enum");
+            if (enumValues.isArray()) {
+                enumValues.forEach(ruleTypes::add);
+            }
+        }
+        
+        return ruleTypes;
     }
 
     /**
