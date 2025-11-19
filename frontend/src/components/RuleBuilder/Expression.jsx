@@ -747,11 +747,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                   }
                 } else if (funcDef?.args) {
                   // Handle fixed args - support both array and object formats
-                  console.log('🔍 Initializing function args:', {
-                    funcName: funcPath,
-                    args: funcDef.args,
-                    isArray: Array.isArray(funcDef.args)
-                  });
                   
                   if (Array.isArray(funcDef.args)) {
                     // Array format: [{name: "arg1", type: "text", ...}, ...]
