@@ -75,6 +75,8 @@ const ResizablePanels = ({
       style={{ 
         display: 'flex', 
         width: '100%',
+        flex: 1,
+        minWidth: 0,
         position: 'relative',
         userSelect: isDragging ? 'none' : 'auto',
         alignItems: 'stretch'
