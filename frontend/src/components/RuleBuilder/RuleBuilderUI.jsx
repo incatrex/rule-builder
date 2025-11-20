@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Select, Input, Switch, Button, Space, Tag, Divider, Typography } from 'antd';
-import { SaveOutlined, ClearOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Card, Select, Input, Switch, Button, Space, Tag, Divider, Typography, Collapse } from 'antd';
+import { SaveOutlined, ClearOutlined, InfoCircleOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
 import Expression from './Expression';
@@ -8,6 +8,7 @@ import './RuleBuilder.css';
 
 const { Text } = Typography;
 const { TextArea } = Input;
+const { Panel } = Collapse;
 
 /**
  * RuleBuilderUI Component
@@ -54,71 +55,156 @@ export const RuleBuilderUI = ({
   onDefinitionChange,
   onSave
 }) => {
+  const [metadataCollapsed, setMetadataCollapsed] = useState(false);
+
   return (
     <div className="rule-builder-container">
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
-        {/* Metadata Card */}
-        <Card
-          title="Rule Metadata"
-          className="rule-builder-card"
-          style={{
-            background: darkMode ? '#1f1f1f' : '#ffffff',
-            border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
-          }}
-        >
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            <Space style={{ width: '100%' }} size="middle">
-              <div style={{ flex: 1 }}>
-                <Text 
-                  strong 
-                  className="rule-builder-label"
-                  style={{ 
-                    display: 'block', 
-                    marginBottom: '8px',
-                    color: darkMode ? '#e0e0e0' : 'inherit'
-                  }}
-                >
-                  Rule ID:
-                </Text>
-                <Input
-                  data-testid="rule-id-input"
-                  value={ruleData.metadata.id}
-                  onChange={(e) => onMetadataChange({ 
-                    ...ruleData.metadata, 
-                    id: e.target.value 
-                  })}
-                  placeholder="Enter unique rule identifier"
-                />
-              </div>
-              
-              <div style={{ width: '150px' }}>
-                <Text 
-                  strong 
-                  className="rule-builder-label"
-                  style={{ 
-                    display: 'block', 
-                    marginBottom: '8px',
-                    color: darkMode ? '#e0e0e0' : 'inherit'
-                  }}
-                >
-                  Rule Type:
-                </Text>
-                <Select
-                  data-testid="rule-type-select"
-                  value={ruleData.ruleType}
-                  onChange={onRuleTypeChange}
-                  style={{ width: '100%' }}
-                  options={ruleTypes.map(type => ({ value: type, label: type }))}
-                />
-              </div>
-              
-              <div style={{ width: '100px' }}>
-                <Text 
-                  strong 
-                  className="rule-builder-label"
-                  style={{ 
-                    display: 'block', 
-                    marginBottom: '8px',
+      {/* Single consolidated Rule Definition Card */}
+      <Card
+        title="Rule Definition"
+        className="rule-builder-card"
+        style={{
+          background: darkMode ? '#1f1f1f' : '#ffffff',
+          border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
+        }}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="large">
+          {/* Structure and Return Type Selection */}
+          <Space 
+            style={{ width: '100%', flexWrap: 'wrap' }} 
+            size="middle"
+          >
+            <div style={{ flex: 1, minWidth: '300px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Text 
+                strong 
+                className="rule-builder-label"
+                style={{ 
+                  color: darkMode ? '#e0e0e0' : 'inherit',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Structure:
+              </Text>
+              <Select
+                value={ruleData.structure}
+                onChange={onStructureChange}
+                style={{ flex: 1 }}
+                options={[
+                  { 
+                    value: 'condition', 
+                    label: 'Simple Condition - Single boolean condition or group' 
+                  },
+                  { 
+                    value: 'case', 
+                    label: 'Case Expression - Multiple conditions with different results' 
+                  },
+                  { 
+                    value: 'expression', 
+                    label: 'Expression - Single value, field, or function' 
+                  }
+                ]}
+              />
+            </div>
+
+            <div style={{ minWidth: '150px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Text 
+                strong 
+                className="rule-builder-label"
+                style={{ 
+                  color: darkMode ? '#e0e0e0' : 'inherit',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Returns:
+              </Text>
+              <Select
+                value={ruleData.returnType}
+                onChange={onReturnTypeChange}
+                disabled={ruleData.structure === 'condition'}
+                style={{ width: '120px' }}
+                options={[
+                  { value: 'boolean', label: 'Boolean' },
+                  { value: 'number', label: 'Number' },
+                  { value: 'text', label: 'Text' },
+                  { value: 'date', label: 'Date' }
+                ]}
+              />
+            </div>
+          </Space>
+
+          {/* Collapsible Metadata Section */}
+          <Collapse
+            activeKey={metadataCollapsed ? [] : ['metadata']}
+            onChange={(keys) => setMetadataCollapsed(!keys.includes('metadata'))}
+            style={{
+              background: darkMode ? '#141414' : '#fafafa',
+              border: `1px solid ${darkMode ? '#303030' : '#f0f0f0'}`
+            }}
+          >
+            <Panel
+              key="metadata"
+              header={
+                <Space size="small">
+                  <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Metadata:</Text>
+                  <Text code>
+                    {ruleData.metadata.id || '(not set)'} [{ruleData.ruleType}] V{ruleData.version}
+                  </Text>
+                </Space>
+              }
+            >
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Space style={{ width: '100%' }} size="middle">
+                <div style={{ flex: 1 }}>
+                  <Text 
+                    strong 
+                    className="rule-builder-label"
+                    style={{ 
+                      display: 'block', 
+                      marginBottom: '8px',
+                      color: darkMode ? '#e0e0e0' : 'inherit'
+                    }}
+                  >
+                    Rule ID:
+                  </Text>
+                  <Input
+                    data-testid="rule-id-input"
+                    value={ruleData.metadata.id}
+                    onChange={(e) => onMetadataChange({ 
+                      ...ruleData.metadata, 
+                      id: e.target.value 
+                    })}
+                    placeholder="Enter unique rule identifier"
+                  />
+                </div>
+                
+                <div style={{ width: '150px' }}>
+                  <Text 
+                    strong 
+                    className="rule-builder-label"
+                    style={{ 
+                      display: 'block', 
+                      marginBottom: '8px',
+                      color: darkMode ? '#e0e0e0' : 'inherit'
+                    }}
+                  >
+                    Rule Type:
+                  </Text>
+                  <Select
+                    data-testid="rule-type-select"
+                    value={ruleData.ruleType}
+                    onChange={onRuleTypeChange}
+                    style={{ width: '100%' }}
+                    options={ruleTypes.map(type => ({ value: type, label: type }))}
+                  />
+                </div>
+                
+                <div style={{ width: '100px' }}>
+                  <Text 
+                    strong 
+                    className="rule-builder-label"
+                    style={{ 
+                      display: 'block', 
+                      marginBottom: '8px',
                     color: darkMode ? '#e0e0e0' : 'inherit'
                   }}
                 >
@@ -140,19 +226,6 @@ export const RuleBuilderUI = ({
                     style={{ width: '100%' }}
                   />
                 )}
-              </div>
-              
-              <div style={{ marginTop: '32px' }}>
-                <Button 
-                  data-testid="rule-save-button"
-                  type="primary"
-                  icon={<SaveOutlined />}
-                  onClick={onSave}
-                  disabled={!ruleData.metadata.id}
-                  className="rule-builder-save-btn"
-                >
-                  Save Rule
-                </Button>
               </div>
             </Space>
             
@@ -179,83 +252,11 @@ export const RuleBuilderUI = ({
               />
             </div>
           </Space>
-        </Card>
+          </Panel>
+          </Collapse>
 
-        {/* Rule Content */}
-        <Card
-          title="Rule Definition"
-          className="rule-builder-card"
-          style={{
-            background: darkMode ? '#1f1f1f' : '#ffffff',
-            border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`
-          }}
-        >
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            {/* Structure and Return Type Selection */}
-            <Space 
-              style={{ width: '100%', flexWrap: 'wrap' }} 
-              size="middle"
-            >
-              <div style={{ flex: 1, minWidth: '300px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Text 
-                  strong 
-                  className="rule-builder-label"
-                  style={{ 
-                    color: darkMode ? '#e0e0e0' : 'inherit',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  Structure:
-                </Text>
-                <Select
-                  value={ruleData.structure}
-                  onChange={onStructureChange}
-                  style={{ flex: 1 }}
-                  options={[
-                    { 
-                      value: 'condition', 
-                      label: 'Simple Condition - Single boolean condition or group' 
-                    },
-                    { 
-                      value: 'case', 
-                      label: 'Case Expression - Multiple conditions with different results' 
-                    },
-                    { 
-                      value: 'expression', 
-                      label: 'Expression - Single value, field, or function' 
-                    }
-                  ]}
-                />
-              </div>
-
-              <div style={{ minWidth: '150px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Text 
-                  strong 
-                  className="rule-builder-label"
-                  style={{ 
-                    color: darkMode ? '#e0e0e0' : 'inherit',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  Returns:
-                </Text>
-                <Select
-                  value={ruleData.returnType}
-                  onChange={onReturnTypeChange}
-                  style={{ flex: 1, minWidth: '100px' }}
-                  disabled={ruleData.structure === 'case' || ruleData.structure === 'condition'}
-                  options={[
-                    { value: 'boolean', label: 'Boolean' },
-                    { value: 'text', label: 'Text' },
-                    { value: 'number', label: 'Number' },
-                    { value: 'date', label: 'Date' }
-                  ]}
-                />
-              </div>
-            </Space>
-
-            {/* Rule Content Based on Structure */}
-            <div className="rule-builder-content">
+          {/* Rule Content Based on Structure */}
+          <div className="rule-builder-content">
               {ruleData.structure === 'case' && ruleData.definition && (
                 <Case
                   value={ruleData.definition}
@@ -288,9 +289,8 @@ export const RuleBuilderUI = ({
                 />
               )}
             </div>
-          </Space>
-        </Card>
-      </Space>
+        </Space>
+      </Card>
     </div>
   );
 };

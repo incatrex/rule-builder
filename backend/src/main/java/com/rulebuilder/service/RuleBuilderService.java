@@ -341,6 +341,24 @@ public class RuleBuilderService {
             entryNode.put("modifiedBy", "Lastname, Firstname");
             entryNode.put("modifiedOn", entry.modifiedOn);
             entryNode.put("filePath", entry.filePath);
+            
+            // Read the file to get restoredFromVersion if it exists
+            try {
+                File file = new File(entry.filePath);
+                JsonNode ruleData = objectMapper.readTree(file);
+                if (ruleData.has("metadata")) {
+                    JsonNode metadata = ruleData.get("metadata");
+                    if (metadata.has("restoredFromVersion")) {
+                        entryNode.put("restoredFromVersion", metadata.get("restoredFromVersion").asInt());
+                    }
+                    if (metadata.has("ruleSet")) {
+                        entryNode.put("ruleSet", metadata.get("ruleSet").asText());
+                    }
+                }
+            } catch (IOException e) {
+                // Skip if we can't read the file
+            }
+            
             result.add(entryNode);
         }
 
@@ -411,6 +429,20 @@ public class RuleBuilderService {
         
         // Save as new version (maxVersion + 1)
         int newVersion = maxVersion + 1;
+        
+        // Update the version number in the JSON content and add restoredFromVersion to metadata
+        if (ruleDefinition instanceof com.fasterxml.jackson.databind.node.ObjectNode) {
+            com.fasterxml.jackson.databind.node.ObjectNode ruleNode = (com.fasterxml.jackson.databind.node.ObjectNode) ruleDefinition;
+            ruleNode.put("version", newVersion);
+            
+            // Add restoredFromVersion to metadata
+            if (!ruleNode.has("metadata")) {
+                ruleNode.set("metadata", objectMapper.createObjectNode());
+            }
+            com.fasterxml.jackson.databind.node.ObjectNode metadata = (com.fasterxml.jackson.databind.node.ObjectNode) ruleNode.get("metadata");
+            metadata.put("restoredFromVersion", version);
+        }
+        
         saveRule(ruleId, String.valueOf(newVersion), ruleDefinition);
     }
 
