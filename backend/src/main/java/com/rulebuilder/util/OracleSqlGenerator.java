@@ -111,9 +111,10 @@ public class OracleSqlGenerator {
      */
     private String generateExpressionSql(JsonNode expression) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT ");
-        sql.append(processExpression(expression));
-        sql.append("\nFROM <table_name>");
+        sql.append("SELECT\n  ");
+        sql.append(processExpression(expression, 1));
+        sql.append(" AS result\n");
+        sql.append("FROM <table_name>");
         return sql.toString();
     }
 
@@ -255,6 +256,10 @@ public class OracleSqlGenerator {
      * Process an expression (can be expressionGroup or base expression)
      */
     private String processExpression(JsonNode expr) {
+        return processExpression(expr, 0);
+    }
+    
+    private String processExpression(JsonNode expr, int indent) {
         if (expr == null) {
             return "NULL";
         }
@@ -263,13 +268,13 @@ public class OracleSqlGenerator {
         
         switch (type) {
             case "expressionGroup":
-                return processExpressionGroup(expr);
+                return processExpressionGroup(expr, indent);
             case "value":
                 return processValue(expr);
             case "field":
                 return processField(expr);
             case "function":
-                return processFunction(expr);
+                return processFunction(expr, indent);
             case "ruleRef":
                 return processRuleRef(expr);
             default:
@@ -280,7 +285,7 @@ public class OracleSqlGenerator {
     /**
      * Process an expression group (expressions with operators)
      */
-    private String processExpressionGroup(JsonNode group) {
+    private String processExpressionGroup(JsonNode group, int indent) {
         JsonNode expressions = group.get("expressions");
         JsonNode operators = group.get("operators");
         
@@ -289,20 +294,36 @@ public class OracleSqlGenerator {
         }
         
         if (expressions.size() == 1) {
-            return processExpression(expressions.get(0));
+            return processExpression(expressions.get(0), indent);
         }
         
         StringBuilder sql = new StringBuilder();
+        String indentStr = "  ".repeat(indent);
+        boolean multiLine = expressions.size() > 2 || indent > 0;
+        
         sql.append("(");
+        
+        if (multiLine) {
+            sql.append("\n").append(indentStr).append("  ");
+        }
         
         for (int i = 0; i < expressions.size(); i++) {
             if (i > 0) {
                 String operator = (operators != null && operators.size() > i - 1) 
                     ? operators.get(i - 1).asText() 
                     : "+";
-                sql.append(" ").append(operator).append(" ");
+                
+                if (multiLine) {
+                    sql.append("\n").append(indentStr).append("  ").append(operator).append(" ");
+                } else {
+                    sql.append(" ").append(operator).append(" ");
+                }
             }
-            sql.append(processExpression(expressions.get(i)));
+            sql.append(processExpression(expressions.get(i), indent + 1));
+        }
+        
+        if (multiLine) {
+            sql.append("\n").append(indentStr);
         }
         
         sql.append(")");
@@ -352,7 +373,7 @@ public class OracleSqlGenerator {
     /**
      * Process a function call
      */
-    private String processFunction(JsonNode func) {
+    private String processFunction(JsonNode func, int indent) {
         JsonNode functionNode = func.get("function");
         if (functionNode == null) {
             return "NULL";
@@ -371,20 +392,30 @@ public class OracleSqlGenerator {
                     List<String> argStrings = new ArrayList<>();
                     for (JsonNode arg : args) {
                         JsonNode argValue = arg.get("value");
-                        argStrings.add(processExpression(argValue));
+                        argStrings.add(processExpression(argValue, indent + 1));
                     }
                     return "(" + String.join(" " + mapped + " ", argStrings) + ")";
                 }
             }
             
-            // Handle regular functions
+            // Handle regular functions with line breaks for multiple args
             if (args != null && args.isArray()) {
                 List<String> argStrings = new ArrayList<>();
+                String indentStr = "  ".repeat(indent + 1);
+                boolean multiLine = args.size() > 2;
+                
                 for (JsonNode arg : args) {
                     JsonNode argValue = arg.get("value");
-                    argStrings.add(processExpression(argValue));
+                    argStrings.add(processExpression(argValue, indent + 1));
                 }
-                return mapped + "(" + String.join(", ", argStrings) + ")";
+                
+                if (multiLine) {
+                    return mapped + "(\n" + indentStr + "  " + 
+                           String.join(",\n" + indentStr + "  ", argStrings) + 
+                           "\n" + indentStr + ")";
+                } else {
+                    return mapped + "(" + String.join(", ", argStrings) + ")";
+                }
             }
         }
         

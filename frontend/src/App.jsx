@@ -354,10 +354,11 @@ const App = () => {
               )}
               
               {/* Center and Right Panels with Resizable Divider */}
-              <ResizablePanels
-                darkMode={darkMode}
-                rightPanelCollapsed={jsonPanelCollapsed}
-                defaultLeftWidth={60}
+              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                <ResizablePanels
+                  darkMode={darkMode}
+                  rightPanelCollapsed={jsonPanelCollapsed}
+                  defaultLeftWidth={60}
                 minLeftWidth={30}
                 maxLeftWidth={80}
                 leftPanel={
@@ -400,12 +401,14 @@ const App = () => {
                 rightPanel={
                   <div style={{ 
                     height: '100%',
+                    width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     backgroundColor: darkMode ? '#141414' : '#ffffff',
                     border: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
                     borderRadius: '2px',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    minWidth: 0
                   }}>
                     <div style={{ 
                       display: 'flex',
@@ -447,40 +450,66 @@ const App = () => {
                     </div>
                     <div style={{ 
                       flex: 1,
-                      overflow: 'auto',
+                      overflow: 'hidden',
                       display: 'flex',
-                      flexDirection: 'column'
+                      flexDirection: 'column',
+                      minWidth: 0,
+                      minHeight: 0
                     }}>
                       {activeTab === 'json' && (
-                        <JsonEditor
-                          data={ruleBuilderData}
-                          onChange={(newData) => {
-                            if (ruleBuilderRef.current) {
-                              ruleBuilderRef.current.loadRuleData(newData);
-                            }
-                          }}
-                          darkMode={darkMode}
-                          title={null}
-                          onCollapse={null}
-                        />
+                        <div style={{ 
+                          flex: 1,
+                          overflow: 'auto',
+                          minWidth: 0,
+                          minHeight: 0
+                        }}>
+                          <JsonEditor
+                            data={ruleBuilderData}
+                            onChange={(newData) => {
+                              if (ruleBuilderRef.current) {
+                                ruleBuilderRef.current.loadRuleData(newData);
+                              }
+                            }}
+                            darkMode={darkMode}
+                            title={null}
+                            onCollapse={null}
+                          />
+                        </div>
                       )}
                       {activeTab === 'sql' && (
-                        <SqlViewer
-                          ref={sqlViewerRef}
-                          ruleData={ruleBuilderData}
-                          darkMode={darkMode}
-                        />
+                        <div style={{ 
+                          flex: 1,
+                          overflow: 'hidden',
+                          minWidth: 0,
+                          minHeight: 0,
+                          display: 'flex',
+                          flexDirection: 'column'
+                        }}>
+                          <SqlViewer
+                            ref={sqlViewerRef}
+                            ruleData={ruleBuilderData}
+                            darkMode={darkMode}
+                          />
+                        </div>
                       )}
                       {activeTab === 'canvas' && (
-                        <RuleCanvas
-                          rule={ruleBuilderData}
-                          darkMode={darkMode}
-                        />
+                        <div style={{ 
+                          flex: 1,
+                          overflow: 'auto',
+                          minWidth: 0,
+                          minHeight: 0
+                        }}>
+                          <RuleCanvas
+                            rule={ruleBuilderData}
+                            darkMode={darkMode}
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
                 }
               />
+              </div>
                 
               {/* Expand JSON Button - Only shown when collapsed */}
               {jsonPanelCollapsed && (
