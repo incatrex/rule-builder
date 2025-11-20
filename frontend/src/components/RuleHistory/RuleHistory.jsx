@@ -102,6 +102,11 @@ export const RuleHistory = ({
   unstyled,
   darkMode, // Legacy support
   
+  // Collapse props
+  collapsible,
+  defaultCollapsed,
+  maxHeight,
+  
   // UI customization
   messages,
   showRuleId,
@@ -179,6 +184,9 @@ export const RuleHistory = ({
       classNames={classNames}
       sx={sx}
       unstyled={unstyled}
+      collapsible={collapsible}
+      defaultCollapsed={defaultCollapsed}
+      maxHeight={maxHeight}
       messages={messages}
       showRuleId={showRuleId}
       pageSize={pageSize}

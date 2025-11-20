@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Table, Button, Modal, Card } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
 import './RuleHistory.css';
 
 /**
@@ -32,6 +33,11 @@ export const RuleHistoryUI = ({
   sx = {},
   unstyled = false,
   
+  // Collapse options
+  collapsible = true,
+  defaultCollapsed = false,
+  maxHeight = 'calc(50vh - 100px)', // Max height before scrolling
+  
   // Customization
   messages = {
     noRuleSelected: 'Select a rule to view its version history',
@@ -50,6 +56,8 @@ export const RuleHistoryUI = ({
   pageSize = null, // null = no pagination
   scrollY = 150,
 }) => {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+
   const handleRestore = (record) => {
     Modal.confirm({
       title: messages.confirmTitle,
@@ -161,16 +169,32 @@ export const RuleHistoryUI = ({
   return (
     <div className={rootClassName}>
       <Card
-        title={messages.title}
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{messages.title}</span>
+            {collapsible && (
+              <Button
+                type="text"
+                size="small"
+                icon={collapsed ? <DownOutlined /> : <UpOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ marginLeft: 'auto' }}
+              />
+            )}
+          </div>
+        }
         className="rule-history-card"
         style={{
           background: theme?.background || '#ffffff',
           border: `1px solid ${theme?.borderColor || '#d9d9d9'}`,
+          marginBottom: collapsed ? '16px' : '0',
           ...themeVars,
           ...sx
         }}
         data-component="rule-history"
       >
+        {!collapsed && (
+        <div style={{ maxHeight, overflow: 'auto' }}>
         <Table
           className={classNames.table || 'rule-history__table'}
           columns={columns}
@@ -179,8 +203,9 @@ export const RuleHistoryUI = ({
           rowKey={(record) => `${record.ruleId}-${record.version}`}
           pagination={pageSize ? { pageSize } : false}
           size="small"
-          scroll={{ y: scrollY }}
         />
+        </div>
+        )}
       </Card>
     </div>
   );

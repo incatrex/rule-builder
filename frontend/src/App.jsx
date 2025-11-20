@@ -362,8 +362,10 @@ const App = () => {
                 maxLeftWidth={80}
                 leftPanel={
                   <div style={{ 
-                    overflow: 'auto',
-                    height: '100%'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    overflow: 'auto'
                   }}>
                     <RuleHistory
                       selectedRuleUuid={selectedRuleUuid}
@@ -372,6 +374,9 @@ const App = () => {
                       onViewVersion={handleViewVersion}
                       onRestoreComplete={handleRestoreComplete}
                       darkMode={darkMode}
+                      collapsible={true}
+                      defaultCollapsed={false}
+                      maxHeight="calc(100vh - 300px)"
                     />
                     <RuleBuilder
                       ref={ruleBuilderRef}
