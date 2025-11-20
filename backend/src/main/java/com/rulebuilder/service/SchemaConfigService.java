@@ -72,8 +72,20 @@ public class SchemaConfigService {
     private JsonNode extractRuleTypes() {
         ArrayNode ruleTypes = objectMapper.createArrayNode();
         
-        // Look for ruleType enum in root properties
+        // Look for ruleType definition - could be inline or referenced
         JsonNode ruleTypeNode = schema.at("/properties/ruleType");
+        
+        // Check if it's a $ref
+        if (ruleTypeNode.has("$ref")) {
+            String ref = ruleTypeNode.get("$ref").asText();
+            // Resolve the reference (e.g., "#/definitions/RuleType")
+            if (ref.startsWith("#/")) {
+                String path = ref.substring(1); // Remove leading #
+                ruleTypeNode = schema.at(path);
+            }
+        }
+        
+        // Now get the enum values
         if (ruleTypeNode.has("enum")) {
             JsonNode enumValues = ruleTypeNode.get("enum");
             if (enumValues.isArray()) {

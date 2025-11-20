@@ -56,7 +56,7 @@ public class RuleBuilderController {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved configuration"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @GetMapping("/config")
+    @GetMapping("/rules/ui/config")
     public ResponseEntity<JsonNode> getConfig() {
         try {
             // Config now generated from schema x-ui-* extensions

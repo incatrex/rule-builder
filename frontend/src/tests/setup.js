@@ -4,8 +4,8 @@ import { vi } from 'vitest';
 // Mock axios for API calls during tests
 vi.mock('axios', () => {
   const mockResponse = (url) => {
-    // Mock /api/config endpoint
-    if (url.includes('/api/config')) {
+    // Mock /api/rules/ui/config endpoint
+    if (url.includes('/api/rules/ui/config') || url.includes('/api/config')) {
       return Promise.resolve({
         data: {
           conjunctions: { AND: { label: "AND" }, OR: { label: "OR" } },
@@ -111,8 +111,8 @@ beforeEach(() => {
       });
     }
     
-    // Mock /api/config endpoint  
-    if (url === '/api/config' || url.endsWith('/api/config')) {
+    // Mock /api/rules/ui/config endpoint  
+    if (url === '/api/rules/ui/config' || url.endsWith('/api/rules/ui/config') || url === '/api/config' || url.endsWith('/api/config')) {
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({

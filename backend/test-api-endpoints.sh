@@ -9,8 +9,8 @@ echo "🚀 Testing Rule Builder API Endpoints"
 echo "======================================"
 
 # Test 1: Get config (existing endpoint)
-echo -e "\n📋 Testing GET /api/config..."
-curl -s -X GET "$BASE_URL/config" | jq . > /dev/null
+echo -e "\n📋 Testing GET /api/rules/ui/config..."
+curl -s -X GET "$BASE_URL/rules/ui/config" | jq . > /dev/null
 if [ $? -eq 0 ]; then
     echo "✅ Config endpoint working"
 else

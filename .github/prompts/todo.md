@@ -64,8 +64,8 @@ config:
 [ ] Services
     [ ] filter by tenant/sub-tenant?
     [ ] GET api/rules/ids = /list?
-    [ ] GET api/config = /api/rules/config?
-    [ ] POST /api/rules 
+    [X] GET api/config = /api/rules/config
+    [ ] POST /api/rules - confirm how this is being used.
 
 [ ] ruleRef / named conditions
     [ ] ruleRef expansion?

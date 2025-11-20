@@ -49,8 +49,8 @@ export const useRuleBuilder = ({
   const [availableVersions, setAvailableVersions] = useState([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
   
-  // Configuration state
-  const [ruleTypes, setRuleTypes] = useState(['Reporting', 'Validation', 'Calculation', 'Business']);
+  // Configuration state - loaded from API
+  const [ruleTypes, setRuleTypes] = useState([]);
   
   // UI state flags
   const [isLoadedRule, setIsLoadedRule] = useState(false);
