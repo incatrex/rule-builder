@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Table, Button, Modal, Card, Dropdown } from 'antd';
-import { ExclamationCircleOutlined, UpOutlined, DownOutlined, MoreOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, UpOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons';
 import './RuleHistory.css';
 
 /**
@@ -130,7 +130,7 @@ export const RuleHistoryUI = ({
           >
             <Button 
               size="small" 
-              icon={<MoreOutlined />}
+              icon={<EllipsisOutlined />}
               className={classNames.actionsButton}
               data-testid={`rule-history-actions-v${record.version}`}
             />
