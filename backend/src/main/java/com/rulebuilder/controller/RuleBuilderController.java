@@ -20,7 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 @CrossOrigin(origins = "*")
 @Tag(name = "Rule Builder", description = "APIs for managing business rules with versioning and validation")
 public class RuleBuilderController {
@@ -36,16 +36,63 @@ public class RuleBuilderController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Operation(summary = "Get available fields", description = "Retrieves the list of available fields for rule building")
+    @Operation(summary = "Get available fields", description = "Retrieves the list of available fields for rule building with optional pagination")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved fields"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/fields")
-    public ResponseEntity<JsonNode> getFields() {
+    public ResponseEntity<ObjectNode> getFields(
+            @Parameter(description = "Page number (0-based)") @RequestParam(required = false, defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") int size,
+            @Parameter(description = "Search filter") @RequestParam(required = false) String search) {
         try {
-            JsonNode fields = ruleBuilderService.getFields();
-            return ResponseEntity.ok(fields);
+            JsonNode allFields = ruleBuilderService.getFields();
+            
+            // Convert to array if needed
+            java.util.List<JsonNode> fieldsList = new java.util.ArrayList<>();
+            if (allFields.isArray()) {
+                allFields.forEach(fieldsList::add);
+            } else {
+                fieldsList.add(allFields);
+            }
+            
+            // Filter by search term if provided
+            if (search != null && !search.isEmpty()) {
+                String searchLower = search.toLowerCase();
+                fieldsList = fieldsList.stream()
+                    .filter(field -> {
+                        String label = field.has("label") ? field.get("label").asText().toLowerCase() : "";
+                        String value = field.has("value") ? field.get("value").asText().toLowerCase() : "";
+                        return label.contains(searchLower) || value.contains(searchLower);
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+            }
+            
+            int totalElements = fieldsList.size();
+            int totalPages = (int) Math.ceil((double) totalElements / size);
+            
+            // Apply pagination
+            int start = page * size;
+            int end = Math.min(start + size, totalElements);
+            java.util.List<JsonNode> pagedFields = start < totalElements 
+                ? fieldsList.subList(start, end)
+                : new java.util.ArrayList<>();
+            
+            // Build paginated response
+            ObjectNode response = objectMapper.createObjectNode();
+            com.fasterxml.jackson.databind.node.ArrayNode contentArray = objectMapper.createArrayNode();
+            pagedFields.forEach(contentArray::add);
+            
+            response.set("content", contentArray);
+            response.put("page", page);
+            response.put("size", size);
+            response.put("totalElements", totalElements);
+            response.put("totalPages", totalPages);
+            response.put("first", page == 0);
+            response.put("last", page >= totalPages - 1);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -64,24 +111,6 @@ public class RuleBuilderController {
             return ResponseEntity.ok(config);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    @Operation(summary = "Save a rule", description = "Saves a rule with specific ID and version")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Rule saved successfully"),
-        @ApiResponse(responseCode = "500", description = "Error saving rule")
-    })
-    @PostMapping("/rules/{ruleId}/{version}")
-    public ResponseEntity<String> saveRule(
-            @Parameter(description = "Rule identifier") @PathVariable String ruleId,
-            @Parameter(description = "Rule version number") @PathVariable String version,
-            @Parameter(description = "Rule definition in JSON format") @RequestBody JsonNode rule) {
-        try {
-            ruleBuilderService.saveRule(ruleId, version, rule);
-            return ResponseEntity.ok("Rule saved successfully");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error saving rule: " + e.getMessage());
         }
     }
 
@@ -137,17 +166,59 @@ public class RuleBuilderController {
         }
     }
 
-    @Operation(summary = "Get all rule IDs", description = "Retrieves list of all rules with their metadata, optionally filtered by rule type")
+    @Operation(summary = "Get all rules", description = "Retrieves list of all rules with their metadata, with optional filtering and pagination")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved rule IDs"),
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved rules"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @GetMapping("/rules/ids")
-    public ResponseEntity<JsonNode> getRuleIds(
-            @Parameter(description = "Optional filter by rule type") @RequestParam(required = false) String ruleType) {
+    @GetMapping("/rules")
+    public ResponseEntity<ObjectNode> getRules(
+            @Parameter(description = "Optional filter by rule type") @RequestParam(required = false) String ruleType,
+            @Parameter(description = "Page number (0-based)") @RequestParam(required = false, defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") int size,
+            @Parameter(description = "Search filter for ruleId") @RequestParam(required = false) String search) {
         try {
-            JsonNode ruleIds = ruleBuilderService.getRuleIds(ruleType);
-            return ResponseEntity.ok(ruleIds);
+            JsonNode allRules = ruleBuilderService.getRuleIds(ruleType);
+            
+            // Convert to list
+            java.util.List<JsonNode> rulesList = new java.util.ArrayList<>();
+            allRules.forEach(rulesList::add);
+            
+            // Filter by search term if provided
+            if (search != null && !search.isEmpty()) {
+                String searchLower = search.toLowerCase();
+                rulesList = rulesList.stream()
+                    .filter(rule -> {
+                        String ruleId = rule.has("ruleId") ? rule.get("ruleId").asText().toLowerCase() : "";
+                        return ruleId.contains(searchLower);
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+            }
+            
+            int totalElements = rulesList.size();
+            int totalPages = (int) Math.ceil((double) totalElements / size);
+            
+            // Apply pagination
+            int start = page * size;
+            int end = Math.min(start + size, totalElements);
+            java.util.List<JsonNode> pagedRules = start < totalElements 
+                ? rulesList.subList(start, end)
+                : new java.util.ArrayList<>();
+            
+            // Build paginated response
+            ObjectNode response = objectMapper.createObjectNode();
+            com.fasterxml.jackson.databind.node.ArrayNode contentArray = objectMapper.createArrayNode();
+            pagedRules.forEach(contentArray::add);
+            
+            response.set("content", contentArray);
+            response.put("page", page);
+            response.put("size", size);
+            response.put("totalElements", totalElements);
+            response.put("totalPages", totalPages);
+            response.put("first", page == 0);
+            response.put("last", page >= totalPages - 1);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

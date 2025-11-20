@@ -262,15 +262,21 @@ public class RuleBuilderControllerTest {
     @Test
     void testGetFields_Success() throws Exception {
         // Arrange
-        JsonNode fields = objectMapper.createArrayNode().add("field1").add("field2");
-        when(ruleBuilderService.getFields()).thenReturn(fields);
+        ArrayNode fieldsArray = objectMapper.createArrayNode();
+        fieldsArray.add(objectMapper.createObjectNode().put("label", "field1").put("value", "field1"));
+        fieldsArray.add(objectMapper.createObjectNode().put("label", "field2").put("value", "field2"));
+        when(ruleBuilderService.getFields()).thenReturn(fieldsArray);
 
-        // Act
-        ResponseEntity<JsonNode> response = controller.getFields();
+        // Act - call with default pagination parameters
+        ResponseEntity<ObjectNode> response = controller.getFields(0, 20, null);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(fields, response.getBody());
+        assertNotNull(response.getBody());
+        ObjectNode body = response.getBody();
+        assertTrue(body.has("content"));
+        assertTrue(body.has("page"));
+        assertTrue(body.has("totalElements"));
         verify(ruleBuilderService).getFields();
     }
 

@@ -42,7 +42,7 @@ trap cleanup EXIT
 
 # Check if backend is running
 echo -e "\n${YELLOW}Checking if backend is running...${NC}"
-if curl -s http://localhost:8080/api/rules/ui/config > /dev/null 2>&1; then
+if curl -s http://localhost:8080/api/v1/rules/ui/config > /dev/null 2>&1; then
     echo -e "${GREEN}✓ Backend is already running${NC}"
 else
     echo -e "${YELLOW}Starting backend...${NC}"
@@ -58,7 +58,7 @@ else
     
     # Wait up to 60 seconds for backend to be ready
     for i in {1..60}; do
-        if curl -s http://localhost:8080/api/rules/ui/config > /dev/null 2>&1; then
+        if curl -s http://localhost:8080/api/v1/rules/ui/config > /dev/null 2>&1; then
             echo -e "${GREEN}✓ Backend started successfully${NC}"
             break
         fi
@@ -66,7 +66,7 @@ else
         sleep 1
     done
     
-    if ! curl -s http://localhost:8080/api/rules/ui/config > /dev/null 2>&1; then
+    if ! curl -s http://localhost:8080/api/v1/rules/ui/config > /dev/null 2>&1; then
         echo -e "\n${RED}✗ Backend failed to start within 60 seconds${NC}"
         echo "Check logs at /tmp/backend.log"
         exit 1

@@ -17,15 +17,9 @@ class ConfigService {
     return response.data;
   }
 
-  /**
-   * Update application configuration
-   * @param {Object} config - Configuration object
-   * @returns {Object} - Updated configuration
-   */
-  async updateConfig(config) {
-    const response = await this.http.put('/config', config);
-    return response.data;
-  }
+  // Note: No PUT endpoint exists for config - it's generated from schema
+  // Configuration is read-only and comes from rule-schema-current.json
+  // If you need to modify config, update the schema file directly
 }
 
 // Export service
