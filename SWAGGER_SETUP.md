@@ -124,7 +124,7 @@ To view or download the raw OpenAPI specification in JSON format:
 |--------|----------|-------------|
 | POST | `/api/rules` | Create new rule (auto-generates UUID) |
 | PUT | `/api/rules/{uuid}` | Update existing rule (creates new version) |
-| GET | `/api/rules/{ruleId}/{uuid}/{version}` | Get specific rule version |
+| GET | `/api/rules/{uuid}/versions/{version}` | Get specific version (use 'latest' or version #) |
 | POST | `/api/rules/{ruleId}/{version}` | Save rule with specific ID/version |
 | GET | `/api/rules/ids` | Get all rule IDs with metadata |
 
@@ -132,7 +132,8 @@ To view or download the raw OpenAPI specification in JSON format:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/rules/{uuid}/history` | Get version history with metadata |
+| GET | `/api/rules/{uuid}/versions` | Get all versions with metadata |
+| GET | `/api/rules/{uuid}/versions/{version}` | Get specific version (or 'latest') |
 | POST | `/api/rules/{uuid}/restore/{version}` | Restore a previous version |
 
 ### Validation & SQL Generation

@@ -19,14 +19,14 @@ Two endpoints provided overlapping functionality:
 
 #### 1. Controller (`RuleBuilderController.java`)
 - **Removed**: `getRuleVersions()` endpoint method
-- **Updated**: `findMaxVersionForRule()` helper method to use `getRuleHistory()` instead
-  - Now extracts version numbers from history entries
-  - Changed from iterating over version numbers to iterating over history objects
+- **Updated**: `findMaxVersionForRule()` helper method to use `getRuleVersions()` instead
+  - Now extracts version numbers from version metadata entries
+  - Changed from iterating over version numbers to iterating over version metadata objects
 
 #### 2. Tests (`RuleBuilderControllerTest.java`)
 - Added import for `ArrayNode`
-- Updated all test mocks from `getRuleVersions()` to `getRuleHistory()`
-- Changed test data from arrays of numbers to arrays of history objects
+- Updated all test mocks from `getRuleVersions()` to `getRuleVersions()`
+- Changed test data from arrays of numbers to arrays of version metadata objects
 - Updated 5 test methods:
   - `testUpdateRule_Success()`
   - `testUpdateRule_FirstVersion()`
@@ -44,21 +44,22 @@ Two endpoints provided overlapping functionality:
 
 #### 1. Service Layer (`RuleService.js`)
 - **Updated**: `getRuleVersions()` method
-  - Changed from direct API call to computed method
-  - Now calls `getRuleHistory()` and extracts version numbers
+  - Changed from direct API call to call `/rules/{uuid}/versions`
+  - Returns full version metadata array
+- **Added**: `getVersionNumbers()` method
+  - Extracts just version numbers from metadata
   - Returns sorted array of versions (descending order)
 
 ```javascript
-// Before
+// New implementation
 async getRuleVersions(uuid) {
-  const response = await this.http.get(`/rules/versions/${uuid}`);
+  const response = await this.http.get(`/rules/${uuid}/versions`);
   return response.data;
 }
 
-// After
-async getRuleVersions(uuid) {
-  const history = await this.getRuleHistory(uuid);
-  return history.map(entry => entry.version).sort((a, b) => b - a);
+async getVersionNumbers(uuid) {
+  const versions = await this.getRuleVersions(uuid);
+  return versions.map(entry => entry.version).sort((a, b) => b - a);
 }
 ```
 
@@ -107,7 +108,7 @@ curl GET /api/rules/versions/550e8400-e29b-41d4-a716-446655440000
 
 **After:**
 ```bash
-curl GET /api/rules/550e8400-e29b-41d4-a716-446655440000/history
+curl GET /api/rules/550e8400-e29b-41d4-a716-446655440000/versions
 # Returns: [
 #   {"ruleId": "test", "version": 4, "modifiedBy": "...", "modifiedOn": ...},
 #   {"ruleId": "test", "version": 3, ...},

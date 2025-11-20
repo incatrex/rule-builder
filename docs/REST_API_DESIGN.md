@@ -390,7 +390,7 @@ class RuleService {
   async updateRule(uuid, rule) { ... }
   async deleteRule(uuid) { ... }
   async validateRule(rule) { ... }
-  async getRuleHistory(uuid) { ... }
+  async getRuleVersions(uuid) { ... }
   async restoreVersion(uuid, version) { ... }
   async convertToSql(uuid, version) { ... }
 }

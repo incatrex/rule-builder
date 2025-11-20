@@ -107,8 +107,8 @@ export const useRuleBuilder = ({
     
     try {
       setLoadingVersions(true);
-      const versions = await ruleService.getRuleVersions(uuid);
-      const versionOptions = versions.map(v => ({
+      const versionNumbers = await ruleService.getVersionNumbers(uuid);
+      const versionOptions = versionNumbers.map(v => ({
         value: v,
         label: `${v}`
       }));

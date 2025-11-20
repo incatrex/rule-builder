@@ -128,31 +128,18 @@ class RuleService {
   }
 
   /**
-   * Get specific rule version by ruleId and uuid
-   * @param {string} ruleId - Rule ID
-   * @param {string} uuid - Rule UUID
-   * @param {number} version - Version number
-   * @returns {Object} - Rule object
-   */
-  async getRuleByVersion(ruleId, uuid, version) {
-    const response = await this.http.get(`/rules/${ruleId}/${uuid}/${version}`);
-    return response.data;
-  }
-
-  /**
    * Get specific rule (latest version)
    * @param {string} uuid - Rule UUID
    * @returns {Object} - Rule object
    */
   async getRule(uuid) {
-    const response = await this.http.get(`/rules/${uuid}`);
-    return response.data;
+    return this.getRuleVersion(uuid, 'latest');
   }
 
   /**
    * Get specific rule version
    * @param {string} uuid - Rule UUID
-   * @param {number} version - Version number
+   * @param {number|string} version - Version number or 'latest'
    * @returns {Object} - Rule object
    */
   async getRuleVersion(uuid, version) {
@@ -161,30 +148,43 @@ class RuleService {
   }
 
   /**
-   * Get all versions of a rule
+   * Get specific rule version by ruleId (legacy - deprecated)
+   * @param {string} ruleId - Rule ID
    * @param {string} uuid - Rule UUID
-   * @returns {Array} - Array of version numbers
+   * @param {number} version - Version number
+   * @returns {Object} - Rule object
+   * @deprecated Use getRuleVersion(uuid, version) instead
    */
-  async getRuleVersions(uuid) {
-    const history = await this.getRuleHistory(uuid);
-    return history.map(entry => entry.version).sort((a, b) => b - a);
+  async getRuleByVersion(ruleId, uuid, version) {
+    // Redirect to new endpoint
+    return this.getRuleVersion(uuid, version);
   }
 
   /**
-   * Get rule history
+   * Get all versions with full metadata
    * @param {string} uuid - Rule UUID
-   * @returns {Array} - Rule history entries
+   * @returns {Array} - Array of version objects with metadata
    */
-  async getRuleHistory(uuid) {
-    const response = await this.http.get(`/rules/${uuid}/history`);
+  async getRuleVersions(uuid) {
+    const response = await this.http.get(`/rules/${uuid}/versions`);
     return response.data;
   }
 
   /**
-   * Restore a specific rule version
+   * Get all version numbers only
+   * @param {string} uuid - Rule UUID
+   * @returns {Array} - Array of version numbers
+   */
+  async getVersionNumbers(uuid) {
+    const versions = await this.getRuleVersions(uuid);
+    return versions.map(entry => entry.version).sort((a, b) => b - a);
+  }
+
+  /**
+   * Restore a previous version (creates new version)
    * @param {string} uuid - Rule UUID
    * @param {number} version - Version to restore
-   * @returns {Object} - Success response
+   * @returns {Object} - Success response with new version info
    */
   async restoreRuleVersion(uuid, version) {
     const response = await this.http.post(`/rules/${uuid}/restore/${version}`);

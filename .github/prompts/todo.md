@@ -54,3 +54,19 @@ config:
     [ ] data-test-id every element
     [ ] integration test coverage
     [ ] unit test coverage
+
+[ ] Rule History
+    [ ] Release Tags/
+    [ ] SQL
+    [ ] double check test-integration.sh (4 vs 3 versions?)
+
+
+[ ] Services
+    [ ] filter by tenant/sub-tenant?
+    [ ] GET api/rules/ids = /list?
+    [ ] GET api/config = /api/rules/config?
+    [ ] POST /api/rules 
+
+[ ] ruleRef / named conditions
+    [ ] ruleRef expansion?
+    [ ] ruleRef for condition?

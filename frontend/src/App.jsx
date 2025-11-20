@@ -215,7 +215,7 @@ const App = () => {
 
   // Stable callbacks for RuleHistory to prevent unnecessary re-renders
   const handleFetchHistory = useCallback(
-    (uuid) => ruleService.getRuleHistory(uuid),
+    (uuid) => ruleService.getRuleVersions(uuid),
     []
   );
 

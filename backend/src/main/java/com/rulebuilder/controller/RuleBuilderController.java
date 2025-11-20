@@ -12,8 +12,6 @@ import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -87,19 +85,48 @@ public class RuleBuilderController {
         }
     }
 
-    @Operation(summary = "Get a specific rule", description = "Retrieves a rule by ID, UUID, and version")
+    @Operation(summary = "Get a specific rule version", description = "Retrieves a rule by UUID and version number or 'latest' keyword")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Rule found and returned"),
         @ApiResponse(responseCode = "404", description = "Rule not found"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @GetMapping("/rules/{ruleId}/{uuid}/{version}")
-    public ResponseEntity<JsonNode> getRule(
-            @Parameter(description = "Rule identifier") @PathVariable String ruleId,
+    @GetMapping("/rules/{uuid}/versions/{version}")
+    public ResponseEntity<JsonNode> getRuleVersion(
             @Parameter(description = "Rule UUID") @PathVariable String uuid,
-            @Parameter(description = "Rule version number") @PathVariable String version) {
+            @Parameter(description = "Rule version number or 'latest'") @PathVariable String version) {
         try {
-            JsonNode rule = ruleBuilderService.getRule(ruleId, uuid, version);
+            // Handle 'latest' keyword
+            String resolvedVersion = version;
+            if ("latest".equalsIgnoreCase(version)) {
+                JsonNode history = ruleBuilderService.getRuleVersions(uuid);
+                if (history.isEmpty()) {
+                    return ResponseEntity.notFound().build();
+                }
+                resolvedVersion = String.valueOf(history.get(0).get("version").asInt());
+            }
+            
+            // Get ruleId from history
+            JsonNode history = ruleBuilderService.getRuleVersions(uuid);
+            if (history.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Find the entry with matching version
+            String ruleId = null;
+            for (JsonNode entry : history) {
+                if (entry.get("version").asInt() == Integer.parseInt(resolvedVersion)) {
+                    ruleId = entry.get("ruleId").asText();
+                    break;
+                }
+            }
+            
+            if (ruleId == null) {
+                // If not found in history, use the latest ruleId (rule might have been renamed)
+                ruleId = history.get(0).get("ruleId").asText();
+            }
+            
+            JsonNode rule = ruleBuilderService.getRule(ruleId, uuid, resolvedVersion);
             if (rule != null) {
                 return ResponseEntity.ok(rule);
             } else {
@@ -164,16 +191,16 @@ public class RuleBuilderController {
         }
     }
 
-    @Operation(summary = "Get rule history", description = "Retrieves version history for a specific rule UUID")
+    @Operation(summary = "Get rule versions", description = "Retrieves all versions with metadata for a specific rule UUID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved history"),
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved versions"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @GetMapping("/rules/{uuid}/history")
-    public ResponseEntity<JsonNode> getRuleHistory(
+    @GetMapping("/rules/{uuid}/versions")
+    public ResponseEntity<JsonNode> getRuleVersions(
             @Parameter(description = "Rule UUID") @PathVariable String uuid) {
         try {
-            JsonNode history = ruleBuilderService.getRuleHistory(uuid);
+            JsonNode history = ruleBuilderService.getRuleVersions(uuid);
             return ResponseEntity.ok(history);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -279,7 +306,7 @@ public class RuleBuilderController {
      * Helper method to find maximum version for a rule UUID
      */
     private int findMaxVersionForRule(String uuid) throws Exception {
-        JsonNode history = ruleBuilderService.getRuleHistory(uuid);
+        JsonNode history = ruleBuilderService.getRuleVersions(uuid);
         int maxVersion = 0;
         for (JsonNode entry : history) {
             if (entry.has("version")) {

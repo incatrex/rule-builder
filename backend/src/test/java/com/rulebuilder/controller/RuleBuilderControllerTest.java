@@ -105,7 +105,7 @@ public class RuleBuilderControllerTest {
         history.add(objectMapper.createObjectNode().put("version", 2));
         history.add(objectMapper.createObjectNode().put("version", 1));
         
-        when(ruleBuilderService.getRuleHistory(uuid)).thenReturn(history);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(history);
         doNothing().when(ruleBuilderService).saveRule(anyString(), anyString(), any(JsonNode.class));
 
         // Act
@@ -131,7 +131,7 @@ public class RuleBuilderControllerTest {
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
         JsonNode emptyHistory = objectMapper.createArrayNode();
         
-        when(ruleBuilderService.getRuleHistory(uuid)).thenReturn(emptyHistory);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(emptyHistory);
         doNothing().when(ruleBuilderService).saveRule(anyString(), anyString(), any(JsonNode.class));
 
         // Act
@@ -150,7 +150,7 @@ public class RuleBuilderControllerTest {
         // Arrange
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
         
-        when(ruleBuilderService.getRuleHistory(uuid))
+        when(ruleBuilderService.getRuleVersions(uuid))
                 .thenThrow(new RuntimeException("Rule not found"));
 
         // Act
@@ -173,7 +173,7 @@ public class RuleBuilderControllerTest {
         history.add(objectMapper.createObjectNode().put("version", 2));
         history.add(objectMapper.createObjectNode().put("version", 5));
         
-        when(ruleBuilderService.getRuleHistory(uuid)).thenReturn(history);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(history);
 
         // Act - Use reflection to test private method
         java.lang.reflect.Method method = controller.getClass().getDeclaredMethod("findMaxVersionForRule", String.class);
@@ -190,7 +190,7 @@ public class RuleBuilderControllerTest {
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
         JsonNode emptyHistory = objectMapper.createArrayNode();
         
-        when(ruleBuilderService.getRuleHistory(uuid)).thenReturn(emptyHistory);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(emptyHistory);
 
         // Act - Use reflection to test private method
         java.lang.reflect.Method method = controller.getClass().getDeclaredMethod("findMaxVersionForRule", String.class);
@@ -240,7 +240,7 @@ public class RuleBuilderControllerTest {
         
         ArrayNode history = objectMapper.createArrayNode();
         history.add(objectMapper.createObjectNode().put("version", 1));
-        when(ruleBuilderService.getRuleHistory(uuid)).thenReturn(history);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(history);
         doNothing().when(ruleBuilderService).saveRule(anyString(), anyString(), any(JsonNode.class));
 
         // Act
