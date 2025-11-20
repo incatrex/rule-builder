@@ -198,7 +198,11 @@ test.describe('Rule Versioning E2E Tests', () => {
     
     console.log('STEP 4: Viewing version 1...');
 
-    // Click View button for version 1
+    // Click actions dropdown for version 1
+    await page.getByTestId('rule-history-actions-v1').click();
+    await page.waitForTimeout(200);
+    
+    // Click View in dropdown menu
     await page.getByTestId('rule-history-view-v1').click();
     await page.waitForTimeout(1000);
 
@@ -218,7 +222,11 @@ test.describe('Rule Versioning E2E Tests', () => {
     
     console.log('STEP 5: Viewing version 2...');
 
-    // Click View button for version 2
+    // Click actions dropdown for version 2
+    await page.getByTestId('rule-history-actions-v2').click();
+    await page.waitForTimeout(200);
+    
+    // Click View in dropdown menu
     await page.getByTestId('rule-history-view-v2').click();
     await page.waitForTimeout(1000);
 
@@ -238,7 +246,11 @@ test.describe('Rule Versioning E2E Tests', () => {
     
     console.log('STEP 6: Restoring version 1...');
 
-    // Click Restore button for version 1
+    // Click actions dropdown for version 1
+    await page.getByTestId('rule-history-actions-v1').click();
+    await page.waitForTimeout(200);
+    
+    // Click Restore in dropdown menu
     await page.getByTestId('rule-history-restore-v1').click();
 
     // Wait for confirmation modal
@@ -274,7 +286,11 @@ test.describe('Rule Versioning E2E Tests', () => {
     
     console.log('STEP 7: Verifying version 2 unchanged...');
 
-    // Click View button for version 2
+    // Click actions dropdown for version 2
+    await page.getByTestId('rule-history-actions-v2').click();
+    await page.waitForTimeout(200);
+    
+    // Click View in dropdown menu
     await page.getByTestId('rule-history-view-v2').click();
     await page.waitForTimeout(1000);
 
@@ -291,8 +307,20 @@ test.describe('Rule Versioning E2E Tests', () => {
     
     console.log('STEP 8: Verifying version 3 matches version 1...');
 
-    // Click View button for version 3
+    // Click actions dropdown for version 3
+    await page.getByTestId('rule-history-actions-v3').click();
+    await page.waitForTimeout(200);
+    
+    // Click View in dropdown menu
     await page.getByTestId('rule-history-view-v3').click();
+    await page.waitForTimeout(1000);
+
+    // Click actions dropdown for version 3
+    await page.getByTestId('rule-history-actions-v3').click();
+    await page.waitForTimeout(200);
+    
+    // Click View in dropdown menu (use visible dropdown)
+    await page.locator('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("View")').click();
     await page.waitForTimeout(1000);
 
     await expect(page.locator('code:has-text("Condition v1")')).toBeVisible({ timeout: 3000 });

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Table, Button, Modal, Card } from 'antd';
-import { ExclamationCircleOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Card, Dropdown } from 'antd';
+import { ExclamationCircleOutlined, UpOutlined, DownOutlined, MoreOutlined } from '@ant-design/icons';
 import './RuleHistory.css';
 
 /**
@@ -103,30 +103,40 @@ export const RuleHistoryUI = ({
     {
       title: 'Actions',
       key: 'actions',
-      width: '20%',
+      width: '10%',
       className: classNames.columnActions,
-      render: (_, record, index) => (
-        <div className={classNames.actions || 'rule-history__actions'}>
-          <Button 
-            size="small" 
-            onClick={() => onView(record)}
-            className={classNames.viewButton}
-            data-testid={`rule-history-view-v${record.version}`}
+      render: (_, record, index) => {
+        const menuItems = [
+          {
+            key: 'view',
+            label: <span data-testid={`rule-history-view-v${record.version}`}>View</span>,
+            onClick: () => onView(record),
+          },
+        ];
+        
+        if (index !== 0) {
+          menuItems.push({
+            key: 'restore',
+            label: <span data-testid={`rule-history-restore-v${record.version}`}>Restore</span>,
+            onClick: () => handleRestore(record),
+          });
+        }
+        
+        return (
+          <Dropdown
+            menu={{ items: menuItems }}
+            trigger={['click']}
+            placement="bottomRight"
           >
-            View
-          </Button>
-          {index !== 0 && (
             <Button 
               size="small" 
-              onClick={() => handleRestore(record)}
-              className={classNames.restoreButton}
-              data-testid={`rule-history-restore-v${record.version}`}
-            >
-              Restore
-            </Button>
-          )}
-        </div>
-      ),
+              icon={<MoreOutlined />}
+              className={classNames.actionsButton}
+              data-testid={`rule-history-actions-v${record.version}`}
+            />
+          </Dropdown>
+        );
+      },
     },
   ].filter(Boolean); // Remove falsy columns (e.g., when showRuleId is false)
 
