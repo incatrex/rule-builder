@@ -29,7 +29,7 @@ describe('UI Creation Tests - Can we recreate sample rules?', () => {
     
     // Wait for component to be ready
     await waitFor(() => {
-      expect(screen.queryByText(/Rule Metadata/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Metadata:/i)).toBeInTheDocument();
     }, { timeout: 3000 });
     
     // TODO: This test documents what we NEED to do to recreate the rule:
@@ -68,7 +68,7 @@ describe('UI Creation Tests - Can we recreate sample rules?', () => {
     const { container } = render(<RuleBuilder />);
     
     await waitFor(() => {
-      expect(screen.queryByText(/Rule Metadata/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Metadata:/i)).toBeInTheDocument();
     }, { timeout: 3000 });
     
     // TODO: Steps needed:
@@ -92,7 +92,7 @@ describe('UI Creation Tests - Can we recreate sample rules?', () => {
     const { container } = render(<RuleBuilder />);
     
     await waitFor(() => {
-      expect(screen.queryByText(/Rule Metadata/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Metadata:/i)).toBeInTheDocument();
     }, { timeout: 3000 });
     
     // Try to find an input where we can type a number

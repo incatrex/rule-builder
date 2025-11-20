@@ -5,6 +5,7 @@ import { ConfigService } from './services/ConfigService.js';
 import { FieldService } from './services/FieldService.js';
 import { RuleService } from './services/RuleService.js';
 import { RuleBuilder } from './components/RuleBuilder'; // Use refactored version
+import { RuleHeader } from './components/RuleBuilder/RuleHeader';
 import RuleSearch from './RuleSearch';
 import { RuleHistory } from './components/RuleHistory'; // Use refactored version
 import JsonEditor from './JsonEditor';
@@ -362,39 +363,69 @@ const App = () => {
                 maxLeftWidth={80}
                 leftPanel={
                   <div style={{ 
-                    overflow: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
                     height: '100%'
                   }}>
-                    <RuleHistory
-                      selectedRuleUuid={selectedRuleUuid}
-                      onFetchHistory={handleFetchHistory}
-                      onRestoreVersion={handleRestoreVersion}
-                      onViewVersion={handleViewVersion}
-                      onRestoreComplete={handleRestoreComplete}
-                      darkMode={darkMode}
-                    />
-                    <RuleBuilder
-                      ref={ruleBuilderRef}
-                      config={ruleConfig}
-                      darkMode={darkMode}
-                      selectedRuleUuid={selectedRuleUuid}
-                      onRuleChange={(data) => setRuleBuilderData(data)}
-                      onSaveSuccess={(result) => {
-                        // Update selected UUID if it's a new rule
-                        if (result && result.uuid && !selectedRuleUuid) {
-                          setSelectedRuleUuid(result.uuid);
-                        } else if (selectedRuleUuid) {
-                          // For existing rules, force history refresh by clearing and resetting UUID
-                          setSelectedRuleUuid(null);
-                          setTimeout(() => setSelectedRuleUuid(result.uuid), 0);
-                        }
-                        
-                        // Refresh the rule search dropdown after successful save
-                        if (ruleSearchRef.current) {
-                          ruleSearchRef.current.refresh();
-                        }
-                      }}
-                    />
+                    {/* Fixed Header */}
+                    <div style={{ 
+                      padding: '16px 16px 0 16px',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 5,
+                      background: darkMode ? '#141414' : '#f5f5f5'
+                    }}>
+                      <RuleHeader 
+                        ruleData={ruleBuilderData || { 
+                          metadata: { id: '', description: '' },
+                          ruleType: 'Reporting',
+                          version: 1 
+                        }}
+                        onSave={() => {
+                          if (ruleBuilderRef.current) {
+                            ruleBuilderRef.current.handleSave();
+                          }
+                        }}
+                        darkMode={darkMode}
+                      />
+                    </div>
+                    
+                    {/* Scrollable Content */}
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                      <RuleHistory
+                        selectedRuleUuid={selectedRuleUuid}
+                        onFetchHistory={handleFetchHistory}
+                        onRestoreVersion={handleRestoreVersion}
+                        onViewVersion={handleViewVersion}
+                        onRestoreComplete={handleRestoreComplete}
+                        darkMode={darkMode}
+                        collapsible={true}
+                        defaultCollapsed={false}
+                        maxHeight="calc(100vh - 300px)"
+                      />
+                      <RuleBuilder
+                        ref={ruleBuilderRef}
+                        config={ruleConfig}
+                        darkMode={darkMode}
+                        selectedRuleUuid={selectedRuleUuid}
+                        onRuleChange={(data) => setRuleBuilderData(data)}
+                        onSaveSuccess={(result) => {
+                          // Update selected UUID if it's a new rule
+                          if (result && result.uuid && !selectedRuleUuid) {
+                            setSelectedRuleUuid(result.uuid);
+                          } else if (selectedRuleUuid) {
+                            // For existing rules, force history refresh by clearing and resetting UUID
+                            setSelectedRuleUuid(null);
+                            setTimeout(() => setSelectedRuleUuid(result.uuid), 0);
+                          }
+                          
+                          // Refresh the rule search dropdown after successful save
+                          if (ruleSearchRef.current) {
+                            ruleSearchRef.current.refresh();
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 }
                 rightPanel={

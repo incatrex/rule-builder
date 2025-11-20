@@ -97,7 +97,7 @@ const ResizablePanels = ({
         <div
           onMouseDown={handleMouseDown}
           style={{
-            width: '8px',
+            width: '4px',
             alignSelf: 'stretch',
             background: darkMode ? '#434343' : '#d9d9d9',
             cursor: 'col-resize',

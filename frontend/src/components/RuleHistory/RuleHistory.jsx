@@ -102,6 +102,11 @@ export const RuleHistory = ({
   unstyled,
   darkMode, // Legacy support
   
+  // Collapse props
+  collapsible,
+  defaultCollapsed,
+  maxHeight,
+  
   // UI customization
   messages,
   showRuleId,
@@ -144,10 +149,12 @@ export const RuleHistory = ({
       await restoreVersion(record.version);
       
       if (showNotifications) {
-        message.success(
-          messages?.restoreSuccess?.(record.version) || 
-          `Version ${record.version} restored successfully`
-        );
+        const successMessage = messages?.restoreSuccess?.(record.version) || 
+          `Version ${record.version} restored successfully`;
+        message.success({
+          content: successMessage,
+          'data-testid': 'restore-success-message'
+        });
       }
       
       if (onRestoreComplete) {
@@ -179,6 +186,9 @@ export const RuleHistory = ({
       classNames={classNames}
       sx={sx}
       unstyled={unstyled}
+      collapsible={collapsible}
+      defaultCollapsed={defaultCollapsed}
+      maxHeight={maxHeight}
       messages={messages}
       showRuleId={showRuleId}
       pageSize={pageSize}

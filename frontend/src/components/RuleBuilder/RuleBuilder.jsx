@@ -113,7 +113,8 @@ const RuleBuilder = forwardRef(({
   useImperativeHandle(ref, () => ({
     getRuleOutput,
     loadRuleData,
-    newRule
+    newRule,
+    handleSave: handleSaveRule
   }));
 
   // Create callback handlers for UI

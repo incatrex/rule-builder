@@ -1,5 +1,6 @@
-import { Table, Button, Modal, Card } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Table, Button, Modal, Card, Dropdown } from 'antd';
+import { ExclamationCircleOutlined, UpOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons';
 import './RuleHistory.css';
 
 /**
@@ -32,6 +33,11 @@ export const RuleHistoryUI = ({
   sx = {},
   unstyled = false,
   
+  // Collapse options
+  collapsible = true,
+  defaultCollapsed = false,
+  maxHeight = 'calc(50vh - 100px)', // Max height before scrolling
+  
   // Customization
   messages = {
     noRuleSelected: 'Select a rule to view its version history',
@@ -50,6 +56,8 @@ export const RuleHistoryUI = ({
   pageSize = null, // null = no pagination
   scrollY = 150,
 }) => {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+
   const handleRestore = (record) => {
     Modal.confirm({
       title: messages.confirmTitle,
@@ -76,6 +84,20 @@ export const RuleHistoryUI = ({
       key: 'version',
       width: showRuleId ? '12%' : '15%',
       className: classNames.columnVersion,
+      render: (version, record) => {
+        // Check if this version was restored from another version
+        if (record.restoredFromVersion) {
+          return `${version} [${record.restoredFromVersion}]`;
+        }
+        return version;
+      },
+    },
+    {
+      title: 'Rule Set',
+      dataIndex: 'ruleSet',
+      key: 'ruleSet',
+      width: '15%',
+      className: classNames.columnRuleSet,
     },
     {
       title: 'Modified By',
@@ -90,35 +112,57 @@ export const RuleHistoryUI = ({
       key: 'modifiedOn',
       width: '26%',
       className: classNames.columnModifiedOn,
-      render: (timestamp) => new Date(timestamp).toLocaleString(),
+      render: (timestamp) => {
+        const date = new Date(timestamp);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12; // Convert to 12-hour format
+        const hoursStr = String(hours).padStart(2, '0');
+        return `${year}-${month}-${day} ${hoursStr}:${minutes}:${seconds} ${ampm}`;
+      },
     },
     {
       title: 'Actions',
       key: 'actions',
-      width: '20%',
+      width: '10%',
       className: classNames.columnActions,
-      render: (_, record, index) => (
-        <div className={classNames.actions || 'rule-history__actions'}>
-          <Button 
-            size="small" 
-            onClick={() => onView(record)}
-            className={classNames.viewButton}
-            data-testid={`rule-history-view-v${record.version}`}
+      render: (_, record, index) => {
+        const menuItems = [
+          {
+            key: 'view',
+            label: <span data-testid={`rule-history-view-v${record.version}`}>View</span>,
+            onClick: () => onView(record),
+          },
+        ];
+        
+        if (index !== 0) {
+          menuItems.push({
+            key: 'restore',
+            label: <span data-testid={`rule-history-restore-v${record.version}`}>Restore</span>,
+            onClick: () => handleRestore(record),
+          });
+        }
+        
+        return (
+          <Dropdown
+            menu={{ items: menuItems }}
+            trigger={['click']}
+            placement="bottomRight"
           >
-            View
-          </Button>
-          {index !== 0 && (
             <Button 
               size="small" 
-              onClick={() => handleRestore(record)}
-              className={classNames.restoreButton}
-              data-testid={`rule-history-restore-v${record.version}`}
-            >
-              Restore
-            </Button>
-          )}
-        </div>
-      ),
+              icon={<EllipsisOutlined />}
+              className={classNames.actionsButton}
+              data-testid={`rule-history-actions-v${record.version}`}
+            />
+          </Dropdown>
+        );
+      },
     },
   ].filter(Boolean); // Remove falsy columns (e.g., when showRuleId is false)
 
@@ -161,16 +205,32 @@ export const RuleHistoryUI = ({
   return (
     <div className={rootClassName}>
       <Card
-        title={messages.title}
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{messages.title}</span>
+            {collapsible && (
+              <Button
+                type="text"
+                size="small"
+                icon={collapsed ? <DownOutlined /> : <UpOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ marginLeft: 'auto' }}
+              />
+            )}
+          </div>
+        }
         className="rule-history-card"
         style={{
           background: theme?.background || '#ffffff',
           border: `1px solid ${theme?.borderColor || '#d9d9d9'}`,
+          marginBottom: '16px',
           ...themeVars,
           ...sx
         }}
         data-component="rule-history"
       >
+        {!collapsed && (
+        <div style={{ maxHeight, overflow: 'auto' }}>
         <Table
           className={classNames.table || 'rule-history__table'}
           columns={columns}
@@ -179,8 +239,9 @@ export const RuleHistoryUI = ({
           rowKey={(record) => `${record.ruleId}-${record.version}`}
           pagination={pageSize ? { pageSize } : false}
           size="small"
-          scroll={{ y: scrollY }}
         />
+        </div>
+        )}
       </Card>
     </div>
   );
