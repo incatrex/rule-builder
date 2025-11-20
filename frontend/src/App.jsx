@@ -354,11 +354,10 @@ const App = () => {
               )}
               
               {/* Center and Right Panels with Resizable Divider */}
-              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-                <ResizablePanels
-                  darkMode={darkMode}
-                  rightPanelCollapsed={jsonPanelCollapsed}
-                  defaultLeftWidth={60}
+              <ResizablePanels
+                darkMode={darkMode}
+                rightPanelCollapsed={jsonPanelCollapsed}
+                defaultLeftWidth={60}
                 minLeftWidth={30}
                 maxLeftWidth={80}
                 leftPanel={
@@ -479,7 +478,7 @@ const App = () => {
                       {activeTab === 'sql' && (
                         <div style={{ 
                           flex: 1,
-                          overflow: 'hidden',
+                          overflow: 'auto',
                           minWidth: 0,
                           minHeight: 0,
                           display: 'flex',
@@ -509,7 +508,6 @@ const App = () => {
                   </div>
                 }
               />
-              </div>
                 
               {/* Expand JSON Button - Only shown when collapsed */}
               {jsonPanelCollapsed && (
