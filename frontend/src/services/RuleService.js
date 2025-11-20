@@ -166,8 +166,8 @@ class RuleService {
    * @returns {Array} - Array of version numbers
    */
   async getRuleVersions(uuid) {
-    const response = await this.http.get(`/rules/versions/${uuid}`);
-    return response.data;
+    const history = await this.getRuleHistory(uuid);
+    return history.map(entry => entry.version).sort((a, b) => b - a);
   }
 
   /**

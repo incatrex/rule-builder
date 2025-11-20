@@ -85,8 +85,8 @@ else
 fi
 
 # Test 5: Get rule versions (existing endpoint with new UUID)
-echo -e "\n📚 Testing GET /api/rules/versions/{uuid}..."
-curl -s -X GET "$BASE_URL/rules/versions/$UUID" | jq . > /dev/null
+echo -e "\n📚 Testing GET /api/rules/{uuid}/history..."
+curl -s -X GET "$BASE_URL/rules/$UUID/history" | jq . > /dev/null
 if [ $? -eq 0 ]; then
     echo "✅ Rule versions endpoint working with new UUID"
 else
