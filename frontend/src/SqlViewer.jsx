@@ -82,10 +82,11 @@ const SqlViewer = forwardRef(({ ruleData, darkMode = false, onRefresh }, ref) =>
       display: 'flex',
       flexDirection: 'column',
       backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
-      overflow: 'hidden'
+      minWidth: 0,
+      width: '100%'
     }}>
       <div style={{ 
-        padding: '16px',
+        padding: '12px 16px',
         borderBottom: `1px solid ${darkMode ? '#434343' : '#f0f0f0'}`,
         display: 'flex',
         justifyContent: 'flex-end',
@@ -97,6 +98,7 @@ const SqlViewer = forwardRef(({ ruleData, darkMode = false, onRefresh }, ref) =>
             onClick={handleRefresh}
             disabled={loading || !ruleData}
             style={{ marginRight: 8 }}
+            size="small"
           >
             Refresh
           </Button>
@@ -104,6 +106,7 @@ const SqlViewer = forwardRef(({ ruleData, darkMode = false, onRefresh }, ref) =>
             icon={<CopyOutlined />}
             onClick={handleCopy}
             disabled={!sql || loading}
+            size="small"
           >
             Copy
           </Button>
@@ -111,17 +114,15 @@ const SqlViewer = forwardRef(({ ruleData, darkMode = false, onRefresh }, ref) =>
       </div>
       <div style={{ 
         flex: 1,
-        overflow: 'auto',
         backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
-        width: '100%'
+        minHeight: 0,
+        minWidth: 0
       }}>
         <Spin spinning={loading} tip="Generating SQL...">
           <div style={{ 
-            padding: '16px',
-            minHeight: '200px',
-            backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
-            width: '100%',
-            boxSizing: 'border-box'
+            padding: '12px',
+            minHeight: '100%',
+            backgroundColor: darkMode ? '#1e1e1e' : '#ffffff'
           }}>
             {error && (
               <div style={{ 
@@ -136,24 +137,35 @@ const SqlViewer = forwardRef(({ ruleData, darkMode = false, onRefresh }, ref) =>
               </div>
             )}
             {sql ? (
-              <SyntaxHighlighter
-                language="sql"
-                style={tomorrow}
-                customStyle={{
-                  margin: 0,
-                  padding: '16px',
-                  backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
-                  fontSize: '14px',
-                  lineHeight: '1.6',
-                  whiteSpace: 'pre',
-                  overflowX: 'auto',
-                  maxWidth: '100%'
+              <div 
+                style={{ 
+                  overflow: 'auto',
+                  width: '100%',
+                  height: '100%'
                 }}
-                wrapLines={false}
-                wrapLongLines={false}
               >
-                {sql}
-              </SyntaxHighlighter>
+                <SyntaxHighlighter
+                  language="sql"
+                  style={tomorrow}
+                  customStyle={{
+                    margin: 0,
+                    padding: '12px',
+                    fontSize: '13px',
+                    lineHeight: '1.5',
+                    borderRadius: '4px',
+                    display: 'inline-block',
+                    minWidth: '100%',
+                    backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5'
+                  }}
+                  codeTagProps={{
+                    style: {
+                      fontFamily: 'Monaco, Menlo, Consolas, "Courier New", monospace'
+                    }
+                  }}
+                >
+                  {sql}
+                </SyntaxHighlighter>
+              </div>
             ) : !loading && !error && (
               <div style={{ 
                 color: darkMode ? '#888' : '#999',

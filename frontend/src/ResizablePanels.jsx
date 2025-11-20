@@ -139,7 +139,9 @@ const ResizablePanels = ({
         <div style={{ 
           width: `${rightWidth}%`, 
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          overflow: 'hidden',
+          minWidth: 0
         }}>
           {rightPanel}
         </div>
