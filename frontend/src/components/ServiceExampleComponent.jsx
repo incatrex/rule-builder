@@ -30,12 +30,20 @@ const ServiceExampleComponent = () => {
       const [rulesResponse, configResponse, fieldsResponse] = await Promise.all([
         ruleService.getRules({ page: 1, size: 10 }),
         configService.getConfig(),
-        fieldService.getFields({ page: 1, size: 50 })
+        fieldService.getFields({ page: 0, size: 5 })
       ]);
 
       setRules(rulesResponse.content || rulesResponse);
       setConfig(configResponse);
-      setFields(fieldsResponse.content || fieldsResponse);
+      // fieldsResponse.content is now hierarchical, convert to array for display
+      const fieldsArray = fieldsResponse.content ? Object.entries(fieldsResponse.content).flatMap(([entityName, entity]) => {
+        return entity.subfields ? Object.entries(entity.subfields).map(([fieldName, field]) => ({
+          id: `${entityName}.${fieldName}`,
+          name: `${entityName}.${fieldName}`,
+          type: field.type || 'text'
+        })) : [];
+      }) : [];
+      setFields(fieldsArray);
     } catch (err) {
       setError('Failed to load initial data: ' + err.message);
       console.error('Service error:', err);
