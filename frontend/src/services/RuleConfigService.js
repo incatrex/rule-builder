@@ -1,9 +1,9 @@
 import { HttpHelper } from './RuleService.js';
 
 /**
- * Config Service - Handles configuration-related API operations
+ * RuleConfigService - Handles configuration-related API operations
  */
-class ConfigService {
+class RuleConfigService {
   constructor(httpHelper = new HttpHelper()) {
     this.http = httpHelper;
   }
@@ -23,4 +23,4 @@ class ConfigService {
 }
 
 // Export service
-export { ConfigService };
+export { RuleConfigService };

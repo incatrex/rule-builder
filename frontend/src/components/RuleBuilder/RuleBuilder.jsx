@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
-import { RuleService, ConfigService } from '../../services';
+import { RuleService, RuleConfigService } from '../../services';
 import { useRuleBuilder } from './useRuleBuilder';
 import { RuleBuilderUI } from './RuleBuilderUI';
 import './RuleBuilder.css';
@@ -85,7 +85,7 @@ const RuleBuilder = forwardRef(({
 }, ref) => {
   // Initialize services (use custom or default)
   const ruleService = customRuleService || new RuleService();
-  const configService = customConfigService || new ConfigService();
+  const configService = customConfigService || new RuleConfigService();
 
   // Use the headless hook for all logic
   const {
