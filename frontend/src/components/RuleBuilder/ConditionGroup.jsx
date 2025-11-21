@@ -145,6 +145,8 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
 
   const addCondition = () => {
     const conditions = groupData.conditions || [];
+    // Get default operator from config.types.number.defaultConditionOperator
+    const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
     const newCondition = {
       type: 'condition',
       returnType: 'boolean',
@@ -155,7 +157,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
         expressions: [{ type: 'field', returnType: 'number', field: null }],
         operators: []
       },
-      operator: null,
+      operator: defaultOperator,
       right: { 
         type: 'expressionGroup',
         returnType: 'number',

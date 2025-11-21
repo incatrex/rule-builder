@@ -27,7 +27,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
     returnType: 'boolean',
     name: 'New Condition',
     left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-    operator: 'equal',
+    operator: config?.types?.number?.defaultConditionOperator || 'equal',
     right: createDirectExpression('value', 'number', 0)
   });
   const [editingName, setEditingName] = useState(false);

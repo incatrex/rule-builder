@@ -183,18 +183,23 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       actualExpression = expressionData.expressions[0];
     }
     
+    const exprType = actualExpression.returnType || 'number';
+    // Get default operator key from config (e.g., 'add', 'concat')
+    const defaultOperatorKey = config?.types?.[exprType]?.defaultExpressionOperator || 'add';
+    // Convert operator key to symbol (e.g., 'add' -> '+', 'concat' -> '&')
+    const defaultOperator = config?.expressionOperators?.[defaultOperatorKey]?.symbol || '+';
     const expressionGroup = {
       type: 'expressionGroup',
-      returnType: actualExpression.returnType || 'number',
+      returnType: exprType,
       expressions: [
         actualExpression,
         { 
           type: 'value', 
-          returnType: actualExpression.returnType || 'number', 
-          value: actualExpression.returnType === 'text' ? '' : 0 
+          returnType: exprType, 
+          value: exprType === 'text' ? '' : 0 
         }
       ],
-      operators: ['+']
+      operators: [defaultOperator]
     };
     
     if (onChange) {
@@ -705,7 +710,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
         }}
       >
         <Space direction="vertical" style={{ width: '100%' }} size="small">
-          {/* Function selector with collapse button */}
+          {/* Function selector with collapse button and return type */}
           <Space size={4} style={{ width: '100%' }}>
             {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && (
               <Button
@@ -789,9 +794,20 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
               treeDefaultExpandAll
               popupClassName="compact-tree-select"
               treeIcon={false}
+              popupMatchSelectWidth={false}
               onClick={(e) => e.stopPropagation()}
               onFocus={(e) => e.stopPropagation()}
             />
+            {funcDef && (
+              <>
+                <Text type="secondary" style={{ fontSize: '11px', margin: 0 }}>
+                  Returns:
+                </Text>
+                <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
+                  {expressionData.returnType || 'unknown'}
+                </Tag>
+              </>
+            )}
           </Space>
 
           {/* Function arguments */}
