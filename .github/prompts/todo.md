@@ -74,3 +74,9 @@ config:
 [ ] ruleRef / named conditions
     [ ] ruleRef expansion?
     [ ] ruleRef for condition?
+
+[ ] rule Ref errors
+    [ ] error message shows uuid
+    [ ] expressions type defaulting to number
+
+[ ] add + exppression outside outside of ExpressionGroup
