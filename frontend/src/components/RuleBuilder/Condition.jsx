@@ -280,7 +280,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
           value={conditionData.operator}
           onChange={handleOperatorChange}
           placeholder="Select operator"
-          style={{ width: 140 }}
+          style={{ minWidth: '60px' }}
           popupClassName={darkMode ? 'dark-mode-dropdown' : ''}
           getPopupContainer={(trigger) => trigger.parentNode}
           size="small"
@@ -288,6 +288,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
           dropdownStyle={darkMode ? {
             backgroundColor: '#2d2d2d'
           } : {}}
+          dropdownMatchSelectWidth={false}
         />
 
         {/* Right Expression(s) */}
