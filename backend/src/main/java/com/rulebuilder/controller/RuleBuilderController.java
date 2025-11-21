@@ -19,7 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+// @RestController - DISABLED: Replaced by focused V1 controllers
+// Kept for reference during migration period
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "*")
 @Tag(name = "Rule Builder", description = "APIs for managing business rules with versioning and validation")

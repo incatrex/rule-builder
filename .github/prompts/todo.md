@@ -51,6 +51,7 @@ config:
 [ ] Add Business Logic service + Component/Panel
 
 [ ] Review / Simplify components
+    [ ] expand / collapse logic - standardize and test
 
 [ ] Testing
     [ ] data-test-id every element

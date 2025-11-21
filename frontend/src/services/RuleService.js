@@ -166,7 +166,7 @@ class RuleService {
    * @returns {Object} - Success response with new version info
    */
   async restoreRuleVersion(uuid, version) {
-    const response = await this.http.post(`/rules/${uuid}/restore/${version}`);
+    const response = await this.http.post(`/rules/${uuid}/versions/${version}/restore`);
     return response.data;
   }
 

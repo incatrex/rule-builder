@@ -466,27 +466,31 @@ const result = await ruleService.convertToSql(ruleData);
 - Controllers handle HTTP concerns, services handle business logic
 - Simple enough to understand quickly, complete enough to guide production implementation
 
-| REST Endpoint | HTTP Method | Backend Controller | Backend Service | Frontend Service | Frontend Component(s) |
-|--------------|-------------|-------------------|-----------------|------------------|----------------------|
-| `/fields` | GET | `FieldControllerV1.getFields()` | `FieldService.getFields()` | `FieldService.getFields()` | `App.jsx` |
-| `/fields/{fieldId}` | GET | `FieldControllerV1.getField()` | `FieldService.getFieldById()` | `FieldService.getField()` | Field detail views |
-| `/rules/ui/config` | GET | `RuleBuilderConfigControllerV1.getConfig()` | `RuleBuilderConfigService.getConfig()` | `ConfigService.getConfig()` | `App.jsx`, `useRuleBuilder.js` |
-| `/rules` | GET | `RuleControllerV1.getRules()` | `RuleService.getRules()` | `RuleService.getRules()` | `App.jsx`, `RuleSearch.jsx`, `RuleSelector.jsx` |
-| `/rules` | POST | `RuleControllerV1.createRule()` | `RuleService.createRule()` | `RuleService.createRule()` | `useRuleBuilder.js` |
-| `/rules/{uuid}` | GET | `RuleControllerV1.getRule()` | `RuleService.getRule()` | `RuleService.getRule()` | All rule-viewing components |
-| `/rules/{uuid}` | PUT | `RuleControllerV1.updateRule()` | `RuleService.updateRule()` | `RuleService.updateRule()` | `useRuleBuilder.js` |
-| `/rules/{uuid}` | DELETE | `RuleControllerV1.deleteRule()` | `RuleService.deleteRule()` | `RuleService.deleteRule()` | Admin/management UI |
-| `/rules/{uuid}/versions` | GET | `RuleVersionControllerV1.getVersions()` | `RuleVersionService.getVersions()` | `RuleService.getRuleVersions()` | `RuleHistory.jsx` |
-| `/rules/{uuid}/versions/{version}` | GET | `RuleVersionControllerV1.getVersion()` | `RuleVersionService.getVersion()` | `RuleService.getRuleVersion()` | `App.jsx`, `RuleSearch.jsx`, `RuleSelector.jsx` |
-| `/rules/{uuid}/versions/{version}/restore` | POST | `RuleVersionControllerV1.restoreVersion()` | `RuleVersionService.restoreVersion()` | `RuleService.restoreRuleVersion()` | `RuleHistory.jsx` |
-| `/rules/{uuid}/versions/{version}/diff` | GET | `RuleVersionControllerV1.compareVersions()` | `RuleVersionService.compareVersions()` | `RuleService.compareVersions()` | Version comparison UI |
-| `/rules/validate` | POST | `RuleValidationControllerV1.validateRule()` | `RuleValidationService.validateRule()` | `RuleService.validateRule()` | `JsonEditor.jsx` |
-| `/rules/to-sql` | POST | `SqlGeneratorControllerV1.convertToSql()` | `SqlGeneratorService.generateSql()` | `RuleService.convertToSql()` | `SqlViewer.jsx` |
-| `/rules/batch` | POST | `RuleControllerV1.batchCreate()` | `RuleService.batchCreate()` | `RuleService.batchCreate()` | Bulk import UI |
-| `/rules/export` | GET | `RuleControllerV1.exportRules()` | `RuleService.exportRules()` | `RuleService.exportRules()` | Export functionality |
-| `/config/admin` | GET | `RuleBuilderConfigControllerV1.getAdminConfig()` | `RuleBuilderConfigService.getAdminConfig()` | `AdminService.getConfig()` | Admin dashboard |
-| `/config/admin` | PUT | `RuleBuilderConfigControllerV1.updateAdminConfig()` | `RuleBuilderConfigService.updateAdminConfig()` | `AdminService.updateConfig()` | Admin dashboard |
-| `/audit/rules/{uuid}` | GET | `AuditControllerV1.getRuleAuditLog()` | `AuditService.getAuditLog()` | `AuditService.getRuleAudit()` | Audit trail UI |
+| REST Endpoint | HTTP Method | Backend Controller | Backend Service | Frontend Service | Frontend Component(s) | Implement? |
+|--------------|-------------|-------------------|-----------------|------------------|----------------------|------------|
+| `/fields` | GET | `FieldControllerV1.getFields()` | `FieldService.getFields()` | `FieldService.getFields()` | `App.jsx` | ✅ Yes |
+| `/fields/{fieldId}` | GET | `FieldControllerV1.getField()` | `FieldService.getFieldById()` | `FieldService.getField()` | Field detail views | ❌ No (not used) |
+| `/rules/ui/config` | GET | `RuleBuilderConfigControllerV1.getConfig()` | `RuleBuilderConfigService.getConfig()` | `ConfigService.getConfig()` | `App.jsx`, `useRuleBuilder.js` | ✅ Yes |
+| `/rules` | GET | `RuleControllerV1.getRules()` | `RuleService.getRules()` | `RuleService.getRules()` | `App.jsx`, `RuleSearch.jsx`, `RuleSelector.jsx` | ✅ Yes |
+| `/rules` | POST | `RuleControllerV1.createRule()` | `RuleService.createRule()` | `RuleService.createRule()` | `useRuleBuilder.js` | ✅ Yes |
+| `/rules/{uuid}` | GET | `RuleControllerV1.getRule()` | `RuleService.getRule()` | `RuleService.getRule()` | All rule-viewing components | ❌ No (use versions endpoint) |
+| `/rules/{uuid}` | PUT | `RuleControllerV1.updateRule()` | `RuleService.updateRule()` | `RuleService.updateRule()` | `useRuleBuilder.js` | ✅ Yes |
+| `/rules/{uuid}` | DELETE | `RuleControllerV1.deleteRule()` | `RuleService.deleteRule()` | `RuleService.deleteRule()` | Admin/management UI | ❌ No (not used) |
+| `/rules/{uuid}/versions` | GET | `RuleVersionControllerV1.getVersions()` | `RuleVersionService.getVersions()` | `RuleService.getRuleVersions()` | `RuleHistory.jsx` | ✅ Yes |
+| `/rules/{uuid}/versions/{version}` | GET | `RuleVersionControllerV1.getVersion()` | `RuleVersionService.getVersion()` | `RuleService.getRuleVersion()` | `App.jsx`, `RuleSearch.jsx`, `RuleSelector.jsx` | ✅ Yes |
+| `/rules/{uuid}/versions/{version}/restore` | POST | `RuleVersionControllerV1.restoreVersion()` | `RuleVersionService.restoreVersion()` | `RuleService.restoreRuleVersion()` | `RuleHistory.jsx` | ✅ Yes |
+| `/rules/{uuid}/versions/{version}/diff` | GET | `RuleVersionControllerV1.compareVersions()` | `RuleVersionService.compareVersions()` | `RuleService.compareVersions()` | Version comparison UI | ❌ No (not used) |
+| `/rules/validate` | POST | `RuleValidationControllerV1.validateRule()` | `RuleValidationService.validateRule()` | `RuleService.validateRule()` | `JsonEditor.jsx` | ✅ Yes |
+| `/rules/to-sql` | POST | `SqlGeneratorControllerV1.convertToSql()` | `SqlGeneratorService.generateSql()` | `RuleService.convertToSql()` | `SqlViewer.jsx` | ✅ Yes |
+| `/rules/batch` | POST | `RuleControllerV1.batchCreate()` | `RuleService.batchCreate()` | `RuleService.batchCreate()` | Bulk import UI | ❌ No (not used) |
+| `/rules/export` | GET | `RuleControllerV1.exportRules()` | `RuleService.exportRules()` | `RuleService.exportRules()` | Export functionality | ❌ No (not used) |
+| `/config/admin` | GET | `RuleBuilderConfigControllerV1.getAdminConfig()` | `RuleBuilderConfigService.getAdminConfig()` | `AdminService.getConfig()` | Admin dashboard | ❌ No (not used) |
+| `/config/admin` | PUT | `RuleBuilderConfigControllerV1.updateAdminConfig()` | `RuleBuilderConfigService.updateAdminConfig()` | `AdminService.updateConfig()` | Admin dashboard | ❌ No (not used) |
+| `/audit/rules/{uuid}` | GET | `AuditControllerV1.getRuleAuditLog()` | `AuditService.getAuditLog()` | `AuditService.getRuleAudit()` | Audit trail UI | ❌ No (not used) |
+
+**Implementation Summary:**
+- **10 endpoints to implement** (marked with ✅)
+- **9 endpoints deferred** (marked with ❌) - Future features not currently in use
 
 **Key Improvements:**
 - **Clear 1:1 Mapping:** Each endpoint maps to exactly one controller method and one primary service method
