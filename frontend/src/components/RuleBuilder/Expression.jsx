@@ -161,6 +161,27 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
           isLoadedRule={isLoadedRule}
           allowedSources={allowedSources}
           argDef={propArgDef}
+          onAddExpressionAfterGroup={() => {
+            // Wrap current group with a new expression in an outer group
+            const currentReturnType = expressionData.returnType || expectedType || 'text';
+            const defaultOperatorKey = config?.types?.[currentReturnType]?.defaultExpressionOperator || 'add';
+            const defaultOperator = config?.expressionOperators?.[defaultOperatorKey]?.symbol || '+';
+            
+            const newExpression = {
+              type: 'value',
+              returnType: currentReturnType,
+              value: currentReturnType === 'number' ? 0 : currentReturnType === 'boolean' ? false : ''
+            };
+            
+            const outerGroup = {
+              type: 'expressionGroup',
+              returnType: currentReturnType,
+              expressions: [expressionData, newExpression],
+              operators: [defaultOperator]
+            };
+            
+            onChange(outerGroup);
+          }}
         />
       );
     } else {
@@ -1024,30 +1045,9 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       onMouseLeave={() => setIsHovered(false)}
     >
       <Space.Compact style={{ width: '100%' }}>
-        {/* Group button - always visible but subtle */}
-        {canAddOperators() && !compact && (
-          <Tooltip title="Group">
-            <Button
-              type="text"
-              size="small"
-              onClick={convertToGroup}
-              data-testid="expression-group-button"
-              style={{ 
-                minWidth: 'auto', 
-                padding: '0 6px',
-                color: isHovered ? (darkMode ? '#1890ff' : '#1890ff') : (darkMode ? '#666' : '#bbb'),
-                fontSize: '12px',
-                fontWeight: 'bold',
-                transition: 'color 0.2s'
-              }}
-            >
-              ()
-            </Button>
-          </Tooltip>
-        )}
         {renderSourceSelector()}
         <div style={{ flex: 1, marginLeft: '8px' }}>
-          <Space style={{ width: '100%' }} size="small">
+          <Space style={{ width: '100%' }} size={0}>
             <div style={{ flex: 1 }}>
               {source === 'value' && renderValueInput()}
               {source === 'field' && renderFieldSelector()}
@@ -1065,11 +1065,34 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                   data-testid="expression-add-button"
                   style={{ 
                     minWidth: 'auto', 
-                    padding: '0 4px',
+                    padding: '0',
+                    marginLeft: '2px',
                     color: isHovered ? (darkMode ? '#1890ff' : '#1890ff') : (darkMode ? '#666' : '#bbb'),
                     transition: 'color 0.2s'
                   }}
                 />
+              </Tooltip>
+            )}
+            {/* Group button - always visible but subtle */}
+            {canAddOperators() && !compact && (
+              <Tooltip title="Group with new Expression">
+                <Button
+                  type="text"
+                  size="small"
+                  onClick={convertToGroup}
+                  data-testid="expression-group-button"
+                  style={{ 
+                    minWidth: 'auto', 
+                    padding: '0',
+                    marginLeft: '2px',
+                    color: isHovered ? (darkMode ? '#1890ff' : '#1890ff') : (darkMode ? '#666' : '#bbb'),
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    transition: 'color 0.2s'
+                  }}
+                >
+                  (+)
+                </Button>
               </Tooltip>
             )}
           </Space>

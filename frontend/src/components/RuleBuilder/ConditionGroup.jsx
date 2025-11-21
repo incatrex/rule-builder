@@ -336,10 +336,9 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
         
         <Button
           size="small"
-          icon={<PlusOutlined />}
           onClick={addConditionGroup}
         >
-          Add Group
+          (+) Add Group
         </Button>
       </Space>
     </Space>

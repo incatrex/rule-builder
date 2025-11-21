@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert } from 'antd';
+import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert, Tooltip } from 'antd';
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import RuleSelector from './RuleSelector';
@@ -39,8 +39,9 @@ const { Text } = Typography;
  * - expectedType: Expected return type for filtering (text, number, date, boolean)
  * - darkMode: Dark mode styling
  * - compact: Compact mode
+ * - onAddExpressionAfterGroup: Callback to add expression after this group (wraps in outer group)
  */
-const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, argDef: propArgDef = null }) => {
+const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, argDef: propArgDef = null, onAddExpressionAfterGroup = null }) => {
   // Only use isLoadedRule for initial state, not continuous monitoring
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   const [operatorDropdownStates, setOperatorDropdownStates] = useState({});
@@ -336,11 +337,13 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
           
           return (
             <div key={actualIndex} style={{ paddingLeft: '16px' }}>
-              <Space style={{ width: '100%' }} size="small">
+              <Space style={{ width: '100%', alignItems: 'flex-end' }} size={0}>
                 {/* Operator */}
+                {console.log('[ExpressionGroup] Rendering operator wrapper, darkMode:', darkMode, 'index:', index)}
                 <Select
                   value={groupData.operators?.[index] || '+'}
                   onChange={(op) => updateOperator(index, op)}
+                  className={`operator-select ${darkMode ? 'operator-select-dark' : ''}`}
                   style={{ 
                     width: isOperatorDropdownOpen ? '140px' : '50px', 
                     minWidth: '50px',
@@ -369,8 +372,8 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                   )}
                 />
                 
-                {/* Expression */}
-                <div style={{ flex: 1 }}>
+                {/* Expression - without its own action buttons */}
+                <div style={{ flex: 1, marginLeft: '8px' }}>
                   <Expression
                     value={expr}
                     onChange={(value) => updateExpression(actualIndex, value)}
@@ -378,22 +381,105 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                     expectedType="number"
                     allowedSources={allowedSources}
                     darkMode={darkMode}
-                    compact={compact}
+                    compact={true}
                     isLoadedRule={isLoadedRule}
-                    onAddExpression={() => addExpression(actualIndex)}  // Add after this index
                   />
                 </div>
 
-                {/* Remove Button */}
-                <Button
-                  type="text"
-                  size="small"
-                  danger
-                  icon={<CloseOutlined />}
-                  onClick={() => removeExpression(actualIndex)}
-                  style={{ minWidth: 'auto', padding: '0 4px' }}
-                  title="Remove Operation"
-                />
+                {/* Action Buttons Container */}
+                <div style={{ display: 'flex', alignItems: 'center', marginLeft: '2px', marginBottom: '8px' }}>
+                  {/* Add Expression Button */}
+                  <Tooltip title="Add Expression">
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<PlusOutlined />}
+                      onClick={() => addExpression(actualIndex)}
+                      style={{ 
+                        minWidth: 'auto', 
+                        padding: '0',
+                        marginLeft: '2px',
+                        color: darkMode ? '#666' : '#bbb',
+                        transition: 'color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#1890ff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = darkMode ? '#666' : '#bbb';
+                      }}
+                    />
+                  </Tooltip>
+                  
+                  {/* Group with new Expression Button */}
+                  <Tooltip title="Group with new Expression">
+                    <Button
+                      type="text"
+                      size="small"
+                      onClick={() => {
+                        // Convert this expression to a group by wrapping it
+                        const currentReturnType = expr.returnType || 'number';
+                        const defaultOperatorKey = config?.types?.[currentReturnType]?.defaultExpressionOperator || 'add';
+                        const defaultOperator = config?.expressionOperators?.[defaultOperatorKey]?.symbol || '+';
+                        
+                        const newExpression = {
+                          type: 'value',
+                          returnType: currentReturnType,
+                          value: currentReturnType === 'number' ? 0 : currentReturnType === 'boolean' ? false : ''
+                        };
+                        
+                        const newGroup = {
+                          type: 'expressionGroup',
+                          returnType: currentReturnType,
+                          expressions: [expr, newExpression],
+                          operators: [defaultOperator]
+                        };
+                        
+                        updateExpression(actualIndex, newGroup);
+                      }}
+                      style={{ 
+                        minWidth: 'auto', 
+                        padding: '0',
+                        marginLeft: '2px',
+                        color: darkMode ? '#666' : '#bbb',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        transition: 'color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#1890ff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = darkMode ? '#666' : '#bbb';
+                      }}
+                    >
+                      (+)
+                    </Button>
+                  </Tooltip>
+                  
+                  {/* Remove Button */}
+                  <Tooltip title="Remove Group">
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<CloseOutlined />}
+                      onClick={() => removeExpression(actualIndex)}
+                      style={{ 
+                        minWidth: 'auto', 
+                        padding: '0',
+                        marginLeft: '2px',
+                        color: darkMode ? '#666' : '#bbb',
+                        transition: 'color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#ff4d4f';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = darkMode ? '#666' : '#bbb';
+                      }}
+                    />
+                  </Tooltip>
+                </div>
               </Space>
             </div>
           );
@@ -411,23 +497,54 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     );
   };
 
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div style={{ 
-      width: '100%',
-      padding: '8px',
-      borderRadius: '6px',
-      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
-      border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'}`,
-      transition: 'all 0.2s ease'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)';
-    }}
+    <div 
+      style={{ width: '100%', display: 'flex', alignItems: 'flex-end', gap: '4px' }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {isExpanded ? renderExpandedView() : renderCompactView()}
+      <div style={{ 
+        flex: 1,
+        padding: '8px',
+        borderRadius: '6px',
+        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+        border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'}`,
+        transition: 'all 0.2s ease'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)';
+      }}
+      >
+        {isExpanded ? renderExpandedView() : renderCompactView()}
+      </div>
+      
+      {/* Add Expression After Group Button */}
+      {!compact && onAddExpressionAfterGroup && (
+        <Button
+          type="text"
+          size="small"
+          onClick={onAddExpressionAfterGroup}
+          title="Group with new Expression"
+          style={{
+            opacity: isHovered ? 1 : 0.3,
+            color: isHovered ? '#1890ff' : '#999',
+            transition: 'all 0.2s',
+            minWidth: 'auto',
+            padding: '0',
+            marginLeft: '2px',
+            marginBottom: '8px',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          }}
+        >
+          (+)
+        </Button>
+      )}
     </div>
   );
 };
