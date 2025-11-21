@@ -135,7 +135,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     handleChange({ operators });
   };
 
-  const addExpression = () => {
+  const addExpression = (afterIndex = null) => {
     const expressions = [...(groupData.expressions || [])];
     const operators = [...(groupData.operators || [])];
     
@@ -144,16 +144,23 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       ? getExpressionReturnType(expressions[0])
       : 'number';
     
-    // Add new expression matching the existing type
-    expressions.push({ 
+    const newExpression = { 
       type: 'value', 
       returnType: existingType, 
       value: existingType === 'text' ? '' : 0 
-    });
+    };
     
-    // Add operator before the new expression (if not the first)
-    if (expressions.length > 1) {
-      operators.push('+');
+    // If afterIndex is specified, insert after that position
+    if (afterIndex !== null && afterIndex >= 0) {
+      expressions.splice(afterIndex + 1, 0, newExpression);
+      // Insert operator at the same position (operators[i] is between expressions[i] and expressions[i+1])
+      operators.splice(afterIndex, 0, '+');
+    } else {
+      // Default: add at the end
+      expressions.push(newExpression);
+      if (expressions.length > 1) {
+        operators.push('+');
+      }
     }
     
     handleChange({ expressions, operators });
@@ -299,38 +306,18 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
 
         {/* First Expression with Add Button */}
         <div style={{ paddingLeft: '16px' }}>
-          <Space style={{ width: '100%' }} size="small">
-            <div style={{ flex: 1 }}>
-              <Expression
-                value={groupData.expressions?.[0]}
-                onChange={(value) => updateExpression(0, value)}
-                config={config}
-                expectedType="number"
-                allowedSources={allowedSources}
-                darkMode={darkMode}
-                compact={compact}
-                isLoadedRule={isLoadedRule}
-                propArgDef={propArgDef}
-                disableOperations={true}  // Disable operations since ExpressionGroup handles them
-              />
-            </div>
-            
-            {/* Add Operation Button */}
-            {canAddOperators() && (
-              <Button
-                type="text"
-                size="small"
-                icon={<PlusOutlined />}
-                onClick={addExpression}
-                style={{ 
-                  minWidth: 'auto', 
-                  padding: '0 4px',
-                  color: darkMode ? '#52c41a' : '#52c41a' // Green color to indicate add action
-                }}
-                title="Add Operation"
-              />
-            )}
-          </Space>
+          <Expression
+            value={groupData.expressions?.[0]}
+            onChange={(value) => updateExpression(0, value)}
+            config={config}
+            expectedType="number"
+            allowedSources={allowedSources}
+            darkMode={darkMode}
+            compact={compact}
+            isLoadedRule={isLoadedRule}
+            propArgDef={propArgDef}
+            onAddExpression={() => addExpression(0)}  // Add after index 0
+          />
         </div>
 
         {/* Additional Expressions with Operators */}
@@ -388,6 +375,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                     darkMode={darkMode}
                     compact={compact}
                     isLoadedRule={isLoadedRule}
+                    onAddExpression={() => addExpression(actualIndex)}  // Add after this index
                   />
                 </div>
 

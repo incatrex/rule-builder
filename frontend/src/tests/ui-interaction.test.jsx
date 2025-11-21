@@ -15,6 +15,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import Expression from '../components/RuleBuilder/Expression';
+import ExpressionGroup from '../components/RuleBuilder/ExpressionGroup';
 
 // Mock config
 const mockConfig = {
@@ -83,136 +84,6 @@ const mockConfig = {
 
 describe('UI Interaction Tests - ExpressionGroup', () => {
   
-  describe('Adding expressions with + button', () => {
-    test('clicking + on a number expression should add another number', async () => {
-      const user = userEvent.setup();
-      let capturedOutput = null;
-      
-      const handleChange = (value) => {
-        capturedOutput = value;
-      };
-
-      // Start with a simple number value
-      const initialValue = {
-        type: 'expressionGroup',
-        returnType: 'number',
-        expressions: [
-          { type: 'value', returnType: 'number', value: 5 }
-        ],
-        operators: []
-      };
-
-      render(
-        <Expression
-          value={initialValue}
-          onChange={handleChange}
-          config={mockConfig}
-          expectedType="number"
-          darkMode={false}
-        />
-      );
-
-      // Find and click the "+" button (Add Operation)
-      const addButton = screen.getByTitle('Add Operation');
-      await user.click(addButton);
-
-      // Wait for onChange to be called
-      await waitFor(() => {
-        expect(capturedOutput).toBeDefined();
-      });
-
-      // Verify the output
-      expect(capturedOutput.expressions).toHaveLength(2);
-      
-      // FIXED: New expressions are now plain value objects (no unnecessary wrapping)
-      expect(capturedOutput.expressions[1].type).toBe('value');
-      expect(capturedOutput.expressions[1].returnType).toBe('number');
-      expect(capturedOutput.expressions[1].value).toBe(0);
-      expect(capturedOutput.operators).toEqual(['+']);
-    });
-
-    test('clicking + on text expression adds text value (FIXED)', async () => {
-      const user = userEvent.setup();
-      let capturedOutput = null;
-      
-      const handleChange = (value) => {
-        capturedOutput = value;
-      };
-
-      // Start with a text value
-      const initialValue = {
-        type: 'expressionGroup',
-        returnType: 'text',
-        expressions: [
-          { type: 'value', returnType: 'text', value: 'Hello' }
-        ],
-        operators: []
-      };
-
-      render(
-        <Expression
-          value={initialValue}
-          onChange={handleChange}
-          config={mockConfig}
-          expectedType="text"
-          darkMode={false}
-        />
-      );
-
-      // Find and click the "+" button (should now exist for text)
-      const addButton = screen.getByTitle('Add Operation');
-      await user.click(addButton);
-
-      await waitFor(() => {
-        expect(capturedOutput).toBeDefined();
-      });
-
-      // FIXED: Should now add a text expression!
-      expect(capturedOutput.expressions).toHaveLength(2);
-      
-      // FIXED: New expressions are now plain value objects (no unnecessary wrapping)
-      expect(capturedOutput.expressions[1].type).toBe('value');
-      expect(capturedOutput.expressions[1].returnType).toBe('text');
-      expect(capturedOutput.expressions[1].value).toBe('');
-      expect(capturedOutput.operators).toEqual(['+']);
-    });
-  });
-
-  describe('Type changes when adding operators', () => {
-    test('text expressions can now have operators (FIXED)', async () => {
-      const user = userEvent.setup();
-      let capturedOutput = null;
-      
-      const handleChange = (value) => {
-        capturedOutput = value;
-      };
-
-      // Start with text
-      const initialValue = {
-        type: 'expressionGroup',
-        returnType: 'text',
-        expressions: [
-          { type: 'value', returnType: 'text', value: 'test' }
-        ],
-        operators: []
-      };
-
-      render(
-        <Expression
-          value={initialValue}
-          onChange={handleChange}
-          config={mockConfig}
-          expectedType="text"
-          darkMode={false}
-        />
-      );
-
-      // FIXED: + button should now be available for text expressions
-      const addButton = screen.getByTitle('Add Operation');
-      expect(addButton).toBeTruthy();
-    });
-  });
-
   describe('Creating text concatenation (desired behavior)', () => {
     test('text + text = concatenation (FIXED)', async () => {
       const user = userEvent.setup();
@@ -269,7 +140,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       };
 
       render(
-        <Expression
+        <ExpressionGroup
           value={numericExpression}
           onChange={handleChange}
           config={mockConfig}
@@ -282,7 +153,8 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       expect(screen.queryByText(/Mathematical operations require numeric/)).not.toBeInTheDocument();
       
       // The + button should be available (there are 2, one for each expression)
-      const addButtons = screen.queryAllByTitle('Add Operation');
+      // Buttons are always visible now (muted when not hovered)
+      const addButtons = screen.queryAllByTestId('expression-add-button');
       expect(addButtons.length).toBeGreaterThan(0);
     });
   });

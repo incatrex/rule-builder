@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert } from 'antd';
+import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert, Tooltip } from 'antd';
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import RuleSelector from './RuleSelector';
@@ -62,7 +62,7 @@ export const createDirectExpression = (type = 'value', returnType = 'text', valu
  * - isLoadedRule: Whether this is a loaded rule (affects expansion state)
  * - allowedSources: Allowed value sources for filtering
  */
-const Expression = ({ value, onChange, config, expectedType, propArgDef = null, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, disableOperations = false }) => {
+const Expression = ({ value, onChange, config, expectedType, propArgDef = null, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, onAddExpression = null }) => {
   // Normalize the value to ensure it's a proper structure
   const normalizeValue = (val) => {
     if (!val) {
@@ -92,6 +92,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   // Start collapsed for loaded rules, even in compact mode
   const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Update expansion state when isLoadedRule changes from true to false (i.e., editing after load)
   // In compact mode for nested expressions, expand after initial render
@@ -145,7 +146,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
           isLoadedRule={isLoadedRule}
           allowedSources={allowedSources}
           propArgDef={propArgDef}
-          disableOperations={disableOperations}
         />
       );
     } else if (expressionData.expressions && expressionData.expressions.length > 1) {
@@ -175,9 +175,8 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     return currentType === 'number' || currentType === 'text';
   };
 
-  // Create expression group - converts this Expression to a multi-expression ExpressionGroup
-  const createExpressionGroup = () => {
-    
+  // Convert this expression into an ExpressionGroup
+  const convertToGroup = () => {
     // Extract the actual expression from single-item ExpressionGroup if needed
     let actualExpression = expressionData;
     if (expressionData.type === 'expressionGroup' && expressionData.expressions?.length === 1) {
@@ -187,16 +186,17 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     const expressionGroup = {
       type: 'expressionGroup',
       returnType: actualExpression.returnType || 'number',
-      expressions: [actualExpression, { 
-        type: 'value', 
-        returnType: actualExpression.returnType || 'number', 
-        value: actualExpression.returnType === 'text' ? '' : 0 
-      }],
+      expressions: [
+        actualExpression,
+        { 
+          type: 'value', 
+          returnType: actualExpression.returnType || 'number', 
+          value: actualExpression.returnType === 'text' ? '' : 0 
+        }
+      ],
       operators: ['+']
     };
     
-    
-    // Only notify parent - don't update local state since this component will be replaced
     if (onChange) {
       onChange(expressionGroup);
     }
@@ -865,9 +865,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                             expectedType={expectedArgType}
                             propArgDef={argDef}
                             darkMode={darkMode}
-                            compact
                             isLoadedRule={isLoadedRule}
-                            disableOperations={disableOperations}
                           />
                         </Space>
                       </div>
@@ -988,36 +986,64 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   };
 
   return (
-    <Space.Compact style={{ width: '100%' }}>
-      {renderSourceSelector()}
-      <div style={{ flex: 1, marginLeft: '8px' }}>
-        <Space style={{ width: '100%' }} size="small">
-          <div style={{ flex: 1 }}>
-            {source === 'value' && renderValueInput()}
-            {source === 'field' && renderFieldSelector()}
-            {source === 'function' && renderFunctionBuilder()}
-            {source === 'ruleRef' && renderRuleSelector()}
-          </div>
-          {/* Add Operation Button */}
-          {canAddOperators() && !compact && !disableOperations && (
+    <div
+      style={{ width: '100%' }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Space.Compact style={{ width: '100%' }}>
+        {/* Group button - always visible but subtle */}
+        {canAddOperators() && !compact && (
+          <Tooltip title="Group">
             <Button
               type="text"
               size="small"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                createExpressionGroup();
-              }}
+              onClick={convertToGroup}
+              data-testid="expression-group-button"
               style={{ 
                 minWidth: 'auto', 
-                padding: '0 4px',
-                color: darkMode ? '#52c41a' : '#52c41a' // Green color to indicate add action
+                padding: '0 6px',
+                color: isHovered ? (darkMode ? '#1890ff' : '#1890ff') : (darkMode ? '#666' : '#bbb'),
+                fontSize: '12px',
+                fontWeight: 'bold',
+                transition: 'color 0.2s'
               }}
-              title="Add Operation"
-            />
-          )}
-        </Space>
-      </div>
-    </Space.Compact>
+            >
+              ()
+            </Button>
+          </Tooltip>
+        )}
+        {renderSourceSelector()}
+        <div style={{ flex: 1, marginLeft: '8px' }}>
+          <Space style={{ width: '100%' }} size="small">
+            <div style={{ flex: 1 }}>
+              {source === 'value' && renderValueInput()}
+              {source === 'field' && renderFieldSelector()}
+              {source === 'function' && renderFunctionBuilder()}
+              {source === 'ruleRef' && renderRuleSelector()}
+            </div>
+            {/* Add Expression button - always visible but subtle */}
+            {canAddOperators() && !compact && onAddExpression && (
+              <Tooltip title="Add Expression">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<PlusOutlined />}
+                  onClick={onAddExpression}
+                  data-testid="expression-add-button"
+                  style={{ 
+                    minWidth: 'auto', 
+                    padding: '0 4px',
+                    color: isHovered ? (darkMode ? '#1890ff' : '#1890ff') : (darkMode ? '#666' : '#bbb'),
+                    transition: 'color 0.2s'
+                  }}
+                />
+              </Tooltip>
+            )}
+          </Space>
+        </div>
+      </Space.Compact>
+    </div>
   );
 };
 
