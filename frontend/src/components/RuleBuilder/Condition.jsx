@@ -265,7 +265,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         children: (
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
-        <div style={{ minWidth: '300px', flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <Expression
             value={conditionData.left}
             onChange={handleLeftChange}
@@ -276,11 +276,15 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
         </div>
 
         {/* Operator */}
+        {console.log('[Condition] Rendering operator wrapper, darkMode:', darkMode)}
         <Select
           value={conditionData.operator}
           onChange={handleOperatorChange}
           placeholder="Select operator"
-          style={{ minWidth: '60px' }}
+          className={`operator-select ${darkMode ? 'operator-select-dark' : ''}`}
+          style={{ 
+            minWidth: '60px'
+          }}
           popupClassName={darkMode ? 'dark-mode-dropdown' : ''}
           getPopupContainer={(trigger) => trigger.parentNode}
           size="small"
@@ -293,7 +297,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
 
         {/* Right Expression(s) */}
         {cardinality === 1 && (
-          <div style={{ minWidth: '300px', flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <Expression
               value={conditionData.right}
               onChange={(newRight) => handleChange({ right: newRight })}
@@ -316,7 +320,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
                     {operatorDef?.separator || 'AND'}
                   </Text>
                 )}
-                <div style={{ display: 'flex', gap: '4px', alignItems: 'center', minWidth: '300px', flex: 1 }}>
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1, minWidth: 0 }}>
                   <Expression
                     value={rightVal}
                     onChange={(newVal) => {

@@ -76,7 +76,7 @@ code {
   margin-right: 2px !important;
 }
 
-/* Operator dropdown styling */
+/* Operator dropdown styling - Light mode */
 .operator-select .ant-select-selector {
   background-color: #f0f8ff !important;
   border-color: #91caff !important;
@@ -91,6 +91,26 @@ code {
 .operator-select.ant-select-focused .ant-select-selector {
   border-color: #40a9ff !important;
   box-shadow: 0 0 0 2px rgba(64, 169, 255, 0.2) !important;
+}
+
+/* Operator dropdown styling - Dark mode */
+.operator-select-dark .ant-select-selector {
+  background-color: rgba(24, 144, 255, 0.15) !important;
+  border-color: #1890ff !important;
+  border-width: 2px !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
+}
+
+.operator-select-dark:hover .ant-select-selector {
+  background-color: rgba(64, 169, 255, 0.2) !important;
+  border-color: #40a9ff !important;
+  box-shadow: 0 0 0 2px rgba(64, 169, 255, 0.2) !important;
+}
+
+.operator-select-dark.ant-select-focused .ant-select-selector {
+  background-color: rgba(105, 183, 255, 0.25) !important;
+  border-color: #69b7ff !important;
+  box-shadow: 0 0 0 2px rgba(105, 183, 255, 0.3) !important;
 }
 
 /* Dark mode operator dropdown menu - use popupClassName */
