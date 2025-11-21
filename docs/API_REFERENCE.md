@@ -455,3 +455,49 @@ const result = await ruleService.convertToSql(ruleData);
 - Current system handles ~30 rules well, but will need optimization for 1000+
 - File-based storage is acceptable for MVP, but database recommended for production
 - Consider GraphQL for complex queries if frontend requirements grow
+
+---
+
+## Recommended API Architecture (Future State)
+
+**Design Principles:**
+- Clean, readable reference implementation for production teams
+- One service per resource type with clear responsibilities
+- Controllers handle HTTP concerns, services handle business logic
+- Simple enough to understand quickly, complete enough to guide production implementation
+
+| REST Endpoint | HTTP Method | Backend Controller | Backend Service | Frontend Service | Frontend Component(s) |
+|--------------|-------------|-------------------|-----------------|------------------|----------------------|
+| `/fields` | GET | `FieldControllerV1.getFields()` | `FieldService.getFields()` | `FieldService.getFields()` | `App.jsx` |
+| `/fields/{fieldId}` | GET | `FieldControllerV1.getField()` | `FieldService.getFieldById()` | `FieldService.getField()` | Field detail views |
+| `/rules/ui/config` | GET | `RuleBuilderConfigControllerV1.getConfig()` | `RuleBuilderConfigService.getConfig()` | `ConfigService.getConfig()` | `App.jsx`, `useRuleBuilder.js` |
+| `/rules` | GET | `RuleControllerV1.getRules()` | `RuleService.getRules()` | `RuleService.getRules()` | `App.jsx`, `RuleSearch.jsx`, `RuleSelector.jsx` |
+| `/rules` | POST | `RuleControllerV1.createRule()` | `RuleService.createRule()` | `RuleService.createRule()` | `useRuleBuilder.js` |
+| `/rules/{uuid}` | GET | `RuleControllerV1.getRule()` | `RuleService.getRule()` | `RuleService.getRule()` | All rule-viewing components |
+| `/rules/{uuid}` | PUT | `RuleControllerV1.updateRule()` | `RuleService.updateRule()` | `RuleService.updateRule()` | `useRuleBuilder.js` |
+| `/rules/{uuid}` | DELETE | `RuleControllerV1.deleteRule()` | `RuleService.deleteRule()` | `RuleService.deleteRule()` | Admin/management UI |
+| `/rules/{uuid}/versions` | GET | `RuleVersionControllerV1.getVersions()` | `RuleVersionService.getVersions()` | `RuleService.getRuleVersions()` | `RuleHistory.jsx` |
+| `/rules/{uuid}/versions/{version}` | GET | `RuleVersionControllerV1.getVersion()` | `RuleVersionService.getVersion()` | `RuleService.getRuleVersion()` | `App.jsx`, `RuleSearch.jsx`, `RuleSelector.jsx` |
+| `/rules/{uuid}/versions/{version}/restore` | POST | `RuleVersionControllerV1.restoreVersion()` | `RuleVersionService.restoreVersion()` | `RuleService.restoreRuleVersion()` | `RuleHistory.jsx` |
+| `/rules/{uuid}/versions/{version}/diff` | GET | `RuleVersionControllerV1.compareVersions()` | `RuleVersionService.compareVersions()` | `RuleService.compareVersions()` | Version comparison UI |
+| `/rules/validate` | POST | `RuleValidationControllerV1.validateRule()` | `RuleValidationService.validateRule()` | `RuleService.validateRule()` | `JsonEditor.jsx` |
+| `/rules/to-sql` | POST | `SqlGeneratorControllerV1.convertToSql()` | `SqlGeneratorService.generateSql()` | `RuleService.convertToSql()` | `SqlViewer.jsx` |
+| `/rules/batch` | POST | `RuleControllerV1.batchCreate()` | `RuleService.batchCreate()` | `RuleService.batchCreate()` | Bulk import UI |
+| `/rules/export` | GET | `RuleControllerV1.exportRules()` | `RuleService.exportRules()` | `RuleService.exportRules()` | Export functionality |
+| `/config/admin` | GET | `RuleBuilderConfigControllerV1.getAdminConfig()` | `RuleBuilderConfigService.getAdminConfig()` | `AdminService.getConfig()` | Admin dashboard |
+| `/config/admin` | PUT | `RuleBuilderConfigControllerV1.updateAdminConfig()` | `RuleBuilderConfigService.updateAdminConfig()` | `AdminService.updateConfig()` | Admin dashboard |
+| `/audit/rules/{uuid}` | GET | `AuditControllerV1.getRuleAuditLog()` | `AuditService.getAuditLog()` | `AuditService.getRuleAudit()` | Audit trail UI |
+
+**Key Improvements:**
+- **Clear 1:1 Mapping:** Each endpoint maps to exactly one controller method and one primary service method
+- **RESTful Resource Design:** Proper HTTP verbs (GET/POST/PUT/DELETE) with resource-based URLs
+- **Service Responsibilities:**
+  - `RuleService` - Core CRUD operations, search, batch, export (handles all rule data operations)
+  - `RuleVersionService` - Version management (list, get, restore, compare)
+  - `FieldService` - Field catalog operations
+  - `RuleBuilderConfigService` - Configuration management (UI config + admin config)
+  - `RuleValidationService` - Schema validation logic
+  - `SqlGeneratorService` - SQL generation logic
+  - `AuditService` - Audit trail operations
+- **Separation of Concerns:** Controllers handle HTTP/routing, services handle business logic, repositories handle data access
+- **Reference Implementation:** Simple enough to read and understand, complete enough to guide production teams
