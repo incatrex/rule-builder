@@ -63,9 +63,10 @@ config:
 
 [ ] Services
     [ ] filter by tenant/sub-tenant?
-    [ ] GET api/rules/ids = /list?
-    [X] GET api/config = /api/rules/config
-    [ ] POST /api/rules - confirm how this is being used.
+    [x] GET api/rules/ids = /list?
+    [x] GET api/config = /api/rules/config
+    [x] POST /api/rules - confirm how this is being used.
+    [ ] get rules is sending folderPath - thought it was doing that in service
 
 [ ] ruleRef / named conditions
     [ ] ruleRef expansion?

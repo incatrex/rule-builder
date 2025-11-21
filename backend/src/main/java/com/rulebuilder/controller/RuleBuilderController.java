@@ -178,7 +178,7 @@ public class RuleBuilderController {
             @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") int size,
             @Parameter(description = "Search filter for ruleId") @RequestParam(required = false) String search) {
         try {
-            JsonNode allRules = ruleBuilderService.getRuleIds(ruleType);
+            JsonNode allRules = ruleBuilderService.getRules(ruleType);
             
             // Convert to list
             java.util.List<JsonNode> rulesList = new java.util.ArrayList<>();

@@ -173,8 +173,7 @@ const App = () => {
       }
 
       // Load the specific version
-      const ruleData = await ruleService.getRuleByVersion(
-        ruleInfo.ruleId, 
+      const ruleData = await ruleService.getRuleVersion(
         uuid, 
         version
       );
@@ -197,8 +196,7 @@ const App = () => {
         const ruleInfo = ruleIds.find(r => r.uuid === selectedRuleUuid);
         
         if (ruleInfo) {
-          const ruleData = await ruleService.getRuleByVersion(
-            ruleInfo.ruleId, 
+          const ruleData = await ruleService.getRuleVersion(
             selectedRuleUuid, 
             ruleInfo.latestVersion
           );

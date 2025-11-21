@@ -111,7 +111,7 @@ public class RuleBuilderService {
     /**
      * Get all rule IDs with their UUIDs, latest versions, folder paths, and return types
      */
-    public JsonNode getRuleIds(String ruleTypeFilter) throws IOException {
+    public JsonNode getRules(String ruleTypeFilter) throws IOException {
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
         File directory = new File(rulesDir);
         

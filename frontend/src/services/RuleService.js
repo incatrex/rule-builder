@@ -140,19 +140,6 @@ class RuleService {
   }
 
   /**
-   * Get specific rule version by ruleId (legacy - deprecated)
-   * @param {string} ruleId - Rule ID
-   * @param {string} uuid - Rule UUID
-   * @param {number} version - Version number
-   * @returns {Object} - Rule object
-   * @deprecated Use getRuleVersion(uuid, version) instead
-   */
-  async getRuleByVersion(ruleId, uuid, version) {
-    // Redirect to new endpoint
-    return this.getRuleVersion(uuid, version);
-  }
-
-  /**
    * Get all versions with full metadata
    * @param {string} uuid - Rule UUID
    * @returns {Array} - Array of version objects with metadata
