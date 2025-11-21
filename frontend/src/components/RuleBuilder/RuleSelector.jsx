@@ -16,8 +16,10 @@ import { RuleService } from '../../services/RuleService.js';
  * - showReturnType: Boolean to show return type in dropdown
  * - filterReturnType: Optional return type to filter by
  * - showRuleTypeFilter: Boolean to show rule type filter dropdown
+ * - showRuleIdSelector: Boolean to show rule ID selector dropdown (default true)
  * - ruleTypes: Array of available rule types for filter
  * - initialRuleType: Initial rule type filter value (persisted from JSON)
+ * - onRuleTypeChange: Optional callback when rule type filter changes
  */
 const RuleSelector = ({ 
   value, 
@@ -27,8 +29,10 @@ const RuleSelector = ({
   showReturnType = false,
   filterReturnType = null,
   showRuleTypeFilter = false,
+  showRuleIdSelector = true,
   ruleTypes = ['Reporting', 'Transformation', 'Aggregation', 'Validation'],
-  initialRuleType = null
+  initialRuleType = null,
+  onRuleTypeChange = null
 }) => {
   const [ruleList, setRuleList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -95,6 +99,10 @@ const RuleSelector = ({
     if (onChange) {
       onChange(null);
     }
+    // Notify parent of rule type change
+    if (onRuleTypeChange) {
+      onRuleTypeChange(ruleType);
+    }
   };
 
   const handleSelect = async (selectedValue) => {
@@ -133,7 +141,7 @@ const RuleSelector = ({
   };
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="small">
+    <>
       {/* Rule Type Filter */}
       {showRuleTypeFilter && (
         <Select
@@ -147,20 +155,22 @@ const RuleSelector = ({
       )}
       
       {/* Rule Selector */}
-      <Select
-        showSearch
-        value={value}
-        placeholder={placeholder}
-        onChange={handleSelect}
-        loading={loading}
-        options={ruleList}
-        filterOption={(input, option) =>
-          option.label.toLowerCase().includes(input.toLowerCase())
-        }
-        style={{ width: '100%' }}
-        dropdownStyle={{ minWidth: '400px' }}
-      />
-    </Space>
+      {showRuleIdSelector && (
+        <Select
+          showSearch
+          value={value}
+          placeholder={placeholder}
+          onChange={handleSelect}
+          loading={loading}
+          options={ruleList}
+          filterOption={(input, option) =>
+            option.label.toLowerCase().includes(input.toLowerCase())
+          }
+          style={{ width: '100%' }}
+          dropdownStyle={{ minWidth: '400px' }}
+        />
+      )}
+    </>
   );
 };
 
