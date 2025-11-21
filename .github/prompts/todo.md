@@ -38,11 +38,11 @@ config:
 
 [x] multiselect for function args like groupBy
 
-[ ] distinguish buttons for add Expression vs add ExpressionGroup
+[x] distinguish buttons for add Expression vs add ExpressionGroup
 
 [ ] uuid to lowercase
 
-[ ] version min to be 0 instead of 1
+[ ] version min to be 0 instead of 1 - not required?
 
 [ ] Re-work validation
     [ ] Move error translation to backend
@@ -79,4 +79,21 @@ config:
     [ ] error message shows uuid
     [ ] expressions type defaulting to number
 
-[ ] add + exppression outside outside of ExpressionGroup
+[x] add + exppression outside outside of ExpressionGroup
+
+[ ] expression groups and condition groups behave same way
+
+
+
+Expand / Collapse Logic:
+
+New Rule:
+    structure = condition: default to show these all expanded:
+        Condition Group --> Condition --> Expression
+    structure = case: default to show these all expanded:
+        WHEN Conndition Group --> Condition --> Expresion
+        THEN --> Expression
+        ELSE --> Expression
+
+    structure = expression: default to show these all expanded:
+        Expresion --> Value 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Select, Space, message } from 'antd';
 import { RuleService } from '../../services/RuleService.js';
+import { checkInternalTypeConsistency } from './utils/typeValidation.js';
 
 /**
  * RuleSelector Component
@@ -122,6 +123,16 @@ const RuleSelector = ({
       );
       
       if (ruleData) {
+        // Validate internal consistency
+        const consistencyCheck = checkInternalTypeConsistency(ruleData);
+        
+        if (consistencyCheck.hasInternalMismatch) {
+          console.warn(
+            `[RuleSelector] Rule ${selectedRule.ruleId} has internal type mismatch: ` +
+            `declares ${consistencyCheck.declaredType} but evaluates to ${consistencyCheck.evaluatedType}`
+          );
+        }
+        
         // Pass back both the rule data and metadata
         onChange({
           ruleData: ruleData,
@@ -130,7 +141,10 @@ const RuleSelector = ({
             uuid: selectedRule.uuid,
             version: selectedRule.latestVersion,
             returnType: selectedRule.returnType,
-            ruleType: selectedRule.ruleType
+            ruleType: selectedRule.ruleType,
+            hasInternalMismatch: consistencyCheck.hasInternalMismatch,
+            internalDeclaredType: consistencyCheck.declaredType,
+            internalEvaluatedType: consistencyCheck.evaluatedType
           }
         });
       }
@@ -168,6 +182,18 @@ const RuleSelector = ({
           }
           style={{ width: '100%' }}
           dropdownStyle={{ minWidth: '400px' }}
+          // Extract just the ruleId for display when selected
+          labelRender={(props) => {
+            // When displaying the selected value, show only the ruleId part (before the first dot)
+            const ruleId = props.value?.split('.')[0] || props.value;
+            const selectedRule = ruleList.find(r => r.value === props.value);
+            if (selectedRule) {
+              // Show the full formatted label if we found the rule
+              return selectedRule.label;
+            }
+            // Fallback: just show the ruleId
+            return ruleId;
+          }}
         />
       )}
     </>
