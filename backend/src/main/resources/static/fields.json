@@ -6,17 +6,23 @@
       "TEXT_FIELD_01": {
         "label": "Text Field 01",
         "type": "text",
-        "preferWidgets": ["text"]
+        "preferWidgets": [
+          "text"
+        ]
       },
       "TEXT_FIELD_02": {
         "label": "Text Field 02",
         "type": "text",
-        "preferWidgets": ["text"]
+        "preferWidgets": [
+          "text"
+        ]
       },
       "NUMBER_FIELD_01": {
         "label": "Number Field 01",
         "type": "number",
-        "preferWidgets": ["number"],
+        "preferWidgets": [
+          "number"
+        ],
         "fieldSettings": {
           "min": 0
         }
@@ -24,7 +30,9 @@
       "NUMBER_FIELD_02": {
         "label": "Number Field 02",
         "type": "number",
-        "preferWidgets": ["number"],
+        "preferWidgets": [
+          "number"
+        ],
         "fieldSettings": {
           "min": 0
         }
@@ -32,22 +40,30 @@
       "DATE_FIELD_01": {
         "label": "Date Field 01",
         "type": "date",
-        "preferWidgets": ["date"]
+        "preferWidgets": [
+          "date"
+        ]
       },
       "DATE_FIELD_02": {
         "label": "Date Field 02",
         "type": "date",
-        "preferWidgets": ["date"]
+        "preferWidgets": [
+          "date"
+        ]
       },
       "BOOLEAN_FIELD_01": {
         "label": "Boolean Field 01",
         "type": "boolean",
-        "preferWidgets": ["boolean"]
+        "preferWidgets": [
+          "boolean"
+        ]
       },
       "BOOLEAN_FIELD_02": {
         "label": "Boolean Field 02",
         "type": "boolean",
-        "preferWidgets": ["boolean"]
+        "preferWidgets": [
+          "boolean"
+        ]
       }
     }
   },
@@ -58,17 +74,23 @@
       "TEXT_FIELD_01": {
         "label": "Text Field 01",
         "type": "text",
-        "preferWidgets": ["text"]
+        "preferWidgets": [
+          "text"
+        ]
       },
       "TEXT_FIELD_02": {
         "label": "Text Field 02",
         "type": "text",
-        "preferWidgets": ["text"]
+        "preferWidgets": [
+          "text"
+        ]
       },
       "NUMBER_FIELD_01": {
         "label": "Number Field 01",
         "type": "number",
-        "preferWidgets": ["number"],
+        "preferWidgets": [
+          "number"
+        ],
         "fieldSettings": {
           "min": 0
         }
@@ -76,7 +98,9 @@
       "NUMBER_FIELD_02": {
         "label": "Number Field 02",
         "type": "number",
-        "preferWidgets": ["number"],
+        "preferWidgets": [
+          "number"
+        ],
         "fieldSettings": {
           "min": 0
         }
@@ -84,22 +108,8182 @@
       "DATE_FIELD_01": {
         "label": "Date Field 01",
         "type": "date",
-        "preferWidgets": ["date"]
+        "preferWidgets": [
+          "date"
+        ]
       },
       "DATE_FIELD_02": {
         "label": "Date Field 02",
         "type": "date",
-        "preferWidgets": ["date"]
+        "preferWidgets": [
+          "date"
+        ]
       },
       "BOOLEAN_FIELD_01": {
         "label": "Boolean Field 01",
         "type": "boolean",
-        "preferWidgets": ["boolean"]
+        "preferWidgets": [
+          "boolean"
+        ]
       },
       "BOOLEAN_FIELD_02": {
         "label": "Boolean Field 02",
         "type": "boolean",
-        "preferWidgets": ["boolean"]
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "GENERAL_LEDGER": {
+    "label": "General Ledger",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "STATUS_1": {
+        "label": "Status",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CATEGORY_1": {
+        "label": "Category",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SUBCATEGORY_1": {
+        "label": "Subcategory",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CURRENCY_CODE_1": {
+        "label": "Currency Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "PAYMENT_METHOD_1": {
+        "label": "Payment Method",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ROUTING_NUMBER_1": {
+        "label": "Routing Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SWIFT_CODE_1": {
+        "label": "SWIFT Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "IBAN_1": {
+        "label": "IBAN",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TAX_ID_1": {
+        "label": "Tax ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "GL_CODE_1": {
+        "label": "GL Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "COST_CENTER_1": {
+        "label": "Cost Center",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DEPARTMENT_1": {
+        "label": "Department",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DIVISION_1": {
+        "label": "Division",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REGION_1": {
+        "label": "Region",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ENTITY_CODE_1": {
+        "label": "Entity Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TAX_AMOUNT_1": {
+        "label": "Tax Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "FEE_AMOUNT_1": {
+        "label": "Fee Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "INTEREST_RATE_1": {
+        "label": "Interest Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DISCOUNT_RATE_1": {
+        "label": "Discount Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "EXCHANGE_RATE_1": {
+        "label": "Exchange Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "QUANTITY_1": {
+        "label": "Quantity",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "UNIT_PRICE_1": {
+        "label": "Unit Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TOTAL_PRICE_1": {
+        "label": "Total Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PERCENTAGE_1": {
+        "label": "Percentage",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TERM_MONTHS_1": {
+        "label": "Term (Months)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DAYS_OUTSTANDING_1": {
+        "label": "Days Outstanding",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PAYMENT_TERMS_1": {
+        "label": "Payment Terms (Days)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_LIMIT_1": {
+        "label": "Credit Limit",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "VALUE_DATE_1": {
+        "label": "Value Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "DUE_DATE_1": {
+        "label": "Due Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "MATURITY_DATE_1": {
+        "label": "Maturity Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "EFFECTIVE_DATE_1": {
+        "label": "Effective Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "SETTLEMENT_DATE_1": {
+        "label": "Settlement Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "CREATED_DATE_1": {
+        "label": "Created Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_PAID_1": {
+        "label": "Is Paid",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_TAXABLE_1": {
+        "label": "Is Taxable",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "ACCOUNTS_PAYABLE": {
+    "label": "Accounts Payable",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "STATUS_1": {
+        "label": "Status",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CATEGORY_1": {
+        "label": "Category",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SUBCATEGORY_1": {
+        "label": "Subcategory",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CURRENCY_CODE_1": {
+        "label": "Currency Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "PAYMENT_METHOD_1": {
+        "label": "Payment Method",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ROUTING_NUMBER_1": {
+        "label": "Routing Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SWIFT_CODE_1": {
+        "label": "SWIFT Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "IBAN_1": {
+        "label": "IBAN",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TAX_ID_1": {
+        "label": "Tax ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "GL_CODE_1": {
+        "label": "GL Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "COST_CENTER_1": {
+        "label": "Cost Center",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DEPARTMENT_1": {
+        "label": "Department",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DIVISION_1": {
+        "label": "Division",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TAX_AMOUNT_1": {
+        "label": "Tax Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "FEE_AMOUNT_1": {
+        "label": "Fee Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "INTEREST_RATE_1": {
+        "label": "Interest Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DISCOUNT_RATE_1": {
+        "label": "Discount Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "EXCHANGE_RATE_1": {
+        "label": "Exchange Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "QUANTITY_1": {
+        "label": "Quantity",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "UNIT_PRICE_1": {
+        "label": "Unit Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TOTAL_PRICE_1": {
+        "label": "Total Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PERCENTAGE_1": {
+        "label": "Percentage",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TERM_MONTHS_1": {
+        "label": "Term (Months)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DAYS_OUTSTANDING_1": {
+        "label": "Days Outstanding",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PAYMENT_TERMS_1": {
+        "label": "Payment Terms (Days)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "VALUE_DATE_1": {
+        "label": "Value Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "DUE_DATE_1": {
+        "label": "Due Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "MATURITY_DATE_1": {
+        "label": "Maturity Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "EFFECTIVE_DATE_1": {
+        "label": "Effective Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "SETTLEMENT_DATE_1": {
+        "label": "Settlement Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_PAID_1": {
+        "label": "Is Paid",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_TAXABLE_1": {
+        "label": "Is Taxable",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECURRING_1": {
+        "label": "Is Recurring",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "ACCOUNTS_RECEIVABLE": {
+    "label": "Accounts Receivable",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "STATUS_1": {
+        "label": "Status",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CATEGORY_1": {
+        "label": "Category",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SUBCATEGORY_1": {
+        "label": "Subcategory",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CURRENCY_CODE_1": {
+        "label": "Currency Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "PAYMENT_METHOD_1": {
+        "label": "Payment Method",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ROUTING_NUMBER_1": {
+        "label": "Routing Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SWIFT_CODE_1": {
+        "label": "SWIFT Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "IBAN_1": {
+        "label": "IBAN",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TAX_ID_1": {
+        "label": "Tax ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "GL_CODE_1": {
+        "label": "GL Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "COST_CENTER_1": {
+        "label": "Cost Center",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DEPARTMENT_1": {
+        "label": "Department",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DIVISION_1": {
+        "label": "Division",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REGION_1": {
+        "label": "Region",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TAX_AMOUNT_1": {
+        "label": "Tax Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "FEE_AMOUNT_1": {
+        "label": "Fee Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "INTEREST_RATE_1": {
+        "label": "Interest Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DISCOUNT_RATE_1": {
+        "label": "Discount Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "EXCHANGE_RATE_1": {
+        "label": "Exchange Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "QUANTITY_1": {
+        "label": "Quantity",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "UNIT_PRICE_1": {
+        "label": "Unit Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TOTAL_PRICE_1": {
+        "label": "Total Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PERCENTAGE_1": {
+        "label": "Percentage",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TERM_MONTHS_1": {
+        "label": "Term (Months)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DAYS_OUTSTANDING_1": {
+        "label": "Days Outstanding",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PAYMENT_TERMS_1": {
+        "label": "Payment Terms (Days)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "VALUE_DATE_1": {
+        "label": "Value Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "DUE_DATE_1": {
+        "label": "Due Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "MATURITY_DATE_1": {
+        "label": "Maturity Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "EFFECTIVE_DATE_1": {
+        "label": "Effective Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "SETTLEMENT_DATE_1": {
+        "label": "Settlement Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "CREATED_DATE_1": {
+        "label": "Created Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_PAID_1": {
+        "label": "Is Paid",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_TAXABLE_1": {
+        "label": "Is Taxable",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECURRING_1": {
+        "label": "Is Recurring",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "TRANSACTION_DETAIL": {
+    "label": "Transaction Detail",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "STATUS_1": {
+        "label": "Status",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CATEGORY_1": {
+        "label": "Category",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SUBCATEGORY_1": {
+        "label": "Subcategory",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CURRENCY_CODE_1": {
+        "label": "Currency Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "PAYMENT_METHOD_1": {
+        "label": "Payment Method",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ROUTING_NUMBER_1": {
+        "label": "Routing Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SWIFT_CODE_1": {
+        "label": "SWIFT Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "IBAN_1": {
+        "label": "IBAN",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TAX_ID_1": {
+        "label": "Tax ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "GL_CODE_1": {
+        "label": "GL Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "COST_CENTER_1": {
+        "label": "Cost Center",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DEPARTMENT_1": {
+        "label": "Department",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DIVISION_1": {
+        "label": "Division",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REGION_1": {
+        "label": "Region",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ENTITY_CODE_1": {
+        "label": "Entity Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "LEGAL_ENTITY_1": {
+        "label": "Legal Entity",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TAX_AMOUNT_1": {
+        "label": "Tax Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "FEE_AMOUNT_1": {
+        "label": "Fee Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "INTEREST_RATE_1": {
+        "label": "Interest Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DISCOUNT_RATE_1": {
+        "label": "Discount Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "EXCHANGE_RATE_1": {
+        "label": "Exchange Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "QUANTITY_1": {
+        "label": "Quantity",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "UNIT_PRICE_1": {
+        "label": "Unit Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TOTAL_PRICE_1": {
+        "label": "Total Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PERCENTAGE_1": {
+        "label": "Percentage",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TERM_MONTHS_1": {
+        "label": "Term (Months)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DAYS_OUTSTANDING_1": {
+        "label": "Days Outstanding",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PAYMENT_TERMS_1": {
+        "label": "Payment Terms (Days)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_LIMIT_1": {
+        "label": "Credit Limit",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "AVAILABLE_CREDIT_1": {
+        "label": "Available Credit",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "VALUE_DATE_1": {
+        "label": "Value Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "DUE_DATE_1": {
+        "label": "Due Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "MATURITY_DATE_1": {
+        "label": "Maturity Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "EFFECTIVE_DATE_1": {
+        "label": "Effective Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "SETTLEMENT_DATE_1": {
+        "label": "Settlement Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "CREATED_DATE_1": {
+        "label": "Created Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_PAID_1": {
+        "label": "Is Paid",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_TAXABLE_1": {
+        "label": "Is Taxable",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECURRING_1": {
+        "label": "Is Recurring",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "CUSTOMER_ACCOUNT": {
+    "label": "Customer Account",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "STATUS_1": {
+        "label": "Status",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CATEGORY_1": {
+        "label": "Category",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SUBCATEGORY_1": {
+        "label": "Subcategory",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "CURRENCY_CODE_1": {
+        "label": "Currency Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "PAYMENT_METHOD_1": {
+        "label": "Payment Method",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ROUTING_NUMBER_1": {
+        "label": "Routing Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "SWIFT_CODE_1": {
+        "label": "SWIFT Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "IBAN_1": {
+        "label": "IBAN",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TAX_ID_1": {
+        "label": "Tax ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "GL_CODE_1": {
+        "label": "GL Code",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "COST_CENTER_1": {
+        "label": "Cost Center",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DEPARTMENT_1": {
+        "label": "Department",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DIVISION_1": {
+        "label": "Division",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TAX_AMOUNT_1": {
+        "label": "Tax Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "FEE_AMOUNT_1": {
+        "label": "Fee Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "INTEREST_RATE_1": {
+        "label": "Interest Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DISCOUNT_RATE_1": {
+        "label": "Discount Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "EXCHANGE_RATE_1": {
+        "label": "Exchange Rate",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "QUANTITY_1": {
+        "label": "Quantity",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "UNIT_PRICE_1": {
+        "label": "Unit Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TOTAL_PRICE_1": {
+        "label": "Total Price",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "PERCENTAGE_1": {
+        "label": "Percentage",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TERM_MONTHS_1": {
+        "label": "Term (Months)",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DAYS_OUTSTANDING_1": {
+        "label": "Days Outstanding",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "VALUE_DATE_1": {
+        "label": "Value Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "DUE_DATE_1": {
+        "label": "Due Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "MATURITY_DATE_1": {
+        "label": "Maturity Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "EFFECTIVE_DATE_1": {
+        "label": "Effective Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "SETTLEMENT_DATE_1": {
+        "label": "Settlement Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_PAID_1": {
+        "label": "Is Paid",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_TAXABLE_1": {
+        "label": "Is Taxable",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECURRING_1": {
+        "label": "Is Recurring",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "ASSET": {
+    "label": "Asset",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "LIABILITY": {
+    "label": "Liability",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "EQUITY": {
+    "label": "Equity",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "REVENUE": {
+    "label": "Revenue",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "EXPENSE": {
+    "label": "Expense",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "INVOICE": {
+    "label": "Invoice",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "STATUS_1": {
+        "label": "Status",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TAX_AMOUNT_1": {
+        "label": "Tax Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "VALUE_DATE_1": {
+        "label": "Value Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "PAYMENT": {
+    "label": "Payment",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "JOURNAL_ENTRY": {
+    "label": "Journal Entry",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "BANK_ACCOUNT": {
+    "label": "Bank Account",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "CREDIT_CARD": {
+    "label": "Credit Card",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "LOAN": {
+    "label": "Loan",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "MORTGAGE": {
+    "label": "Mortgage",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "INVESTMENT": {
+    "label": "Investment",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "PORTFOLIO": {
+    "label": "Portfolio",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "SECURITY": {
+    "label": "Security",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "BOND": {
+    "label": "Bond",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "STOCK": {
+    "label": "Stock",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "DERIVATIVE": {
+    "label": "Derivative",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "CONTRACT": {
+    "label": "Contract",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "VENDOR": {
+    "label": "Vendor",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "CUSTOMER": {
+    "label": "Customer",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "EMPLOYEE": {
+    "label": "Employee",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "STATUS_1": {
+        "label": "Status",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TAX_AMOUNT_1": {
+        "label": "Tax Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "VALUE_DATE_1": {
+        "label": "Value Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "PAYROLL": {
+    "label": "Payroll",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "TAX_RETURN": {
+    "label": "Tax Return",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "DEPRECIATION": {
+    "label": "Depreciation",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "AMORTIZATION": {
+    "label": "Amortization",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "BUDGET": {
+    "label": "Budget",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "FORECAST": {
+    "label": "Forecast",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "ACCRUAL": {
+    "label": "Accrual",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "RECONCILIATION": {
+    "label": "Reconciliation",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "AUDIT_TRAIL": {
+    "label": "Audit Trail",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "NOTES_1": {
+        "label": "Notes",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "GROSS_AMOUNT_1": {
+        "label": "Gross Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "COMPLIANCE": {
+    "label": "Compliance",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "REGULATORY_REPORT": {
+    "label": "Regulatory Report",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_APPROVED_1": {
+        "label": "Is Approved",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "FINANCIAL_STATEMENT": {
+    "label": "Financial Statement",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "BALANCE_SHEET": {
+    "label": "Balance Sheet",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "INCOME_STATEMENT": {
+    "label": "Income Statement",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "CASH_FLOW": {
+    "label": "Cash Flow",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "MEMO_1": {
+        "label": "Memo",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "NET_AMOUNT_1": {
+        "label": "Net Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "RETAINED_EARNINGS": {
+    "label": "Retained Earnings",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "DIVIDEND": {
+    "label": "Dividend",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "CAPITAL_GAIN": {
+    "label": "Capital Gain",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "INTEREST_INCOME": {
+    "label": "Interest Income",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "FEE_SCHEDULE": {
+    "label": "Fee Schedule",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "COMMISSION": {
+    "label": "Commission",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "REBATE": {
+    "label": "Rebate",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "DISCOUNT": {
+    "label": "Discount",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "CREDIT_MEMO": {
+    "label": "Credit Memo",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      }
+    }
+  },
+  "DEBIT_MEMO": {
+    "label": "Debit Memo",
+    "type": "!struct",
+    "subfields": {
+      "ACCOUNT_NUMBER_1": {
+        "label": "Account Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "ACCOUNT_NAME_1": {
+        "label": "Account Name",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "DESCRIPTION_1": {
+        "label": "Description",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "REFERENCE_NUMBER_1": {
+        "label": "Reference Number",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "TRANSACTION_ID_1": {
+        "label": "Transaction ID",
+        "type": "text",
+        "preferWidgets": [
+          "text"
+        ]
+      },
+      "AMOUNT_1": {
+        "label": "Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "BALANCE_1": {
+        "label": "Balance",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "DEBIT_AMOUNT_1": {
+        "label": "Debit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "CREDIT_AMOUNT_1": {
+        "label": "Credit Amount",
+        "type": "number",
+        "preferWidgets": [
+          "number"
+        ],
+        "fieldSettings": {
+          "min": 0
+        }
+      },
+      "TRANSACTION_DATE_1": {
+        "label": "Transaction Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "POST_DATE_1": {
+        "label": "Post Date",
+        "type": "date",
+        "preferWidgets": [
+          "date"
+        ]
+      },
+      "IS_ACTIVE_1": {
+        "label": "Is Active",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_RECONCILED_1": {
+        "label": "Is Reconciled",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
+      },
+      "IS_POSTED_1": {
+        "label": "Is Posted",
+        "type": "boolean",
+        "preferWidgets": [
+          "boolean"
+        ]
       }
     }
   }

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import RuleBuilder from './RuleBuilder';
 import { useRuleBuilder } from './useRuleBuilder';
 import { RuleBuilderUI } from './RuleBuilderUI';
-import { RuleService, ConfigService } from '../../services';
+import { RuleService, RuleConfigService } from '../../services';
 
 /**
  * RuleBuilder Component - Usage Examples
@@ -197,7 +197,7 @@ export function Example4_CustomServices() {
 // ============================================================================
 export function Example5_HeadlessUsage() {
   const ruleService = new RuleService();
-  const configService = new ConfigService();
+  const configService = new RuleConfigService();
 
   const {
     ruleData,

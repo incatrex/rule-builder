@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Layout, ConfigProvider, theme, Switch, Space, Spin, message, Button, Tabs } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { ConfigService } from './services/ConfigService.js';
+import { RuleConfigService } from './services/RuleConfigService.js';
 import { FieldService } from './services/FieldService.js';
 import { RuleService } from './services/RuleService.js';
 import { RuleBuilder } from './components/RuleBuilder'; // Use refactored version
@@ -29,7 +29,7 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('json');
   
   // Initialize services
-  const configService = new ConfigService();
+  const configService = new RuleConfigService();
   const fieldService = new FieldService();
   const ruleService = new RuleService();
   
@@ -120,10 +120,19 @@ const App = () => {
   const loadConfiguration = async () => {
     try {
       setLoading(true);
-      const fieldsData = await fieldService.getFields();
+      console.log('[App] Loading fields and config...');
+      
+      // Get hierarchical field structure (not paginated)
+      const fieldsData = await fieldService.getFieldsHierarchy();
+      console.log('[App] Received fields:', fieldsData);
+      console.log('[App] Fields type:', typeof fieldsData);
+      console.log('[App] Fields keys:', Object.keys(fieldsData || {}));
+      
       const configData = await configService.getConfig();
 
+      // fieldsData is already the hierarchical fields object
       const fields = fieldsData;
+      console.log('[App] Final fields for RuleBuilder:', fields);
 
       // Note: Schema-generated config already provides hierarchical functions structure
       // No need to convert - it's already in the format: { MATH: { subfields: { ADD: {...} } } }
