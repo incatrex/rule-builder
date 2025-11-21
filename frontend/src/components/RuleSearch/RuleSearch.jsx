@@ -1,7 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Card, Button, Select, Space, message } from 'antd';
 import { PlusOutlined, SearchOutlined, MenuFoldOutlined } from '@ant-design/icons';
-import { RuleService } from './services/RuleService.js';
+import { RuleService } from '../../services/RuleService.js';
 
 /**
  * RuleSearch Component
@@ -67,8 +67,7 @@ const RuleSearch = forwardRef(({ onRuleSelect, onNewRule, darkMode = false, onCo
 
     try {
       // Load the latest version of the selected rule
-      const ruleData = await ruleService.getRuleByVersion(
-        selectedRule.ruleId, 
+      const ruleData = await ruleService.getRuleVersion(
         selectedRule.uuid, 
         selectedRule.latestVersion
       );

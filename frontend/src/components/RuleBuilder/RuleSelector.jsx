@@ -108,8 +108,7 @@ const RuleSelector = ({
 
     try {
       // Load the latest version of the selected rule
-      const ruleData = await ruleService.getRuleByVersion(
-        selectedRule.ruleId, 
+      const ruleData = await ruleService.getRuleVersion(
         selectedRule.uuid, 
         selectedRule.latestVersion
       );

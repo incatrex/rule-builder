@@ -2,6 +2,7 @@ package com.rulebuilder.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rulebuilder.service.RuleBuilderService;
 import com.rulebuilder.service.SchemaConfigService;
@@ -100,9 +101,11 @@ public class RuleBuilderControllerTest {
     void testUpdateRule_Success() throws Exception {
         // Arrange
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
-        JsonNode versions = objectMapper.createArrayNode().add(1).add(2);
+        ArrayNode history = objectMapper.createArrayNode();
+        history.add(objectMapper.createObjectNode().put("version", 2));
+        history.add(objectMapper.createObjectNode().put("version", 1));
         
-        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(versions);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(history);
         doNothing().when(ruleBuilderService).saveRule(anyString(), anyString(), any(JsonNode.class));
 
         // Act
@@ -126,9 +129,9 @@ public class RuleBuilderControllerTest {
     void testUpdateRule_FirstVersion() throws Exception {
         // Arrange
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
-        JsonNode emptyVersions = objectMapper.createArrayNode();
+        JsonNode emptyHistory = objectMapper.createArrayNode();
         
-        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(emptyVersions);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(emptyHistory);
         doNothing().when(ruleBuilderService).saveRule(anyString(), anyString(), any(JsonNode.class));
 
         // Act
@@ -164,9 +167,13 @@ public class RuleBuilderControllerTest {
     void testFindMaxVersionForRule_WithVersions() throws Exception {
         // Arrange
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
-        JsonNode versions = objectMapper.createArrayNode().add(1).add(3).add(2).add(5);
+        ArrayNode history = objectMapper.createArrayNode();
+        history.add(objectMapper.createObjectNode().put("version", 1));
+        history.add(objectMapper.createObjectNode().put("version", 3));
+        history.add(objectMapper.createObjectNode().put("version", 2));
+        history.add(objectMapper.createObjectNode().put("version", 5));
         
-        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(versions);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(history);
 
         // Act - Use reflection to test private method
         java.lang.reflect.Method method = controller.getClass().getDeclaredMethod("findMaxVersionForRule", String.class);
@@ -181,9 +188,9 @@ public class RuleBuilderControllerTest {
     void testFindMaxVersionForRule_NoVersions() throws Exception {
         // Arrange
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
-        JsonNode emptyVersions = objectMapper.createArrayNode();
+        JsonNode emptyHistory = objectMapper.createArrayNode();
         
-        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(emptyVersions);
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(emptyHistory);
 
         // Act - Use reflection to test private method
         java.lang.reflect.Method method = controller.getClass().getDeclaredMethod("findMaxVersionForRule", String.class);
@@ -231,8 +238,9 @@ public class RuleBuilderControllerTest {
         inputRule.put("uuId", "old-uuid");
         inputRule.put("version", 999);
         
-        JsonNode versions = objectMapper.createArrayNode().add(1);
-        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(versions);
+        ArrayNode history = objectMapper.createArrayNode();
+        history.add(objectMapper.createObjectNode().put("version", 1));
+        when(ruleBuilderService.getRuleVersions(uuid)).thenReturn(history);
         doNothing().when(ruleBuilderService).saveRule(anyString(), anyString(), any(JsonNode.class));
 
         // Act
@@ -254,15 +262,21 @@ public class RuleBuilderControllerTest {
     @Test
     void testGetFields_Success() throws Exception {
         // Arrange
-        JsonNode fields = objectMapper.createArrayNode().add("field1").add("field2");
-        when(ruleBuilderService.getFields()).thenReturn(fields);
+        ArrayNode fieldsArray = objectMapper.createArrayNode();
+        fieldsArray.add(objectMapper.createObjectNode().put("label", "field1").put("value", "field1"));
+        fieldsArray.add(objectMapper.createObjectNode().put("label", "field2").put("value", "field2"));
+        when(ruleBuilderService.getFields()).thenReturn(fieldsArray);
 
-        // Act
-        ResponseEntity<JsonNode> response = controller.getFields();
+        // Act - call with default pagination parameters
+        ResponseEntity<ObjectNode> response = controller.getFields(0, 20, null);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(fields, response.getBody());
+        assertNotNull(response.getBody());
+        ObjectNode body = response.getBody();
+        assertTrue(body.has("content"));
+        assertTrue(body.has("page"));
+        assertTrue(body.has("totalElements"));
         verify(ruleBuilderService).getFields();
     }
 

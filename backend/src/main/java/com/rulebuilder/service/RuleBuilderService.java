@@ -111,7 +111,7 @@ public class RuleBuilderService {
     /**
      * Get all rule IDs with their UUIDs, latest versions, folder paths, and return types
      */
-    public JsonNode getRuleIds(String ruleTypeFilter) throws IOException {
+    public JsonNode getRules(String ruleTypeFilter) throws IOException {
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
         File directory = new File(rulesDir);
         
@@ -204,55 +204,6 @@ public class RuleBuilderService {
     }
 
     /**
-     * Get all versions for a specific rule UUID
-     */
-    public JsonNode getRuleVersions(String uuid) throws IOException {
-        String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
-        File directory = new File(rulesDir);
-        
-        if (!directory.exists()) {
-            return objectMapper.createArrayNode();
-        }
-
-        // Pattern to match any ruleId with the specific UUID: {ruleId}[{uuid}][{version}].json
-        Pattern pattern = Pattern.compile("^(.+)\\[" + Pattern.quote(uuid) + "\\]\\[(\\d+)\\]\\.json$");
-        List<Integer> versions = new ArrayList<>();
-
-        // Recursively scan for all versions
-        scanForVersions(directory, pattern, versions);
-
-        // Sort versions in descending order (newest first)
-        versions.sort(Collections.reverseOrder());
-
-        ArrayNode result = objectMapper.createArrayNode();
-        for (Integer version : versions) {
-            result.add(version);
-        }
-
-        return result;
-    }
-
-    /**
-     * Recursively scan directory for version files matching pattern
-     */
-    private void scanForVersions(File directory, Pattern pattern, List<Integer> versions) {
-        File[] files = directory.listFiles();
-        if (files == null) return;
-
-        for (File file : files) {
-            if (file.isDirectory()) {
-                scanForVersions(file, pattern, versions);
-            } else if (file.isFile()) {
-                Matcher matcher = pattern.matcher(file.getName());
-                if (matcher.matches()) {
-                    int version = Integer.parseInt(matcher.group(2));
-                    versions.add(version);
-                }
-            }
-        }
-    }
-
-    /**
      * Helper class to store rule information
      */
     private static class RuleInfo {
@@ -315,7 +266,7 @@ public class RuleBuilderService {
     /**
      * Get version history for a specific rule UUID
      */
-    public JsonNode getRuleHistory(String uuid) throws IOException {
+    public JsonNode getRuleVersions(String uuid) throws IOException {
         String rulesDir = System.getProperty("user.dir") + "/src/main/resources/static/rules";
         File directory = new File(rulesDir);
         

@@ -49,8 +49,8 @@ export const useRuleBuilder = ({
   const [availableVersions, setAvailableVersions] = useState([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
   
-  // Configuration state
-  const [ruleTypes, setRuleTypes] = useState(['Reporting', 'Validation', 'Calculation', 'Business']);
+  // Configuration state - loaded from API
+  const [ruleTypes, setRuleTypes] = useState([]);
   
   // UI state flags
   const [isLoadedRule, setIsLoadedRule] = useState(false);
@@ -107,8 +107,8 @@ export const useRuleBuilder = ({
     
     try {
       setLoadingVersions(true);
-      const versions = await ruleService.getRuleVersions(uuid);
-      const versionOptions = versions.map(v => ({
+      const versionNumbers = await ruleService.getVersionNumbers(uuid);
+      const versionOptions = versionNumbers.map(v => ({
         value: v,
         label: `${v}`
       }));

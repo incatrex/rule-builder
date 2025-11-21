@@ -17,7 +17,7 @@ import java.util.*;
  * and UI configuration metadata.
  */
 @Service
-public class SchemaConfigService {
+public class RuleBuilderConfigService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private JsonNode schema;

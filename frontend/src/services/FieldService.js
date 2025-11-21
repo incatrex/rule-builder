@@ -9,33 +9,24 @@ class FieldService {
   }
 
   /**
-   * Get available fields configuration (returns fields directly, not paginated)
-   * @returns {Object} - Fields object with field definitions
+   * Get available fields with pagination and search
+   * @param {Object} options - { page, size, search }
+   * @returns {Object} - Paginated response with { content, page, size, totalElements, totalPages, first, last }
    */
-  async getFields() {
-    const response = await this.http.get('/fields');
+  async getFields(options = {}) {
+    const { page = 0, size = 20, search = '' } = options;
+    const params = { page, size };
+    if (search) params.search = search;
+    
+    const response = await this.http.get('/fields', params);
     return response.data;
   }
 
-  /**
-   * Update fields configuration
-   * @param {Object} fields - Fields configuration object
-   * @returns {Object} - Updated fields configuration
-   */
-  async updateFields(fields) {
-    const response = await this.http.put('/fields', fields);
-    return response.data;
-  }
+  // Note: No PUT endpoint exists for fields - they come from static fields.json
+  // Fields are read-only. To modify, edit backend/src/main/resources/static/fields.json
 
-  /**
-   * Get field by name
-   * @param {string} fieldName - Name of the field
-   * @returns {Object} - Field definition
-   */
-  async getField(fieldName) {
-    const response = await this.http.get(`/fields/${fieldName}`);
-    return response.data;
-  }
+  // Note: No GET /fields/{name} endpoint exists
+  // Use getFields() and filter client-side if needed
 }
 
 // Export service

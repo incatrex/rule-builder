@@ -3,14 +3,14 @@
 # Test script to validate Rule Builder API endpoints
 # Run this after starting the Spring Boot server with: mvn spring-boot:run
 
-BASE_URL="http://localhost:8080/api"
+BASE_URL="http://localhost:8080/api/v1"
 
 echo "🚀 Testing Rule Builder API Endpoints"
 echo "======================================"
 
 # Test 1: Get config (existing endpoint)
-echo -e "\n📋 Testing GET /api/config..."
-curl -s -X GET "$BASE_URL/config" | jq . > /dev/null
+echo -e "\n📋 Testing GET /api/v1/rules/ui/config..."
+curl -s -X GET "$BASE_URL/rules/ui/config" | jq . > /dev/null
 if [ $? -eq 0 ]; then
     echo "✅ Config endpoint working"
 else
@@ -18,7 +18,7 @@ else
 fi
 
 # Test 2: Get fields (existing endpoint)
-echo -e "\n📝 Testing GET /api/fields..."
+echo -e "\n📝 Testing GET /api/v1/fields..."
 curl -s -X GET "$BASE_URL/fields" | jq . > /dev/null
 if [ $? -eq 0 ]; then
     echo "✅ Fields endpoint working"
@@ -27,7 +27,7 @@ else
 fi
 
 # Test 3: Create new rule (NEW endpoint)
-echo -e "\n🆕 Testing POST /api/rules (new endpoint)..."
+echo -e "\n🆕 Testing POST /api/v1/rules (new endpoint)..."
 CREATE_RESPONSE=$(curl -s -X POST "$BASE_URL/rules" \
     -H "Content-Type: application/json" \
     -d '{
@@ -57,7 +57,7 @@ else
 fi
 
 # Test 4: Update existing rule (NEW endpoint)
-echo -e "\n🔄 Testing PUT /api/rules/{uuid} (new endpoint)..."
+echo -e "\n🔄 Testing PUT /api/v1/rules/{uuid} (new endpoint)..."
 UPDATE_RESPONSE=$(curl -s -X PUT "$BASE_URL/rules/$UUID" \
     -H "Content-Type: application/json" \
     -d '{
@@ -85,8 +85,8 @@ else
 fi
 
 # Test 5: Get rule versions (existing endpoint with new UUID)
-echo -e "\n📚 Testing GET /api/rules/versions/{uuid}..."
-curl -s -X GET "$BASE_URL/rules/versions/$UUID" | jq . > /dev/null
+echo -e "\n📚 Testing GET /api/v1/rules/{uuid}/versions..."
+curl -s -X GET "$BASE_URL/rules/$UUID/versions" | jq . > /dev/null
 if [ $? -eq 0 ]; then
     echo "✅ Rule versions endpoint working with new UUID"
 else
@@ -94,7 +94,7 @@ else
 fi
 
 # Test 6: Validate rule (existing endpoint) 
-echo -e "\n✔️ Testing POST /api/rules/validate..."
+echo -e "\n✔️ Testing POST /api/v1/rules/validate..."
 curl -s -X POST "$BASE_URL/rules/validate" \
     -H "Content-Type: application/json" \
     -d '{
@@ -109,7 +109,7 @@ else
 fi
 
 # Test 7: Convert to SQL (existing endpoint)
-echo -e "\n🗄️ Testing POST /api/rules/to-sql..."
+echo -e "\n🗄️ Testing POST /api/v1/rules/to-sql..."
 curl -s -X POST "$BASE_URL/rules/to-sql" \
     -H "Content-Type: application/json" \
     -d '{

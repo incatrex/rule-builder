@@ -4,7 +4,7 @@ import axios from 'axios';
  * HTTP Helper - Base service for making API calls
  */
 class HttpHelper {
-  constructor(baseURL = '/api') {
+  constructor(baseURL = '/api/v1') {
     this.baseURL = baseURL;
   }
 
@@ -91,52 +91,32 @@ class RuleService {
   }
 
   /**
-   * Get rules with pagination and filtering
-   * @param {Object} options - { page, size, search, type, returnType }
-   * @returns {Object} - Paginated rule list
+   * Get all rules with pagination and filtering
+   * @param {Object} options - { page, size, search, ruleType }
+   * @returns {Object} - Paginated response with { content, page, size, totalElements, totalPages, first, last }
    */
   async getRules(options = {}) {
-    const {
-      page = 1,
-      size = 20,
-      search = '',
-      type = '',
-      returnType = ''
-    } = options;
-
+    const { page = 0, size = 20, search = '', ruleType = '' } = options;
     const params = { page, size };
     if (search) params.search = search;
-    if (type) params.type = type;
-    if (returnType) params.returnType = returnType;
+    if (ruleType) params.ruleType = ruleType;
 
     const response = await this.http.get('/rules', params);
     return response.data;
   }
 
   /**
-   * Get all rule IDs with metadata
+   * Get all rule IDs with metadata (no pagination - fetches all)
    * @param {string} ruleType - Optional rule type filter (Reporting, Transformation, etc.)
    * @returns {Array} - Array of rule summaries with {ruleId, uuid, latestVersion, folderPath, returnType, ruleType}
    */
   async getRuleIds(ruleType = null) {
-    const params = {};
+    const params = { page: 0, size: 10000 }; // Large size to get all
     if (ruleType) {
       params.ruleType = ruleType;
     }
-    const response = await this.http.get('/rules/ids', params);
-    return response.data;
-  }
-
-  /**
-   * Get specific rule version by ruleId and uuid
-   * @param {string} ruleId - Rule ID
-   * @param {string} uuid - Rule UUID
-   * @param {number} version - Version number
-   * @returns {Object} - Rule object
-   */
-  async getRuleByVersion(ruleId, uuid, version) {
-    const response = await this.http.get(`/rules/${ruleId}/${uuid}/${version}`);
-    return response.data;
+    const response = await this.http.get('/rules', params);
+    return response.data.content || response.data; // Handle both paginated and non-paginated responses
   }
 
   /**
@@ -145,14 +125,13 @@ class RuleService {
    * @returns {Object} - Rule object
    */
   async getRule(uuid) {
-    const response = await this.http.get(`/rules/${uuid}`);
-    return response.data;
+    return this.getRuleVersion(uuid, 'latest');
   }
 
   /**
    * Get specific rule version
    * @param {string} uuid - Rule UUID
-   * @param {number} version - Version number
+   * @param {number|string} version - Version number or 'latest'
    * @returns {Object} - Rule object
    */
   async getRuleVersion(uuid, version) {
@@ -161,33 +140,33 @@ class RuleService {
   }
 
   /**
-   * Get all versions of a rule
+   * Get all versions with full metadata
+   * @param {string} uuid - Rule UUID
+   * @returns {Array} - Array of version objects with metadata
+   */
+  async getRuleVersions(uuid) {
+    const response = await this.http.get(`/rules/${uuid}/versions`);
+    return response.data;
+  }
+
+  /**
+   * Get all version numbers only
    * @param {string} uuid - Rule UUID
    * @returns {Array} - Array of version numbers
    */
-  async getRuleVersions(uuid) {
-    const response = await this.http.get(`/rules/versions/${uuid}`);
-    return response.data;
+  async getVersionNumbers(uuid) {
+    const versions = await this.getRuleVersions(uuid);
+    return versions.map(entry => entry.version).sort((a, b) => b - a);
   }
 
   /**
-   * Get rule history
-   * @param {string} uuid - Rule UUID
-   * @returns {Array} - Rule history entries
-   */
-  async getRuleHistory(uuid) {
-    const response = await this.http.get(`/rules/${uuid}/history`);
-    return response.data;
-  }
-
-  /**
-   * Restore a specific rule version
+   * Restore a previous version (creates new version)
    * @param {string} uuid - Rule UUID
    * @param {number} version - Version to restore
-   * @returns {Object} - Success response
+   * @returns {Object} - Success response with new version info
    */
   async restoreRuleVersion(uuid, version) {
-    const response = await this.http.post(`/rules/${uuid}/restore/${version}`);
+    const response = await this.http.post(`/rules/${uuid}/versions/${version}/restore`);
     return response.data;
   }
 
@@ -203,35 +182,16 @@ class RuleService {
 
   /**
    * Convert rule to SQL
-   * @param {string|Object} ruleOrUuid - Rule UUID string or rule object
-   * @param {number} version - Optional version (only used when ruleOrUuid is a UUID)
-   * @returns {Object} - SQL conversion result
+   * @param {Object} rule - Rule object to convert
+   * @returns {Object} - SQL conversion result with { sql, errors }
    */
-  async convertToSql(ruleOrUuid, version = null) {
-    if (typeof ruleOrUuid === 'object') {
-      // Rule object provided - use the /rules/to-sql endpoint
-      const response = await this.http.post('/rules/to-sql', ruleOrUuid);
-      return response.data;
-    } else {
-      // UUID string provided - use the versioned endpoint
-      const endpoint = version 
-        ? `/rules/${ruleOrUuid}/versions/${version}/sql`
-        : `/rules/${ruleOrUuid}/sql`;
-      
-      const response = await this.http.post(endpoint);
-      return response.data;
-    }
-  }
-
-  /**
-   * Delete rule (all versions)
-   * @param {string} uuid - Rule UUID
-   * @returns {Object} - Success response
-   */
-  async deleteRule(uuid) {
-    const response = await this.http.delete(`/rules/${uuid}`);
+  async convertToSql(rule) {
+    const response = await this.http.post('/rules/to-sql', rule);
     return response.data;
   }
+
+  // Note: No DELETE endpoint exists
+  // Rules are permanent - you can only create new versions or restore old ones
 }
 
 // Export services

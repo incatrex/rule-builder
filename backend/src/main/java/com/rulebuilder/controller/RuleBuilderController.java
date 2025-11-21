@@ -10,13 +10,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api")
+// @RestController - DISABLED: Replaced by focused V1 controllers
+// Kept for reference during migration period
+@RequestMapping("/api/v1")
 @CrossOrigin(origins = "*")
+@Tag(name = "Rule Builder", description = "APIs for managing business rules with versioning and validation")
 public class RuleBuilderController {
 
     @Autowired
@@ -30,17 +37,74 @@ public class RuleBuilderController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Operation(summary = "Get available fields", description = "Retrieves the list of available fields for rule building with optional pagination")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved fields"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/fields")
-    public ResponseEntity<JsonNode> getFields() {
+    public ResponseEntity<ObjectNode> getFields(
+            @Parameter(description = "Page number (0-based)") @RequestParam(required = false, defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") int size,
+            @Parameter(description = "Search filter") @RequestParam(required = false) String search) {
         try {
-            JsonNode fields = ruleBuilderService.getFields();
-            return ResponseEntity.ok(fields);
+            JsonNode allFields = ruleBuilderService.getFields();
+            
+            // Convert to array if needed
+            java.util.List<JsonNode> fieldsList = new java.util.ArrayList<>();
+            if (allFields.isArray()) {
+                allFields.forEach(fieldsList::add);
+            } else {
+                fieldsList.add(allFields);
+            }
+            
+            // Filter by search term if provided
+            if (search != null && !search.isEmpty()) {
+                String searchLower = search.toLowerCase();
+                fieldsList = fieldsList.stream()
+                    .filter(field -> {
+                        String label = field.has("label") ? field.get("label").asText().toLowerCase() : "";
+                        String value = field.has("value") ? field.get("value").asText().toLowerCase() : "";
+                        return label.contains(searchLower) || value.contains(searchLower);
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+            }
+            
+            int totalElements = fieldsList.size();
+            int totalPages = (int) Math.ceil((double) totalElements / size);
+            
+            // Apply pagination
+            int start = page * size;
+            int end = Math.min(start + size, totalElements);
+            java.util.List<JsonNode> pagedFields = start < totalElements 
+                ? fieldsList.subList(start, end)
+                : new java.util.ArrayList<>();
+            
+            // Build paginated response
+            ObjectNode response = objectMapper.createObjectNode();
+            com.fasterxml.jackson.databind.node.ArrayNode contentArray = objectMapper.createArrayNode();
+            pagedFields.forEach(contentArray::add);
+            
+            response.set("content", contentArray);
+            response.put("page", page);
+            response.put("size", size);
+            response.put("totalElements", totalElements);
+            response.put("totalPages", totalPages);
+            response.put("first", page == 0);
+            response.put("last", page >= totalPages - 1);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    @GetMapping("/config")
+    @Operation(summary = "Get UI configuration", description = "Retrieves UI configuration generated from schema extensions")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved configuration"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/rules/ui/config")
     public ResponseEntity<JsonNode> getConfig() {
         try {
             // Config now generated from schema x-ui-* extensions
@@ -51,26 +115,48 @@ public class RuleBuilderController {
         }
     }
 
-    @PostMapping("/rules/{ruleId}/{version}")
-    public ResponseEntity<String> saveRule(
-            @PathVariable String ruleId,
-            @PathVariable String version,
-            @RequestBody JsonNode rule) {
+    @Operation(summary = "Get a specific rule version", description = "Retrieves a rule by UUID and version number or 'latest' keyword")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Rule found and returned"),
+        @ApiResponse(responseCode = "404", description = "Rule not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/rules/{uuid}/versions/{version}")
+    public ResponseEntity<JsonNode> getRuleVersion(
+            @Parameter(description = "Rule UUID") @PathVariable String uuid,
+            @Parameter(description = "Rule version number or 'latest'") @PathVariable String version) {
         try {
-            ruleBuilderService.saveRule(ruleId, version, rule);
-            return ResponseEntity.ok("Rule saved successfully");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error saving rule: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/rules/{ruleId}/{uuid}/{version}")
-    public ResponseEntity<JsonNode> getRule(
-            @PathVariable String ruleId,
-            @PathVariable String uuid,
-            @PathVariable String version) {
-        try {
-            JsonNode rule = ruleBuilderService.getRule(ruleId, uuid, version);
+            // Handle 'latest' keyword
+            String resolvedVersion = version;
+            if ("latest".equalsIgnoreCase(version)) {
+                JsonNode history = ruleBuilderService.getRuleVersions(uuid);
+                if (history.isEmpty()) {
+                    return ResponseEntity.notFound().build();
+                }
+                resolvedVersion = String.valueOf(history.get(0).get("version").asInt());
+            }
+            
+            // Get ruleId from history
+            JsonNode history = ruleBuilderService.getRuleVersions(uuid);
+            if (history.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Find the entry with matching version
+            String ruleId = null;
+            for (JsonNode entry : history) {
+                if (entry.get("version").asInt() == Integer.parseInt(resolvedVersion)) {
+                    ruleId = entry.get("ruleId").asText();
+                    break;
+                }
+            }
+            
+            if (ruleId == null) {
+                // If not found in history, use the latest ruleId (rule might have been renamed)
+                ruleId = history.get(0).get("ruleId").asText();
+            }
+            
+            JsonNode rule = ruleBuilderService.getRule(ruleId, uuid, resolvedVersion);
             if (rule != null) {
                 return ResponseEntity.ok(rule);
             } else {
@@ -81,28 +167,72 @@ public class RuleBuilderController {
         }
     }
 
-    @GetMapping("/rules/ids")
-    public ResponseEntity<JsonNode> getRuleIds(@RequestParam(required = false) String ruleType) {
+    @Operation(summary = "Get all rules", description = "Retrieves list of all rules with their metadata, with optional filtering and pagination")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved rules"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/rules")
+    public ResponseEntity<ObjectNode> getRules(
+            @Parameter(description = "Optional filter by rule type") @RequestParam(required = false) String ruleType,
+            @Parameter(description = "Page number (0-based)") @RequestParam(required = false, defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") int size,
+            @Parameter(description = "Search filter for ruleId") @RequestParam(required = false) String search) {
         try {
-            JsonNode ruleIds = ruleBuilderService.getRuleIds(ruleType);
-            return ResponseEntity.ok(ruleIds);
+            JsonNode allRules = ruleBuilderService.getRules(ruleType);
+            
+            // Convert to list
+            java.util.List<JsonNode> rulesList = new java.util.ArrayList<>();
+            allRules.forEach(rulesList::add);
+            
+            // Filter by search term if provided
+            if (search != null && !search.isEmpty()) {
+                String searchLower = search.toLowerCase();
+                rulesList = rulesList.stream()
+                    .filter(rule -> {
+                        String ruleId = rule.has("ruleId") ? rule.get("ruleId").asText().toLowerCase() : "";
+                        return ruleId.contains(searchLower);
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+            }
+            
+            int totalElements = rulesList.size();
+            int totalPages = (int) Math.ceil((double) totalElements / size);
+            
+            // Apply pagination
+            int start = page * size;
+            int end = Math.min(start + size, totalElements);
+            java.util.List<JsonNode> pagedRules = start < totalElements 
+                ? rulesList.subList(start, end)
+                : new java.util.ArrayList<>();
+            
+            // Build paginated response
+            ObjectNode response = objectMapper.createObjectNode();
+            com.fasterxml.jackson.databind.node.ArrayNode contentArray = objectMapper.createArrayNode();
+            pagedRules.forEach(contentArray::add);
+            
+            response.set("content", contentArray);
+            response.put("page", page);
+            response.put("size", size);
+            response.put("totalElements", totalElements);
+            response.put("totalPages", totalPages);
+            response.put("first", page == 0);
+            response.put("last", page >= totalPages - 1);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    @GetMapping("/rules/versions/{uuid}")
-    public ResponseEntity<JsonNode> getRuleVersions(@PathVariable String uuid) {
-        try {
-            JsonNode versions = ruleBuilderService.getRuleVersions(uuid);
-            return ResponseEntity.ok(versions);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
+    @Operation(summary = "Validate a rule", description = "Validates a rule against the JSON schema")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Validation completed (check response for errors)"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/rules/validate")
-    public ResponseEntity<JsonNode> validateRule(@RequestBody JsonNode rule) {
+    public ResponseEntity<JsonNode> validateRule(
+            @Parameter(description = "Rule definition to validate") @RequestBody JsonNode rule) {
         try {
             JsonNode validationResult = ruleBuilderService.validateRule(rule);
             return ResponseEntity.ok(validationResult);
@@ -111,8 +241,14 @@ public class RuleBuilderController {
         }
     }
 
+    @Operation(summary = "Convert rule to SQL", description = "Generates Oracle SQL from a rule definition")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "SQL generated successfully"),
+        @ApiResponse(responseCode = "500", description = "Error generating SQL")
+    })
     @PostMapping("/rules/to-sql")
-    public ResponseEntity<ObjectNode> convertRuleToSql(@RequestBody JsonNode rule) {
+    public ResponseEntity<ObjectNode> convertRuleToSql(
+            @Parameter(description = "Rule definition to convert") @RequestBody JsonNode rule) {
         try {
             String sql = sqlGenerator.generateSql(rule);
             ObjectNode response = objectMapper.createObjectNode();
@@ -127,20 +263,31 @@ public class RuleBuilderController {
         }
     }
 
-    @GetMapping("/rules/{uuid}/history")
-    public ResponseEntity<JsonNode> getRuleHistory(@PathVariable String uuid) {
+    @Operation(summary = "Get rule versions", description = "Retrieves all versions with metadata for a specific rule UUID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved versions"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/rules/{uuid}/versions")
+    public ResponseEntity<JsonNode> getRuleVersions(
+            @Parameter(description = "Rule UUID") @PathVariable String uuid) {
         try {
-            JsonNode history = ruleBuilderService.getRuleHistory(uuid);
+            JsonNode history = ruleBuilderService.getRuleVersions(uuid);
             return ResponseEntity.ok(history);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
+    @Operation(summary = "Restore rule version", description = "Restores a previous version by creating a new version with the old content")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Rule version restored successfully"),
+        @ApiResponse(responseCode = "500", description = "Error restoring rule")
+    })
     @PostMapping("/rules/{uuid}/restore/{version}")
     public ResponseEntity<String> restoreRuleVersion(
-            @PathVariable String uuid,
-            @PathVariable int version) {
+            @Parameter(description = "Rule UUID") @PathVariable String uuid,
+            @Parameter(description = "Version number to restore") @PathVariable int version) {
         try {
             ruleBuilderService.restoreRuleVersion(uuid, version);
             return ResponseEntity.ok("Rule version restored successfully");
@@ -149,12 +296,14 @@ public class RuleBuilderController {
         }
     }
 
-    /**
-     * Create new rule with server-generated UUID
-     * POST /api/rules
-     */
+    @Operation(summary = "Create new rule", description = "Creates a new rule with server-generated UUID at version 1")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Rule created successfully"),
+        @ApiResponse(responseCode = "500", description = "Error creating rule")
+    })
     @PostMapping("/rules")
-    public ResponseEntity<Map<String, Object>> createRule(@RequestBody JsonNode rule) {
+    public ResponseEntity<Map<String, Object>> createRule(
+            @Parameter(description = "Rule definition (UUID will be generated)") @RequestBody JsonNode rule) {
         try {
             // Generate UUID server-side
             String uuid = UUID.randomUUID().toString();
@@ -185,14 +334,15 @@ public class RuleBuilderController {
         }
     }
 
-    /**
-     * Update existing rule (creates new version)
-     * PUT /api/rules/{uuid}
-     */
+    @Operation(summary = "Update existing rule", description = "Updates a rule by creating a new version")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Rule updated successfully"),
+        @ApiResponse(responseCode = "500", description = "Error updating rule")
+    })
     @PutMapping("/rules/{uuid}")
     public ResponseEntity<Map<String, Object>> updateRule(
-            @PathVariable String uuid, 
-            @RequestBody JsonNode rule) {
+            @Parameter(description = "Rule UUID") @PathVariable String uuid,
+            @Parameter(description = "Updated rule definition") @RequestBody JsonNode rule) {
         try {
             // Find current max version for this UUID
             int currentMaxVersion = findMaxVersionForRule(uuid);
@@ -228,10 +378,12 @@ public class RuleBuilderController {
      * Helper method to find maximum version for a rule UUID
      */
     private int findMaxVersionForRule(String uuid) throws Exception {
-        JsonNode versions = ruleBuilderService.getRuleVersions(uuid);
+        JsonNode history = ruleBuilderService.getRuleVersions(uuid);
         int maxVersion = 0;
-        for (JsonNode version : versions) {
-            maxVersion = Math.max(maxVersion, version.asInt());
+        for (JsonNode entry : history) {
+            if (entry.has("version")) {
+                maxVersion = Math.max(maxVersion, entry.get("version").asInt());
+            }
         }
         return maxVersion;
     }

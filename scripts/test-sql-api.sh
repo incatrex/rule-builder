@@ -7,7 +7,7 @@ echo ""
 # Test 1: Condition Structure
 echo "Test 1: Condition Structure (WHERE clause)"
 echo "-------------------------------------------"
-curl -X POST http://localhost:8080/api/rules/to-sql \
+curl -X POST http://localhost:8080/api/v1/rules/to-sql \
   -H "Content-Type: application/json" \
   -d '{
     "structure": "condition",
@@ -52,7 +52,7 @@ echo ""
 # Test 2: Case Structure
 echo "Test 2: Case Structure (CASE WHEN)"
 echo "-----------------------------------"
-curl -X POST http://localhost:8080/api/rules/to-sql \
+curl -X POST http://localhost:8080/api/v1/rules/to-sql \
   -H "Content-Type: application/json" \
   -d '{
     "structure": "case",
@@ -126,7 +126,7 @@ echo ""
 # Test 3: Expression Structure with Function
 echo "Test 3: Expression Structure (Function)"
 echo "----------------------------------------"
-curl -X POST http://localhost:8080/api/rules/to-sql \
+curl -X POST http://localhost:8080/api/v1/rules/to-sql \
   -H "Content-Type: application/json" \
   -d '{
     "structure": "expression",

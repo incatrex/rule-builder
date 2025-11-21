@@ -45,12 +45,32 @@ config:
 [ ] version min to be 0 instead of 1
 
 [ ] Re-work validation
+    [ ] Move error translation to backend
+    [ ] Confirm/test key validationi points
 
 [ ] Add Business Logic service + Component/Panel
 
 [ ] Review / Simplify components
+    [ ] expand / collapse logic - standardize and test
 
 [ ] Testing
     [ ] data-test-id every element
     [ ] integration test coverage
     [ ] unit test coverage
+
+[ ] Rule History
+    [ ] Release Tags/
+    [ ] SQL
+    [ ] double check test-integration.sh (4 vs 3 versions?)
+
+
+[ ] Services
+    [ ] filter by tenant/sub-tenant?
+    [x] GET api/rules/ids = /list?
+    [x] GET api/config = /api/rules/config
+    [x] POST /api/rules - confirm how this is being used.
+    [ ] get rules is sending folderPath - thought it was doing that in service
+
+[ ] ruleRef / named conditions
+    [ ] ruleRef expansion?
+    [ ] ruleRef for condition?

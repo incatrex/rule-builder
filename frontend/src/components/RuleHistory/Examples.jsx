@@ -19,7 +19,7 @@ export function BasicExample() {
   return (
     <RuleHistory
       selectedRuleUuid={selectedUuid}
-      onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
+      onFetchHistory={(uuid) => ruleService.getRuleVersions(uuid)}
       onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
       onViewVersion={(uuid, version) => {
         console.log('View version:', uuid, version);
@@ -39,7 +39,7 @@ export function ThemedExample() {
   return (
     <RuleHistory
       selectedRuleUuid={selectedUuid}
-      onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
+      onFetchHistory={(uuid) => ruleService.getRuleVersions(uuid)}
       onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
       theme={{
         background: '#f5f5f5',
@@ -63,7 +63,7 @@ export function TailwindExample() {
   return (
     <RuleHistory
       selectedRuleUuid={selectedUuid}
-      onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
+      onFetchHistory={(uuid) => ruleService.getRuleVersions(uuid)}
       onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
       unstyled
       className="bg-white rounded-lg shadow-lg"
@@ -87,7 +87,7 @@ export function CustomMessagesExample() {
   return (
     <RuleHistory
       selectedRuleUuid={selectedUuid}
-      onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
+      onFetchHistory={(uuid) => ruleService.getRuleVersions(uuid)}
       onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
       messages={{
         noRuleSelected: '👈 Please select a rule from the list',
@@ -120,7 +120,7 @@ export function HeadlessExample() {
     hasRuleSelected,
   } = useRuleHistory({
     selectedRuleUuid: selectedUuid,
-    onFetchHistory: (uuid) => ruleService.getRuleHistory(uuid),
+    onFetchHistory: (uuid) => ruleService.getRuleVersions(uuid),
     onRestoreVersion: (uuid, version) => ruleService.restoreRuleVersion(uuid, version),
   });
 
@@ -190,7 +190,7 @@ export function MaterialUIExample() {
     <div style={{ padding: '16px' }}>
       <RuleHistory
         selectedRuleUuid={selectedUuid}
-        onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
+        onFetchHistory={(uuid) => ruleService.getRuleVersions(uuid)}
         onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
         theme={muiTheme}
         sx={{
@@ -227,7 +227,7 @@ export function CustomErrorHandlingExample() {
     <div>
       <RuleHistory
         selectedRuleUuid={selectedUuid}
-        onFetchHistory={(uuid) => ruleService.getRuleHistory(uuid)}
+        onFetchHistory={(uuid) => ruleService.getRuleVersions(uuid)}
         onRestoreVersion={(uuid, version) => ruleService.restoreRuleVersion(uuid, version)}
         onError={handleError}
         showNotifications={false} // Disable default notifications

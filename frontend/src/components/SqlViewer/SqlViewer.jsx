@@ -3,7 +3,7 @@ import { Button, message, Spin } from 'antd';
 import { CopyOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { RuleService } from './services/RuleService.js';
+import { RuleService } from '../../services/RuleService.js';
 
 const SqlViewer = forwardRef(({ ruleData, darkMode = false, onRefresh }, ref) => {
   const [sql, setSql] = useState('');
