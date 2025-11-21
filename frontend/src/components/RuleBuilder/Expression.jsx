@@ -183,18 +183,23 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       actualExpression = expressionData.expressions[0];
     }
     
+    const exprType = actualExpression.returnType || 'number';
+    // Get default operator key from config (e.g., 'add', 'concat')
+    const defaultOperatorKey = config?.types?.[exprType]?.defaultExpressionOperator || 'add';
+    // Convert operator key to symbol (e.g., 'add' -> '+', 'concat' -> '&')
+    const defaultOperator = config?.expressionOperators?.[defaultOperatorKey]?.symbol || '+';
     const expressionGroup = {
       type: 'expressionGroup',
-      returnType: actualExpression.returnType || 'number',
+      returnType: exprType,
       expressions: [
         actualExpression,
         { 
           type: 'value', 
-          returnType: actualExpression.returnType || 'number', 
-          value: actualExpression.returnType === 'text' ? '' : 0 
+          returnType: exprType, 
+          value: exprType === 'text' ? '' : 0 
         }
       ],
-      operators: ['+']
+      operators: [defaultOperator]
     };
     
     if (onChange) {
@@ -705,7 +710,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
         }}
       >
         <Space direction="vertical" style={{ width: '100%' }} size="small">
-          {/* Function selector with collapse button */}
+          {/* Function selector with collapse button and return type */}
           <Space size={4} style={{ width: '100%' }}>
             {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && (
               <Button
@@ -789,9 +794,20 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
               treeDefaultExpandAll
               popupClassName="compact-tree-select"
               treeIcon={false}
+              popupMatchSelectWidth={false}
               onClick={(e) => e.stopPropagation()}
               onFocus={(e) => e.stopPropagation()}
             />
+            {funcDef && (
+              <>
+                <Text type="secondary" style={{ fontSize: '11px', margin: 0 }}>
+                  Returns:
+                </Text>
+                <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
+                  {expressionData.returnType || 'unknown'}
+                </Tag>
+              </>
+            )}
           </Space>
 
           {/* Function arguments */}
@@ -917,12 +933,47 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       <Card
         size="small"
         style={{
-          background: darkMode ? '#1f1f1f' : '#ffffff',
+          background: darkMode ? '#2a2a2a' : '#fafafa',
           border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`
         }}
       >
         <Space direction="vertical" style={{ width: '100%' }} size="small">
-          {/* Rule selector */}
+          {/* Row 1: Rule Type filter + Returns tag */}
+          <Space size={8} style={{ width: '100%', alignItems: 'center' }}>
+            <div style={{ width: '150px' }}>
+              <RuleSelector
+                value={null}
+                onChange={() => {}}
+                darkMode={darkMode}
+                showRuleTypeFilter={true}
+                showRuleIdSelector={false}
+                ruleTypes={config.ruleTypes || []}
+                initialRuleType={expressionData.ruleType}
+                onRuleTypeChange={(newRuleType) => {
+                  // Update the rule type when filter changes
+                  handleValueChange({
+                    ...expressionData,
+                    ruleType: newRuleType,
+                    id: null,
+                    uuid: null,
+                    version: null
+                  });
+                }}
+              />
+            </div>
+            {expressionData.id && (
+              <Space size={4}>
+                <Text type="secondary" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
+                  Returns:
+                </Text>
+                <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
+                  {expressionData.returnType || 'unknown'}
+                </Tag>
+              </Space>
+            )}
+          </Space>
+          
+          {/* Row 2: Rule ID selector - full width */}
           <RuleSelector
             value={ruleKey}
             onChange={(selection) => {
@@ -932,7 +983,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                   uuid: null,
                   version: null,
                   returnType: expectedType || 'boolean',
-                  ruleType: null
+                  ruleType: expressionData.ruleType
                 });
                 return;
               }
@@ -948,37 +999,18 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
             }}
             darkMode={darkMode}
             placeholder="Select a rule..."
-            showReturnType={true}
-            showRuleTypeFilter={true}
+            showRuleTypeFilter={false}
+            showRuleIdSelector={true}
             ruleTypes={config.ruleTypes || []}
             initialRuleType={expressionData.ruleType}
+            filterReturnType={expectedType}
           />
           
-          {/* Warning for type mismatch */}
+          {/* Compact warning for type mismatch */}
           {hasTypeMismatch && (
-            <Alert
-              message="Return Type Mismatch"
-              description={`This rule returns ${expressionData.returnType}, but ${expectedType} is expected.`}
-              type="warning"
-              showIcon
-              closable={false}
-              style={{ fontSize: '12px' }}
-            />
-          )}
-          
-          {/* Selected rule info */}
-          {expressionData.id && (
-            <div style={{
-              fontSize: '11px',
-              color: darkMode ? '#888' : '#666',
-              padding: '8px',
-              background: darkMode ? '#2a2a2a' : '#f5f5f5',
-              borderRadius: '4px'
-            }}>
-              <div><strong>Rule ID:</strong> {expressionData.id}</div>
-              <div><strong>Version:</strong> {expressionData.version}</div>
-              <div><strong>Returns:</strong> <Tag color="blue" style={{ fontSize: '10px' }}>{expressionData.returnType}</Tag></div>
-            </div>
+            <Text type="warning" style={{ fontSize: '11px', display: 'block' }}>
+              ⚠️ Returns {expressionData.returnType}, but {expectedType} expected
+            </Text>
           )}
         </Space>
       </Card>

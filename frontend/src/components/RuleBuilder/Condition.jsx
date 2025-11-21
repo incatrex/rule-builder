@@ -27,7 +27,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
     returnType: 'boolean',
     name: 'New Condition',
     left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-    operator: 'equal',
+    operator: config?.types?.number?.defaultConditionOperator || 'equal',
     right: createDirectExpression('value', 'number', 0)
   });
   const [editingName, setEditingName] = useState(false);
@@ -280,7 +280,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
           value={conditionData.operator}
           onChange={handleOperatorChange}
           placeholder="Select operator"
-          style={{ width: 140 }}
+          style={{ minWidth: '60px' }}
           popupClassName={darkMode ? 'dark-mode-dropdown' : ''}
           getPopupContainer={(trigger) => trigger.parentNode}
           size="small"
@@ -288,6 +288,7 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
           dropdownStyle={darkMode ? {
             backgroundColor: '#2d2d2d'
           } : {}}
+          dropdownMatchSelectWidth={false}
         />
 
         {/* Right Expression(s) */}

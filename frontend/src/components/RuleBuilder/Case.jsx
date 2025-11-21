@@ -104,7 +104,7 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
             returnType: 'boolean',
             name: 'Condition 1',
             left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-            operator: 'equal',
+            operator: config?.types?.number?.defaultConditionOperator || 'equal',
             right: createDirectExpression('value', 'number', 0)
           }
         ]

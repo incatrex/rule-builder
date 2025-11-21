@@ -16,6 +16,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import Expression from '../components/RuleBuilder/Expression';
 import ExpressionGroup from '../components/RuleBuilder/ExpressionGroup';
+import ConditionGroup from '../components/RuleBuilder/ConditionGroup';
 
 // Mock config
 const mockConfig = {
@@ -157,6 +158,156 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
       const addButtons = screen.queryAllByTestId('expression-add-button');
       expect(addButtons.length).toBeGreaterThan(0);
     });
+  });
+});
+
+describe('Default Operator Configuration', () => {
+  test('uses defaultConditionOperator from config for new conditions', () => {
+    // Mock config with custom default operator
+    const customConfig = {
+      ...mockConfig,
+      types: {
+        number: {
+          defaultConditionOperator: 'greater',
+          validConditionOperators: ['equal', 'not_equal', 'greater', 'less']
+        },
+        text: {
+          defaultConditionOperator: 'contains',
+          validConditionOperators: ['equal', 'contains', 'starts_with']
+        }
+      }
+    };
+
+    let capturedCondition = null;
+    const handleChange = (value) => {
+      capturedCondition = value;
+    };
+
+    const { container } = render(
+      <ConditionGroup
+        value={{
+          type: 'conditionGroup',
+          returnType: 'boolean',
+          name: 'Test Group',
+          conjunction: 'AND',
+          not: false,
+          conditions: []
+        }}
+        onChange={handleChange}
+        config={customConfig}
+      />
+    );
+
+    // Find and click the "Add Condition" button
+    const addButton = screen.getByText(/Add Condition/i);
+    addButton.click();
+
+    // Verify the new condition uses the default operator from config
+    expect(capturedCondition.conditions).toHaveLength(1);
+    expect(capturedCondition.conditions[0].operator).toBe('greater');
+  });
+
+  test('uses defaultExpressionOperator from config for new expressions', async () => {
+    const customConfig = {
+      ...mockConfig,
+      types: {
+        number: {
+          defaultExpressionOperator: 'multiply',
+          validExpressionOperators: ['add', 'subtract', 'multiply', 'divide']
+        },
+        text: {
+          defaultExpressionOperator: 'concat',
+          validExpressionOperators: ['concat']
+        }
+      },
+      expressionOperators: {
+        add: { symbol: '+', label: 'Add' },
+        subtract: { symbol: '-', label: 'Subtract' },
+        multiply: { symbol: '*', label: 'Multiply' },
+        divide: { symbol: '/', label: 'Divide' },
+        concat: { symbol: '&', label: 'Concatenate' }
+      }
+    };
+
+    let capturedGroup = null;
+    const handleChange = (value) => {
+      capturedGroup = value;
+    };
+
+    render(
+      <ExpressionGroup
+        value={{
+          type: 'expressionGroup',
+          returnType: 'number',
+          expressions: [
+            { type: 'value', returnType: 'number', value: 5 },
+            { type: 'value', returnType: 'number', value: 3 }
+          ],
+          operators: ['+']
+        }}
+        onChange={handleChange}
+        config={customConfig}
+      />
+    );
+
+    // Wait for component to render
+    await waitFor(() => {
+      const addButtons = screen.queryAllByTestId('expression-add-button');
+      expect(addButtons.length).toBeGreaterThan(0);
+    });
+    
+    // Find add expression button
+    const addButtons = screen.queryAllByTestId('expression-add-button');
+    
+    // Click the first add button
+    addButtons[0].click();
+
+    // Wait for state to update
+    await waitFor(() => {
+      expect(capturedGroup).not.toBeNull();
+      expect(capturedGroup.expressions).toHaveLength(3);
+    });
+
+    // Verify the new expression uses the default operator from config
+    expect(capturedGroup.operators).toHaveLength(2);
+    // The new operator should be the symbol for 'multiply' which is '*'
+    expect(capturedGroup.operators[0]).toBe('*');
+  });
+
+  test('falls back to sensible defaults when config is missing', () => {
+    // Config without types defined
+    const minimalConfig = {
+      fields: mockConfig.fields,
+      functions: mockConfig.functions
+    };
+
+    let capturedCondition = null;
+    const handleChange = (value) => {
+      capturedCondition = value;
+    };
+
+    const { container } = render(
+      <ConditionGroup
+        value={{
+          type: 'conditionGroup',
+          returnType: 'boolean',
+          name: 'Test Group',
+          conjunction: 'AND',
+          not: false,
+          conditions: []
+        }}
+        onChange={handleChange}
+        config={minimalConfig}
+      />
+    );
+
+    // Find and click the "Add Condition" button
+    const addButton = screen.getByText(/Add Condition/i);
+    addButton.click();
+
+    // Should fall back to 'equal' when config.types is undefined
+    expect(capturedCondition.conditions).toHaveLength(1);
+    expect(capturedCondition.conditions[0].operator).toBe('equal');
   });
 });
 
