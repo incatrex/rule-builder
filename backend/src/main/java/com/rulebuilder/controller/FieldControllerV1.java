@@ -1,8 +1,6 @@
 package com.rulebuilder.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rulebuilder.service.FieldService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,8 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -27,7 +23,7 @@ public class FieldControllerV1 {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Operation(summary = "Get available fields", description = "Retrieves flattened field list with search and pagination. Each field has: path (entity.attribute), label, type, entity, entityLabel, attribute")
+    @Operation(summary = "Get available fields", description = "Retrieves hierarchical field structure with entity-level pagination. Returns a subset of entities based on page and size parameters.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved fields"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
@@ -35,19 +31,16 @@ public class FieldControllerV1 {
     @GetMapping("/fields")
     public ResponseEntity<ObjectNode> getFields(
             @Parameter(description = "Page number (0-based)") @RequestParam(required = false, defaultValue = "0") int page,
-            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "50") int size,
-            @Parameter(description = "Search filter") @RequestParam(required = false) String search) {
+            @Parameter(description = "Page size (number of entities)") @RequestParam(required = false, defaultValue = "5") int size,
+            @Parameter(description = "Search filter for entity or field names") @RequestParam(required = false) String search) {
         try {
-            List<ObjectNode> fields = fieldService.getFlattenedFields(search, page, size);
-            int totalElements = fieldService.getFieldCount(search);
+            ObjectNode fields = fieldService.getHierarchicalFieldsPaginated(page, size, search);
+            int totalElements = fieldService.getEntityCount(search);
             int totalPages = (int) Math.ceil((double) totalElements / size);
             
-            // Build paginated response
+            // Build paginated response with hierarchical content
             ObjectNode response = objectMapper.createObjectNode();
-            ArrayNode contentArray = objectMapper.createArrayNode();
-            fields.forEach(contentArray::add);
-            
-            response.set("content", contentArray);
+            response.set("content", fields);
             response.put("page", page);
             response.put("size", size);
             response.put("totalElements", totalElements);
@@ -56,21 +49,6 @@ public class FieldControllerV1 {
             response.put("last", page >= totalPages - 1);
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    @Operation(summary = "Get hierarchical fields", description = "Retrieves the complete hierarchical field structure (no pagination)")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved fields"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/fields/hierarchy")
-    public ResponseEntity<JsonNode> getFieldsHierarchy() {
-        try {
-            JsonNode fields = fieldService.getFields();
-            return ResponseEntity.ok(fields);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
