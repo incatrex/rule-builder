@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Space, message, Input, Alert, Tag, Collapse, Typography } from 'antd';
 import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined, MenuFoldOutlined, InfoCircleOutlined, BulbOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import { translateValidationErrors } from './services/ValidationTranslator.js';
+import { translateValidationErrors } from '../../services/ValidationTranslator.js';
 
 /**
  * Generate a placeholder UUID for validation purposes
@@ -174,7 +174,7 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
       setValidationErrors([]);
       
       try {
-        const response = await axios.post('/api/rules/validate', cleanedForValidation);
+        const response = await axios.post('/api/v1/rules/validate', cleanedForValidation);
         const validationResult = response.data;
         
         // Store schema info

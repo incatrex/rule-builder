@@ -45,6 +45,8 @@ config:
 [ ] version min to be 0 instead of 1
 
 [ ] Re-work validation
+    [ ] Move error translation to backend
+    [ ] Confirm/test key validationi points
 
 [ ] Add Business Logic service + Component/Panel
 

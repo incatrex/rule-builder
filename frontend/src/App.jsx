@@ -6,11 +6,11 @@ import { FieldService } from './services/FieldService.js';
 import { RuleService } from './services/RuleService.js';
 import { RuleBuilder } from './components/RuleBuilder'; // Use refactored version
 import { RuleHeader } from './components/RuleBuilder/RuleHeader';
-import RuleSearch from './RuleSearch';
+import RuleSearch from './components/RuleSearch/RuleSearch';
 import { RuleHistory } from './components/RuleHistory'; // Use refactored version
-import JsonEditor from './JsonEditor';
-import SqlViewer from './SqlViewer';
-import RuleCanvas from './RuleCanvas';
+import JsonEditor from './components/JsonEditor/JsonEditor';
+import SqlViewer from './components/SqlViewer/SqlViewer';
+import RuleCanvas from './components/RuleCanvas/RuleCanvas';
 import ResizablePanels from './ResizablePanels';
 
 const { Header, Content } = Layout;
