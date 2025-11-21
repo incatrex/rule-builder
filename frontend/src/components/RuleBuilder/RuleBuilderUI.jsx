@@ -4,6 +4,7 @@ import { SaveOutlined, ClearOutlined, InfoCircleOutlined, UpOutlined, DownOutlin
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
 import Expression from './Expression';
+import { getInternalMismatchMessage } from './utils/typeValidation';
 import './RuleBuilder.css';
 
 const { Text } = Typography;
@@ -131,6 +132,21 @@ export const RuleBuilderUI = ({
               />
             </div>
           </Space>
+          
+          {/* Warning for internal type mismatch */}
+          {ruleData.hasInternalMismatch && (
+            <div style={{ 
+              marginTop: '8px',
+              padding: '8px 12px',
+              background: darkMode ? 'rgba(255, 77, 79, 0.15)' : 'rgba(255, 77, 79, 0.1)',
+              border: '1px solid #ff4d4f',
+              borderRadius: '4px'
+            }}>
+              <Text style={{ fontSize: '12px', color: '#ff4d4f' }}>
+                {getInternalMismatchMessage(ruleData.internalDeclaredType, ruleData.internalEvaluatedType, true)}
+              </Text>
+            </div>
+          )}
 
           {/* Collapsible Metadata Section */}
           <Collapse

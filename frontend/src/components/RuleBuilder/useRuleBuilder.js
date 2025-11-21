@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { message } from 'antd';
 import { createDirectExpression } from './Expression';
+import { checkInternalTypeConsistency, getInternalMismatchMessage } from './utils/typeValidation';
 
 /**
  * useRuleBuilder Hook
@@ -159,11 +160,35 @@ export const useRuleBuilder = ({
   }, [selectedRuleUuid, ruleService]);
 
   /**
+   * Check if return type matches evaluated type for expression structures
+   */
+  const checkReturnTypeMismatch = useCallback((structure, definition, returnType) => {
+    return checkInternalTypeConsistency({ structure, definition, returnType });
+  }, []);
+
+  /**
    * Update rule data (merge with existing)
    */
   const handleChange = useCallback((updates) => {
+    // Special handling for returnType changes on expression structures
+    if (updates.returnType !== undefined) {
+      const check = checkReturnTypeMismatch(
+        ruleData.structure, 
+        ruleData.definition, 
+        updates.returnType
+      );
+      
+      if (check.hasInternalMismatch) {
+        message.warning(
+          `Return type changed to ${check.declaredType}, but the expression evaluates to ${check.evaluatedType}. ` +
+          `Please update the expression to match the expected return type.`,
+          5 // 5 second duration
+        );
+      }
+    }
+    
     setRuleData(prev => ({ ...prev, ...updates }));
-  }, []);
+  }, [ruleData.structure, ruleData.definition, checkReturnTypeMismatch]);
 
   /**
    * Initialize definition based on structure type
@@ -250,11 +275,32 @@ export const useRuleBuilder = ({
   }, [handleChange, initializeDefinition]);
 
   /**
+   * Validate that return type matches evaluated type
+   */
+  const validateReturnType = useCallback(() => {
+    const check = checkInternalTypeConsistency(ruleData);
+    
+    if (check.hasInternalMismatch) {
+      message.error(
+        `Cannot save: Rule is set to return ${check.declaredType} but the expression evaluates to ${check.evaluatedType}. ` +
+        `Please update the expression or change the rule's return type.`
+      );
+      return false;
+    }
+    return true;
+  }, [ruleData]);
+
+  /**
    * Save or update rule
    */
   const handleSaveRule = useCallback(async () => {
     if (!ruleData.metadata.id) {
       message.warning('Please enter a Rule ID');
+      return;
+    }
+
+    // Validate return type matches evaluated type
+    if (!validateReturnType()) {
       return;
     }
 
@@ -297,7 +343,7 @@ export const useRuleBuilder = ({
       console.error('Error saving rule:', error);
       message.error('Failed to save rule: ' + (error.response?.data?.error || error.message));
     }
-  }, [ruleData, ruleService, selectedRuleUuid, loadVersionsForRule, handleChange, onSaveSuccess]);
+  }, [ruleData, ruleService, selectedRuleUuid, loadVersionsForRule, handleChange, onSaveSuccess, validateReturnType]);
 
   /**
    * Get clean rule output (without UI state)
@@ -361,6 +407,13 @@ export const useRuleBuilder = ({
     // 2. Dynamic key format (old): { structure: "case", case: {...} }
     let content = data.definition || data[structure] || null;
     
+    // Check for internal type consistency
+    const consistencyCheck = checkInternalTypeConsistency({
+      structure,
+      returnType: data.returnType,
+      definition: content
+    });
+    
     setRuleData({
       structure,
       returnType: data.returnType || 'boolean',
@@ -368,7 +421,10 @@ export const useRuleBuilder = ({
       uuId: data.uuId || null,
       version: data.version || 1,
       metadata: data.metadata || { id: '', description: '' },
-      definition: content
+      definition: content,
+      hasInternalMismatch: consistencyCheck.hasInternalMismatch,
+      internalDeclaredType: consistencyCheck.declaredType,
+      internalEvaluatedType: consistencyCheck.evaluatedType
     });
     
     setIsLoadedRule(true);

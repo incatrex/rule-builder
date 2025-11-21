@@ -4,6 +4,8 @@ import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, Clos
 import moment from 'moment';
 import RuleSelector from './RuleSelector';
 import ExpressionGroup from './ExpressionGroup';
+import { getInternalMismatchMessage, getContextMismatchMessage, checkInternalTypeConsistency } from './utils/typeValidation';
+import { RuleService } from '../../services/RuleService';
 
 const { Text } = Typography;
 
@@ -110,6 +112,54 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       setExpressionData(normalized);
     }
   }, [value]);
+
+  // Validate ruleRef expressions when loaded from JSON
+  useEffect(() => {
+    const validateRuleRef = async () => {
+      // Only validate ruleRef types that have an id but are missing validation metadata
+      if (expressionData.type === 'ruleRef' && 
+          expressionData.uuid && 
+          expressionData.hasInternalMismatch === undefined) {
+        
+        try {
+          const ruleService = new RuleService();
+          const version = expressionData.version || 'latest';
+          const ruleData = await ruleService.getRuleVersion(expressionData.uuid, version);
+          
+          if (ruleData) {
+            // Check for internal consistency
+            const consistencyCheck = checkInternalTypeConsistency(ruleData);
+            
+            if (consistencyCheck.hasInternalMismatch) {
+              console.warn(
+                `[Expression] Loaded ruleRef ${expressionData.id} has internal type mismatch: ` +
+                `declares ${consistencyCheck.declaredType} but evaluates to ${consistencyCheck.evaluatedType}`
+              );
+            }
+            
+            // Update expressionData with validation metadata
+            const updatedData = {
+              ...expressionData,
+              hasInternalMismatch: consistencyCheck.hasInternalMismatch,
+              internalDeclaredType: consistencyCheck.declaredType,
+              internalEvaluatedType: consistencyCheck.evaluatedType
+            };
+            
+            setExpressionData(updatedData);
+            
+            // Also notify parent component
+            if (onChange) {
+              onChange(updatedData);
+            }
+          }
+        } catch (error) {
+          console.error('Error validating ruleRef:', error);
+        }
+      }
+    };
+    
+    validateRuleRef();
+  }, [expressionData.type, expressionData.id, expressionData.uuid, expressionData.hasInternalMismatch]);
 
   // Handle single-item expression groups by extracting the expression
   if (expressionData.type === 'expressionGroup') {
@@ -946,9 +996,12 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
       ? `${expressionData.id}.${expressionData.uuid}`
       : null;
     
-    // Check if rule return type matches expected type
+    // Check if rule return type matches expected type (contextual mismatch)
     const hasTypeMismatch = expressionData.returnType && expectedType && 
       expressionData.returnType !== expectedType;
+    
+    // Check if rule has internal inconsistency (declared vs evaluated type)
+    const hasInternalMismatch = expressionData.hasInternalMismatch === true;
     
     return (
       <Card
@@ -1015,7 +1068,10 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                 uuid: metadata.uuid,
                 version: metadata.version,
                 returnType: metadata.returnType,
-                ruleType: metadata.ruleType
+                ruleType: metadata.ruleType,
+                hasInternalMismatch: metadata.hasInternalMismatch,
+                internalDeclaredType: metadata.internalDeclaredType,
+                internalEvaluatedType: metadata.internalEvaluatedType
               });
             }}
             darkMode={darkMode}
@@ -1027,10 +1083,17 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
             filterReturnType={expectedType}
           />
           
-          {/* Compact warning for type mismatch */}
-          {hasTypeMismatch && (
+          {/* Warning for internal rule inconsistency (always show if present) */}
+          {hasInternalMismatch && (
+            <Text type="warning" style={{ fontSize: '11px', display: 'block', color: '#ff4d4f' }}>
+              {getInternalMismatchMessage(expressionData.internalDeclaredType, expressionData.internalEvaluatedType)}
+            </Text>
+          )}
+          
+          {/* Warning for contextual type mismatch (only when there's an expected type) */}
+          {hasTypeMismatch && !hasInternalMismatch && (
             <Text type="warning" style={{ fontSize: '11px', display: 'block' }}>
-              ⚠️ Returns {expressionData.returnType}, but {expectedType} expected
+              {getContextMismatchMessage(expectedType, expressionData.returnType)}
             </Text>
           )}
         </Space>
