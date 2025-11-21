@@ -120,10 +120,19 @@ const App = () => {
   const loadConfiguration = async () => {
     try {
       setLoading(true);
-      const fieldsData = await fieldService.getFields();
+      console.log('[App] Loading fields and config...');
+      
+      // Get hierarchical field structure (not paginated)
+      const fieldsData = await fieldService.getFieldsHierarchy();
+      console.log('[App] Received fields:', fieldsData);
+      console.log('[App] Fields type:', typeof fieldsData);
+      console.log('[App] Fields keys:', Object.keys(fieldsData || {}));
+      
       const configData = await configService.getConfig();
 
+      // fieldsData is already the hierarchical fields object
       const fields = fieldsData;
+      console.log('[App] Final fields for RuleBuilder:', fields);
 
       // Note: Schema-generated config already provides hierarchical functions structure
       // No need to convert - it's already in the format: { MATH: { subfields: { ADD: {...} } } }
