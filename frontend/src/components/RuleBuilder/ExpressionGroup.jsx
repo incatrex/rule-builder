@@ -150,16 +150,21 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       value: existingType === 'text' ? '' : 0 
     };
     
+    // Get default operator from config based on type
+    const defaultOperatorKey = config?.types?.[existingType]?.defaultExpressionOperator || 'add';
+    // Convert operator key to symbol (e.g., 'add' -> '+', 'concat' -> '&')
+    const defaultOperator = config?.expressionOperators?.[defaultOperatorKey]?.symbol || '+';
+    
     // If afterIndex is specified, insert after that position
     if (afterIndex !== null && afterIndex >= 0) {
       expressions.splice(afterIndex + 1, 0, newExpression);
       // Insert operator at the same position (operators[i] is between expressions[i] and expressions[i+1])
-      operators.splice(afterIndex, 0, '+');
+      operators.splice(afterIndex, 0, defaultOperator);
     } else {
       // Default: add at the end
       expressions.push(newExpression);
       if (expressions.length > 1) {
-        operators.push('+');
+        operators.push(defaultOperator);
       }
     }
     
