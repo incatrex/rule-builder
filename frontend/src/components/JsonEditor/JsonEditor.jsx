@@ -58,6 +58,7 @@ const removePlaceholderFlags = (data) => {
       if (key.startsWith('editing') || 
           key === 'elseExpanded' || 
           key === '__placeholderUUID' ||
+          key === 'hasInternalMismatch' ||
           key.includes('Expanded') ||
           key.includes('editing')) {
         continue;

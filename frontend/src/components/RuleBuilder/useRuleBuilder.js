@@ -1,7 +1,50 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { message } from 'antd';
 import { createDirectExpression } from './Expression';
 import { checkInternalTypeConsistency, getInternalMismatchMessage } from './utils/typeValidation';
+
+/**
+ * Remove UI-only properties from rule data before sending to parent/API
+ * This includes: editing flags, expanded states, placeholder UUIDs, and id fields
+ */
+const cleanRuleData = (data) => {
+  if (!data || typeof data !== 'object') {
+    return data;
+  }
+
+  const cleanObject = (obj) => {
+    if (!obj || typeof obj !== 'object') {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(cleanObject);
+    }
+
+    const cleaned = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Skip UI-only properties
+      if (key.startsWith('editing') || 
+          key === 'elseExpanded' || 
+          key === '__placeholderUUID' ||
+          key === 'hasInternalMismatch' ||
+          key.includes('Expanded') ||
+          key.includes('editing')) {
+        continue;
+      }
+      
+      // Recursively clean nested objects
+      if (value && typeof value === 'object') {
+        cleaned[key] = cleanObject(value);
+      } else {
+        cleaned[key] = value;
+      }
+    }
+    return cleaned;
+  };
+
+  return cleanObject(data);
+};
 
 /**
  * useRuleBuilder Hook
@@ -93,12 +136,17 @@ export const useRuleBuilder = ({
     }
   }, [selectedRuleUuid]);
 
-  // Notify parent of changes
+  // Memoize cleaned data to prevent infinite loops
+  const cleanedRuleData = useMemo(() => {
+    return cleanRuleData(ruleData);
+  }, [ruleData]);
+
+  // Notify parent of changes (clean data before sending)
   useEffect(() => {
     if (onRuleChange) {
-      onRuleChange(ruleData);
+      onRuleChange(cleanedRuleData);
     }
-  }, [ruleData, onRuleChange]);
+  }, [cleanedRuleData, onRuleChange]);
 
   /**
    * Load all versions for a specific rule UUID
@@ -381,7 +429,7 @@ export const useRuleBuilder = ({
           key === 'isCollapsed' || 
           key === 'editingName' || 
           key === 'editingResultName' ||
-          (key === 'id' && obj.type === 'conditionGroup')) {
+          key === 'hasInternalMismatch') {
         continue;
       }
       
