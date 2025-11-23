@@ -281,27 +281,18 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
                     )}
                     
                     <DraggableItem id={String(index)} darkMode={darkMode}>
-                      {/* Render Condition or Nested Group */}
-                      {child.type === 'condition' ? (
-                        <Condition
-                          value={child}
-                          onChange={(newValue) => updateChild(index, newValue)}
-                          config={config}
-                          darkMode={darkMode}
-                          onRemove={() => removeChild(index)}
-                          isLoadedRule={isLoadedRule}
-                        />
-                      ) : (
-                        <ConditionGroup
-                          value={child}
-                          onChange={(newValue) => updateChild(index, newValue)}
-                          config={config}
-                          darkMode={darkMode}
-                          onRemove={() => removeChild(index)}
-                          depth={depth + 1}
-                          isLoadedRule={isLoadedRule}
-                        />
-                      )}
+                      {/* Render Condition (smart router handles both condition and conditionGroup) */}
+                      <Condition
+                        value={child}
+                        onChange={(newValue) => updateChild(index, newValue)}
+                        config={config}
+                        darkMode={darkMode}
+                        onRemove={() => removeChild(index)}
+                        depth={depth + 1}
+                        isLoadedRule={isLoadedRule}
+                        isSimpleCondition={isSimpleCondition}
+                        compact={compact}
+                      />
                     </DraggableItem>
                   </div>
                 );

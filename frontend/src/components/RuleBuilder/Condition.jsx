@@ -1,45 +1,149 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
+import ConditionGroup from './ConditionGroup';
 import Expression, { createDirectExpression } from "./Expression";
 
 const { Option } = Select;
 const { Text } = Typography;
 
 /**
- * Condition Component
+ * Condition Component - Smart Router
  * 
- * Represents a single condition with left expression, operator, and right expression.
- * Follows structure: <condition returnType="boolean">
- *   <left>:<expression>
- *   <operator>
- *   <right>:<expression>
+ * Routes between single condition rendering and ConditionGroup based on type property.
+ * This mirrors the Expression component architecture where Expression routes
+ * between direct expressions (value/field/function/ruleRef) and ExpressionGroup.
+ * 
+ * Condition Structure Types:
+ * 
+ * 1. Single Condition (type: 'condition'):
+ * {
+ *   "type": "condition",
+ *   "returnType": "boolean",
+ *   "name": "Condition Name",
+ *   "left": <Expression>,
+ *   "operator": "equal",
+ *   "right": <Expression>
+ * }
+ * 
+ * 2. Condition Group (type: 'conditionGroup'):
+ * {
+ *   "type": "conditionGroup",
+ *   "returnType": "boolean",
+ *   "name": "Group Name",
+ *   "conjunction": "AND",
+ *   "conditions": [<Condition> | <ConditionGroup>, ...]
+ * }
  * 
  * Props:
- * - value: Condition object { name, left, operator, right }
+ * - value: Condition object (either single condition or group)
  * - onChange: Callback when condition changes
  * - config: Config with operators, fields, functions
  * - darkMode: Dark mode styling
  * - onRemove: Callback to remove this condition
+ * - depth: Nesting depth (for ConditionGroup styling)
+ * - isLoadedRule: Whether this is a loaded rule (affects expansion state)
+ * - isSimpleCondition: Whether this is a simple condition (for ConditionGroup)
+ * - compact: Compact mode (for ConditionGroup)
  */
-const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoadedRule = false }) => {
-  const [conditionData, setConditionData] = useState(value || {
-    returnType: 'boolean',
-    name: 'New Condition',
-    left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-    operator: config?.types?.number?.defaultConditionOperator || 'equal',
-    right: createDirectExpression('value', 'number', 0)
-  });
-  const [editingName, setEditingName] = useState(false);
-  // Only use isLoadedRule for initial state, not continuous monitoring
-  const [isExpanded, setIsExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
+const Condition = ({ value, onChange, config, darkMode = false, onRemove, depth = 0, isLoadedRule = false, isSimpleCondition = false, compact = false }) => {
+  // Normalize the value to ensure it's a proper structure
+  const normalizeValue = (val) => {
+    if (!val) {
+      return {
+        type: 'condition',
+        returnType: 'boolean',
+        name: 'New Condition',
+        left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+        operator: config?.types?.number?.defaultConditionOperator || 'equal',
+        right: createDirectExpression('value', 'number', 0)
+      };
+    }
+    
+    // If it's already a valid condition structure, return as-is
+    if (val.type && ['condition', 'conditionGroup'].includes(val.type)) {
+      return val;
+    }
+    
+    // Otherwise create a default condition
+    return {
+      type: 'condition',
+      returnType: 'boolean',
+      name: 'New Condition',
+      left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+      operator: config?.types?.number?.defaultConditionOperator || 'equal',
+      right: createDirectExpression('value', 'number', 0)
+    };
+  };
 
+  const initialValue = normalizeValue(value);
+  const [conditionData, setConditionData] = useState(initialValue);
+  const [editingName, setEditingName] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
+
+  // Sync with external changes
   useEffect(() => {
     if (value) {
-      setConditionData(value);
+      const normalized = normalizeValue(value);
+      setConditionData(normalized);
     }
   }, [value]);
 
+  // Handle single-item condition groups by extracting the condition
+  if (conditionData.type === 'conditionGroup') {
+    if (conditionData.conditions && conditionData.conditions.length === 1) {
+      // Single-item ConditionGroup - extract the condition and handle it directly
+      const singleCondition = conditionData.conditions[0];
+      
+      // Update the condition data to the single condition but keep ConditionGroup wrapper for saving
+      const handleSingleConditionChange = (newCondition) => {
+        // If the inner Condition created a multi-item ConditionGroup, pass it through unchanged
+        if (newCondition.type === 'conditionGroup' && newCondition.conditions?.length > 1) {
+          if (onChange) onChange(newCondition);
+          return;
+        }
+        
+        // Otherwise, wrap single condition in ConditionGroup
+        const updatedGroup = {
+          ...conditionData,
+          conditions: [newCondition]
+        };
+        if (onChange) onChange(updatedGroup);
+      };
+      
+      // Re-render with the single condition
+      return (
+        <Condition
+          value={singleCondition}
+          onChange={handleSingleConditionChange}
+          config={config}
+          darkMode={darkMode}
+          onRemove={onRemove}
+          depth={depth}
+          isLoadedRule={isLoadedRule}
+          isSimpleCondition={isSimpleCondition}
+          compact={compact}
+        />
+      );
+    } else if (conditionData.conditions && conditionData.conditions.length > 1) {
+      // Multi-item ConditionGroup - delegate to ConditionGroup component
+      return (
+        <ConditionGroup
+          value={conditionData}
+          onChange={onChange}
+          config={config}
+          darkMode={darkMode}
+          onRemove={onRemove}
+          depth={depth}
+          isLoadedRule={isLoadedRule}
+          isSimpleCondition={isSimpleCondition}
+          compact={compact}
+        />
+      );
+    }
+  }
+
+  // Single condition rendering
   const handleChange = (updates) => {
     const updated = { ...conditionData, ...updates };
     setConditionData(updated);
@@ -87,37 +191,80 @@ const Condition = ({ value, onChange, config, darkMode = false, onRemove, isLoad
   // Handle operator change and adjust right side based on cardinality
   const handleOperatorChange = (operatorKey) => {
     const operatorDef = getOperatorDef(operatorKey);
+    const oldOperatorDef = getOperatorDef(conditionData.operator);
     
-    // Support both fixed and dynamic cardinality
-    let cardinality;
+    // Calculate new cardinality
+    let newCardinality;
     if (operatorDef?.defaultCardinality !== undefined) {
       // Dynamic cardinality (e.g., IN operator)
-      cardinality = operatorDef.defaultCardinality;
+      newCardinality = operatorDef.defaultCardinality;
     } else {
       // Fixed cardinality (e.g., between, equal, etc.)
-      cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
+      newCardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
+    }
+    
+    // Calculate old cardinality
+    let oldCardinality;
+    if (oldOperatorDef?.defaultCardinality !== undefined) {
+      oldCardinality = Array.isArray(conditionData.right) ? conditionData.right.length : oldOperatorDef.defaultCardinality;
+    } else {
+      oldCardinality = oldOperatorDef?.cardinality !== undefined ? oldOperatorDef.cardinality : 1;
     }
     
     let newRight;
-    if (cardinality === 0) {
+    if (newCardinality === 0) {
       // No right side value needed
       newRight = null;
-    } else if (cardinality === 1) {
-      // Single right side value - direct expression (schema-compliant)
-      newRight = createDirectExpression(
-        'value',
-        conditionData.left?.returnType || 'text',
-        ''
-      );
-    } else {
-      // Multiple right side values (array of direct expressions)
-      newRight = Array(cardinality).fill(null).map(() => 
-        createDirectExpression(
+    } else if (newCardinality === 1 && oldCardinality === 1) {
+      // Same cardinality - preserve existing value
+      newRight = conditionData.right;
+    } else if (newCardinality === 1) {
+      // Changed to single value - try to preserve first value if coming from array
+      if (Array.isArray(conditionData.right) && conditionData.right.length > 0) {
+        newRight = conditionData.right[0];
+      } else {
+        newRight = createDirectExpression(
           'value',
           conditionData.left?.returnType || 'text',
           ''
-        )
-      );
+        );
+      }
+    } else {
+      // Multiple right side values (array of direct expressions)
+      if (Array.isArray(conditionData.right) && conditionData.right.length > 0) {
+        // Preserve existing values and pad/trim as needed
+        if (conditionData.right.length === newCardinality) {
+          newRight = conditionData.right;
+        } else if (conditionData.right.length < newCardinality) {
+          // Need more values - add new ones
+          newRight = [
+            ...conditionData.right,
+            ...Array(newCardinality - conditionData.right.length).fill(null).map(() => 
+              createDirectExpression('value', conditionData.left?.returnType || 'text', '')
+            )
+          ];
+        } else {
+          // Need fewer values - trim
+          newRight = conditionData.right.slice(0, newCardinality);
+        }
+      } else if (oldCardinality === 1 && conditionData.right) {
+        // Converting single value to array - use it as first item
+        newRight = [
+          conditionData.right,
+          ...Array(newCardinality - 1).fill(null).map(() => 
+            createDirectExpression('value', conditionData.left?.returnType || 'text', '')
+          )
+        ];
+      } else {
+        // Create new array
+        newRight = Array(newCardinality).fill(null).map(() => 
+          createDirectExpression(
+            'value',
+            conditionData.left?.returnType || 'text',
+            ''
+          )
+        );
+      }
     }
     
     handleChange({ operator: operatorKey, right: newRight });
