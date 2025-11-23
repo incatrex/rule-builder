@@ -22,29 +22,37 @@ const { Text } = Typography;
  * - onChange: Callback when case changes
  * - config: Config with operators, fields, functions
  * - darkMode: Dark mode styling
+ * - expansionPath: Path identifier for expansion state
+ * - isExpanded: Function (path) => boolean to check expansion state
+ * - onToggleExpansion: Function (path) => void to toggle expansion
+ * - isNew: Boolean indicating if this is a newly created case (auto-expand) or loaded (selective expand)
  */
-const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false }) => {
+const Case = ({ 
+  value, 
+  onChange, 
+  config, 
+  darkMode = false, 
+  expansionPath = 'case',
+  isExpanded = () => true,
+  onToggleExpansion = () => {},
+  onSetExpansion,
+  isNew = true
+}) => {
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
     elseClause: createDirectExpression('value', 'number', 0),
     elseResultName: 'Default'
   });
   const [editingElseResultName, setEditingElseResultName] = useState(false);
-  const [activeKeys, setActiveKeys] = useState([]);
-  // Only use isLoadedRule for initial state, not continuous monitoring
-  const [elseExpanded, setElseExpanded] = useState(!isLoadedRule); // UI state only - start collapsed for loaded rules
   const [editingStates, setEditingStates] = useState({}); // Track editing state for each clause
-  const isInitialLoad = useRef(true);
+  
+  // Use centralized expansion state
+  const elseExpansionPath = `${expansionPath}-else`;
+  const elseExpanded = isExpanded(elseExpansionPath);
 
   useEffect(() => {
     if (value) {
       setCaseData(value);
-      // Only auto-expand on initial load for new rules, not loaded rules
-      if (isInitialLoad.current && value.whenClauses && value.whenClauses.length > 0 && !isLoadedRule) {
-        const keys = value.whenClauses.map((_, index) => String(index));
-        setActiveKeys(keys);
-      }
-      isInitialLoad.current = false;
     }
   }, [value]);
 
@@ -112,8 +120,14 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
       then: createDirectExpression('value', 'number', 0),
       resultName: `Result ${caseData.whenClauses.length + 1}`
     };
+    const newIndex = caseData.whenClauses.length;
     handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });
-    setActiveKeys([...activeKeys, String(caseData.whenClauses.length)]);
+    
+    // Auto-expand the new WHEN clause
+    if (onSetExpansion) {
+      const newWhenPath = `${expansionPath}-when-${newIndex}`;
+      onSetExpansion(newWhenPath, true);
+    }
   };
 
   const removeWhenClause = (index) => {
@@ -131,11 +145,24 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
     <Space direction="vertical" style={{ width: '100%' }} size="large">
         {/* WHEN Clauses */}
         <Collapse 
-          activeKey={activeKeys} 
-          onChange={setActiveKeys}
+          activeKey={caseData.whenClauses.map((_, index) => {
+            const whenPath = `${expansionPath}-when-${index}-clause`;
+            return isExpanded(whenPath) ? String(index) : null;
+          }).filter(Boolean)}
+          onChange={(keys) => {
+            caseData.whenClauses.forEach((_, index) => {
+              const whenPath = `${expansionPath}-when-${index}-clause`;
+              const shouldBeExpanded = keys.includes(String(index));
+              const currentlyExpanded = isExpanded(whenPath);
+              if (shouldBeExpanded !== currentlyExpanded) {
+                onToggleExpansion(whenPath);
+              }
+            });
+          }}
           style={{ marginBottom: '16px' }}
           items={caseData.whenClauses.map((clause, index) => {
-            const isExpanded = activeKeys.includes(String(index));
+            const whenPath = `${expansionPath}-when-${index}-clause`;
+            const whenExpanded = isExpanded(whenPath);
             
             return {
               key: String(index),
@@ -166,7 +193,7 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                         />
                       </>
                     )}
-                    {!isExpanded && (
+                    {!whenExpanded && (
                       <>
                         <Text strong style={{ marginLeft: '16px' }}>THEN</Text>
                         {editingStates[`${index}_result`] ? (
@@ -216,7 +243,11 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                       config={config}
                       darkMode={darkMode}
                       compact={true}
-                      isLoadedRule={isLoadedRule}
+                      expansionPath={`${expansionPath}-when-${index}`}
+                      isExpanded={isExpanded}
+                      onToggleExpansion={onToggleExpansion}
+                      onSetExpansion={onSetExpansion}
+                      isNew={isNew}
                     />
                   </div>
 
@@ -250,7 +281,11 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                       onChange={(newThen) => updateWhenClause(index, { then: newThen })}
                       config={config}
                       darkMode={darkMode}
-                      isLoadedRule={isLoadedRule}
+                      expansionPath={`${expansionPath}-when-${index}-then`}
+                      isExpanded={isExpanded}
+                      onToggleExpansion={onToggleExpansion}
+                      onSetExpansion={onSetExpansion}
+                      isNew={isNew}
                     />
                   </div>
                 </Space>
@@ -272,7 +307,7 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
         {/* ELSE Clause */}
         <Collapse 
           activeKey={elseExpanded ? ['else'] : []} 
-          onChange={(keys) => setElseExpanded(keys.includes('else'))}
+          onChange={() => onToggleExpansion(elseExpansionPath)}
           items={[{
             key: 'else',
             label: (
@@ -309,7 +344,11 @@ const Case = ({ value, onChange, config, darkMode = false, isLoadedRule = false 
                 onChange={(newElse) => handleChange({ elseClause: newElse })}
                 config={config}
                 darkMode={darkMode}
-                isLoadedRule={isLoadedRule}
+                expansionPath={`${expansionPath}-else-expression`}
+                isExpanded={isExpanded}
+                onToggleExpansion={onToggleExpansion}
+                onSetExpansion={onSetExpansion}
+                isNew={isNew}
               />
             )
           }]}

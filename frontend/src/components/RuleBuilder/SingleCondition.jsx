@@ -1,175 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
 import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
-import ConditionGroup from './ConditionGroup';
 import Expression, { createDirectExpression } from "./Expression";
 
 const { Option } = Select;
 const { Text } = Typography;
 
 /**
- * Condition Component - Smart Router
+ * SingleCondition Component
  * 
- * Routes between single condition rendering and ConditionGroup based on type property.
- * This mirrors the Expression component architecture where Expression routes
- * between direct expressions (value/field/function/ruleRef) and ExpressionGroup.
- * 
- * Condition Structure Types:
- * 
- * 1. Single Condition (type: 'condition'):
- * {
- *   "type": "condition",
- *   "returnType": "boolean",
- *   "name": "Condition Name",
- *   "left": <Expression>,
- *   "operator": "equal",
- *   "right": <Expression>
- * }
- * 
- * 2. Condition Group (type: 'conditionGroup'):
- * {
- *   "type": "conditionGroup",
- *   "returnType": "boolean",
- *   "name": "Group Name",
- *   "conjunction": "AND",
- *   "conditions": [<Condition> | <ConditionGroup>, ...]
- * }
+ * Represents a single condition with left expression, operator, and right expression.
+ * Follows structure: <condition returnType="boolean">
+ *   <left>:<expression>
+ *   <operator>
+ *   <right>:<expression>
  * 
  * Props:
- * - value: Condition object (either single condition or group)
+ * - value: Condition object { name, left, operator, right }
  * - onChange: Callback when condition changes
  * - config: Config with operators, fields, functions
  * - darkMode: Dark mode styling
  * - onRemove: Callback to remove this condition
- * - depth: Nesting depth (for ConditionGroup styling)
- * - isSimpleCondition: Whether this is a simple condition (for ConditionGroup)
- * - compact: Compact mode (for ConditionGroup)
- * - expansionPath: Unique path identifier for expansion state (e.g., 'condition-0')
- * - isExpanded: Function to check if a path is expanded
- * - onToggleExpansion: Function to toggle expansion state
- * - isNew: Boolean indicating new vs loaded rule (for expansion defaults)
+ * - expansionPath: Path identifier for expansion state
+ * - isExpanded: Function (path) => boolean to check expansion state
+ * - onToggleExpansion: Function (path) => void to toggle expansion
+ * - isNew: Boolean indicating if this is a newly created condition (auto-expand) or loaded (selective expand)
  */
-const Condition = ({ 
+const SingleCondition = ({ 
   value, 
   onChange, 
   config, 
   darkMode = false, 
-  onRemove, 
-  depth = 0, 
-  isSimpleCondition = false, 
-  compact = false,
-  expansionPath = 'condition-0',
-  isExpanded,
-  onToggleExpansion,
-  onSetExpansion,
-  isNew = false
+  onRemove,
+  expansionPath = 'singleCondition',
+  isExpanded: isExpandedFn = () => true,
+  onToggleExpansion = () => {},
+  isNew = true
 }) => {
-  // Normalize the value to ensure it's a proper structure
-  const normalizeValue = (val) => {
-    if (!val) {
-      return {
-        type: 'condition',
-        returnType: 'boolean',
-        name: 'New Condition',
-        left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-        operator: config?.types?.number?.defaultConditionOperator || 'equal',
-        right: createDirectExpression('value', 'number', 0)
-      };
-    }
-    
-    // If it's already a valid condition structure, return as-is
-    if (val.type && ['condition', 'conditionGroup'].includes(val.type)) {
-      return val;
-    }
-    
-    // Otherwise create a default condition
-    return {
-      type: 'condition',
-      returnType: 'boolean',
-      name: 'New Condition',
-      left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-      operator: config?.types?.number?.defaultConditionOperator || 'equal',
-      right: createDirectExpression('value', 'number', 0)
-    };
-  };
-
-  const initialValue = normalizeValue(value);
-  const [conditionData, setConditionData] = useState(initialValue);
+  const [conditionData, setConditionData] = useState(value || {
+    returnType: 'boolean',
+    name: 'New Condition',
+    left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+    operator: config?.types?.number?.defaultConditionOperator || 'equal',
+    right: createDirectExpression('value', 'number', 0)
+  });
   const [editingName, setEditingName] = useState(false);
   
   // Use centralized expansion state
-  const expanded = isExpanded(expansionPath);
+  const expanded = isExpandedFn(expansionPath);
 
-  // Sync with external changes
   useEffect(() => {
     if (value) {
-      const normalized = normalizeValue(value);
-      setConditionData(normalized);
+      setConditionData(value);
     }
   }, [value]);
 
-  // Handle single-item condition groups by extracting the condition
-  if (conditionData.type === 'conditionGroup') {
-    if (conditionData.conditions && conditionData.conditions.length === 1) {
-      // Single-item ConditionGroup - extract the condition and handle it directly
-      const singleCondition = conditionData.conditions[0];
-      
-      // Update the condition data to the single condition but keep ConditionGroup wrapper for saving
-      const handleSingleConditionChange = (newCondition) => {
-        // If the inner Condition created a multi-item ConditionGroup, pass it through unchanged
-        if (newCondition.type === 'conditionGroup' && newCondition.conditions?.length > 1) {
-          if (onChange) onChange(newCondition);
-          return;
-        }
-        
-        // Otherwise, wrap single condition in ConditionGroup
-        const updatedGroup = {
-          ...conditionData,
-          conditions: [newCondition]
-        };
-        if (onChange) onChange(updatedGroup);
-      };
-      
-      // Re-render with the single condition
-      return (
-        <Condition
-          value={singleCondition}
-          onChange={handleSingleConditionChange}
-          config={config}
-          darkMode={darkMode}
-          onRemove={onRemove}
-          depth={depth}
-          isSimpleCondition={isSimpleCondition}
-          compact={compact}
-          expansionPath={expansionPath}
-          isExpanded={isExpanded}
-          onToggleExpansion={onToggleExpansion}
-          isNew={isNew}
-        />
-      );
-    } else if (conditionData.conditions && conditionData.conditions.length > 1) {
-      // Multi-item ConditionGroup - delegate to ConditionGroup component
-      return (
-        <ConditionGroup
-          value={conditionData}
-          onChange={onChange}
-          config={config}
-          darkMode={darkMode}
-          onRemove={onRemove}
-          depth={depth}
-          isSimpleCondition={isSimpleCondition}
-          compact={compact}
-          expansionPath={expansionPath}
-          isExpanded={isExpanded}
-          onToggleExpansion={onToggleExpansion}
-          onSetExpansion={onSetExpansion}
-          isNew={isNew}
-        />
-      );
-    }
-  }
-
-  // Single condition rendering
   const handleChange = (updates) => {
     const updated = { ...conditionData, ...updates };
     setConditionData(updated);
@@ -217,80 +102,37 @@ const Condition = ({
   // Handle operator change and adjust right side based on cardinality
   const handleOperatorChange = (operatorKey) => {
     const operatorDef = getOperatorDef(operatorKey);
-    const oldOperatorDef = getOperatorDef(conditionData.operator);
     
-    // Calculate new cardinality
-    let newCardinality;
+    // Support both fixed and dynamic cardinality
+    let cardinality;
     if (operatorDef?.defaultCardinality !== undefined) {
       // Dynamic cardinality (e.g., IN operator)
-      newCardinality = operatorDef.defaultCardinality;
+      cardinality = operatorDef.defaultCardinality;
     } else {
       // Fixed cardinality (e.g., between, equal, etc.)
-      newCardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
-    }
-    
-    // Calculate old cardinality
-    let oldCardinality;
-    if (oldOperatorDef?.defaultCardinality !== undefined) {
-      oldCardinality = Array.isArray(conditionData.right) ? conditionData.right.length : oldOperatorDef.defaultCardinality;
-    } else {
-      oldCardinality = oldOperatorDef?.cardinality !== undefined ? oldOperatorDef.cardinality : 1;
+      cardinality = operatorDef?.cardinality !== undefined ? operatorDef.cardinality : 1;
     }
     
     let newRight;
-    if (newCardinality === 0) {
+    if (cardinality === 0) {
       // No right side value needed
       newRight = null;
-    } else if (newCardinality === 1 && oldCardinality === 1) {
-      // Same cardinality - preserve existing value
-      newRight = conditionData.right;
-    } else if (newCardinality === 1) {
-      // Changed to single value - try to preserve first value if coming from array
-      if (Array.isArray(conditionData.right) && conditionData.right.length > 0) {
-        newRight = conditionData.right[0];
-      } else {
-        newRight = createDirectExpression(
+    } else if (cardinality === 1) {
+      // Single right side value - direct expression (schema-compliant)
+      newRight = createDirectExpression(
+        'value',
+        conditionData.left?.returnType || 'text',
+        ''
+      );
+    } else {
+      // Multiple right side values (array of direct expressions)
+      newRight = Array(cardinality).fill(null).map(() => 
+        createDirectExpression(
           'value',
           conditionData.left?.returnType || 'text',
           ''
-        );
-      }
-    } else {
-      // Multiple right side values (array of direct expressions)
-      if (Array.isArray(conditionData.right) && conditionData.right.length > 0) {
-        // Preserve existing values and pad/trim as needed
-        if (conditionData.right.length === newCardinality) {
-          newRight = conditionData.right;
-        } else if (conditionData.right.length < newCardinality) {
-          // Need more values - add new ones
-          newRight = [
-            ...conditionData.right,
-            ...Array(newCardinality - conditionData.right.length).fill(null).map(() => 
-              createDirectExpression('value', conditionData.left?.returnType || 'text', '')
-            )
-          ];
-        } else {
-          // Need fewer values - trim
-          newRight = conditionData.right.slice(0, newCardinality);
-        }
-      } else if (oldCardinality === 1 && conditionData.right) {
-        // Converting single value to array - use it as first item
-        newRight = [
-          conditionData.right,
-          ...Array(newCardinality - 1).fill(null).map(() => 
-            createDirectExpression('value', conditionData.left?.returnType || 'text', '')
-          )
-        ];
-      } else {
-        // Create new array
-        newRight = Array(newCardinality).fill(null).map(() => 
-          createDirectExpression(
-            'value',
-            conditionData.left?.returnType || 'text',
-            ''
-          )
-        );
-      }
+        )
+      );
     }
     
     handleChange({ operator: operatorKey, right: newRight });
@@ -444,16 +286,16 @@ const Condition = ({
             onChange={handleLeftChange}
             config={config}
             darkMode={darkMode}
+            compact={true}
             expansionPath={`${expansionPath}-left`}
-            isExpanded={isExpanded}
+            isExpanded={isExpandedFn}
             onToggleExpansion={onToggleExpansion}
-            onSetExpansion={onSetExpansion}
             isNew={isNew}
           />
         </div>
 
         {/* Operator */}
-        {console.log('[Condition] Rendering operator wrapper, darkMode:', darkMode)}
+        {console.log('[SingleCondition] Rendering operator wrapper, darkMode:', darkMode)}
         <Select
           value={conditionData.operator}
           onChange={handleOperatorChange}
@@ -481,10 +323,10 @@ const Condition = ({
               config={config}
               expectedType={conditionData.left?.returnType}
               darkMode={darkMode}
+              compact={true}
               expansionPath={`${expansionPath}-right`}
-              isExpanded={isExpanded}
+              isExpanded={isExpandedFn}
               onToggleExpansion={onToggleExpansion}
-              onSetExpansion={onSetExpansion}
               isNew={isNew}
             />
           </div>
@@ -512,10 +354,10 @@ const Condition = ({
                     config={config}
                     expectedType={conditionData.left?.returnType}
                     darkMode={darkMode}
+                    compact={true}
                     expansionPath={`${expansionPath}-right-${index}`}
-                    isExpanded={isExpanded}
+                    isExpanded={isExpandedFn}
                     onToggleExpansion={onToggleExpansion}
-                    onSetExpansion={onSetExpansion}
                     isNew={isNew}
                   />
                   {canRemoveValue && (
@@ -553,4 +395,4 @@ const Condition = ({
   );
 };
 
-export default Condition;
+export default SingleCondition;

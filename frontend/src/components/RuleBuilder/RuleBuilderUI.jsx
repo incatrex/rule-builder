@@ -38,6 +38,12 @@ const { Panel } = Collapse;
  * @param {Function} props.onStructureChange - Callback for structure changes
  * @param {Function} props.onDefinitionChange - Callback for definition changes
  * @param {Function} props.onSave - Callback for save action
+ * @param {boolean} props.isNew - Whether this is a new rule
+ * @param {Function} props.isExpanded - Function to check if path is expanded
+ * @param {Function} props.onToggleExpansion - Function to toggle expansion
+ * @param {Function} props.onSetExpansion - Function to set expansion explicitly
+ * @param {Function} props.onExpandAll - Function to expand all
+ * @param {Function} props.onCollapseAll - Function to collapse all
  */
 export const RuleBuilderUI = ({
   ruleData,
@@ -54,7 +60,13 @@ export const RuleBuilderUI = ({
   onReturnTypeChange,
   onStructureChange,
   onDefinitionChange,
-  onSave
+  onSave,
+  isNew = false,
+  isExpanded,
+  onToggleExpansion,
+  onSetExpansion,
+  onExpandAll,
+  onCollapseAll
 }) => {
   const [metadataCollapsed, setMetadataCollapsed] = useState(false);
 
@@ -279,7 +291,11 @@ export const RuleBuilderUI = ({
                   onChange={onDefinitionChange}
                   config={config}
                   darkMode={darkMode}
-                  isLoadedRule={isLoadedRule}
+                  expansionPath="case-0"
+                  isExpanded={isExpanded}
+                  onToggleExpansion={onToggleExpansion}
+                  onSetExpansion={onSetExpansion}
+                  isNew={isNew}
                 />
               )}
 
@@ -289,8 +305,12 @@ export const RuleBuilderUI = ({
                   onChange={onDefinitionChange}
                   config={config}
                   darkMode={darkMode}
-                  isLoadedRule={isLoadedRule}
                   isSimpleCondition={true}
+                  expansionPath="conditionGroup-0"
+                  isExpanded={isExpanded}
+                  onToggleExpansion={onToggleExpansion}
+                  onSetExpansion={onSetExpansion}
+                  isNew={isNew}
                 />
               )}
 
@@ -301,7 +321,11 @@ export const RuleBuilderUI = ({
                   config={config}
                   expectedType={ruleData.returnType}
                   darkMode={darkMode}
-                  isLoadedRule={isLoadedRule}
+                  expansionPath="expression-0"
+                  isExpanded={isExpanded}
+                  onToggleExpansion={onToggleExpansion}
+                  onSetExpansion={onSetExpansion}
+                  isNew={isNew}
                 />
               )}
             </div>
