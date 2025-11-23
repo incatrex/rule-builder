@@ -64,7 +64,22 @@ export const createDirectExpression = (type = 'value', returnType = 'text', valu
  * - isLoadedRule: Whether this is a loaded rule (affects expansion state)
  * - allowedSources: Allowed value sources for filtering
  */
-const Expression = ({ value, onChange, config, expectedType, propArgDef = null, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, onAddExpression = null }) => {
+const Expression = ({ 
+  value, 
+  onChange, 
+  config, 
+  expectedType, 
+  propArgDef = null, 
+  darkMode = false, 
+  compact = false, 
+  expansionPath = 'expression',
+  isExpanded = () => true,
+  onToggleExpansion = () => {},
+  onSetExpansion,
+  isNew = true,
+  allowedSources = null, 
+  onAddExpression = null 
+}) => {
   // Normalize the value to ensure it's a proper structure
   const normalizeValue = (val) => {
     if (!val) {
@@ -91,18 +106,11 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
   const initialValue = normalizeValue(value);
   const [source, setSource] = useState(initialValue.type || 'value');
   const [expressionData, setExpressionData] = useState(initialValue);
-  // Start collapsed for loaded rules, even in compact mode
-  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-
-  // Update expansion state when isLoadedRule changes from true to false (i.e., editing after load)
-  // In compact mode for nested expressions, expand after initial render
-  useEffect(() => {
-    if (!isLoadedRule && compact) {
-      setIsExpanded(true); // Expand nested expressions once editing starts
-    }
-  }, [isLoadedRule, compact]);
+  
+  // Use centralized expansion state
+  const expanded = isExpanded(expansionPath);
 
   // Sync with external changes
   useEffect(() => {
@@ -193,7 +201,11 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
           expectedType={expectedType}
           darkMode={darkMode}
           compact={compact}
-          isLoadedRule={isLoadedRule}
+          expansionPath={expansionPath}
+          isExpanded={isExpanded}
+          onToggleExpansion={onToggleExpansion}
+          onSetExpansion={onSetExpansion}
+          isNew={isNew}
           allowedSources={allowedSources}
           propArgDef={propArgDef}
         />
@@ -208,7 +220,11 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
           expectedType={expectedType}
           darkMode={darkMode}
           compact={compact}
-          isLoadedRule={isLoadedRule}
+          expansionPath={expansionPath}
+          isExpanded={isExpanded}
+          onToggleExpansion={onToggleExpansion}
+          onSetExpansion={onSetExpansion}
+          isNew={isNew}
           allowedSources={allowedSources}
           argDef={propArgDef}
           onAddExpressionAfterGroup={() => {
@@ -275,6 +291,11 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     
     if (onChange) {
       onChange(expressionGroup);
+    }
+    
+    // Auto-expand the newly created expression group
+    if (onSetExpansion) {
+      onSetExpansion(expansionPath, true);
     }
   };
 
@@ -758,9 +779,9 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
     const funcDef = getFuncDef(expressionData.function?.name);
     
     // Render collapsed view when not expanded and function has args
-    if (!isExpanded && funcDef && expressionData.function?.args && expressionData.function.args.length > 0) {
+    if (!expanded && funcDef && expressionData.function?.args && expressionData.function.args.length > 0) {
       return (
-        <Space size={4} style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(true)}>
+        <Space size={4} style={{ cursor: 'pointer' }} onClick={() => onToggleExpansion(expansionPath)}>
           <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
           <Text code style={{ fontSize: '12px' }}>
             {getFunctionSummary(expressionData.function)}
@@ -787,10 +808,10 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
               <Button
                 type="text"
                 size="small"
-                icon={isExpanded ? <DownOutlined /> : <RightOutlined />}
+                icon={expanded ? <DownOutlined /> : <RightOutlined />}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsExpanded(!isExpanded);
+                  onToggleExpansion(expansionPath);
                 }}
                 style={{ padding: 0, color: darkMode ? '#e0e0e0' : 'inherit', flexShrink: 0 }}
               />
@@ -854,9 +875,6 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                     args: initialArgs
                   }
                 });
-                
-                // Expand when a function is selected
-                setIsExpanded(true);
               }}
               treeData={funcTreeData}
               placeholder="Select function"
@@ -882,7 +900,7 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
           </Space>
 
           {/* Function arguments */}
-          {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && isExpanded && (
+          {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && expanded && (
             <Card
               size="small"
               title={
@@ -952,7 +970,10 @@ const Expression = ({ value, onChange, config, expectedType, propArgDef = null, 
                             expectedType={expectedArgType}
                             propArgDef={argDef}
                             darkMode={darkMode}
-                            isLoadedRule={isLoadedRule}
+                            expansionPath={`${expansionPath}-arg-${index}`}
+                            isExpanded={isExpanded}
+                            onToggleExpansion={onToggleExpansion}
+                            isNew={isNew}
                           />
                         </Space>
                       </div>

@@ -1,6 +1,7 @@
-import React, { forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, useImperativeHandle, useEffect } from 'react';
 import { RuleService, RuleConfigService } from '../../services';
 import { useRuleBuilder } from './useRuleBuilder';
+import { useExpansionState } from './hooks/useExpansionState';
 import { RuleBuilderUI } from './RuleBuilderUI';
 import './RuleBuilder.css';
 
@@ -109,6 +110,22 @@ const RuleBuilder = forwardRef(({
     onSaveSuccess
   });
 
+  // Expansion state management
+  const isNew = !isLoadedRule;
+  const {
+    isExpanded,
+    toggleExpansion,
+    setExpansion,
+    reset,
+    expandAll,
+    collapseAll
+  } = useExpansionState(ruleData.structure, isNew);
+
+  // Reset expansion state when loading a new rule
+  useEffect(() => {
+    reset(ruleData.structure, isNew);
+  }, [ruleData.uuId, ruleData.version, reset]);
+
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({
     getRuleOutput,
@@ -151,6 +168,12 @@ const RuleBuilder = forwardRef(({
       onStructureChange={handleStructureChange}
       onDefinitionChange={handleDefinitionChange}
       onSave={handleSaveRule}
+      isNew={isNew}
+      isExpanded={isExpanded}
+      onToggleExpansion={toggleExpansion}
+      onSetExpansion={setExpansion}
+      onExpandAll={expandAll}
+      onCollapseAll={collapseAll}
     />
   );
 });

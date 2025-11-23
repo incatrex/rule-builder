@@ -87,8 +87,26 @@ const DraggableItem = ({ id, children, darkMode }) => {
  * - darkMode: Dark mode styling
  * - onRemove: Callback to remove this group
  * - depth: Nesting depth for styling
+ * - expansionPath: Unique path identifier for expansion state
+ * - isExpanded: Function to check if a path is expanded
+ * - onToggleExpansion: Function to toggle expansion state
+ * - isNew: Boolean indicating new vs loaded rule
  */
-const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, depth = 0, isLoadedRule = false, isSimpleCondition = false, compact = false }) => {
+const ConditionGroup = ({ 
+  value, 
+  onChange, 
+  config, 
+  darkMode = false, 
+  onRemove, 
+  depth = 0, 
+  isSimpleCondition = false, 
+  compact = false,
+  expansionPath = 'conditionGroup-0',
+  isExpanded,
+  onToggleExpansion,
+  onSetExpansion,
+  isNew = false
+}) => {
   const [groupData, setGroupData] = useState(value || {
     type: 'conditionGroup',
     returnType: 'boolean',
@@ -97,8 +115,9 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
     conditions: []
   });
   const [editingName, setEditingName] = useState(false);
-  // Only use isLoadedRule for initial state, not continuous monitoring
-  const [isExpanded, setIsExpanded] = useState(!isLoadedRule || (isLoadedRule && isSimpleCondition)); // UI state only - start collapsed for loaded rules, except simple conditions
+  
+  // Use centralized expansion state
+  const expanded = isExpanded(expansionPath);
 
   useEffect(() => {
     if (value) {
@@ -166,6 +185,12 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
       }
     };
     handleChange({ conditions: [...conditions, newCondition] });
+    
+    // Auto-expand the new condition
+    if (onSetExpansion) {
+      const newConditionPath = `${expansionPath}-condition-${conditions.length}`;
+      onSetExpansion(newConditionPath, true);
+    }
   };
 
   const addConditionGroup = () => {
@@ -177,7 +202,7 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
       conjunction: 'AND',
       not: false,
       conditions: [
-        // Auto-add an empty condition to the new group
+        // Auto-add 2 empty conditions to the new group (to prevent auto-unwrap)
         {
           type: 'condition',
           returnType: 'boolean',
@@ -195,15 +220,56 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
             expressions: [{ type: 'value', returnType: 'number', value: '' }],
             operators: []
           }
+        },
+        {
+          type: 'condition',
+          returnType: 'boolean',
+          name: 'Condition 2',
+          left: { 
+            type: 'expressionGroup',
+            returnType: 'number',
+            expressions: [{ type: 'field', returnType: 'number', field: null }],
+            operators: []
+          },
+          operator: null,
+          right: { 
+            type: 'expressionGroup',
+            returnType: 'number',
+            expressions: [{ type: 'value', returnType: 'number', value: '' }],
+            operators: []
+          }
         }
       ]
     };
     handleChange({ conditions: [...conditions, newGroup] });
+    
+    // Auto-expand the new group and its conditions
+    if (onSetExpansion) {
+      // Use 'condition' prefix to match rendering path (Condition component routes internally)
+      const newGroupIndex = conditions.length;
+      const newGroupPath = `${expansionPath}-condition-${newGroupIndex}`;
+      onSetExpansion(newGroupPath, true);
+      onSetExpansion(`${newGroupPath}-condition-0`, true);
+      onSetExpansion(`${newGroupPath}-condition-1`, true);
+    }
   };
 
   const removeChild = (index) => {
     const conditions = groupData.conditions || [];
     const updatedConditions = conditions.filter((_, i) => i !== index);
+    
+    // Auto-unwrap: if only 1 condition remains, return it directly instead of keeping the group
+    if (updatedConditions.length === 1 && onChange) {
+      onChange(updatedConditions[0]);
+      return;
+    }
+    
+    // If removing results in 0 conditions, let parent handle it (likely remove the entire group)
+    if (updatedConditions.length === 0 && onRemove) {
+      onRemove();
+      return;
+    }
+    
     handleChange({ conditions: updatedConditions });
   };
 
@@ -289,9 +355,13 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
                         darkMode={darkMode}
                         onRemove={() => removeChild(index)}
                         depth={depth + 1}
-                        isLoadedRule={isLoadedRule}
                         isSimpleCondition={isSimpleCondition}
-                        compact={compact}
+                        compact={false}
+                        expansionPath={`${expansionPath}-condition-${index}`}
+                        isExpanded={isExpanded}
+                        onToggleExpansion={onToggleExpansion}
+                        onSetExpansion={onSetExpansion}
+                        isNew={isNew}
                       />
                     </DraggableItem>
                   </div>
@@ -347,8 +417,8 @@ const ConditionGroup = ({ value, onChange, config, darkMode = false, onRemove, d
   // Normal mode: render with Collapse wrapper and header
   return (
     <Collapse
-      activeKey={isExpanded ? ['group'] : []}
-      onChange={(keys) => setIsExpanded(keys.includes('group'))}
+      activeKey={expanded ? ['group'] : []}
+      onChange={() => onToggleExpansion(expansionPath)}
       style={{
         background: backgroundColor,
         border: depth === 0 ? '2px solid #1890ff' : '1px solid #d9d9d9',

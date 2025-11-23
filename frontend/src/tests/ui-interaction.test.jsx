@@ -17,6 +17,7 @@ import React from 'react';
 import Expression from '../components/RuleBuilder/Expression';
 import ExpressionGroup from '../components/RuleBuilder/ExpressionGroup';
 import ConditionGroup from '../components/RuleBuilder/ConditionGroup';
+import { defaultTestExpansionProps } from './helpers/expansionHelpers';
 
 // Mock config
 const mockConfig = {
@@ -112,6 +113,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
           config={mockConfig}
           expectedType="text"
           darkMode={false}
+          {...defaultTestExpansionProps}
         />
       );
 
@@ -147,6 +149,7 @@ describe('UI Interaction Tests - ExpressionGroup', () => {
           config={mockConfig}
           expectedType="number"
           darkMode={false}
+          {...defaultTestExpansionProps}
         />
       );
 
@@ -195,6 +198,7 @@ describe('Default Operator Configuration', () => {
         }}
         onChange={handleChange}
         config={customConfig}
+        {...defaultTestExpansionProps}
       />
     );
 
@@ -247,6 +251,7 @@ describe('Default Operator Configuration', () => {
         }}
         onChange={handleChange}
         config={customConfig}
+        {...defaultTestExpansionProps}
       />
     );
 
@@ -298,6 +303,7 @@ describe('Default Operator Configuration', () => {
         }}
         onChange={handleChange}
         config={minimalConfig}
+        {...defaultTestExpansionProps}
       />
     );
 

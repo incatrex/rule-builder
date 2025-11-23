@@ -39,12 +39,32 @@ const { Text } = Typography;
  * - expectedType: Expected return type for filtering (text, number, date, boolean)
  * - darkMode: Dark mode styling
  * - compact: Compact mode
+ * - expansionPath: Path identifier for expansion state
+ * - isExpanded: Function (path) => boolean to check expansion state
+ * - onToggleExpansion: Function (path) => void to toggle expansion
+ * - isNew: Boolean indicating if this is a newly created expression (auto-expand) or loaded (selective expand)
  * - onAddExpressionAfterGroup: Callback to add expression after this group (wraps in outer group)
  */
-const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = false, compact = false, isLoadedRule = false, allowedSources = null, argDef: propArgDef = null, onAddExpressionAfterGroup = null }) => {
-  // Only use isLoadedRule for initial state, not continuous monitoring
-  const [isExpanded, setIsExpanded] = useState(!isLoadedRule);
+const ExpressionGroup = ({ 
+  value, 
+  onChange, 
+  config, 
+  expectedType, 
+  darkMode = false, 
+  compact = false, 
+  expansionPath = 'expressionGroup',
+  isExpanded: isExpandedFn = () => true,
+  onToggleExpansion = () => {},
+  onSetExpansion,
+  isNew = true,
+  allowedSources = null, 
+  argDef: propArgDef = null, 
+  onAddExpressionAfterGroup = null 
+}) => {
   const [operatorDropdownStates, setOperatorDropdownStates] = useState({});
+  
+  // Use centralized expansion state
+  const expanded = isExpandedFn(expansionPath);
   
   // Validate that this is a proper multi-expression ExpressionGroup
   const validateExpressionGroup = (val) => {
@@ -156,20 +176,29 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     // Convert operator key to symbol (e.g., 'add' -> '+', 'concat' -> '&')
     const defaultOperator = config?.expressionOperators?.[defaultOperatorKey]?.symbol || '+';
     
+    let newExpressionIndex;
     // If afterIndex is specified, insert after that position
     if (afterIndex !== null && afterIndex >= 0) {
       expressions.splice(afterIndex + 1, 0, newExpression);
       // Insert operator at the same position (operators[i] is between expressions[i] and expressions[i+1])
       operators.splice(afterIndex, 0, defaultOperator);
+      newExpressionIndex = afterIndex + 1;
     } else {
       // Default: add at the end
       expressions.push(newExpression);
       if (expressions.length > 1) {
         operators.push(defaultOperator);
       }
+      newExpressionIndex = expressions.length - 1;
     }
     
     handleChange({ expressions, operators });
+    
+    // Auto-expand the new expression
+    if (onSetExpansion) {
+      const newExpressionPath = `${expansionPath}-expression-${newExpressionIndex}`;
+      onSetExpansion(newExpressionPath, true);
+    }
   };
 
   const removeExpression = (index) => {
@@ -183,6 +212,23 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
       operators.splice(index - 1, 1);
     } else if (operators.length > 0) {
       operators.splice(0, 1);
+    }
+    
+    // If removing this expression leaves only 1, unwrap to single expression
+    if (expressions.length === 1) {
+      // Extract the single expression and pass it up (will be unwrapped by Expression component)
+      if (onChange) {
+        onChange(expressions[0]);
+      }
+      return;
+    }
+    
+    // If no expressions left, pass empty value up (shouldn't normally happen)
+    if (expressions.length === 0) {
+      if (onChange) {
+        onChange({ type: 'value', returnType: 'text', value: '' });
+      }
+      return;
     }
     
     handleChange({ expressions, operators });
@@ -214,7 +260,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
     });
 
     return (
-      <Space size={4} style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(true)}>
+      <Space size={4} style={{ cursor: 'pointer' }} onClick={() => onToggleExpansion(expansionPath)}>
         <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
         <Text code style={{ fontSize: '12px' }}>
           ({expressionSummaries.join('')})
@@ -288,7 +334,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
             type="text"
             size="small"
             icon={<DownOutlined />}
-            onClick={() => setIsExpanded(false)}
+            onClick={() => onToggleExpansion(expansionPath)}
             style={{ padding: 0, minWidth: 'auto', color: darkMode ? '#888' : '#666' }}
           />
           <Text 
@@ -320,7 +366,11 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
             allowedSources={allowedSources}
             darkMode={darkMode}
             compact={compact}
-            isLoadedRule={isLoadedRule}
+            expansionPath={`${expansionPath}-expression-0`}
+            isExpanded={isExpandedFn}
+            onToggleExpansion={onToggleExpansion}
+            onSetExpansion={onSetExpansion}
+            isNew={isNew}
             propArgDef={propArgDef}
             onAddExpression={() => addExpression(0)}  // Add after index 0
           />
@@ -382,7 +432,11 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
                     allowedSources={allowedSources}
                     darkMode={darkMode}
                     compact={true}
-                    isLoadedRule={isLoadedRule}
+                    expansionPath={`${expansionPath}-expression-${actualIndex}`}
+                    isExpanded={isExpandedFn}
+                    onToggleExpansion={onToggleExpansion}
+                    onSetExpansion={onSetExpansion}
+                    isNew={isNew}
                   />
                 </div>
 
@@ -520,7 +574,7 @@ const ExpressionGroup = ({ value, onChange, config, expectedType, darkMode = fal
         e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)';
       }}
       >
-        {isExpanded ? renderExpandedView() : renderCompactView()}
+        {expanded ? renderExpandedView() : renderCompactView()}
       </div>
       
       {/* Add Expression After Group Button */}
