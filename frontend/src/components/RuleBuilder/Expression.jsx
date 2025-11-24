@@ -228,6 +228,7 @@ const Expression = ({
           allowedSources={allowedSources}
           argDef={propArgDef}
           onAddExpressionAfterGroup={() => {
+            console.log('[onAddExpressionAfterGroup] Wrapping group at path:', expansionPath);
             // Wrap current group with a new expression in an outer group
             const currentReturnType = expressionData.returnType || expectedType || 'text';
             const defaultOperatorKey = config?.types?.[currentReturnType]?.defaultExpressionOperator || 'add';
@@ -246,6 +247,18 @@ const Expression = ({
               operators: [defaultOperator]
             };
             
+            // Auto-expand BOTH the outer group AND the inner wrapped group
+            if (onSetExpansion) {
+              console.log('[onAddExpressionAfterGroup] Setting expansion to TRUE for outer group path:', expansionPath);
+              onSetExpansion(expansionPath, true);
+              
+              // Also expand the inner group (the old group that's now wrapped at index 0)
+              const innerGroupPath = `${expansionPath}-expression-0`;
+              console.log('[onAddExpressionAfterGroup] Setting expansion to TRUE for inner wrapped group path:', innerGroupPath);
+              onSetExpansion(innerGroupPath, true);
+            }
+            
+            console.log('[onAddExpressionAfterGroup] Calling onChange with outer group');
             onChange(outerGroup);
           }}
         />
@@ -289,13 +302,21 @@ const Expression = ({
       operators: [defaultOperator]
     };
     
-    if (onChange) {
-      onChange(expressionGroup);
+    console.log('[convertToGroup] Converting expression to group at path:', expansionPath);
+    console.log('[convertToGroup] Current isExpanded:', isExpanded ? isExpanded(expansionPath) : 'no isExpanded fn');
+    
+    // Auto-expand the newly created expression group BEFORE changing data
+    // This ensures expansion state is set before React re-renders
+    if (onSetExpansion) {
+      console.log('[convertToGroup] Setting expansion to TRUE for path:', expansionPath);
+      onSetExpansion(expansionPath, true);
+    } else {
+      console.log('[convertToGroup] WARNING: onSetExpansion is not available!');
     }
     
-    // Auto-expand the newly created expression group
-    if (onSetExpansion) {
-      onSetExpansion(expansionPath, true);
+    if (onChange) {
+      console.log('[convertToGroup] Calling onChange with new expressionGroup');
+      onChange(expressionGroup);
     }
   };
 

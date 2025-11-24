@@ -65,6 +65,7 @@ const ExpressionGroup = ({
   
   // Use centralized expansion state
   const expanded = isExpandedFn(expansionPath);
+  console.log('[ExpressionGroup] Checking expansion for path:', expansionPath, '-> expanded:', expanded);
   
   // Validate that this is a proper multi-expression ExpressionGroup
   const validateExpressionGroup = (val) => {
@@ -471,6 +472,8 @@ const ExpressionGroup = ({
                       type="text"
                       size="small"
                       onClick={() => {
+                        console.log('[ExpressionGroup] Group button clicked for expression at index:', actualIndex);
+                        
                         // Convert this expression to a group by wrapping it
                         const currentReturnType = expr.returnType || 'number';
                         const defaultOperatorKey = config?.types?.[currentReturnType]?.defaultExpressionOperator || 'add';
@@ -489,6 +492,16 @@ const ExpressionGroup = ({
                           operators: [defaultOperator]
                         };
                         
+                        // Auto-expand the newly created group BEFORE updating
+                        const newGroupPath = `${expansionPath}-expression-${actualIndex}`;
+                        if (onSetExpansion) {
+                          console.log('[ExpressionGroup] Setting expansion for new group at path:', newGroupPath);
+                          onSetExpansion(newGroupPath, true);
+                        } else {
+                          console.warn('[ExpressionGroup] onSetExpansion not available');
+                        }
+                        
+                        console.log('[ExpressionGroup] Calling updateExpression with new group');
                         updateExpression(actualIndex, newGroup);
                       }}
                       style={{ 

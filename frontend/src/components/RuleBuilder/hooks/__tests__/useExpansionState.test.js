@@ -312,4 +312,139 @@ describe('useExpansionState', () => {
       // Others collapsed depends on implementation
     });
   });
+
+  describe('Group Creation Scenarios (Bug Fix Tests)', () => {
+    test('Scenario 1: Converting single value to group stays expanded in loaded rule', () => {
+      const { result } = renderHook(() => useExpansionState('expression', false)); // isNew=false (loaded rule)
+      
+      // Simulate: User has expression-0 as a simple value
+      // Then clicks (+) button next to it to convert to a group
+      
+      // Before conversion: expression-0 would be a simple value (not expanded/collapsed concept)
+      // After conversion: expression-0 becomes a group with [oldValue, newValue]
+      
+      // Simulate the auto-expansion call that should happen
+      act(() => {
+        result.current.setExpansion('expression-0', true);
+      });
+      
+      // The newly created group should be expanded
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+    });
+
+    test('Scenario 2: Converting second value to group within existing group stays expanded', () => {
+      const { result } = renderHook(() => useExpansionState('expression', false)); // isNew=false (loaded rule)
+      
+      // Simulate: Parent group expression-0 already exists and is expanded
+      act(() => {
+        result.current.setExpansion('expression-0', true);
+      });
+      
+      // User clicks (+) button on second expression to convert it to a group
+      // The new nested group should be at expression-0-expression-1
+      act(() => {
+        result.current.setExpansion('expression-0-expression-1', true);
+      });
+      
+      // Both parent and newly created nested group should be expanded
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+      expect(result.current.isExpanded('expression-0-expression-1')).toBe(true);
+    });
+
+    test('Scenario 3: Wrapping existing group keeps both outer and inner groups expanded', () => {
+      const { result } = renderHook(() => useExpansionState('expression', false)); // isNew=false (loaded rule)
+      
+      // Simulate: Inner group expression-0 exists and is expanded (e.g., "1 + 2")
+      act(() => {
+        result.current.setExpansion('expression-0', true);
+      });
+      
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+      
+      // User clicks (+) button on the group to wrap it with an outer group
+      // This creates: outer group at expression-0, inner group moves to expression-0-expression-0
+      
+      // The wrapping operation should:
+      // 1. Keep outer group expanded (still at expression-0)
+      // 2. Ensure inner wrapped group is expanded (now at expression-0-expression-0)
+      act(() => {
+        result.current.setExpansion('expression-0', true); // Outer stays expanded
+        result.current.setExpansion('expression-0-expression-0', true); // Inner wrapped group
+      });
+      
+      // Both outer and inner groups should be expanded
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+      expect(result.current.isExpanded('expression-0-expression-0')).toBe(true);
+    });
+
+    test('All three scenarios work in new rules (default expanded)', () => {
+      const { result } = renderHook(() => useExpansionState('expression', true)); // isNew=true (new rule)
+      
+      // In new rules, everything defaults to expanded (check !== false)
+      // Paths that haven't been explicitly collapsed will return true
+      
+      // Scenario 1: Single value converted to group - should be expanded by default
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+      
+      // Scenario 2: Nested group created - should be expanded by default
+      expect(result.current.isExpanded('expression-0-expression-1')).toBe(true);
+      
+      // Scenario 3: Wrapped groups - should be expanded by default
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+      expect(result.current.isExpanded('expression-0-expression-0')).toBe(true);
+      
+      // Even if we explicitly set them to expanded, they should remain expanded
+      act(() => {
+        result.current.setExpansion('expression-0', true);
+        result.current.setExpansion('expression-0-expression-0', true);
+        result.current.setExpansion('expression-0-expression-1', true);
+      });
+      
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+      expect(result.current.isExpanded('expression-0-expression-0')).toBe(true);
+      expect(result.current.isExpanded('expression-0-expression-1')).toBe(true);
+    });
+
+    test('Scenario integration: Complex nested group creation in loaded rule', () => {
+      const { result } = renderHook(() => useExpansionState('expression', false)); // isNew=false (loaded rule)
+      
+      // Start with a loaded rule where expression-0 is collapsed
+      expect(result.current.isExpanded('expression-0')).toBe(false);
+      
+      // User creates a nested group at expression-0-expression-1
+      act(() => {
+        result.current.setExpansion('expression-0-expression-1', true);
+      });
+      
+      // The nested group should be expanded even though parent is collapsed
+      expect(result.current.isExpanded('expression-0-expression-1')).toBe(true);
+      
+      // Now expand the parent
+      act(() => {
+        result.current.setExpansion('expression-0', true);
+      });
+      
+      // Both should be expanded
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+      expect(result.current.isExpanded('expression-0-expression-1')).toBe(true);
+      
+      // Wrap the parent with an outer group (scenario 3)
+      act(() => {
+        result.current.setExpansion('expression-0', true); // Outer
+        result.current.setExpansion('expression-0-expression-0', true); // Inner (was expression-0)
+      });
+      
+      // All should remain expanded
+      expect(result.current.isExpanded('expression-0')).toBe(true);
+      expect(result.current.isExpanded('expression-0-expression-0')).toBe(true);
+      
+      // The deeply nested group path has changed to expression-0-expression-0-expression-1
+      // It should maintain its expansion state
+      act(() => {
+        result.current.setExpansion('expression-0-expression-0-expression-1', true);
+      });
+      
+      expect(result.current.isExpanded('expression-0-expression-0-expression-1')).toBe(true);
+    });
+  });
 });
