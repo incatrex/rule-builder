@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v2.0.2.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v2.0.3.json",
+  "version": "2.0.3",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Single source of truth with x-ui extensions for UI configuration",
   "type": "object",
@@ -60,7 +61,7 @@
   },
   "then": {
     "properties": {
-      "content": { "$ref": "#/definitions/CaseContent" }
+      "definition": { "$ref": "#/definitions/CaseContent" }
     }
   },
   "else": {
@@ -71,7 +72,12 @@
     },
     "then": {
       "properties": {
-        "content": { "$ref": "#/definitions/ConditionGroup" }
+        "definition": {
+          "oneOf": [
+            { "$ref": "#/definitions/Condition" },
+            { "$ref": "#/definitions/ConditionGroup" }
+          ]
+        }
       }
     },
     "else": {
@@ -82,7 +88,7 @@
       },
       "then": {
         "properties": {
-          "content": {
+          "definition": {
             "oneOf": [
               { "$ref": "#/definitions/Expression" },
               { "$ref": "#/definitions/ExpressionGroup" }
