@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Button, Space, message, Input, Alert, Tag, Collapse, Typography } from 'antd';
 import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined, MenuFoldOutlined, InfoCircleOutlined, BulbOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -109,6 +109,10 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
   const [hasPlaceholderUUID, setHasPlaceholderUUID] = useState(false);
   const [translatedErrors, setTranslatedErrors] = useState(null);
   const [showTechnicalErrors, setShowTechnicalErrors] = useState(false);
+  
+  // Refs for synchronized scrolling
+  const textareaRef = useRef(null);
+  const lineNumberRef = useRef(null);
 
   // Update local state when data prop changes (only when not editing)
   useEffect(() => {
@@ -183,6 +187,17 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
           setSchemaInfo(validationResult.schema);
         }
         
+        // Also store schema version from metadata if available
+        if (validationResult.metadata && validationResult.metadata.schemaVersion) {
+          setSchemaInfo(prev => ({
+            ...prev,
+            version: validationResult.metadata.schemaVersion,
+            validationTime: validationResult.metadata.validationTime,
+            validatedFields: validationResult.metadata.validatedFields,
+            validationDuration: validationResult.metadata.validationDurationMs
+          }));
+        }
+        
         if (validationResult.valid) {
           // Valid - update the component
           setIsEditing(false);
@@ -231,6 +246,12 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
     }
   };
 
+  // Synchronized scrolling handler
+  const handleScroll = (e) => {
+    if (lineNumberRef.current && textareaRef.current) {
+      lineNumberRef.current.scrollTop = textareaRef.current.scrollTop;
+    }
+  };
 
 
   // Helper function to render the JSON editor content
@@ -259,31 +280,76 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
         </div>
       )}
 
-      {/* Use textarea for both editing and viewing modes */}
-      <textarea
-        data-testid="json-editor-textarea"
-        value={isEditing ? jsonText : displayText}
-        onChange={isEditing ? handleJsonChange : undefined}
-        readOnly={!isEditing}
-        style={{
-          width: '100%',
-          flex: 1,
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          lineHeight: '1.6',
-          padding: '16px',
-          border: isEditing && !isValid ? '2px solid #ff4d4f' : 'none',
-          background: isEditing 
-            ? (darkMode ? '#2a2a2a' : '#fffbe6')
-            : (darkMode ? '#1f1f1f' : '#ffffff'),
-          color: darkMode ? '#e0e0e0' : '#000000',
-          resize: 'none',
-          outline: 'none',
-          cursor: isEditing ? 'text' : 'default',
-          boxSizing: 'border-box'
-        }}
-        placeholder={isEditing ? `{\n  "structure": "case",\n  "returnType": "boolean"\n}` : "No JSON data to display"}
-      />
+      {/* Use textarea for both editing and viewing modes with line numbers */}
+      <div style={{
+        display: 'flex',
+        flex: 1,
+        overflow: 'hidden',
+        border: isEditing && !isValid ? '2px solid #ff4d4f' : 'none'
+      }}>
+        {/* Line number gutter */}
+        <div 
+          ref={lineNumberRef}
+          style={{
+            width: '50px',
+            background: darkMode ? '#1a1a1a' : '#f5f5f5',
+            borderRight: `1px solid ${darkMode ? '#434343' : '#d9d9d9'}`,
+            padding: '16px 8px',
+            fontFamily: 'monospace',
+            fontSize: '14px',
+            lineHeight: '1.6',
+            textAlign: 'right',
+            color: darkMode ? '#5c5c5c' : '#8c8c8c',
+            userSelect: 'none',
+            overflow: 'hidden',
+            flexShrink: 0
+          }}
+        >
+          {(isEditing ? jsonText : displayText).split('\n').map((_, index) => (
+            <div key={index} style={{
+              background: validationErrors.some(err => err.lineNumber === index + 1)
+                ? 'rgba(255, 77, 79, 0.1)'
+                : 'transparent',
+              color: validationErrors.some(err => err.lineNumber === index + 1)
+                ? '#ff4d4f'
+                : 'inherit',
+              fontWeight: validationErrors.some(err => err.lineNumber === index + 1)
+                ? 'bold'
+                : 'normal'
+            }}>
+              {index + 1}
+            </div>
+          ))}
+        </div>
+        
+        {/* Text editor */}
+        <textarea
+          ref={textareaRef}
+          data-testid="json-editor-textarea"
+          value={isEditing ? jsonText : displayText}
+          onChange={isEditing ? handleJsonChange : undefined}
+          onScroll={handleScroll}
+          readOnly={!isEditing}
+          style={{
+            width: '100%',
+            flex: 1,
+            fontFamily: 'monospace',
+            fontSize: '14px',
+            lineHeight: '1.6',
+            padding: '16px',
+            border: 'none',
+            background: isEditing 
+              ? (darkMode ? '#2a2a2a' : '#fffbe6')
+              : (darkMode ? '#1f1f1f' : '#ffffff'),
+            color: darkMode ? '#e0e0e0' : '#000000',
+            resize: 'none',
+            outline: 'none',
+            cursor: isEditing ? 'text' : 'default',
+            boxSizing: 'border-box'
+          }}
+          placeholder={isEditing ? `{\n  "structure": "case",\n  "returnType": "boolean"\n}` : "No JSON data to display"}
+        />
+      </div>
       
       {/* Validation Errors */}
       {validationErrors.length > 0 && (
@@ -339,22 +405,34 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
             flexShrink: 0
           }}
         >
-          <div style={{ marginBottom: '2px' }}>
-            <strong>Validated against:</strong> {schemaInfo.filename}
-          </div>
+          {schemaInfo.version && (
+            <div style={{ marginBottom: '2px' }}>
+              <strong>Schema Version:</strong> <Tag color="blue" style={{ fontSize: '10px' }}>{schemaInfo.version}</Tag>
+              {validationErrors.length > 0 && (
+                <span style={{ marginLeft: '12px' }}>
+                  <strong>Errors:</strong> <Tag color="red" style={{ fontSize: '10px' }}>{validationErrors.length}</Tag>
+                </span>
+              )}
+            </div>
+          )}
+          {schemaInfo.filename && (
+            <div style={{ marginBottom: '2px' }}>
+              <strong>Schema File:</strong> {schemaInfo.filename}
+            </div>
+          )}
           {schemaInfo.title && (
             <div style={{ marginBottom: '2px' }}>
               <strong>Schema:</strong> {schemaInfo.title}
             </div>
           )}
-          {schemaInfo.id && (
+          {schemaInfo.validatedFields !== undefined && (
             <div style={{ marginBottom: '2px' }}>
-              <strong>Schema ID:</strong> {schemaInfo.id}
-            </div>
-          )}
-          {schemaInfo.draft && (
-            <div>
-              <strong>JSON Schema:</strong> {schemaInfo.draft}
+              <strong>Validated Fields:</strong> {schemaInfo.validatedFields}
+              {schemaInfo.validationDuration !== undefined && (
+                <span style={{ marginLeft: '8px' }}>
+                  <strong>Duration:</strong> {schemaInfo.validationDuration}ms
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -550,17 +628,75 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
       
       {/* Validation Errors */}
       {validationErrors.length > 0 && (
-        <div style={{ padding: '16px', maxHeight: '200px', overflow: 'auto' }}>
+        <div style={{ padding: '16px', maxHeight: '300px', overflow: 'auto' }}>
           <Alert
-            message="Schema Validation Errors"
+            message={`Validation Failed (${validationErrors.length} issue${validationErrors.length > 1 ? 's' : ''})`}
             description={
-              <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+              <div>
                 {validationErrors.map((error, index) => (
-                  <li key={index} style={{ marginBottom: '8px' }}>
-                    <strong>{error.path || 'root'}:</strong> {error.message}
-                  </li>
+                  <div 
+                    key={index} 
+                    style={{ 
+                      marginBottom: '12px',
+                      paddingBottom: '12px',
+                      borderBottom: index < validationErrors.length - 1 ? '1px solid #f0f0f0' : 'none'
+                    }}
+                  >
+                    {/* Error Code Badge */}
+                    {error.code && (
+                      <Tag color="red" style={{ marginBottom: '4px' }}>{error.code}</Tag>
+                    )}
+                    
+                    {/* Error Message */}
+                    <div style={{ marginBottom: '4px' }}>
+                      <strong>{error.message}</strong>
+                    </div>
+                    
+                    {/* Human-Readable Path */}
+                    {error.humanPath && (
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: '#8c8c8c',
+                        marginBottom: '4px',
+                        fontFamily: 'Monaco, Menlo, monospace'
+                      }}>
+                        📍 Location: {error.humanPath}
+                      </div>
+                    )}
+                    
+                    {/* Expected vs Actual */}
+                    {(error.expectedValues || error.actualValue) && (
+                      <div style={{ fontSize: '11px', marginTop: '4px' }}>
+                        {error.expectedValues && (
+                          <div style={{ color: '#52c41a' }}>
+                            ✓ Expected: {Array.isArray(error.expectedValues) ? error.expectedValues.join(', ') : error.expectedValues}
+                          </div>
+                        )}
+                        {error.actualValue && (
+                          <div style={{ color: '#ff4d4f' }}>
+                            ✗ Found: {error.actualValue}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Suggestion */}
+                    {error.suggestion && (
+                      <div style={{ 
+                        marginTop: '6px',
+                        padding: '6px 8px',
+                        background: '#e6f7ff',
+                        border: '1px solid #91d5ff',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        color: '#0050b3'
+                      }}>
+                        💡 {error.suggestion}
+                      </div>
+                    )}
+                  </div>
                 ))}
-              </ul>
+              </div>
             }
             type="error"
             showIcon

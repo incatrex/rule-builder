@@ -2,6 +2,7 @@ package com.rulebuilder.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.rulebuilder.service.RuleValidationService;
+import com.rulebuilder.validation.ValidationResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,19 +21,30 @@ public class RuleValidationControllerV1 {
     @Autowired
     private RuleValidationService validationService;
 
-    @Operation(summary = "Validate a rule", description = "Validates a rule against the JSON schema")
+    @Operation(summary = "Validate a rule", description = "Validates a rule against the JSON schema and business logic rules. Returns comprehensive validation results with schema version, errors, warnings, and metadata.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Validation completed (check response for errors)"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/rules/validate")
-    public ResponseEntity<JsonNode> validateRule(
+    public ResponseEntity<ValidationResult> validateRule(
             @Parameter(description = "Rule definition to validate") @RequestBody JsonNode rule) {
         try {
-            JsonNode validationResult = validationService.validateRule(rule);
+            ValidationResult validationResult = validationService.validateRule(rule);
             return ResponseEntity.ok(validationResult);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            // Return error as validation result
+            ValidationResult errorResult = new ValidationResult("unknown");
+            com.rulebuilder.validation.ValidationError error = 
+                com.rulebuilder.validation.ValidationError.builder()
+                    .severity("error")
+                    .code("INTERNAL_SERVER_ERROR")
+                    .message("Internal error during validation: " + e.getMessage())
+                    .path("")
+                    .humanPath("Validation System")
+                    .build();
+            errorResult.addError(error);
+            return ResponseEntity.ok(errorResult);
         }
     }
 }
