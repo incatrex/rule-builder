@@ -2,6 +2,7 @@ package com.rulebuilder.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.rulebuilder.service.RuleValidationService;
+import com.rulebuilder.service.ValidationResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,10 +27,10 @@ public class RuleValidationControllerV1 {
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/rules/validate")
-    public ResponseEntity<JsonNode> validateRule(
+    public ResponseEntity<ValidationResult> validateRule(
             @Parameter(description = "Rule definition to validate") @RequestBody JsonNode rule) {
         try {
-            JsonNode validationResult = validationService.validateRule(rule);
+            ValidationResult validationResult = validationService.validate(rule);
             return ResponseEntity.ok(validationResult);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
