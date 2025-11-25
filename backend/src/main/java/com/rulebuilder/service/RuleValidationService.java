@@ -63,7 +63,18 @@ public class RuleValidationService {
      * @return ValidationResult containing schema metadata and errors
      */
     public ValidationResult validate(JsonNode ruleJson) {
-        return validate(ruleJson, null, false);
+        return validate(ruleJson, null, false, false);
+    }
+
+    /**
+     * Validate a rule against the JSON schema with optional filtering
+     * 
+     * @param ruleJson The rule as JsonNode
+     * @param disableFiltering If true, returns all raw errors without cascade filtering
+     * @return ValidationResult containing schema metadata and errors
+     */
+    public ValidationResult validate(JsonNode ruleJson, boolean disableFiltering) {
+        return validate(ruleJson, null, false, disableFiltering);
     }
 
     /**
@@ -72,9 +83,10 @@ public class RuleValidationService {
      * @param ruleJson The rule as JsonNode
      * @param jsonString The original JSON string (required if calculateLineNumbers is true)
      * @param calculateLineNumbers Whether to calculate line numbers for errors
-     * @return ValidationResult containing schema metadata and errors (with cascade filtering applied)
+     * @param disableFiltering If true, returns all raw errors without cascade filtering
+     * @return ValidationResult containing schema metadata and errors
      */
-    public ValidationResult validate(JsonNode ruleJson, String jsonString, boolean calculateLineNumbers) {
+    public ValidationResult validate(JsonNode ruleJson, String jsonString, boolean calculateLineNumbers, boolean disableFiltering) {
         // Perform validation
         Set<ValidationMessage> validationMessages = schema.validate(ruleJson);
         
@@ -105,16 +117,21 @@ public class RuleValidationService {
             errors.add(error);
         }
         
-        // Apply cascade error filtering to suppress redundant oneOf errors
-        ErrorCascadeFilter.FilterResult filtered = ErrorCascadeFilter.filterCascadingErrors(errors);
-        List<ValidationError> filteredErrors = filtered.getFilteredErrors();
+        // Apply cascade error filtering unless disabled
+        List<ValidationError> finalErrors;
+        if (disableFiltering) {
+            finalErrors = errors;
+        } else {
+            ErrorCascadeFilter.FilterResult filtered = ErrorCascadeFilter.filterCascadingErrors(errors);
+            finalErrors = filtered.getFilteredErrors();
+        }
         
-        // Build result with filtered errors
+        // Build result
         ValidationResult result = new ValidationResult();
         result.setSchemaFilename(SCHEMA_FILENAME);
         result.setSchemaVersion(schemaVersion);
-        result.setErrorCount(filteredErrors.size());
-        result.setErrors(filteredErrors);
+        result.setErrorCount(finalErrors.size());
+        result.setErrors(finalErrors);
         
         return result;
     }

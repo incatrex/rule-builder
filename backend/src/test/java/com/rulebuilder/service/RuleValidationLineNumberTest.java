@@ -78,7 +78,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // "structure" is on line 2
         assertTrue(result.getErrorCount() > 0);
@@ -113,7 +113,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // Error is for missing "id" inside "metadata" object which starts on line 7
         assertTrue(result.getErrorCount() > 0);
@@ -149,7 +149,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // "field" with invalid pattern is on line 14
         assertTrue(result.getErrorCount() > 0);
@@ -199,7 +199,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // Invalid "conjunction" value is on line 18
         assertTrue(result.getErrorCount() > 0);
@@ -230,7 +230,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // Should have multiple errors on different lines
         assertTrue(result.getErrorCount() >= 4);
@@ -278,7 +278,7 @@ class RuleValidationLineNumberTest {
         String json = "{\"structure\":\"invalid\",\"returnType\":\"number\",\"ruleType\":\"Reporting\",\"uuId\":\"12345678-1234-1234-1234-123456789012\",\"version\":1,\"metadata\":{\"id\":\"TEST\",\"description\":\"Test\"},\"definition\":{}}";
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // In compact JSON, everything is on line 1
         assertTrue(result.getErrorCount() > 0);
@@ -307,7 +307,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // returnType is on line 3
         assertTrue(result.getErrorCount() > 0);
@@ -333,7 +333,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // returnType is on line 2 (same line as structure, but algorithm should find it)
         assertTrue(result.getErrorCount() > 0);
@@ -370,7 +370,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // returnType is on line 4 (skipping blank line 3)
         assertTrue(result.getErrorCount() > 0);
@@ -426,7 +426,7 @@ class RuleValidationLineNumberTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule, json, true);
+        ValidationResult result = validationService.validate(rule, json, true, false);
 
         // field is on line 25
         assertTrue(result.getErrorCount() > 0);

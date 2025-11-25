@@ -189,6 +189,9 @@ public class ErrorCascadeFilter {
         // Step 4: Remove parent-level oneOf errors if we have child-level errors
         List<ValidationError> finalFiltered = removeRedundantParentErrors(filtered);
         
+        // Step 5: Remove parent-level errors when child-level errors are more specific
+        finalFiltered = removeRedundantParentWhenChildHasErrors(finalFiltered);
+        
         int suppressedCount = originalCount - finalFiltered.size();
         return new FilterResult(finalFiltered, suppressedCount);
     }
@@ -272,9 +275,18 @@ public class ErrorCascadeFilter {
 
     /**
      * Find the most actionable error from a list of errors for the same path
-     * Priority: enum > pattern > additionalProperties > type > required > others
+     * Priority: additionalProperties > enum > pattern > type > required > const > others
+     * 
+     * additionalProperties is highest priority because it tells exactly what invalid property exists
      */
     private static ValidationError findMostActionableError(List<ValidationError> errors) {
+        // Highest priority: additionalProperties (tells user exactly what's invalid)
+        for (ValidationError error : errors) {
+            if ("additionalProperties".equals(error.getType())) {
+                return error;
+            }
+        }
+        
         for (ValidationError error : errors) {
             if ("enum".equals(error.getType())) {
                 return error;
@@ -283,12 +295,6 @@ public class ErrorCascadeFilter {
         
         for (ValidationError error : errors) {
             if ("pattern".equals(error.getType())) {
-                return error;
-            }
-        }
-        
-        for (ValidationError error : errors) {
-            if ("additionalProperties".equals(error.getType())) {
                 return error;
             }
         }
@@ -305,6 +311,13 @@ public class ErrorCascadeFilter {
             }
         }
         
+        // Lower priority: const errors are less actionable than additionalProperties/enum
+        for (ValidationError error : errors) {
+            if ("const".equals(error.getType())) {
+                return error;
+            }
+        }
+        
         // Return first error as fallback
         return errors.get(0);
     }
@@ -316,9 +329,31 @@ public class ErrorCascadeFilter {
      * 
      * Strategy: If we have ANY actionable errors (non-oneOf), suppress ALL oneOf errors
      * since the actionable errors explain what's actually wrong.
+     * 
+     * ALSO: If we have additionalProperties errors, suppress enum/const errors since
+     * enum/const are likely from checking against the wrong oneOf branch, while
+     * additionalProperties tells exactly what's wrong.
      */
     private static List<ValidationError> removeRedundantParentErrors(List<ValidationError> filtered) {
-        // Separate oneOf errors from other errors
+        // Check if we have any additionalProperties errors
+        boolean hasAdditionalPropertiesError = filtered.stream()
+            .anyMatch(e -> "additionalProperties".equals(e.getType()));
+        
+        if (hasAdditionalPropertiesError) {
+            // Keep only: additionalProperties, required, pattern errors
+            // Suppress: oneOf, enum, const (likely from wrong schema branches)
+            return filtered.stream()
+                .filter(e -> {
+                    String type = e.getType();
+                    return "additionalProperties".equals(type) ||
+                           "required".equals(type) ||
+                           "pattern".equals(type) ||
+                           "type".equals(type);
+                })
+                .toList();
+        }
+        
+        // Original logic: Separate oneOf errors from other errors
         List<ValidationError> oneOfErrors = new ArrayList<>();
         List<ValidationError> actionableErrors = new ArrayList<>();
         
@@ -338,5 +373,75 @@ public class ErrorCascadeFilter {
         
         // If we only have oneOf errors, keep them
         return filtered;
+    }
+
+    /**
+     * Remove parent-level errors when more specific child-level errors exist
+     * Example: If $.definition.expressions[0].return2Type has an error, 
+     * suppress parent errors about $.definition.expressions or $.definition.type
+     * that come from checking the wrong oneOf branch.
+     */
+    private static List<ValidationError> removeRedundantParentWhenChildHasErrors(List<ValidationError> filtered) {
+        // Build set of all error paths
+        Set<String> errorPaths = new HashSet<>();
+        for (ValidationError error : filtered) {
+            if (error.getPath() != null) {
+                errorPaths.add(error.getPath());
+            }
+        }
+        
+        // Identify which paths have child errors
+        Set<String> pathsWithChildren = new HashSet<>();
+        for (String path : errorPaths) {
+            // Check if any other error path is a child of this path
+            for (String otherPath : errorPaths) {
+                if (!path.equals(otherPath) && 
+                    (otherPath.startsWith(path + ".") || otherPath.startsWith(path + "["))) {
+                    pathsWithChildren.add(path);
+                    break;
+                }
+            }
+        }
+        
+        // Filter out parent errors when:
+        // 1. Parent path has children with errors
+        // 2. Parent error is enum/const/additionalProperties (likely from wrong oneOf branch)
+        // 3. Child has a more specific additionalProperties error
+        List<ValidationError> result = new ArrayList<>();
+        for (ValidationError error : filtered) {
+            String path = error.getPath();
+            
+            // Keep errors that don't have children with errors
+            if (!pathsWithChildren.contains(path)) {
+                result.add(error);
+                continue;
+            }
+            
+            // For paths with children, check if this is a low-value error from wrong oneOf branch
+            String errorType = error.getType();
+            boolean isLowValueError = "enum".equals(errorType) || 
+                                     "const".equals(errorType) ||
+                                     "additionalProperties".equals(errorType);
+            
+            if (!isLowValueError) {
+                // Keep high-value errors (required, pattern, etc.) even if children exist
+                result.add(error);
+                continue;
+            }
+            
+            // Check if any child has an additionalProperties error (more specific)
+            boolean childHasSpecificError = filtered.stream()
+                .anyMatch(e -> e.getPath() != null && 
+                              (e.getPath().startsWith(path + ".") || e.getPath().startsWith(path + "[")) &&
+                              "additionalProperties".equals(e.getType()));
+            
+            if (!childHasSpecificError) {
+                // No child has a more specific error, keep this one
+                result.add(error);
+            }
+            // else: suppress parent error because child has more specific error
+        }
+        
+        return result;
     }
 }

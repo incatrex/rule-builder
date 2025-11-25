@@ -79,7 +79,7 @@ public class IrregularJsonTest {
         }
         
         JsonNode ruleNode = mapper.readTree(json);
-        ValidationResult result = service.validate(ruleNode, json, true);
+        ValidationResult result = service.validate(ruleNode, json, true, false);
         
         System.out.println("\nValidation errors:");
         if (result.getErrorCount() == 0) {

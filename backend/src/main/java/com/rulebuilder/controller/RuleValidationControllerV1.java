@@ -28,9 +28,11 @@ public class RuleValidationControllerV1 {
     })
     @PostMapping("/rules/validate")
     public ResponseEntity<ValidationResult> validateRule(
-            @Parameter(description = "Rule definition to validate") @RequestBody JsonNode rule) {
+            @Parameter(description = "Rule definition to validate") @RequestBody JsonNode rule,
+            @Parameter(description = "Disable error filtering to see all raw validation errors") 
+            @RequestParam(required = false, defaultValue = "false") boolean disableFiltering) {
         try {
-            ValidationResult validationResult = validationService.validate(rule);
+            ValidationResult validationResult = validationService.validate(rule, disableFiltering);
             return ResponseEntity.ok(validationResult);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

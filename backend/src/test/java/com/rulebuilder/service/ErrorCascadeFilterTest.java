@@ -249,4 +249,96 @@ class ErrorCascadeFilterTest {
         assertNotNull(filtered.toString());
         assertTrue(filtered.toString().contains("suppressed="));
     }
+
+    @Test
+    @DisplayName("Definition with wrong property should show required error not oneOf")
+    void testDefinitionWithInvalidProperty() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Reporting",
+              "uuId": "a6ae5cf2-69f1-4877-9667-0e3b7391b40b",
+              "version": 1,
+              "metadata": {
+                "id": "",
+                "description": ""
+              },
+              "definition": {
+                "type": "conditionGroup",
+                "return2Type": "boolean"
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        // Should suppress oneOf error and show actionable required field error
+        assertTrue(result.getErrorCount() >= 1, 
+            "Should have at least one error");
+        assertTrue(result.getErrorCount() <= 3, 
+            "Should limit to 3 most actionable errors, got " + result.getErrorCount());
+
+        // Should have a required error for returnType (not the generic oneOf error)
+        boolean hasRequiredError = result.getErrors().stream()
+            .anyMatch(e -> "required".equals(e.getType()));
+        assertTrue(hasRequiredError, 
+            "Should show required field error instead of generic oneOf error");
+
+        // Should NOT have oneOf error (it should be suppressed)
+        boolean hasOneOfError = result.getErrors().stream()
+            .anyMatch(e -> "oneOf".equals(e.getType()));
+        assertFalse(hasOneOfError, 
+            "Should suppress generic oneOf error in favor of specific required errors");
+    }
+
+    @Test
+    @DisplayName("Definition with invalid UUID should show both UUID and definition errors")
+    void testDefinitionWithInvalidUUID() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Reporting",
+              "uuId": "g6ae5cf2-69f1-4877-9667-0e3b7391b40b",
+              "version": 1,
+              "metadata": {
+                "id": "",
+                "description": ""
+              },
+              "definition": {
+                "type": "conditionGroup",
+                "return2Type": "boolean"
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        // Should show both pattern error (UUID) and required error (definition)
+        assertTrue(result.getErrorCount() >= 2, 
+            "Should have at least 2 errors (UUID pattern + definition required)");
+        assertTrue(result.getErrorCount() <= 4, 
+            "Should limit errors to avoid overwhelming user");
+
+        // Should have pattern error for UUID
+        boolean hasPatternError = result.getErrors().stream()
+            .anyMatch(e -> "pattern".equals(e.getType()) && 
+                          e.getPath().contains("uuId"));
+        assertTrue(hasPatternError, "Should show UUID pattern error");
+
+        // Should have required error for definition
+        boolean hasRequiredError = result.getErrors().stream()
+            .anyMatch(e -> "required".equals(e.getType()) && 
+                          e.getPath().contains("definition"));
+        assertTrue(hasRequiredError, "Should show definition required error");
+
+        // Should NOT have oneOf error
+        boolean hasOneOfError = result.getErrors().stream()
+            .anyMatch(e -> "oneOf".equals(e.getType()));
+        assertFalse(hasOneOfError, 
+            "Should suppress oneOf error when actionable errors exist");
+    }
 }

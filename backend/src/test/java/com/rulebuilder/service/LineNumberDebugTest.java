@@ -45,7 +45,7 @@ public class LineNumberDebugTest {
         JsonNode ruleNode = mapper.readTree(json);
         
         RuleValidationService service = new RuleValidationService();
-        ValidationResult result = service.validate(ruleNode, json, true);
+        ValidationResult result = service.validate(ruleNode, json, true, false);
         
         System.out.println("\n\nValidation errors:");
         for (ValidationError error : result.getErrors()) {

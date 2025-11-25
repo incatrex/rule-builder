@@ -651,7 +651,7 @@ class RuleValidationServiceTest {
             """;
 
         JsonNode rule = objectMapper.readTree(json);
-        ValidationResult result = validationService.validate(rule);
+        ValidationResult result = validationService.validate(rule, true); // Disable filtering to see all errors including minItems
 
         assertTrue(result.getErrorCount() > 0);
         boolean hasMinItemsError = result.getErrors().stream()
