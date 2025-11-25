@@ -511,15 +511,15 @@ class RuleValidationServiceTest {
 
         assertTrue(result.getErrorCount() > 0);
         
-        // oneOf failures typically generate multiple errors
-        boolean hasOneOfError = result.getErrors().stream()
-            .anyMatch(err -> err.getType().equals("oneOf"));
-        assertTrue(hasOneOfError, "Should have oneOf-related errors");
-        
-        // Should also have enum error for the invalid type
+        // With cascade filtering enabled, oneOf errors are suppressed when root cause exists
+        // Should have enum error for the invalid type (root cause)
         boolean hasEnumError = result.getErrors().stream()
             .anyMatch(err -> err.getType().equals("enum"));
         assertTrue(hasEnumError, "Should have enum error for invalid type value");
+        
+        // Error count should be small (1-2) due to cascade filtering
+        assertTrue(result.getErrorCount() <= 3, 
+            "Should have few errors after cascade filtering, got " + result.getErrorCount());
     }
 
     @Test

@@ -72,7 +72,7 @@ public class RuleValidationService {
      * @param ruleJson The rule as JsonNode
      * @param jsonString The original JSON string (required if calculateLineNumbers is true)
      * @param calculateLineNumbers Whether to calculate line numbers for errors
-     * @return ValidationResult containing schema metadata and errors
+     * @return ValidationResult containing schema metadata and errors (with cascade filtering applied)
      */
     public ValidationResult validate(JsonNode ruleJson, String jsonString, boolean calculateLineNumbers) {
         // Perform validation
@@ -105,12 +105,16 @@ public class RuleValidationService {
             errors.add(error);
         }
         
-        // Build result
+        // Apply cascade error filtering to suppress redundant oneOf errors
+        ErrorCascadeFilter.FilterResult filtered = ErrorCascadeFilter.filterCascadingErrors(errors);
+        List<ValidationError> filteredErrors = filtered.getFilteredErrors();
+        
+        // Build result with filtered errors
         ValidationResult result = new ValidationResult();
         result.setSchemaFilename(SCHEMA_FILENAME);
         result.setSchemaVersion(schemaVersion);
-        result.setErrorCount(errors.size());
-        result.setErrors(errors);
+        result.setErrorCount(filteredErrors.size());
+        result.setErrors(filteredErrors);
         
         return result;
     }

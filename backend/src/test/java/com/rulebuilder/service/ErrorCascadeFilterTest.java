@@ -46,25 +46,17 @@ class ErrorCascadeFilterTest {
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule);
 
-        // Original should have many errors
-        assertTrue(result.getErrorCount() > 10, "Should have cascade errors");
+        // With integrated cascade filtering, service should return filtered results
+        // Should have 1-3 errors after filtering (enum error is root cause)
+        assertTrue(result.getErrorCount() <= 3, 
+            "Should have few errors after cascade filtering, got " + result.getErrorCount());
+        assertTrue(result.getErrorCount() > 0, "Should have at least one error");
 
-        // Apply filter
-        ErrorCascadeFilter.FilterResult filtered = ErrorCascadeFilter.filterCascadingErrors(result.getErrors());
-
-        // After filtering, should have 1-2 errors (enum error, maybe oneOf)
-        assertTrue(filtered.getFilteredErrors().size() <= 3, 
-            "Should suppress most cascade errors, got " + filtered.getFilteredErrors().size());
-        assertTrue(filtered.getSuppressedCount() > 10, "Should suppress many errors");
-        assertFalse(filtered.hasHiddenErrors(), "Should not hide legitimate errors");
-
-        // Verify enum error is preserved
-        boolean hasEnumError = filtered.getFilteredErrors().stream()
-            .anyMatch(e -> "enum".equals(e.getType()));
+        // Verify enum error is preserved (root cause)
+        boolean hasEnumError = result.getErrors().stream()
+                .anyMatch(e -> "enum".equals(e.getType()));
         assertTrue(hasEnumError, "Should keep enum error");
-    }
-
-    @Test
+    }    @Test
     @DisplayName("Missing required field for correct type should NOT be suppressed")
     void testKeepLegitimateRequiredError() throws IOException {
         String json = """
@@ -85,24 +77,13 @@ class ErrorCascadeFilterTest {
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule);
 
-        // Original should have many errors
-        assertTrue(result.getErrorCount() > 10);
-
-        // Apply filter
-        ErrorCascadeFilter.FilterResult filtered = ErrorCascadeFilter.filterCascadingErrors(result.getErrors());
-
-        // CRITICAL: Should have at least 1 error (missing 'value' field)
-        assertTrue(filtered.getFilteredErrors().size() >= 1, 
+        // With integrated cascade filtering, service returns filtered results
+        // Should have at least 1 error (missing 'value' field) 
+        assertTrue(result.getErrorCount() >= 1, 
             "Must preserve legitimate 'missing value' error");
 
-        // Check if we detected the risk
-        if (filtered.getFilteredErrors().isEmpty()) {
-            assertTrue(filtered.hasHiddenErrors(), 
-                "Should detect that legitimate errors were hidden");
-        }
-
         // Verify the required error for 'value' is present
-        boolean hasValueRequiredError = filtered.getFilteredErrors().stream()
+        boolean hasValueRequiredError = result.getErrors().stream()
             .anyMatch(e -> "required".equals(e.getType()) && 
                           e.getMessage().contains("value"));
         assertTrue(hasValueRequiredError, "Must keep 'value is required' error");
@@ -167,15 +148,15 @@ class ErrorCascadeFilterTest {
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule);
 
-        ErrorCascadeFilter.FilterResult filtered = ErrorCascadeFilter.filterCascadingErrors(result.getErrors());
-
-        // Should keep pattern error
-        boolean hasPatternError = filtered.getFilteredErrors().stream()
+        // With integrated filtering, check the service result directly
+        // Should keep pattern error (root cause)
+        boolean hasPatternError = result.getErrors().stream()
             .anyMatch(e -> "pattern".equals(e.getType()));
         assertTrue(hasPatternError, "Should preserve pattern violation");
 
-        // Should suppress cascade
-        assertTrue(filtered.getSuppressedCount() > 0, "Should suppress some cascade errors");
+        // Should have small error count due to cascade suppression
+        assertTrue(result.getErrorCount() <= 3, 
+            "Should suppress cascade errors, got " + result.getErrorCount());
     }
 
     @Test
@@ -200,11 +181,8 @@ class ErrorCascadeFilterTest {
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule);
 
-        ErrorCascadeFilter.FilterResult filtered = ErrorCascadeFilter.filterCascadingErrors(result.getErrors());
-
-        assertEquals(0, filtered.getFilteredErrors().size(), "Valid rule should have no errors");
-        assertEquals(0, filtered.getSuppressedCount(), "No errors to suppress");
-        assertFalse(filtered.hasHiddenErrors(), "No hidden errors");
+        // With integrated filtering, valid rules should have no errors
+        assertEquals(0, result.getErrorCount(), "Valid rule should have no errors");
     }
 
     @Test
