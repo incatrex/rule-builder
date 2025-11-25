@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Space, message, Input, Alert, Tag, Collapse, Typography } from 'antd';
 import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined, MenuFoldOutlined, InfoCircleOutlined, BulbOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import { translateValidationErrors } from '../../services/ValidationTranslator.js';
 
 /**
  * Generate a placeholder UUID for validation purposes
@@ -107,8 +106,6 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
   const [validationErrors, setValidationErrors] = useState([]);
   const [schemaInfo, setSchemaInfo] = useState(null);
   const [hasPlaceholderUUID, setHasPlaceholderUUID] = useState(false);
-  const [translatedErrors, setTranslatedErrors] = useState(null);
-  const [showTechnicalErrors, setShowTechnicalErrors] = useState(false);
 
   // Update local state when data prop changes (only when not editing)
   useEffect(() => {
@@ -157,8 +154,6 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
     setJsonText(displayText);
     setIsValid(true);
     setValidationErrors([]);
-    setTranslatedErrors(null);
-    setShowTechnicalErrors(false);
     // Don't reset hasPlaceholderUUID here - it should persist
   };
 
@@ -178,17 +173,19 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
         const response = await axios.post('/api/v1/rules/validate', cleanedForValidation);
         const validationResult = response.data;
         
-        // Store schema info
-        if (validationResult.schema) {
-          setSchemaInfo(validationResult.schema);
-        }
+        // Store schema info with error count
+        const errorCount = validationResult.errorCount || 0;
+        setSchemaInfo({
+          filename: validationResult.schemaFilename,
+          version: validationResult.schemaVersion,
+          errorCount: errorCount
+        });
         
-        if (validationResult.valid) {
+        if (errorCount === 0) {
           // Valid - update the component
           setIsEditing(false);
           setDisplayText(jsonText);
           setValidationErrors([]);
-          setTranslatedErrors(null);
           
           if (onChange) {
             // Pass the cleaned data (without placeholder flags) to the parent
@@ -196,15 +193,11 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
             message.success('JSON validated and updated successfully');
           }
         } else {
-          // Invalid according to schema - translate errors for better UX
-          const rawErrors = validationResult.errors || [];
-          setValidationErrors(rawErrors);
+          // Invalid - display backend errors directly
+          const errors = validationResult.errors || [];
+          setValidationErrors(errors);
           
-          // Translate errors to user-friendly messages
-          const translated = translateValidationErrors(rawErrors, cleanedForValidation);
-          setTranslatedErrors(translated.errors || translated); // Handle both array and object response
-          
-          message.error(`Schema validation failed: ${translated.summary || 'Multiple validation issues found'}`);
+          message.error(`Schema validation failed: ${errorCount} error${errorCount > 1 ? 's' : ''} found`);
         }
       } catch (error) {
         console.error('Validation error:', error);
@@ -291,13 +284,18 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
           <Alert
             message="Schema Validation Errors"
             description={
-              <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+              <div>
                 {validationErrors.map((error, index) => (
-                  <li key={index} style={{ marginBottom: '8px' }}>
-                    <strong>{error.path || 'root'}:</strong> {error.message}
-                  </li>
+                  <div key={index} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: index < validationErrors.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                    <div style={{ marginBottom: '4px' }}>
+                      <Tag color="red">{error.type || 'error'}</Tag>
+                      <strong>{error.path || '$'}</strong>
+                    </div>
+                    <div style={{ paddingLeft: '8px' }}>{error.message}</div>
+                    {error.lineNumber && <div style={{ paddingLeft: '8px', fontSize: '11px', color: '#8c8c8c' }}>Line {error.lineNumber}</div>}
+                  </div>
                 ))}
-              </ul>
+              </div>
             }
             type="error"
             showIcon
@@ -336,27 +334,24 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
             fontSize: '11px',
             color: darkMode ? '#8c8c8c' : '#595959',
             fontFamily: 'Monaco, Menlo, monospace',
-            flexShrink: 0
+            flexShrink: 0,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}
         >
-          <div style={{ marginBottom: '2px' }}>
-            <strong>Validated against:</strong> {schemaInfo.filename}
+          <div>
+            <strong>{schemaInfo.filename}</strong>
+            {schemaInfo.version && <span> (v{schemaInfo.version})</span>}
           </div>
-          {schemaInfo.title && (
-            <div style={{ marginBottom: '2px' }}>
-              <strong>Schema:</strong> {schemaInfo.title}
-            </div>
-          )}
-          {schemaInfo.id && (
-            <div style={{ marginBottom: '2px' }}>
-              <strong>Schema ID:</strong> {schemaInfo.id}
-            </div>
-          )}
-          {schemaInfo.draft && (
-            <div>
-              <strong>JSON Schema:</strong> {schemaInfo.draft}
-            </div>
-          )}
+          <div style={{ 
+            color: schemaInfo.errorCount === 0 ? '#52c41a' : '#ff4d4f',
+            fontWeight: 'bold'
+          }}>
+            {schemaInfo.errorCount === 0 
+              ? '✓ No errors' 
+              : `✗ ${schemaInfo.errorCount} error${schemaInfo.errorCount > 1 ? 's' : ''}`}
+          </div>
         </div>
       )}
     </>
@@ -554,13 +549,18 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
           <Alert
             message="Schema Validation Errors"
             description={
-              <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+              <div>
                 {validationErrors.map((error, index) => (
-                  <li key={index} style={{ marginBottom: '8px' }}>
-                    <strong>{error.path || 'root'}:</strong> {error.message}
-                  </li>
+                  <div key={index} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: index < validationErrors.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                    <div style={{ marginBottom: '4px' }}>
+                      <Tag color="red">{error.type || 'error'}</Tag>
+                      <strong>{error.path || '$'}</strong>
+                    </div>
+                    <div style={{ paddingLeft: '8px' }}>{error.message}</div>
+                    {error.lineNumber && <div style={{ paddingLeft: '8px', fontSize: '11px', color: '#8c8c8c' }}>Line {error.lineNumber}</div>}
+                  </div>
                 ))}
-              </ul>
+              </div>
             }
             type="error"
             showIcon
@@ -597,27 +597,24 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
             background: darkMode ? '#141414' : '#fafafa',
             fontSize: '11px',
             color: darkMode ? '#8c8c8c' : '#595959',
-            fontFamily: 'Monaco, Menlo, monospace'
+            fontFamily: 'Monaco, Menlo, monospace',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}
         >
-          <div style={{ marginBottom: '2px' }}>
-            <strong>Validated against:</strong> {schemaInfo.filename}
+          <div>
+            <strong>{schemaInfo.filename}</strong>
+            {schemaInfo.version && <span> (v{schemaInfo.version})</span>}
           </div>
-          {schemaInfo.title && (
-            <div style={{ marginBottom: '2px' }}>
-              <strong>Schema:</strong> {schemaInfo.title}
-            </div>
-          )}
-          {schemaInfo.id && (
-            <div style={{ marginBottom: '2px' }}>
-              <strong>Schema ID:</strong> {schemaInfo.id}
-            </div>
-          )}
-          {schemaInfo.draft && (
-            <div>
-              <strong>JSON Schema:</strong> {schemaInfo.draft}
-            </div>
-          )}
+          <div style={{ 
+            color: schemaInfo.errorCount === 0 ? '#52c41a' : '#ff4d4f',
+            fontWeight: 'bold'
+          }}>
+            {schemaInfo.errorCount === 0 
+              ? '✓ No errors' 
+              : `✗ ${schemaInfo.errorCount} error${schemaInfo.errorCount > 1 ? 's' : ''}`}
+          </div>
         </div>
       )}
     </Card>
