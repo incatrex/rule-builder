@@ -549,7 +549,7 @@
                   "name": "MATH.SUM",
                   "args": [
                     {
-                      "name": "value1",
+                      "name": "arg1",
                       "value": {
                         "type": "field",
                         "returnType": "number",
@@ -557,7 +557,7 @@
                       }
                     },
                     {
-                      "name": "value2",
+                      "name": "arg2",
                       "value": {
                         "type": "field",
                         "returnType": "number",
@@ -565,7 +565,7 @@
                       }
                     },
                     {
-                      "name": "value3",
+                      "name": "arg3",
                       "value": {
                         "type": "value",
                         "returnType": "number",

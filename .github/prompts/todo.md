@@ -57,6 +57,7 @@ config:
     [ ] data-test-id every element
     [ ] integration test coverage
     [ ] unit test coverage
+    [ ] rationalize front round trip tests - get rid of those not deeded
 
 [ ] Rule History
     [x] Release Tags/
