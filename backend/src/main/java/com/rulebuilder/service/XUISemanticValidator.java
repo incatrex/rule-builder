@@ -350,10 +350,11 @@ public class XUISemanticValidator {
                                    "actualArgs", actualArgs)
                         ));
                     }
+                    // Note: Dynamic args functions don't validate argument names or order
                 }
             }
         } else {
-            // Fixed args - validate exact count
+            // Fixed args - validate exact count, names, and order
             JsonNode requiredArgs = functionDef.get("args");
             
             if (requiredArgs != null && requiredArgs.isArray()) {
@@ -373,6 +374,29 @@ public class XUISemanticValidator {
                         Map.of("function", functionName, "expectedArgs", requiredArgs.size(), 
                                "actualArgs", args.size())
                     ));
+                } else {
+                    // Validate argument names and order
+                    for (int i = 0; i < requiredArgs.size(); i++) {
+                        JsonNode expectedArg = requiredArgs.get(i);
+                        JsonNode actualArg = args.get(i);
+                        
+                        String expectedName = expectedArg.has("name") ? expectedArg.get("name").asText() : null;
+                        String actualName = actualArg.has("name") ? actualArg.get("name").asText() : null;
+                        
+                        if (expectedName != null && actualName != null) {
+                            // Check if the name matches
+                            if (!expectedName.equals(actualName)) {
+                                errors.add(createError(
+                                    "x-ui-validation",
+                                    path + ".function.args[" + i + "].name",
+                                    "Argument at position " + i + " should be named '" + expectedName + 
+                                    "' but got '" + actualName + "'",
+                                    Map.of("function", functionName, "position", i, 
+                                           "expectedName", expectedName, "actualName", actualName)
+                                ));
+                            }
+                        }
+                    }
                 }
             }
         }

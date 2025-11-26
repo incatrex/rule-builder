@@ -110,23 +110,30 @@ public class ErrorCascadeFilter {
                 dedupedAcrossBranches.addAll(pathErrors);
             } else {
                 // Multiple schema definitions - this is a oneOf branch mismatch
-                // Prefer actionable errors (required, enum, pattern, additionalProperties) over oneOf errors
-                // First, collect all actionable errors from all branches
-                List<ValidationError> actionableErrors = new ArrayList<>();
+                // Prefer root cause errors (const, enum, pattern, additionalProperties) over required errors
+                // First, collect root cause errors from all branches
+                List<ValidationError> rootCauseErrors = new ArrayList<>();
+                List<ValidationError> requiredErrors = new ArrayList<>();
+                
                 for (List<ValidationError> branchErrors : errorsBySchemaDefinition.values()) {
                     for (ValidationError error : branchErrors) {
-                        if ("required".equals(error.getType()) ||
+                        if ("const".equals(error.getType()) ||
                             "enum".equals(error.getType()) ||
                             "pattern".equals(error.getType()) ||
                             "additionalProperties".equals(error.getType())) {
-                            actionableErrors.add(error);
+                            rootCauseErrors.add(error);
+                        } else if ("required".equals(error.getType())) {
+                            requiredErrors.add(error);
                         }
                     }
                 }
                 
-                // If we have actionable errors, use those (limit to 3)
-                if (!actionableErrors.isEmpty()) {
-                    dedupedAcrossBranches.addAll(actionableErrors.stream().limit(3).toList());
+                // If we have root cause errors, use only those (they explain why the oneOf branches failed)
+                if (!rootCauseErrors.isEmpty()) {
+                    dedupedAcrossBranches.addAll(rootCauseErrors);
+                } else if (!requiredErrors.isEmpty()) {
+                    // No root cause, keep required errors (limit to 3)
+                    dedupedAcrossBranches.addAll(requiredErrors.stream().limit(3).toList());
                 } else {
                     // No actionable errors - keep the oneOf error or first branch's errors
                     String firstDef = errorsBySchemaDefinition.keySet().iterator().next();
@@ -142,11 +149,12 @@ public class ErrorCascadeFilter {
             errorsByPath.computeIfAbsent(path, k -> new ArrayList<>()).add(error);
         }
         
-        // Step 2: Identify paths with root cause errors (enum, pattern, additionalProperties)
+        // Step 2: Identify paths with root cause errors (const, enum, pattern, additionalProperties)
         Set<String> pathsWithRootCause = new HashSet<>();
         for (Map.Entry<String, List<ValidationError>> entry : errorsByPath.entrySet()) {
             boolean hasRootCause = entry.getValue().stream()
-                    .anyMatch(e -> "enum".equals(e.getType()) || 
+                    .anyMatch(e -> "const".equals(e.getType()) ||
+                                   "enum".equals(e.getType()) || 
                                    "pattern".equals(e.getType()) ||
                                    "additionalProperties".equals(e.getType()));
             if (hasRootCause) {
@@ -198,17 +206,23 @@ public class ErrorCascadeFilter {
 
     /**
      * For oneOf cascades, keep only:
-     * 1. enum errors (tells user what valid values are) - ROOT CAUSE
-     * 2. pattern errors (tells user format requirements) - ROOT CAUSE
-     * 3. additionalProperties errors (tells user about invalid properties) - ROOT CAUSE
-     * 4. required field errors ONLY if no enum/pattern/additionalProperties at this level OR child level
-     * 5. OR the oneOf error itself if no actionable error exists
+     * 1. const errors (tells user about invalid constant values) - ROOT CAUSE
+     * 2. enum errors (tells user what valid values are) - ROOT CAUSE
+     * 3. pattern errors (tells user format requirements) - ROOT CAUSE
+     * 4. additionalProperties errors (tells user about invalid properties) - ROOT CAUSE
+     * 5. required field errors ONLY if no const/enum/pattern/additionalProperties at this level OR child level
+     * 6. OR the oneOf error itself if no actionable error exists
      * 
-     * @param childHasRootCause true if a child path has an enum/pattern/additionalProperties error
+     * @param childHasRootCause true if a child path has a const/enum/pattern/additionalProperties error
      */
     private static void filterOneOfCascade(List<ValidationError> pathErrors, List<ValidationError> filtered, boolean childHasRootCause) {
-        // Look for root cause errors first (enum, pattern, additionalProperties)
+        // Look for root cause errors first (const, enum, pattern, additionalProperties)
         List<ValidationError> rootCauseErrors = new ArrayList<>();
+        
+        // Check for const errors
+        pathErrors.stream()
+                .filter(e -> "const".equals(e.getType()))
+                .forEach(rootCauseErrors::add);
         
         // Check for enum errors
         pathErrors.stream()
@@ -275,26 +289,36 @@ public class ErrorCascadeFilter {
 
     /**
      * Find the most actionable error from a list of errors for the same path
-     * Priority: additionalProperties > enum > pattern > type > required > const > others
+     * Priority: enum > const > pattern > additionalProperties > type > required > others
      * 
-     * additionalProperties is highest priority because it tells exactly what invalid property exists
+     * enum is highest priority because it tells ALL valid values
+     * const tells only ONE expected value (less informative)
+     * additionalProperties is lower because it often results from an invalid type causing a wrong oneOf branch match
      */
     private static ValidationError findMostActionableError(List<ValidationError> errors) {
-        // Highest priority: additionalProperties (tells user exactly what's invalid)
-        for (ValidationError error : errors) {
-            if ("additionalProperties".equals(error.getType())) {
-                return error;
-            }
-        }
-        
+        // Highest priority: enum errors (tells user all valid values)
         for (ValidationError error : errors) {
             if ("enum".equals(error.getType())) {
                 return error;
             }
         }
         
+        // High priority: const errors (tells user one expected value)
+        for (ValidationError error : errors) {
+            if ("const".equals(error.getType())) {
+                return error;
+            }
+        }
+        
         for (ValidationError error : errors) {
             if ("pattern".equals(error.getType())) {
+                return error;
+            }
+        }
+        
+        // Medium priority: additionalProperties (often a cascade from wrong type)
+        for (ValidationError error : errors) {
+            if ("additionalProperties".equals(error.getType())) {
                 return error;
             }
         }
@@ -307,13 +331,6 @@ public class ErrorCascadeFilter {
         
         for (ValidationError error : errors) {
             if ("required".equals(error.getType())) {
-                return error;
-            }
-        }
-        
-        // Lower priority: const errors are less actionable than additionalProperties/enum
-        for (ValidationError error : errors) {
-            if ("const".equals(error.getType())) {
                 return error;
             }
         }
@@ -406,7 +423,7 @@ public class ErrorCascadeFilter {
         // Filter out parent errors when:
         // 1. Parent path has children with errors
         // 2. Parent error is enum/const/additionalProperties (likely from wrong oneOf branch)
-        // 3. Child has a more specific additionalProperties error
+        // 3. Child has a root cause error (const, enum, pattern, additionalProperties)
         List<ValidationError> result = new ArrayList<>();
         for (ValidationError error : filtered) {
             String path = error.getPath();
@@ -417,29 +434,34 @@ public class ErrorCascadeFilter {
                 continue;
             }
             
-            // For paths with children, check if this is a low-value error from wrong oneOf branch
+            // For paths with children, check if this is a root cause error that might be less specific than child errors
             String errorType = error.getType();
-            boolean isLowValueError = "enum".equals(errorType) || 
-                                     "const".equals(errorType) ||
-                                     "additionalProperties".equals(errorType);
+            boolean isRootCauseError = "enum".equals(errorType) || 
+                                      "const".equals(errorType) ||
+                                      "additionalProperties".equals(errorType) ||
+                                      "pattern".equals(errorType);
             
-            if (!isLowValueError) {
-                // Keep high-value errors (required, pattern, etc.) even if children exist
+            if (!isRootCauseError) {
+                // Keep non-root-cause errors (required, type, etc.) even if children exist
                 result.add(error);
                 continue;
             }
             
-            // Check if any child has an additionalProperties error (more specific)
-            boolean childHasSpecificError = filtered.stream()
+            // Check if any child has a root cause error (const, enum, pattern, additionalProperties)
+            // If yes, the child is more specific - suppress this parent error
+            boolean childHasRootCauseError = filtered.stream()
                 .anyMatch(e -> e.getPath() != null && 
                               (e.getPath().startsWith(path + ".") || e.getPath().startsWith(path + "[")) &&
-                              "additionalProperties".equals(e.getType()));
+                              ("const".equals(e.getType()) || 
+                               "enum".equals(e.getType()) ||
+                               "pattern".equals(e.getType()) ||
+                               "additionalProperties".equals(e.getType())));
             
-            if (!childHasSpecificError) {
-                // No child has a more specific error, keep this one
+            if (!childHasRootCauseError) {
+                // No child has a root cause error, keep this parent error
                 result.add(error);
             }
-            // else: suppress parent error because child has more specific error
+            // else: suppress parent root cause error because child has more specific root cause error
         }
         
         return result;

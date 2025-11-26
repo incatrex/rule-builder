@@ -931,4 +931,230 @@ class XUISemanticValidatorTest {
 
         assertEquals(0, errors.size(), "Valid dynamic function should produce no errors");
     }
+
+    // ==================== FUNCTION ARGUMENT NAME VALIDATION ====================
+
+    @Test
+    @DisplayName("Function with incorrect argument name should produce error")
+    void testFunctionIncorrectArgumentName() throws IOException {
+        String json = """
+            {
+              "structure": "expression",
+              "returnType": "number",
+              "ruleType": "Reporting",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "function",
+                "returnType": "number",
+                "function": {
+                  "name": "MATH.SUBTRACT",
+                  "args": [
+                    {
+                      "name": "number1",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 10
+                      }
+                    },
+                    {
+                      "name": "num2",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 5
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertTrue(errors.size() > 0, "Should have error for incorrect argument name");
+        
+        boolean hasArgNameError = errors.stream()
+            .anyMatch(e -> e.getMessage().contains("number1") && 
+                          e.getMessage().contains("num1"));
+        assertTrue(hasArgNameError, "Should have argument name mismatch error");
+    }
+
+    @Test
+    @DisplayName("Function with all correct argument names should pass")
+    void testFunctionCorrectArgumentNames() throws IOException {
+        String json = """
+            {
+              "structure": "expression",
+              "returnType": "number",
+              "ruleType": "Reporting",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "function",
+                "returnType": "number",
+                "function": {
+                  "name": "MATH.SUBTRACT",
+                  "args": [
+                    {
+                      "name": "num1",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 10
+                      }
+                    },
+                    {
+                      "name": "num2",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 5
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertEquals(0, errors.size(), "Function with correct argument names should produce no errors");
+    }
+
+    // ==================== FUNCTION ARGUMENT ORDER VALIDATION ====================
+
+    @Test
+    @DisplayName("Function with arguments in wrong order should produce error")
+    void testFunctionIncorrectArgumentOrder() throws IOException {
+        String json = """
+            {
+              "structure": "expression",
+              "returnType": "number",
+              "ruleType": "Reporting",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "function",
+                "returnType": "number",
+                "function": {
+                  "name": "MATH.SUBTRACT",
+                  "args": [
+                    {
+                      "name": "num2",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 5
+                      }
+                    },
+                    {
+                      "name": "num1",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 10
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertTrue(errors.size() > 0, "Should have error for incorrect argument order");
+        
+        boolean hasOrderError = errors.stream()
+            .anyMatch(e -> e.getMessage().contains("order") || 
+                          (e.getMessage().contains("num2") && e.getMessage().contains("position")));
+        assertTrue(hasOrderError, "Should have argument order error");
+    }
+
+    @Test
+    @DisplayName("Function with arguments in correct order should pass")
+    void testFunctionCorrectArgumentOrder() throws IOException {
+        String json = """
+            {
+              "structure": "expression",
+              "returnType": "number",
+              "ruleType": "Reporting",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "function",
+                "returnType": "number",
+                "function": {
+                  "name": "MATH.SUBTRACT",
+                  "args": [
+                    {
+                      "name": "num1",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 10
+                      }
+                    },
+                    {
+                      "name": "num2",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 5
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertEquals(0, errors.size(), "Function with correct argument order should produce no errors");
+    }
+
+    @Test
+    @DisplayName("Dynamic args function should not validate argument order")
+    void testDynamicArgsFunctionNoOrderValidation() throws IOException {
+        String json = """
+            {
+              "structure": "expression",
+              "returnType": "number",
+              "ruleType": "Reporting",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "function",
+                "returnType": "number",
+                "function": {
+                  "name": "MATH.ADD",
+                  "args": [
+                    {"name": "arg3", "value": {"type": "value", "returnType": "number", "value": 30}},
+                    {"name": "arg1", "value": {"type": "value", "returnType": "number", "value": 10}},
+                    {"name": "arg2", "value": {"type": "value", "returnType": "number", "value": 20}}
+                  ]
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertEquals(0, errors.size(), "Dynamic args function should allow any order");
+    }
 }

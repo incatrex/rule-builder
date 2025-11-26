@@ -29,9 +29,11 @@ public class RuleValidationService {
     private final JsonSchema schema;
     private final String schemaVersion;
     private final ObjectMapper objectMapper;
+    private final XUISemanticValidator xuiSemanticValidator;
 
-    public RuleValidationService() {
+    public RuleValidationService(XUISemanticValidator xuiSemanticValidator) {
         this.objectMapper = new ObjectMapper();
+        this.xuiSemanticValidator = xuiSemanticValidator;
         
         try {
             // Load schema from classpath
@@ -116,6 +118,10 @@ public class RuleValidationService {
             
             errors.add(error);
         }
+        
+        // Add x-ui semantic validation errors
+        List<ValidationError> xuiErrors = xuiSemanticValidator.validate(ruleJson);
+        errors.addAll(xuiErrors);
         
         // Apply cascade error filtering unless disabled
         List<ValidationError> finalErrors;

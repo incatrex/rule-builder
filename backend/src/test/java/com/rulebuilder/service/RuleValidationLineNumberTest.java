@@ -20,8 +20,9 @@ class RuleValidationLineNumberTest {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    void setUp() {
-        validationService = new RuleValidationService();
+    void setUp() throws IOException {
+        XUISemanticValidator xuiValidator = new XUISemanticValidator();
+        validationService = new RuleValidationService(xuiValidator);
         objectMapper = new ObjectMapper();
     }
 

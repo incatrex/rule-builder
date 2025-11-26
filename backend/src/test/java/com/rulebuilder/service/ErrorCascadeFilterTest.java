@@ -19,8 +19,9 @@ class ErrorCascadeFilterTest {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    void setUp() {
-        validationService = new RuleValidationService();
+    void setUp() throws IOException {
+        XUISemanticValidator xuiValidator = new XUISemanticValidator();
+        validationService = new RuleValidationService(xuiValidator);
         objectMapper = new ObjectMapper();
     }
 
@@ -47,15 +48,17 @@ class ErrorCascadeFilterTest {
         ValidationResult result = validationService.validate(rule);
 
         // With integrated cascade filtering, service should return filtered results
-        // Should have 1-3 errors after filtering (enum error is root cause)
+        // Should have 1-3 errors after filtering
         assertTrue(result.getErrorCount() <= 3, 
             "Should have few errors after cascade filtering, got " + result.getErrorCount());
         assertTrue(result.getErrorCount() > 0, "Should have at least one error");
 
-        // Verify enum error is preserved (root cause)
-        boolean hasEnumError = result.getErrors().stream()
-                .anyMatch(e -> "enum".equals(e.getType()));
-        assertTrue(hasEnumError, "Should keep enum error");
+        // Should have a root cause error (enum, const, or additionalProperties) about the type issue
+        boolean hasRootCauseError = result.getErrors().stream()
+                .anyMatch(e -> "enum".equals(e.getType()) || 
+                              "const".equals(e.getType()) ||
+                              ("additionalProperties".equals(e.getType()) && e.getPath().contains("definition")));
+        assertTrue(hasRootCauseError, "Should keep root cause error about invalid type");
     }    @Test
     @DisplayName("Missing required field for correct type should NOT be suppressed")
     void testKeepLegitimateRequiredError() throws IOException {
@@ -340,5 +343,73 @@ class ErrorCascadeFilterTest {
             .anyMatch(e -> "oneOf".equals(e.getType()));
         assertFalse(hasOneOfError, 
             "Should suppress oneOf error when actionable errors exist");
+    }
+
+    @Test
+    @DisplayName("Typo in condition type should show minimal errors with line number")
+    void testTypoInConditionType() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Reporting",
+              "uuId": "e2c85da5-ff66-4718-b034-62b3badc13d6",
+              "version": 1,
+              "metadata": {
+                "id": "",
+                "description": ""
+              },
+              "definition": {
+                "type": "conditionGroup",
+                "returnType": "boolean",
+                "name": "Main Condition",
+                "conjunction": "AND",
+                "not": false,
+                "conditions": [
+                  {
+                    "type": "cond2ition",
+                    "returnType": "boolean",
+                    "name": "Condition 1",
+                    "left": {
+                      "type": "field",
+                      "returnType": "number",
+                      "field": "TABLE1.NUMBER_FIELD_01"
+                    },
+                    "operator": "equal",
+                    "right": {
+                      "type": "value",
+                      "returnType": "number",
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule, json, true, false);
+
+        // Should have very few errors (2-3 max) not the original 5+
+        assertTrue(result.getErrorCount() <= 3, 
+            "Typo should generate max 3 errors, got " + result.getErrorCount());
+        assertTrue(result.getErrorCount() > 0, "Should have at least one error");
+
+        // Should have const error pointing to the typo
+        boolean hasConstError = result.getErrors().stream()
+            .anyMatch(e -> "const".equals(e.getType()) && 
+                          e.getPath().contains("conditions[0].type") &&
+                          e.getMessage().contains("condition"));
+        assertTrue(hasConstError, "Should show const error identifying the typo");
+
+        // The const error should have a line number
+        ValidationError constError = result.getErrors().stream()
+            .filter(e -> "const".equals(e.getType()) && e.getPath().contains("conditions[0].type"))
+            .findFirst()
+            .orElse(null);
+        
+        assertNotNull(constError, "Should have const error");
+        assertNotNull(constError.getLineNumber(), "Const error should have line number");
+        assertTrue(constError.getLineNumber() > 1, "Line number should be greater than 1");
     }
 }

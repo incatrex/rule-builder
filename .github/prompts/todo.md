@@ -45,7 +45,7 @@ config:
 [ ] version min to be 0 instead of 1 - not required?
 
 [ ] Re-work validation
-    [ ] Move error translation to backend
+    [x] Move error translation to backend
     [ ] Confirm/test key validationi points
 
 [ ] Add Business Logic service + Component/Panel
@@ -59,7 +59,7 @@ config:
     [ ] unit test coverage
 
 [ ] Rule History
-    [ ] Release Tags/
+    [x] Release Tags/
     [ ] SQL
     [ ] double check test-integration.sh (4 vs 3 versions?)
 
