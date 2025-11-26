@@ -11,7 +11,8 @@ import java.io.IOException;
 public class ValidationTestRunner {
     
     public static void main(String[] args) throws IOException {
-        RuleValidationService service = new RuleValidationService();
+        XUISemanticValidator xuiValidator = new XUISemanticValidator();
+        RuleValidationService service = new RuleValidationService(xuiValidator);
         ObjectMapper objectMapper = new ObjectMapper();
         
         // Test 1: Valid rule

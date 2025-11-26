@@ -31,7 +31,7 @@
                   "name": "MATH.ROUND",
                   "args": [
                     {
-                      "name": "value",
+                      "name": "number",
                       "value": {
                         "type": "function",
                         "returnType": "number",
@@ -39,7 +39,7 @@
                           "name": "MATH.MULTIPLY",
                           "args": [
                             {
-                              "name": "arg1",
+                              "name": "num1",
                               "value": {
                                 "type": "field",
                                 "returnType": "number",
@@ -47,7 +47,7 @@
                               }
                             },
                             {
-                              "name": "arg2",
+                              "name": "num2",
                               "value": {
                                 "type": "value",
                                 "returnType": "number",
@@ -102,7 +102,7 @@
             "name": "TEXT.CONCAT",
             "args": [
               {
-                "name": "arg1",
+                "name": "text1",
                 "value": {
                   "type": "value",
                   "returnType": "text",
@@ -110,7 +110,7 @@
                 }
               },
               {
-                "name": "arg2",
+                "name": "text2",
                 "value": {
                   "type": "field",
                   "returnType": "text",
@@ -142,7 +142,7 @@
                   "name": "MATH.ADD",
                   "args": [
                     {
-                      "name": "arg1",
+                      "name": "num1",
                       "value": {
                         "type": "field",
                         "returnType": "number",
@@ -150,7 +150,7 @@
                       }
                     },
                     {
-                      "name": "arg2",
+                      "name": "num2",
                       "value": {
                         "type": "field",
                         "returnType": "number",
@@ -405,7 +405,7 @@
                   "name": "MATH.ABS",
                   "args": [
                     {
-                      "name": "value",
+                      "name": "number",
                       "value": {
                         "type": "function",
                         "returnType": "number",
@@ -413,7 +413,7 @@
                           "name": "MATH.SUBTRACT",
                           "args": [
                             {
-                              "name": "arg1",
+                              "name": "num1",
                               "value": {
                                 "type": "field",
                                 "returnType": "number",
@@ -421,7 +421,7 @@
                               }
                             },
                             {
-                              "name": "arg2",
+                              "name": "num2",
                               "value": {
                                 "type": "field",
                                 "returnType": "number",
@@ -454,7 +454,7 @@
                   "name": "MATH.DIVIDE",
                   "args": [
                     {
-                      "name": "arg1",
+                      "name": "dividend",
                       "value": {
                         "type": "field",
                         "returnType": "number",
@@ -462,7 +462,7 @@
                       }
                     },
                     {
-                      "name": "arg2",
+                      "name": "divisor",
                       "value": {
                         "type": "value",
                         "returnType": "number",
@@ -504,7 +504,7 @@
                 "name": "TEXT.CONCAT",
                 "args": [
                   {
-                    "name": "arg1",
+                    "name": "text1",
                     "value": {
                       "type": "value",
                       "returnType": "text",
@@ -512,7 +512,7 @@
                     }
                   },
                   {
-                    "name": "arg2",
+                    "name": "text2",
                     "value": {
                       "type": "value",
                       "returnType": "text",
@@ -549,31 +549,27 @@
                   "name": "MATH.SUM",
                   "args": [
                     {
-                      "name": "values",
+                      "name": "value1",
                       "value": {
-                        "type": "expressionGroup",
+                        "type": "field",
                         "returnType": "number",
-                        "expressions": [
-                          {
-                            "type": "field",
-                            "returnType": "number",
-                            "field": "TABLE1.NUMBER_FIELD_01"
-                          },
-                          {
-                            "type": "field",
-                            "returnType": "number",
-                            "field": "TABLE1.NUMBER_FIELD_02"
-                          },
-                          {
-                            "type": "value",
-                            "returnType": "number",
-                            "value": 50
-                          }
-                        ],
-                        "operators": [
-                          "+",
-                          "+"
-                        ]
+                        "field": "TABLE1.NUMBER_FIELD_01"
+                      }
+                    },
+                    {
+                      "name": "value2",
+                      "value": {
+                        "type": "field",
+                        "returnType": "number",
+                        "field": "TABLE1.NUMBER_FIELD_02"
+                      }
+                    },
+                    {
+                      "name": "value3",
+                      "value": {
+                        "type": "value",
+                        "returnType": "number",
+                        "value": 50
                       }
                     }
                   ]
@@ -619,7 +615,7 @@
         "name": "TEXT.CONCAT",
         "args": [
           {
-            "name": "arg1",
+            "name": "text1",
             "value": {
               "type": "value",
               "returnType": "text",
@@ -627,7 +623,7 @@
             }
           },
           {
-            "name": "arg2",
+            "name": "text2",
             "value": {
               "type": "function",
               "returnType": "text",
@@ -635,7 +631,7 @@
                 "name": "TEXT.CONCAT",
                 "args": [
                   {
-                    "name": "arg1",
+                    "name": "text1",
                     "value": {
                       "type": "value",
                       "returnType": "text",
@@ -643,7 +639,7 @@
                     }
                   },
                   {
-                    "name": "arg2",
+                    "name": "text2",
                     "value": {
                       "type": "value",
                       "returnType": "text",

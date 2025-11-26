@@ -44,7 +44,8 @@ public class LineNumberDebugTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode ruleNode = mapper.readTree(json);
         
-        RuleValidationService service = new RuleValidationService();
+        XUISemanticValidator xuiValidator = new XUISemanticValidator();
+        RuleValidationService service = new RuleValidationService(xuiValidator);
         ValidationResult result = service.validate(ruleNode, json, true, false);
         
         System.out.println("\n\nValidation errors:");

@@ -12,7 +12,8 @@ public class CascadeSuppressionRiskTest {
     
     public static void main(String[] args) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        RuleValidationService service = new RuleValidationService();
+        XUISemanticValidator xuiValidator = new XUISemanticValidator();
+        RuleValidationService service = new RuleValidationService(xuiValidator);
         
         System.out.println("=== Scenario 1: Single root cause (wrong type) ===");
         System.out.println("Expected: User just needs to fix 'type' field");

@@ -59,7 +59,8 @@ public class IrregularJsonTest {
             """;
         
         ObjectMapper mapper = new ObjectMapper();
-        RuleValidationService service = new RuleValidationService();
+        XUISemanticValidator xuiValidator = new XUISemanticValidator();
+        RuleValidationService service = new RuleValidationService(xuiValidator);
         
         System.out.println("=== Test 1: Mixed spacing ===");
         testJson(json1, mapper, service);

@@ -12,7 +12,8 @@ public class ErrorCascadeAnalysisTest {
     
     public static void main(String[] args) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        RuleValidationService service = new RuleValidationService();
+        XUISemanticValidator xuiValidator = new XUISemanticValidator();
+        RuleValidationService service = new RuleValidationService(xuiValidator);
         
         // Test 1: Missing required field (simple error)
         System.out.println("=== Test 1: Missing required field 'structure' ===");

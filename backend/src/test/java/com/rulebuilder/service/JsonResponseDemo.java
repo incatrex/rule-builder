@@ -11,7 +11,8 @@ import java.io.IOException;
 public class JsonResponseDemo {
     
     public static void main(String[] args) throws IOException {
-        RuleValidationService service = new RuleValidationService();
+        XUISemanticValidator xuiValidator = new XUISemanticValidator();
+        RuleValidationService service = new RuleValidationService(xuiValidator);
         ObjectMapper objectMapper = new ObjectMapper();
         
         System.out.println("=".repeat(80));
