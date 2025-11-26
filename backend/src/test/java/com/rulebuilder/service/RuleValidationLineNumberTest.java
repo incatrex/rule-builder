@@ -438,4 +438,36 @@ class RuleValidationLineNumberTest {
         assertNotNull(fieldError, "Should find field pattern error");
         assertEquals(25, fieldError.getLineNumber(), "field is on line 25");
     }
+
+    @Test
+    @DisplayName("Line number for root-level additionalProperties error")
+    void testLineNumber_RootLevelAdditionalProperty() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "uuId": "5375b666-a80b-434b-b754-8e8abbcd8c5d",
+              "version": 1,
+              "rul3eType": "Reporting",
+              "metadata": {
+                "id": "TEST",
+                "description": "Test"
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule, json, true, false);
+
+        // rul3eType (typo) is on line 6
+        assertTrue(result.getErrorCount() > 0);
+        ValidationError error = result.getErrors().stream()
+            .filter(err -> err.getMessage().contains("rul3eType"))
+            .findFirst()
+            .orElse(null);
+        
+        assertNotNull(error, "Should find rul3eType additionalProperties error");
+        assertEquals("additionalProperties", error.getType(), "Should be additionalProperties error");
+        assertEquals(6, error.getLineNumber(), "rul3eType is on line 6");
+    }
 }

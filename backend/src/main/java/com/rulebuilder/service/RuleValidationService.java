@@ -110,7 +110,7 @@ public class RuleValidationService {
             
             // Calculate line number if requested
             if (calculateLineNumbers && jsonString != null) {
-                Integer lineNumber = findLineNumber(msg.getPath(), jsonString);
+                Integer lineNumber = findLineNumber(msg.getPath(), msg.getMessage(), msg.getType(), jsonString);
                 error.setLineNumber(lineNumber);
             }
             
@@ -140,26 +140,67 @@ public class RuleValidationService {
      * Find the line number where a JSON path occurs in the original JSON string
      * 
      * @param jsonPath JSON Path (e.g., "$.definition.field")
+     * @param message Error message that may contain the actual property name
+     * @param errorType Type of error (e.g., "additionalProperties")
      * @param jsonString The original JSON string
      * @return Line number (1-indexed) or null if not found
      */
-    private Integer findLineNumber(String jsonPath, String jsonString) {
-        if (jsonPath == null || jsonString == null || jsonPath.equals("$")) {
-            return 1; // Root level
+    private Integer findLineNumber(String jsonPath, String message, String errorType, String jsonString) {
+        if (jsonPath == null || jsonString == null) {
+            return 1;
+        }
+        
+        // For additionalProperties errors, extract the actual property name from the message
+        // Message format: "$.definition.invalidProperty: is not defined in the schema..."
+        // or "$.rul3eType: is not defined in the schema..." (root level)
+        String targetProperty = null;
+        if ("additionalProperties".equals(errorType) && message != null) {
+            // Extract the property path from the message
+            int colonIndex = message.indexOf(":");
+            if (colonIndex > 0) {
+                String propertyPath = message.substring(0, colonIndex).trim();
+                // propertyPath is like "$.definition.invalidProperty" or "$.rul3eType"
+                int lastDot = propertyPath.lastIndexOf(".");
+                if (lastDot > 0 && lastDot < propertyPath.length() - 1) {
+                    targetProperty = propertyPath.substring(lastDot + 1);
+                    // Also remove array indices like [0]
+                    targetProperty = targetProperty.replaceAll("\\[\\d+\\]", "");
+                }
+            }
+        }
+        
+        // If path is root and we extracted a property name, use that
+        if (jsonPath.equals("$") && targetProperty == null) {
+            return 1; // Root level with no specific property
         }
         
         // Parse JSON path to get the key we're looking for
         // $.definition.field -> look for "field"
         // $.metadata -> look for "metadata"
         // $.definition.expressions[0].name -> look for "name" within array context
+        // $ -> root level, use targetProperty if available
         
-        String[] parts = jsonPath.replace("$.", "").split("\\.");
-        if (parts.length == 0) {
-            return 1;
+        String[] parts = jsonPath.replace("$.", "").replace("$", "").split("\\.");
+        
+        // For root level with extracted property, use that directly
+        if (targetProperty != null && (parts.length == 0 || (parts.length == 1 && parts[0].isEmpty()))) {
+            // Search for root-level property
+            String[] lines = jsonString.split("\n");
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i].trim();
+                if (line.matches("^\"" + targetProperty + "\"\\s*:.*")) {
+                    return i + 1;
+                }
+            }
+            return null; // Not found
+        }
+        
+        if (parts.length == 0 || (parts.length == 1 && parts[0].isEmpty())) {
+            return 1; // Root level without specific property
         }
         
         // Get the final key (removing array indices)
-        String targetKey = parts[parts.length - 1].replaceAll("\\[\\d+\\]", "");
+        String targetKey = targetProperty != null ? targetProperty : parts[parts.length - 1].replaceAll("\\[\\d+\\]", "");
         
         // Build the full parent path for context
         StringBuilder parentPathBuilder = new StringBuilder();

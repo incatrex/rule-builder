@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Space, message, Input, Alert, Tag, Collapse, Typography } from 'antd';
 import { EditOutlined, CheckOutlined, CloseOutlined, LoadingOutlined, MenuFoldOutlined, InfoCircleOutlined, BulbOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { RuleService } from '../../services/RuleService.js';
 
 /**
  * Generate a placeholder UUID for validation purposes
@@ -106,6 +106,7 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
   const [validationErrors, setValidationErrors] = useState([]);
   const [schemaInfo, setSchemaInfo] = useState(null);
   const [hasPlaceholderUUID, setHasPlaceholderUUID] = useState(false);
+  const ruleService = new RuleService();
 
   // Update local state when data prop changes (only when not editing)
   useEffect(() => {
@@ -165,13 +166,12 @@ const JsonEditor = ({ data, onChange, darkMode = false, title = "JSON Output", o
       // Clean placeholder flags before validation
       const cleanedForValidation = removePlaceholderFlags(parsed);
       
-      // Validate against schema
+      // Validate against schema using RuleService (sends JSON string for line number calculation)
       setIsValidating(true);
       setValidationErrors([]);
       
       try {
-        const response = await axios.post('/api/v1/rules/validate', cleanedForValidation);
-        const validationResult = response.data;
+        const validationResult = await ruleService.validateRule(cleanedForValidation, true, false);
         
         // Store schema info with error count
         const errorCount = validationResult.errorCount || 0;
