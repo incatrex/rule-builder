@@ -183,6 +183,28 @@ public class XUISemanticValidator {
                 } else if (definition.has("whenClauses")) {
                     // It's a condition structure with whenClauses (case-like structure)
                     validateConditions(definition.get("whenClauses"), "$.definition.whenClauses", errors);
+                } else if (definition.has("ruleRef")) {
+                    // It's a single Condition or ConditionGroup backed by ruleRef
+                    String defType = definition.has("type") ? definition.get("type").asText() : "condition";
+                    validateConditionRuleRef(definition.get("ruleRef"), "$.definition.ruleRef", defType, errors);
+                    
+                    // Check mutual exclusivity
+                    if (definition.has("left") || definition.has("operator") || definition.has("right")) {
+                        errors.add(createError(
+                            "x-ui-validation",
+                            "$.definition",
+                            "Condition cannot have both ruleRef and left/operator/right properties",
+                            Map.of()
+                        ));
+                    }
+                    if (definition.has("conjunction") || definition.has("conditions")) {
+                        errors.add(createError(
+                            "x-ui-validation",
+                            "$.definition",
+                            "ConditionGroup cannot have both ruleRef and conjunction/conditions properties",
+                            Map.of()
+                        ));
+                    }
                 } else if (definition.has("left") && definition.has("operator")) {
                     // It's a single Condition
                     validateConditionOperatorAndCardinality(definition, "$.definition", errors);
@@ -504,33 +526,110 @@ public class XUISemanticValidator {
             return;
         }
         
+        // Check if using ruleRef
+        if (conditionGroup.has("ruleRef")) {
+            validateConditionRuleRef(conditionGroup.get("ruleRef"), path + ".ruleRef", "conditionGroup", errors);
+            
+            // Ensure mutual exclusivity
+            if (conditionGroup.has("conjunction") || conditionGroup.has("conditions")) {
+                errors.add(createError(
+                    "x-ui-validation",
+                    path,
+                    "ConditionGroup cannot have both ruleRef and conjunction/conditions properties",
+                    Map.of()
+                ));
+            }
+            return; // Don't validate manual properties if using ruleRef
+        }
+        
         JsonNode conditions = conditionGroup.get("conditions");
         if (conditions != null && conditions.isArray()) {
             for (int i = 0; i < conditions.size(); i++) {
                 JsonNode condition = conditions.get(i);
                 String condPath = path + ".conditions[" + i + "]";
                 
-                // Validate operator and cardinality
-                validateConditionOperatorAndCardinality(condition, condPath, errors);
-                
-                // Validate nested expressions
-                if (condition.has("left")) {
-                    validateExpression(condition.get("left"), condPath + ".left", errors);
+                // Check if this condition/group uses ruleRef
+                if (condition.has("ruleRef")) {
+                    String condType = condition.has("type") ? condition.get("type").asText() : "unknown";
+                    validateConditionRuleRef(condition.get("ruleRef"), condPath + ".ruleRef", condType, errors);
+                    
+                    // Check mutual exclusivity
+                    if (condition.has("left") || condition.has("operator") || condition.has("right")) {
+                        errors.add(createError(
+                            "x-ui-validation",
+                            condPath,
+                            "Condition cannot have both ruleRef and left/operator/right properties",
+                            Map.of()
+                        ));
+                    }
+                    if (condition.has("conjunction") || condition.has("conditions")) {
+                        errors.add(createError(
+                            "x-ui-validation",
+                            condPath,
+                            "ConditionGroup cannot have both ruleRef and conjunction/conditions properties",
+                            Map.of()
+                        ));
+                    }
+                    // Skip manual validation for this condition/group
+                    continue;
                 }
-                if (condition.has("right")) {
-                    JsonNode right = condition.get("right");
-                    // right can be a single expression, array of expressions, or null
-                    if (right != null && !right.isNull()) {
-                        if (right.isArray()) {
-                            for (int j = 0; j < right.size(); j++) {
-                                validateExpression(right.get(j), condPath + ".right[" + j + "]", errors);
+                
+                // Check if it's a nested condition group
+                if (condition.has("conditions")) {
+                    validateConditionGroup(condition, condPath, errors);
+                } else {
+                    // Validate operator and cardinality
+                    validateConditionOperatorAndCardinality(condition, condPath, errors);
+                    
+                    // Validate nested expressions
+                    if (condition.has("left")) {
+                        validateExpression(condition.get("left"), condPath + ".left", errors);
+                    }
+                    if (condition.has("right")) {
+                        JsonNode right = condition.get("right");
+                        // right can be a single expression, array of expressions, or null
+                        if (right != null && !right.isNull()) {
+                            if (right.isArray()) {
+                                for (int j = 0; j < right.size(); j++) {
+                                    validateExpression(right.get(j), condPath + ".right[" + j + "]", errors);
+                                }
+                            } else if (right.isObject()) {
+                                validateExpression(right, condPath + ".right", errors);
                             }
-                        } else if (right.isObject()) {
-                            validateExpression(right, condPath + ".right", errors);
                         }
                     }
                 }
             }
+        }
+    }
+    
+    /**
+     * Validate rule reference in condition context
+     */
+    private void validateConditionRuleRef(JsonNode ruleRef, String path, String context, List<ValidationError> errors) {
+        if (ruleRef == null || !ruleRef.isObject()) {
+            return;
+        }
+        
+        // Check return type is boolean
+        if (!ruleRef.has("returnType")) {
+            errors.add(createError(
+                "x-ui-validation",
+                path + ".returnType",
+                "Rule reference in " + context + " context must have returnType property",
+                Map.of("context", context)
+            ));
+            return;
+        }
+        
+        String returnType = ruleRef.get("returnType").asText();
+        if (!"boolean".equals(returnType)) {
+            errors.add(createError(
+                "x-ui-validation",
+                path + ".returnType",
+                "Rule references in " + context + " context must return boolean, got: " + returnType,
+                Map.of("expectedType", "boolean", "actualType", returnType, "context", context)
+            ));
         }
     }
     

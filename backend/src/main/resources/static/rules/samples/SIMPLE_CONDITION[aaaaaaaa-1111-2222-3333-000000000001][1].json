@@ -125,7 +125,7 @@
                 "name": "TEXT.CONCAT",
                 "args": [
                   {
-                    "name": "arg1",
+                    "name": "text1",
                     "value": {
                       "type": "field",
                       "returnType": "text",
@@ -133,7 +133,7 @@
                     }
                   },
                   {
-                    "name": "arg2",
+                    "name": "text2",
                     "value": {
                       "type": "value",
                       "returnType": "text",

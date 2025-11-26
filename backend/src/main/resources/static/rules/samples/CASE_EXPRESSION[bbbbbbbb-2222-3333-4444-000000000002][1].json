@@ -193,6 +193,14 @@
                       "name": "DATE.DIFF",
                       "args": [
                         {
+                          "name": "units",
+                          "value": {
+                            "type": "value",
+                            "returnType": "text",
+                            "value": "days"
+                          }
+                        },
+                        {
                           "name": "date1",
                           "value": {
                             "type": "field",
@@ -206,14 +214,6 @@
                             "type": "value",
                             "returnType": "date",
                             "value": "2024-01-01"
-                          }
-                        },
-                        {
-                          "name": "unit",
-                          "value": {
-                            "type": "value",
-                            "returnType": "text",
-                            "value": "days"
                           }
                         }
                       ]

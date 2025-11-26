@@ -1,0 +1,108 @@
+{
+  "structure": "condition",
+  "returnType": "boolean",
+  "ruleType": "Validation",
+  "uuId": "7b5c3f9e-4a81-4e15-9d2f-8a1b7c3e5d92",
+  "version": 1,
+  "metadata": {
+    "id": "CONDITION_RULEREF_EXAMPLE",
+    "description": "Demonstrates Condition and ConditionGroup using ruleRef to reference other boolean rules"
+  },
+  "definition": {
+    "type": "conditionGroup",
+    "returnType": "boolean",
+    "name": "Loan Approval",
+    "conjunction": "AND",
+    "not": false,
+    "conditions": [
+      {
+        "type": "condition",
+        "returnType": "boolean",
+        "name": "Credit Check",
+        "ruleRef": {
+          "id": "CREDIT_SCORE_CHECK",
+          "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
+          "version": 1,
+          "returnType": "boolean",
+          "ruleType": "Validation",
+          "name": "Credit Score >= 650"
+        }
+      },
+      {
+        "type": "condition",
+        "returnType": "boolean",
+        "name": "Income Verification",
+        "ruleRef": {
+          "id": "INCOME_VERIFICATION",
+          "uuid": "bbbbbbbb-2222-3333-4444-000000000002",
+          "version": 1,
+          "returnType": "boolean",
+          "ruleType": "Validation",
+          "name": "Income > 3x Monthly Payment"
+        }
+      },
+      {
+        "type": "conditionGroup",
+        "returnType": "boolean",
+        "name": "Additional Requirements",
+        "conjunction": "OR",
+        "not": false,
+        "conditions": [
+          {
+            "type": "condition",
+            "returnType": "boolean",
+            "name": "Has Collateral",
+            "ruleRef": {
+              "id": "HAS_COLLATERAL",
+              "uuid": "cccccccc-3333-4444-5555-000000000003",
+              "version": 1,
+              "returnType": "boolean",
+              "ruleType": "Validation"
+            }
+          },
+          {
+            "type": "condition",
+            "returnType": "boolean",
+            "name": "Has Cosigner",
+            "ruleRef": {
+              "id": "HAS_COSIGNER",
+              "uuid": "dddddddd-4444-5555-6666-000000000004",
+              "version": 1,
+              "returnType": "boolean",
+              "ruleType": "Validation"
+            }
+          },
+          {
+            "type": "condition",
+            "returnType": "boolean",
+            "name": "Manual DTI Check",
+            "left": {
+              "type": "field",
+              "returnType": "number",
+              "field": "APPLICANT.DEBT_TO_INCOME_RATIO"
+            },
+            "operator": "less",
+            "right": {
+              "type": "value",
+              "returnType": "number",
+              "value": 43
+            }
+          }
+        ]
+      },
+      {
+        "type": "conditionGroup",
+        "returnType": "boolean",
+        "name": "Not Blacklisted",
+        "ruleRef": {
+          "id": "IS_BLACKLISTED",
+          "uuid": "eeeeeeee-5555-6666-7777-000000000005",
+          "version": 1,
+          "returnType": "boolean",
+          "ruleType": "Validation",
+          "name": "Blacklist Check"
+        }
+      }
+    ]
+  }
+}

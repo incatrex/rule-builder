@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test suite for XUISemanticValidator
  * Tests x-ui-* custom validation rules from the schema
  * 
- * Schema Version: 2.0.3
+ * Schema Version: 2.1.0
  */
 class XUISemanticValidatorTest {
 
@@ -1156,5 +1156,291 @@ class XUISemanticValidatorTest {
         List<ValidationError> errors = validator.validate(rule);
 
         assertEquals(0, errors.size(), "Dynamic args function should allow any order");
+    }
+
+    // ==================== RULE REFERENCE CONDITION VALIDATION ====================
+
+    @Test
+    @DisplayName("Condition with valid boolean ruleRef should pass validation")
+    void testConditionWithValidBooleanRuleRef() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "condition",
+                "returnType": "boolean",
+                "name": "Test Condition",
+                "ruleRef": {
+                  "id": "IS_VALID_CUSTOMER",
+                  "uuid": "bbbbbbbb-2222-3333-4444-000000000001",
+                  "version": 1,
+                  "returnType": "boolean",
+                  "name": "Customer Validation"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertEquals(0, errors.size(), "Condition with boolean ruleRef should produce no errors");
+    }
+
+    @Test
+    @DisplayName("Condition with non-boolean ruleRef should fail validation")
+    void testConditionWithNonBooleanRuleRef() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "condition",
+                "returnType": "boolean",
+                "name": "Test Condition",
+                "ruleRef": {
+                  "id": "CALCULATE_TOTAL",
+                  "uuid": "bbbbbbbb-2222-3333-4444-000000000001",
+                  "version": 1,
+                  "returnType": "number",
+                  "name": "Calculate Total"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertEquals(1, errors.size(), "Condition with non-boolean ruleRef should produce one error");
+        ValidationError error = errors.get(0);
+        assertEquals("x-ui-validation", error.getType());
+        assertTrue(error.getMessage().contains("must return boolean"), 
+            "Error message should indicate boolean return type requirement");
+        assertTrue(error.getMessage().contains("number"), 
+            "Error message should mention the actual return type");
+    }
+
+    @Test
+    @DisplayName("Condition with both ruleRef and left/operator/right should fail validation")
+    void testConditionWithBothRuleRefAndManualProperties() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "condition",
+                "returnType": "boolean",
+                "name": "Test Condition",
+                "ruleRef": {
+                  "id": "IS_VALID",
+                  "uuid": "bbbbbbbb-2222-3333-4444-000000000001",
+                  "version": 1,
+                  "returnType": "boolean"
+                },
+                "left": {
+                  "type": "value",
+                  "returnType": "number",
+                  "value": 5
+                },
+                "operator": "equal",
+                "right": {
+                  "type": "value",
+                  "returnType": "number",
+                  "value": 10
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertTrue(errors.size() >= 1, "Condition with both ruleRef and manual properties should produce error(s)");
+        boolean foundMutualExclusivityError = errors.stream()
+            .anyMatch(e -> e.getMessage().contains("cannot have both ruleRef and left/operator/right"));
+        assertTrue(foundMutualExclusivityError, 
+            "Should have mutual exclusivity error");
+    }
+
+    @Test
+    @DisplayName("ConditionGroup with valid boolean ruleRef should pass validation")
+    void testConditionGroupWithValidBooleanRuleRef() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "conditionGroup",
+                "returnType": "boolean",
+                "name": "Test Group",
+                "ruleRef": {
+                  "id": "COMPLEX_VALIDATION",
+                  "uuid": "cccccccc-3333-4444-5555-000000000001",
+                  "version": 1,
+                  "returnType": "boolean",
+                  "name": "Complex Validation Rule"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertEquals(0, errors.size(), "ConditionGroup with boolean ruleRef should produce no errors");
+    }
+
+    @Test
+    @DisplayName("ConditionGroup with non-boolean ruleRef should fail validation")
+    void testConditionGroupWithNonBooleanRuleRef() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "conditionGroup",
+                "returnType": "boolean",
+                "name": "Test Group",
+                "ruleRef": {
+                  "id": "CALCULATE_SCORE",
+                  "uuid": "cccccccc-3333-4444-5555-000000000001",
+                  "version": 1,
+                  "returnType": "text",
+                  "name": "Score Calculation"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertEquals(1, errors.size(), "ConditionGroup with non-boolean ruleRef should produce one error");
+        ValidationError error = errors.get(0);
+        assertEquals("x-ui-validation", error.getType());
+        assertTrue(error.getMessage().contains("must return boolean"), 
+            "Error message should indicate boolean return type requirement");
+        assertTrue(error.getMessage().contains("text"), 
+            "Error message should mention the actual return type");
+    }
+
+    @Test
+    @DisplayName("ConditionGroup with both ruleRef and conjunction/conditions should fail validation")
+    void testConditionGroupWithBothRuleRefAndManualProperties() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "conditionGroup",
+                "returnType": "boolean",
+                "name": "Test Group",
+                "ruleRef": {
+                  "id": "IS_VALID",
+                  "uuid": "cccccccc-3333-4444-5555-000000000001",
+                  "version": 1,
+                  "returnType": "boolean"
+                },
+                "conjunction": "AND",
+                "not": false,
+                "conditions": [
+                  {
+                    "type": "condition",
+                    "returnType": "boolean",
+                    "name": "Test",
+                    "left": {"type": "value", "returnType": "number", "value": 5},
+                    "operator": "equal",
+                    "right": {"type": "value", "returnType": "number", "value": 10}
+                  }
+                ]
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertTrue(errors.size() >= 1, "ConditionGroup with both ruleRef and manual properties should produce error(s)");
+        boolean foundMutualExclusivityError = errors.stream()
+            .anyMatch(e -> e.getMessage().contains("cannot have both ruleRef and conjunction/conditions"));
+        assertTrue(foundMutualExclusivityError, 
+            "Should have mutual exclusivity error");
+    }
+
+    @Test
+    @DisplayName("Nested conditions with ruleRef should validate correctly")
+    void testNestedConditionsWithRuleRef() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "version": 1,
+              "metadata": { "id": "TEST", "description": "Test" },
+              "definition": {
+                "type": "conditionGroup",
+                "returnType": "boolean",
+                "name": "Parent Group",
+                "conjunction": "AND",
+                "not": false,
+                "conditions": [
+                  {
+                    "type": "condition",
+                    "returnType": "boolean",
+                    "name": "Rule Ref Condition",
+                    "ruleRef": {
+                      "id": "CHECK_1",
+                      "uuid": "dddddddd-4444-5555-6666-000000000001",
+                      "version": 1,
+                      "returnType": "boolean"
+                    }
+                  },
+                  {
+                    "type": "conditionGroup",
+                    "returnType": "boolean",
+                    "name": "Nested Group",
+                    "ruleRef": {
+                      "id": "CHECK_2",
+                      "uuid": "eeeeeeee-5555-6666-7777-000000000001",
+                      "version": 1,
+                      "returnType": "boolean"
+                    }
+                  }
+                ]
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        List<ValidationError> errors = validator.validate(rule);
+
+        assertEquals(0, errors.size(), "Nested conditions with boolean ruleRefs should produce no errors");
     }
 }

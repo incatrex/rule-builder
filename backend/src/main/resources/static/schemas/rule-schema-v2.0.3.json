@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.0.json",
-  "version": "2.1.0",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v2.0.3.json",
+  "version": "2.0.3",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Single source of truth with x-ui extensions for UI configuration",
   "type": "object",
@@ -104,41 +104,6 @@
       "enum": ["Reporting", "Transformation", "Aggregation", "Validation"],
       "description": "Rule type enumeration - single source of truth for rule types"
     },
-    "RuleReference": {
-      "type": "object",
-      "description": "Reference to another rule (shared across Expression, Condition, and ConditionGroup)",
-      "required": ["id", "uuid", "version", "returnType"],
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Rule identifier (human-readable ID)"
-        },
-        "uuid": {
-          "type": "string",
-          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-          "description": "Rule UUID for version tracking"
-        },
-        "version": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Rule version number"
-        },
-        "returnType": {
-          "type": "string",
-          "enum": ["boolean", "number", "text", "date"],
-          "description": "Expected return type of the referenced rule"
-        },
-        "ruleType": {
-          "$ref": "#/definitions/RuleType",
-          "description": "Rule type filter (optional, used to filter rule selection in UI)"
-        },
-        "name": {
-          "type": "string",
-          "description": "Optional display name for this rule reference"
-        }
-      },
-      "additionalProperties": false
-    },
     "CaseContent": {
       "type": "object",
       "required": ["whenClauses"],
@@ -187,12 +152,8 @@
     },
     "ConditionGroup": {
       "type": "object",
-      "required": ["type", "returnType", "name"],
+      "required": ["type", "returnType", "name", "conjunction", "not", "conditions"],
       "properties": {
-        "ruleRef": {
-          "$ref": "#/definitions/RuleReference",
-          "description": "Optional: If present, this group is backed by a rule reference instead of conjunction/conditions"
-        },
         "type": {
           "type": "string",
           "const": "conditionGroup",
@@ -235,34 +196,12 @@
           },
           "description": "Array of conditions or nested condition groups"
         }
-      },
-      "oneOf": [
-        {
-          "required": ["conjunction", "not", "conditions"],
-          "description": "Standard condition group with conjunction/conditions"
-        },
-        {
-          "required": ["ruleRef"],
-          "description": "Rule reference condition group",
-          "properties": {
-            "ruleRef": {
-              "properties": {
-                "returnType": { "const": "boolean" }
-              }
-            }
-          }
-        }
-      ],
-      "additionalProperties": false
+      }
     },
     "Condition": {
       "type": "object",
-      "required": ["type", "returnType", "name"],
+      "required": ["type", "returnType", "name", "left", "operator", "right"],
       "properties": {
-        "ruleRef": {
-          "$ref": "#/definitions/RuleReference",
-          "description": "Optional: If present, this condition is backed by a rule reference instead of left/operator/right"
-        },
         "type": {
           "type": "string",
           "const": "condition",
@@ -390,25 +329,7 @@
           ],
           "description": "Right side expression(s) - single expression for most operators, array of 2 for 'between'/'not_between', array of 1-10 for 'in'/'not_in', or null for 'is_empty'/'is_not_empty'"
         }
-      },
-      "oneOf": [
-        {
-          "required": ["left", "operator"],
-          "description": "Standard condition with left/operator/right"
-        },
-        {
-          "required": ["ruleRef"],
-          "description": "Rule reference condition",
-          "properties": {
-            "ruleRef": {
-              "properties": {
-                "returnType": { "const": "boolean" }
-              }
-            }
-          }
-        }
-      ],
-      "additionalProperties": false
+      }
     },
     "ExpressionGroup": {
       "type": "object",
@@ -734,9 +655,23 @@
           },
           "additionalProperties": false
         },
-        "ruleRef": {
-          "$ref": "#/definitions/RuleReference",
-          "description": "Rule reference details (only when type=ruleRef)"
+        "id": {
+          "type": "string",
+          "description": "Rule ID (only when type=ruleRef)"
+        },
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "Rule UUID (only when type=ruleRef)"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Rule version (only when type=ruleRef)"
+        },
+        "ruleType": {
+          "$ref": "#/definitions/RuleType",
+          "description": "Rule type filter (only when type=ruleRef, used to filter rule selection)"
         }
       },
       "oneOf": [
@@ -759,7 +694,7 @@
           }
         },
         {
-          "required": ["type", "returnType", "ruleRef"],
+          "required": ["type", "returnType", "id", "uuid", "version"],
           "properties": {
             "type": { "const": "ruleRef" }
           }
