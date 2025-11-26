@@ -76,15 +76,15 @@ config:
     [ ] ruleRef expansion?
     [ ] ruleRef for condition?
 
-[ ] rule Ref errors
-    [ ] error message shows uuid
-    [ ] expressions type defaulting to number
+[x] rule Ref errors
+    [x] error message shows uuid
+    [x] expressions type defaulting to number
 
 [x] add + exppression outside outside of ExpressionGroup
 
 [ ] expression groups and condition groups behave same way
 
-
+[ ] custom pop-ups
 
 Expand / Collapse Logic:
 
