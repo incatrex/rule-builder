@@ -38,8 +38,8 @@ const RuleReference = ({
     internalEvaluatedType
   } = value;
 
-  // Build rule key for selector
-  const ruleKey = id && uuid && version ? `${id}__${uuid}__v${version}` : null;
+  // Build rule key for selector (must match RuleSelector's format: ruleId.uuid)
+  const ruleKey = id && uuid ? `${id}.${uuid}` : null;
 
   const handleRuleTypeChange = (newRuleType) => {
     onChange({
