@@ -204,8 +204,10 @@ class RuleValidationLineNumberTest {
 
         // Invalid "conjunction" value is on line 18
         assertTrue(result.getErrorCount() > 0);
+        
         ValidationError conjunctionError = result.getErrors().stream()
-            .filter(err -> err.getPath().contains("conjunction"))
+            .filter(err -> (err.getPath() != null && err.getPath().contains("conjunction")) ||
+                          (err.getMessage() != null && err.getMessage().contains("conjunction")))
             .findFirst()
             .orElse(null);
         

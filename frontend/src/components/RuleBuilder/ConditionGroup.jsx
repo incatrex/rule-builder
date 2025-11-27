@@ -388,11 +388,8 @@ const ConditionGroup = ({
     const conditions = groupData.conditions || [];
     const updatedConditions = conditions.filter((_, i) => i !== index);
     
-    // Auto-unwrap: if only 1 condition remains, return it directly instead of keeping the group
-    if (updatedConditions.length === 1 && onChange) {
-      onChange(updatedConditions[0]);
-      return;
-    }
+    // Allow single-condition groups (useful for NOT toggle on groups)
+    // No auto-unwrap - keep the group structure
     
     // If removing results in 0 conditions, let parent handle it (likely remove the entire group)
     if (updatedConditions.length === 0 && onRemove) {

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.0.json",
-  "version": "2.1.0",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.1.json",
+  "version": "2.1.1",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Single source of truth with x-ui extensions for UI configuration",
   "type": "object",
@@ -168,8 +168,11 @@
       "required": ["when", "then"],
       "properties": {
         "when": {
-          "$ref": "#/definitions/ConditionGroup",
-          "description": "The condition that must be true for this clause"
+          "oneOf": [
+            { "$ref": "#/definitions/Condition" },
+            { "$ref": "#/definitions/ConditionGroup" }
+          ],
+          "description": "The condition that must be true for this clause - can be a single condition or a condition group"
         },
         "then": {
           "oneOf": [

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Button, Collapse, Input, Typography, Tag, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
+import Condition from './Condition';
 import Expression, { createDirectExpression } from './Expression';
 
 const { Text } = Typography;
@@ -235,9 +236,9 @@ const Case = ({
               ),
               children: (
                 <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                  {/* Condition Group */}
+                  {/* Condition or Condition Group */}
                   <div>
-                    <ConditionGroup
+                    <Condition
                       value={clause.when}
                       onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
                       config={config}

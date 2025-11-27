@@ -119,65 +119,25 @@ const Condition = ({
     }
   }, [value]);
 
-  // Handle single-item condition groups by extracting the condition
+  // Delegate all ConditionGroups to ConditionGroup component (including single-item groups)
   if (conditionData.type === 'conditionGroup') {
-    if (conditionData.conditions && conditionData.conditions.length === 1) {
-      // Single-item ConditionGroup - extract the condition and handle it directly
-      const singleCondition = conditionData.conditions[0];
-      
-      // Update the condition data to the single condition but keep ConditionGroup wrapper for saving
-      const handleSingleConditionChange = (newCondition) => {
-        // If the inner Condition created a multi-item ConditionGroup, pass it through unchanged
-        if (newCondition.type === 'conditionGroup' && newCondition.conditions?.length > 1) {
-          if (onChange) onChange(newCondition);
-          return;
-        }
-        
-        // Otherwise, wrap single condition in ConditionGroup
-        const updatedGroup = {
-          ...conditionData,
-          conditions: [newCondition]
-        };
-        if (onChange) onChange(updatedGroup);
-      };
-      
-      // Re-render with the single condition
-      return (
-        <Condition
-          value={singleCondition}
-          onChange={handleSingleConditionChange}
-          config={config}
-          darkMode={darkMode}
-          onRemove={onRemove}
-          depth={depth}
-          isSimpleCondition={isSimpleCondition}
-          compact={compact}
-          expansionPath={expansionPath}
-          isExpanded={isExpanded}
-          onToggleExpansion={onToggleExpansion}
-          isNew={isNew}
-        />
-      );
-    } else if (conditionData.conditions && conditionData.conditions.length > 1) {
-      // Multi-item ConditionGroup - delegate to ConditionGroup component
-      return (
-        <ConditionGroup
-          value={conditionData}
-          onChange={onChange}
-          config={config}
-          darkMode={darkMode}
-          onRemove={onRemove}
-          depth={depth}
-          isSimpleCondition={isSimpleCondition}
-          compact={compact}
-          expansionPath={expansionPath}
-          isExpanded={isExpanded}
-          onToggleExpansion={onToggleExpansion}
-          onSetExpansion={onSetExpansion}
-          isNew={isNew}
-        />
-      );
-    }
+    return (
+      <ConditionGroup
+        value={conditionData}
+        onChange={onChange}
+        config={config}
+        darkMode={darkMode}
+        onRemove={onRemove}
+        depth={depth}
+        isSimpleCondition={isSimpleCondition}
+        compact={compact}
+        expansionPath={expansionPath}
+        isExpanded={isExpanded}
+        onToggleExpansion={onToggleExpansion}
+        onSetExpansion={onSetExpansion}
+        isNew={isNew}
+      />
+    );
   }
 
   // Single condition rendering

@@ -98,3 +98,17 @@ New Rule:
 
     structure = expression: default to show these all expanded:
         Expresion --> Value 
+
+
+    CASE WHEN:
+
+Simple Condition:
+    Start with Condition
+    
+    Condition:
+        Group -> Converts condition to group with existing condition + new condition
+        Rule --> converts condition to a Rule Reference
+        Condition --> Preserves only the first condition
+
+    Group:
+        
