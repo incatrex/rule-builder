@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Space, Typography, Input, Button, Collapse, Switch } from 'antd';
-import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined, LinkOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined, LinkOutlined, BranchesOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
 import Expression, { createDirectExpression } from "./Expression";
 import RuleReference from './RuleReference';
@@ -444,8 +444,8 @@ const Condition = ({
                   checked={useRuleRef}
                   onChange={handleToggleRuleRef}
                   size="small"
-                  checkedChildren={<LinkOutlined />}
-                  unCheckedChildren="Manual"
+                  checkedChildren={<><LinkOutlined /> Rule</>}
+                  unCheckedChildren={<><BranchesOutlined /> Condition</>}
                   title={useRuleRef ? "Using rule reference" : "Using manual condition"}
                   onClick={(checked, e) => e.stopPropagation()}
                 />

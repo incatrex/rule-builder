@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from 'antd';
-import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined, LinkOutlined } from '@ant-design/icons';
+import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined, LinkOutlined, GroupOutlined, BranchesOutlined } from '@ant-design/icons';
 import {
   DndContext,
   closestCenter,
@@ -447,7 +447,7 @@ const ConditionGroup = ({
         <Button
           type="primary"
           size="small"
-          icon={<PlusOutlined />}
+          icon={<BranchesOutlined />}
           onClick={addCondition}
         >
           Add Condition
@@ -455,9 +455,10 @@ const ConditionGroup = ({
         
         <Button
           size="small"
+          icon={<GroupOutlined />}
           onClick={addConditionGroup}
         >
-          (+) Add Group
+          Add Group
         </Button>
       </Space>
       </Space>
@@ -494,8 +495,8 @@ const ConditionGroup = ({
                   checked={useRuleRef}
                   onChange={handleToggleRuleRef}
                   size="small"
-                  checkedChildren={<LinkOutlined />}
-                  unCheckedChildren="Manual"
+                  checkedChildren={<><LinkOutlined /> Rule</>}
+                  unCheckedChildren={<><GroupOutlined /> Group</>}
                   title={useRuleRef ? "Using rule reference" : "Using manual condition group"}
                   onClick={(checked, e) => e.stopPropagation()}
                 />
