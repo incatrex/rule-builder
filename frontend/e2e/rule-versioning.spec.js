@@ -58,19 +58,26 @@ test.describe('Rule Versioning E2E Tests', () => {
     // Set Rule ID to unique test ID using test ID
     await page.getByTestId('rule-id-input').fill(testRuleId);
 
-    // Set Condition Group name to "Condition v1"
-    // Expand the condition group if needed
-    const conditionGroupCollapse = page.locator('.ant-collapse').filter({ hasText: /Condition Group/i }).first();
-    await conditionGroupCollapse.click();
+    // Default structure is now a simple Condition (no longer ConditionGroup by default)
+    // We'll work with the Condition instead of converting to ConditionGroup
+    // Wait for the condition collapse to be ready
+    await page.waitForTimeout(1000);
+    
+    // Expand the condition collapse to see its content
+    const conditionCollapse = page.locator('.ant-collapse-header').first();
+    await conditionCollapse.click();
     await page.waitForTimeout(500);
     
-    // Click the edit icon using test ID
-    await page.getByTestId('conditionGroup-0-name-edit-icon').click();
+    // Edit the condition name to "Condition v1"
+    // Look for the name edit icon
+    const editIcon = page.locator('.anticon-edit').first();
+    await editIcon.click();
     await page.waitForTimeout(300);
     
-    // Fill in the condition group name using test ID
-    await page.getByTestId('conditionGroup-0-name-input').fill('Condition v1');
-    await page.getByTestId('conditionGroup-0-name-input').press('Enter');
+    // Fill in the condition name
+    const nameInput = page.locator('input[value*="Condition"]').first();
+    await nameInput.fill('Condition v1');
+    await nameInput.press('Enter');
     await page.waitForTimeout(300);
     
     // Save the rule using test ID
@@ -116,12 +123,15 @@ test.describe('Rule Versioning E2E Tests', () => {
     await expect(ruleHistoryCard.locator('.ant-table-tbody tr:not([aria-hidden])').first()).toBeVisible({ timeout: 10000 });
     await expect(ruleHistoryCard.locator('.ant-table-tbody').locator('text=1').first()).toBeVisible();
 
-    console.log('  - Editing condition group name...');
-    // Change Condition Group name to "Condition v2" using test IDs
-    await page.getByTestId('conditionGroup-0-name-edit-icon').click();
+    console.log('  - Editing condition name...');
+    // Change Condition name to "Condition v2"
+    // Click the edit icon (not using test ID since it's a simple Condition now)
+    const editIcon2 = page.locator('.anticon-edit').first();
+    await editIcon2.click();
     await page.waitForTimeout(300);
-    await page.getByTestId('conditionGroup-0-name-input').fill('Condition v2');
-    await page.getByTestId('conditionGroup-0-name-input').press('Enter');
+    const nameInput2 = page.locator('input[value*="Condition"]').first();
+    await nameInput2.fill('Condition v2');
+    await nameInput2.press('Enter');
     await page.waitForTimeout(300);
 
     console.log('  - Saving modified rule...');

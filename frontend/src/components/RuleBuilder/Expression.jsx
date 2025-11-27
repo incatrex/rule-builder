@@ -5,7 +5,6 @@ import moment from 'moment';
 import RuleReference from './RuleReference';
 import ExpressionGroup from './ExpressionGroup';
 import { getInternalMismatchMessage, getContextMismatchMessage, checkInternalTypeConsistency } from './utils/typeValidation';
-import { RuleService } from '../../services/RuleService';
 
 const { Text } = Typography;
 
@@ -129,10 +128,14 @@ const Expression = ({
           expressionData.uuid && 
           expressionData.hasInternalMismatch === undefined) {
         
+        if (!config?.onLoadRule) {
+          console.warn('[Expression] No onLoadRule callback provided in config for ruleRef validation');
+          return;
+        }
+        
         try {
-          const ruleService = new RuleService();
           const version = expressionData.version || 'latest';
-          const ruleData = await ruleService.getRuleVersion(expressionData.uuid, version);
+          const ruleData = await config.onLoadRule(expressionData.uuid, version);
           
           if (ruleData) {
             // Check for internal consistency

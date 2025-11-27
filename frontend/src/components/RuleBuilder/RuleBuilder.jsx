@@ -151,6 +151,19 @@ const RuleBuilder = forwardRef(({
     handleChange({ definition });
   };
 
+  // Enhance config with ruleService callbacks to avoid API calls in child components
+  const enhancedConfig = {
+    ...config,
+    // Callback to search/load rule list (supports filtering and pagination)
+    onSearchRules: async (ruleType = null) => {
+      return await ruleService.getRuleIds(ruleType);
+    },
+    // Callback to load a specific rule version
+    onLoadRule: async (uuid, version = 'latest') => {
+      return await ruleService.getRuleVersion(uuid, version);
+    }
+  };
+
   return (
     <RuleBuilderUI
       ruleData={ruleData}
@@ -158,7 +171,7 @@ const RuleBuilder = forwardRef(({
       loadingVersions={loadingVersions}
       ruleTypes={ruleTypes}
       isLoadedRule={isLoadedRule}
-      config={config}
+      config={enhancedConfig}
       darkMode={darkMode}
       selectedRuleUuid={selectedRuleUuid}
       onMetadataChange={handleMetadataChange}
