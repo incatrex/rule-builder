@@ -277,29 +277,20 @@ export const useRuleBuilder = ({
       };
     } else if (structure === 'condition') {
       definition = {
-        type: 'conditionGroup',
+        type: 'condition',
         returnType: 'boolean',
-        name: 'Main Condition',
-        conjunction: 'AND',
-        not: false,
-        conditions: [
-          {
-            type: 'condition',
-            returnType: 'boolean',
-            name: 'Condition 1',
-            left: {
-              type: 'field',
-              returnType: 'number',
-              field: 'TABLE1.NUMBER_FIELD_01'
-            },
-            operator: 'equal',
-            right: {
-              type: 'value',
-              returnType: 'number',
-              value: 0
-            }
-          }
-        ]
+        name: 'Condition 1',
+        left: {
+          type: 'field',
+          returnType: 'number',
+          field: 'TABLE1.NUMBER_FIELD_01'
+        },
+        operator: 'equal',
+        right: {
+          type: 'value',
+          returnType: 'number',
+          value: 0
+        }
       };
     } else if (structure === 'expression') {
       definition = createDirectExpression('value', 'number', 0);

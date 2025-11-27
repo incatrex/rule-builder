@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from 'antd';
 import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined, LinkOutlined, GroupOutlined, BranchesOutlined } from '@ant-design/icons';
+import ConditionSourceSelector from './ConditionSourceSelector';
 import {
   DndContext,
   closestCenter,
@@ -102,6 +103,7 @@ const ConditionGroup = ({
   depth = 0, 
   isSimpleCondition = false, 
   compact = false,
+  hideHeader = false,
   expansionPath = 'conditionGroup-0',
   isExpanded,
   onToggleExpansion,
@@ -117,8 +119,13 @@ const ConditionGroup = ({
   });
   const [editingName, setEditingName] = useState(false);
   
-  // Track whether we're in ruleRef mode
-  const [useRuleRef, setUseRuleRef] = useState(!!groupData.ruleRef);
+  // Track source type: 'condition', 'conditionGroup', or 'ruleRef'
+  const determineSourceType = (data) => {
+    if (data.ruleRef) return 'ruleRef';
+    if (data.type === 'condition') return 'condition';
+    return 'conditionGroup';
+  };
+  const [sourceType, setSourceType] = useState(determineSourceType(groupData));
   
   // Use centralized expansion state
   const expanded = isExpanded(expansionPath);
@@ -126,7 +133,7 @@ const ConditionGroup = ({
   useEffect(() => {
     if (value) {
       setGroupData(value);
-      setUseRuleRef(!!value.ruleRef);
+      setSourceType(determineSourceType(value));
     }
   }, [value]);
 
@@ -167,12 +174,12 @@ const ConditionGroup = ({
     onChange(updated);
   };
 
-  // Toggle between manual condition group and rule reference
-  const handleToggleRuleRef = (checked) => {
-    setUseRuleRef(checked);
+  // Handle source type changes (condition, conditionGroup, or ruleRef)
+  const handleSourceChange = (newSourceType) => {
+    setSourceType(newSourceType);
     
-    if (checked) {
-      // Switching to ruleRef - clear manual properties, add ruleRef
+    if (newSourceType === 'ruleRef') {
+      // Switching to ruleRef - create new ruleRef
       const newData = {
         type: 'conditionGroup',
         returnType: 'boolean',
@@ -186,16 +193,92 @@ const ConditionGroup = ({
       };
       setGroupData(newData);
       onChange(newData);
+    } else if (newSourceType === 'condition') {
+      // Switching to single condition
+      if (groupData.type === 'conditionGroup' && groupData.conditions?.length > 0) {
+        // If coming from a group, extract the first condition
+        const firstCondition = groupData.conditions[0];
+        setGroupData(firstCondition);
+        onChange(firstCondition);
+      } else {
+        // Otherwise create a new empty condition
+        const { ruleRef, conjunction, conditions, ...rest } = groupData;
+        const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
+        const newData = {
+          ...rest,
+          type: 'condition',
+          returnType: 'boolean',
+          name: groupData.name || 'Condition',
+          left: { 
+            type: 'expressionGroup',
+            returnType: 'number',
+            expressions: [{ type: 'field', returnType: 'number', field: null }],
+            operators: []
+          },
+          operator: defaultOperator,
+          right: { 
+            type: 'expressionGroup',
+            returnType: 'number',
+            expressions: [{ type: 'value', returnType: 'number', value: '' }],
+            operators: []
+          }
+        };
+        setGroupData(newData);
+        onChange(newData);
+      }
     } else {
-      // Switching to manual - remove ruleRef, add manual properties
-      const { ruleRef, ...rest } = groupData;
+      // Switching to conditionGroup - wrap existing content + add new condition
+      const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
+      
+      // Keep the existing condition as-is (expressions can be direct Expression or ExpressionGroup)
+      const wrappedExistingCondition = {
+        ...groupData,
+        name: groupData.name || 'Condition 1'
+      };
+      
+      // Create new empty condition with direct expressions
+      const newCondition = {
+        type: 'condition',
+        returnType: 'boolean',
+        name: 'Condition 2',
+        left: { 
+          type: 'field',
+          returnType: 'number',
+          field: 'TABLE1.NUMBER_FIELD_01'
+        },
+        operator: defaultOperator,
+        right: { 
+          type: 'value',
+          returnType: 'number',
+          value: 0
+        }
+      };
+      
+      // Create group containing existing item + new condition
       const newData = {
-        ...rest,
+        type: 'conditionGroup',
+        returnType: 'boolean',
+        name: groupData.name || 'Group',
         conjunction: 'AND',
-        conditions: []
+        not: false,
+        conditions: [
+          wrappedExistingCondition,
+          newCondition
+        ]
       };
       setGroupData(newData);
       onChange(newData);
+      
+      // Auto-expand both conditions in the new group
+      if (onSetExpansion) {
+        onSetExpansion(`${expansionPath}-condition-0`, true);
+        onSetExpansion(`${expansionPath}-condition-1`, true);
+      }
+    }
+    
+    // Ensure the item stays expanded after source change
+    if (onSetExpansion) {
+      onSetExpansion(expansionPath, true);
     }
   };
 
@@ -337,7 +420,7 @@ const ConditionGroup = ({
   // Main content that will be rendered either wrapped in Collapse or standalone
   const groupContent = (
     <div>
-      {useRuleRef ? (
+      {sourceType === 'ruleRef' ? (
         <RuleReference
           value={groupData.ruleRef || {}}
           onChange={handleRuleRefChange}
@@ -345,6 +428,23 @@ const ConditionGroup = ({
           darkMode={darkMode}
           expectedType="boolean"
           compact={compact}
+        />
+      ) : sourceType === 'condition' ? (
+        <Condition
+          value={groupData}
+          onChange={(updatedCondition) => {
+            setGroupData(updatedCondition);
+            onChange(updatedCondition);
+          }}
+          config={config}
+          darkMode={darkMode}
+          compact={compact}
+          hideRemove={true}
+          expansionPath={`${expansionPath}-single`}
+          isExpanded={isExpanded}
+          onToggleExpansion={onToggleExpansion}
+          onSetExpansion={onSetExpansion}
+          isNew={isNew}
         />
       ) : (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -464,7 +564,14 @@ const ConditionGroup = ({
       </Space>
       )}
     </div>
-  );  // Compact mode: render without Collapse wrapper
+  );  
+  
+  // Hide header mode: render content directly without any wrapper (used when embedded in Condition)
+  if (hideHeader) {
+    return groupContent;
+  }
+  
+  // Compact mode: render without Collapse wrapper
   if (compact) {
     return (
       <div style={{ width: '100%' }}>
@@ -487,18 +594,16 @@ const ConditionGroup = ({
     >
       <Panel
         key="group"
+        style={{
+          background: backgroundColor
+        }}
         header={
           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Space size="small">
               <Space size="small" align="center">
-                <Switch
-                  checked={useRuleRef}
-                  onChange={handleToggleRuleRef}
-                  size="small"
-                  checkedChildren={<><LinkOutlined /> Rule</>}
-                  unCheckedChildren={<><GroupOutlined /> Group</>}
-                  title={useRuleRef ? "Using rule reference" : "Using manual condition group"}
-                  onClick={(checked, e) => e.stopPropagation()}
+                <ConditionSourceSelector
+                  value={sourceType}
+                  onChange={handleSourceChange}
                 />
               </Space>
               <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
