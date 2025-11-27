@@ -4,6 +4,7 @@ import { PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, EditOutlined
 import ConditionGroup from './ConditionGroup';
 import Condition from './Condition';
 import Expression, { createDirectExpression } from './Expression';
+import ConditionSourceSelector from './ConditionSourceSelector';
 
 const { Text } = Typography;
 
@@ -142,6 +143,106 @@ const Case = ({
     handleChange({ whenClauses: updatedClauses });
   };
 
+  // Helper to determine source type from when clause structure
+  const getWhenSourceType = (whenClause) => {
+    if (!whenClause) return 'conditionGroup';
+    if (whenClause.ruleRef) return 'ruleRef';
+    if (whenClause.type === 'condition') return 'condition';
+    if (whenClause.type === 'conditionGroup') return 'conditionGroup';
+    return 'conditionGroup';
+  };
+
+  // Handler for when source type changes
+  const handleWhenSourceChange = (index, newSourceType) => {
+    const currentWhen = caseData.whenClauses[index]?.when;
+    
+    if (newSourceType === 'ruleRef') {
+      // Switching to ruleRef
+      const newWhen = {
+        type: 'conditionGroup',
+        returnType: 'boolean',
+        name: currentWhen?.name || `Condition ${index + 1}`,
+        ruleRef: {
+          id: null,
+          uuid: null,
+          version: 1,
+          returnType: 'boolean'
+        }
+      };
+      updateWhenClause(index, { when: newWhen });
+    } else if (newSourceType === 'condition') {
+      // Switching to single condition
+      if (currentWhen?.type === 'conditionGroup' && currentWhen.conditions?.length > 0) {
+        // Extract first condition from group
+        const firstCondition = currentWhen.conditions[0];
+        updateWhenClause(index, { when: firstCondition });
+      } else {
+        // Create new empty condition
+        const newWhen = {
+          type: 'condition',
+          returnType: 'boolean',
+          name: currentWhen?.name || `Condition ${index + 1}`,
+          left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+          operator: config?.types?.number?.defaultConditionOperator || 'equal',
+          right: createDirectExpression('value', 'number', 0)
+        };
+        updateWhenClause(index, { when: newWhen });
+      }
+    } else {
+      // Switching to conditionGroup - wrap existing or create new
+      const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
+      
+      if (currentWhen?.type === 'condition') {
+        // Wrap existing condition in a group
+        const newWhen = {
+          type: 'conditionGroup',
+          returnType: 'boolean',
+          name: currentWhen.name || `Condition ${index + 1}`,
+          conjunction: 'AND',
+          not: false,
+          conditions: [
+            currentWhen,
+            {
+              type: 'condition',
+              returnType: 'boolean',
+              name: 'Condition 2',
+              left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+              operator: defaultOperator,
+              right: createDirectExpression('value', 'number', 0)
+            }
+          ]
+        };
+        updateWhenClause(index, { when: newWhen });
+        
+        // Auto-expand conditions in the new group
+        if (onSetExpansion) {
+          onSetExpansion(`${expansionPath}-when-${index}-condition-0`, true);
+          onSetExpansion(`${expansionPath}-when-${index}-condition-1`, true);
+        }
+      } else {
+        // Create new condition group
+        const newWhen = {
+          type: 'conditionGroup',
+          returnType: 'boolean',
+          name: currentWhen?.name || `Condition ${index + 1}`,
+          conjunction: 'AND',
+          not: false,
+          conditions: [
+            {
+              type: 'condition',
+              returnType: 'boolean',
+              name: 'Condition 1',
+              left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+              operator: defaultOperator,
+              right: createDirectExpression('value', 'number', 0)
+            }
+          ]
+        };
+        updateWhenClause(index, { when: newWhen });
+      }
+    }
+  };
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
         {/* WHEN Clauses */}
@@ -171,6 +272,10 @@ const Case = ({
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Space>
                     <Text strong>WHEN</Text>
+                    <ConditionSourceSelector
+                      value={getWhenSourceType(clause.when)}
+                      onChange={(newType) => handleWhenSourceChange(index, newType)}
+                    />
                     {editingStates[`${index}_name`] ? (
                       <Input
                         size="small"
