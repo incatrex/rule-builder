@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Select, Space, Typography, Input, Button, Collapse } from 'antd';
-import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
+import { Card, Select, Space, Typography, Input, Button, Collapse, Switch } from 'antd';
+import { PlusOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, CloseOutlined, LinkOutlined } from '@ant-design/icons';
 import ConditionGroup from './ConditionGroup';
 import Expression, { createDirectExpression } from "./Expression";
+import RuleReference from './RuleReference';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -97,6 +98,9 @@ const Condition = ({
   const [conditionData, setConditionData] = useState(initialValue);
   const [editingName, setEditingName] = useState(false);
   
+  // Track whether we're in ruleRef mode
+  const [useRuleRef, setUseRuleRef] = useState(!!conditionData.ruleRef);
+  
   // Use centralized expansion state
   const expanded = isExpanded(expansionPath);
 
@@ -105,6 +109,7 @@ const Condition = ({
     if (value) {
       const normalized = normalizeValue(value);
       setConditionData(normalized);
+      setUseRuleRef(!!normalized.ruleRef);
     }
   }, [value]);
 
@@ -172,6 +177,49 @@ const Condition = ({
   // Single condition rendering
   const handleChange = (updates) => {
     const updated = { ...conditionData, ...updates };
+    setConditionData(updated);
+    onChange(updated);
+  };
+
+  // Toggle between manual condition and rule reference
+  const handleToggleRuleRef = (checked) => {
+    setUseRuleRef(checked);
+    
+    if (checked) {
+      // Switching to ruleRef - clear manual properties, add ruleRef
+      const newData = {
+        type: conditionData.type,
+        returnType: conditionData.returnType,
+        name: conditionData.name || 'Rule Reference',
+        ruleRef: {
+          id: null,
+          uuid: null,
+          version: 1,
+          returnType: 'boolean'
+        }
+      };
+      setConditionData(newData);
+      onChange(newData);
+    } else {
+      // Switching to manual - remove ruleRef, add manual properties
+      const { ruleRef, ...rest } = conditionData;
+      const newData = {
+        ...rest,
+        left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+        operator: config?.types?.number?.defaultConditionOperator || 'equal',
+        right: createDirectExpression('value', 'number', 0)
+      };
+      setConditionData(newData);
+      onChange(newData);
+    }
+  };
+
+  // Handle rule reference changes
+  const handleRuleRefChange = (newRuleRef) => {
+    const updated = {
+      ...conditionData,
+      ruleRef: { ...newRuleRef, returnType: 'boolean' } // Ensure boolean for conditions
+    };
     setConditionData(updated);
     onChange(updated);
   };
@@ -391,6 +439,17 @@ const Condition = ({
         label: (
           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Space size="small">
+              <Space size="small" align="center">
+                <Switch
+                  checked={useRuleRef}
+                  onChange={handleToggleRuleRef}
+                  size="small"
+                  checkedChildren={<LinkOutlined />}
+                  unCheckedChildren="Manual"
+                  title={useRuleRef ? "Using rule reference" : "Using manual condition"}
+                  onClick={(checked, e) => e.stopPropagation()}
+                />
+              </Space>
               {editingName ? (
                 <Input
                   size="small"
@@ -436,6 +495,17 @@ const Condition = ({
           </Space>
         ),
         children: (
+      <div>
+        {useRuleRef ? (
+          <RuleReference
+            value={conditionData.ruleRef || {}}
+            onChange={handleRuleRefChange}
+            config={config}
+            darkMode={darkMode}
+            expectedType="boolean"
+            compact={compact}
+          />
+        ) : (
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
         {/* Left Expression */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -547,6 +617,8 @@ const Condition = ({
           </>
         )}
       </Space>
+        )}
+      </div>
         )
       }]}
     />

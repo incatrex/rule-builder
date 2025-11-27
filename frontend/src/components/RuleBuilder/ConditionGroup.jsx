@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from 'antd';
-import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined, LinkOutlined } from '@ant-design/icons';
 import {
   DndContext,
   closestCenter,
@@ -18,6 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Condition from './Condition';
+import RuleReference from './RuleReference';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -116,12 +117,16 @@ const ConditionGroup = ({
   });
   const [editingName, setEditingName] = useState(false);
   
+  // Track whether we're in ruleRef mode
+  const [useRuleRef, setUseRuleRef] = useState(!!groupData.ruleRef);
+  
   // Use centralized expansion state
   const expanded = isExpanded(expansionPath);
 
   useEffect(() => {
     if (value) {
       setGroupData(value);
+      setUseRuleRef(!!value.ruleRef);
     }
   }, [value]);
 
@@ -159,6 +164,48 @@ const ConditionGroup = ({
     
     // Keep the structure intact for internal component communication
     // Only clean at the final JSON output stage
+    onChange(updated);
+  };
+
+  // Toggle between manual condition group and rule reference
+  const handleToggleRuleRef = (checked) => {
+    setUseRuleRef(checked);
+    
+    if (checked) {
+      // Switching to ruleRef - clear manual properties, add ruleRef
+      const newData = {
+        type: 'conditionGroup',
+        returnType: 'boolean',
+        name: groupData.name || 'Rule Reference',
+        ruleRef: {
+          id: null,
+          uuid: null,
+          version: 1,
+          returnType: 'boolean'
+        }
+      };
+      setGroupData(newData);
+      onChange(newData);
+    } else {
+      // Switching to manual - remove ruleRef, add manual properties
+      const { ruleRef, ...rest } = groupData;
+      const newData = {
+        ...rest,
+        conjunction: 'AND',
+        conditions: []
+      };
+      setGroupData(newData);
+      onChange(newData);
+    }
+  };
+
+  // Handle rule reference changes
+  const handleRuleRefChange = (newRuleRef) => {
+    const updated = {
+      ...groupData,
+      ruleRef: { ...newRuleRef, returnType: 'boolean' } // Ensure boolean for condition groups
+    };
+    setGroupData(updated);
     onChange(updated);
   };
 
@@ -289,6 +336,17 @@ const ConditionGroup = ({
 
   // Main content that will be rendered either wrapped in Collapse or standalone
   const groupContent = (
+    <div>
+      {useRuleRef ? (
+        <RuleReference
+          value={groupData.ruleRef || {}}
+          onChange={handleRuleRefChange}
+          config={config}
+          darkMode={darkMode}
+          expectedType="boolean"
+          compact={compact}
+        />
+      ) : (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       {/* Group Controls - NOT and Conjunction */}
       <Space wrap>
@@ -402,10 +460,10 @@ const ConditionGroup = ({
           (+) Add Group
         </Button>
       </Space>
-    </Space>
-  );
-
-  // Compact mode: render without Collapse wrapper
+      </Space>
+      )}
+    </div>
+  );  // Compact mode: render without Collapse wrapper
   if (compact) {
     return (
       <div style={{ width: '100%' }}>
@@ -431,6 +489,17 @@ const ConditionGroup = ({
         header={
           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Space size="small">
+              <Space size="small" align="center">
+                <Switch
+                  checked={useRuleRef}
+                  onChange={handleToggleRuleRef}
+                  size="small"
+                  checkedChildren={<LinkOutlined />}
+                  unCheckedChildren="Manual"
+                  title={useRuleRef ? "Using rule reference" : "Using manual condition group"}
+                  onClick={(checked, e) => e.stopPropagation()}
+                />
+              </Space>
               <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
               {editingName ? (
                 <Input
