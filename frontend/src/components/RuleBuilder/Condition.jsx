@@ -5,12 +5,12 @@ import ConditionGroup from './ConditionGroup';
 import Expression, { createDirectExpression } from "./Expression";
 import RuleReference from './RuleReference';
 import ConditionSourceSelector from './ConditionSourceSelector';
+import { useNaming } from './contexts/NamingContext';
 import {
-  generateDefaultName,
-  updateNameOnTypeChange,
-  getNextNumber,
-  extractNumber
-} from './utils/conditionNaming';
+  createDefaultCondition,
+  createDefaultConditionGroup,
+  createDefaultRuleRef
+} from './utils/structureFactories';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -57,9 +57,6 @@ const { Text } = Typography;
  * - onToggleExpansion: Function to toggle expansion state
  * - isNew: Boolean indicating new vs loaded rule (for expansion defaults)
  * - showAddButton: Boolean to show Add Condition button (default: true at depth 0, false otherwise)
- * - parentNumber: Parent's numbering prefix for nested conditions (e.g., "1" for level 1, "1.2" for nested)
- * - position: Position at current level (null for root, 1-based index otherwise)
- * - siblings: Array of sibling conditions for calculating next number
  */
 const Condition = ({ 
   value, 
@@ -75,22 +72,14 @@ const Condition = ({
   onToggleExpansion,
   onSetExpansion,
   isNew = false,
-  showAddButton,
-  parentNumber = '',
-  position = null,
-  siblings = []
+  showAddButton
 }) => {
+  // Use naming context
+  const naming = useNaming();
   // Normalize the value to ensure it's a proper structure
   const normalizeValue = (val) => {
     if (!val) {
-      return {
-        type: 'condition',
-        returnType: 'boolean',
-        name: 'New Condition',
-        left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-        operator: config?.types?.number?.defaultConditionOperator || 'equal',
-        right: createDirectExpression('value', 'number', 0)
-      };
+      return createDefaultCondition(config, 'New Condition');
     }
     
     // If it's already a valid condition structure, return as-is
@@ -99,14 +88,7 @@ const Condition = ({
     }
     
     // Otherwise create a default condition
-    return {
-      type: 'condition',
-      returnType: 'boolean',
-      name: 'New Condition',
-      left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-      operator: config?.types?.number?.defaultConditionOperator || 'equal',
-      right: createDirectExpression('value', 'number', 0)
-    };
+    return createDefaultCondition(config, 'New Condition');
   };
 
   const initialValue = normalizeValue(value);
@@ -166,31 +148,17 @@ const Condition = ({
     const oldSourceType = sourceType;
     setSourceType(newSourceType);
     
-    // Determine current position if not provided
-    const currentPosition = position !== null ? position : (depth === 0 ? null : 1);
-    
     if (newSourceType === 'ruleRef') {
       // Switching to ruleRef - preserve name until rule selected
-      const newName = updateNameOnTypeChange(
+      const newName = naming.updateName(
         conditionData.name,
         oldSourceType === 'conditionGroup' ? 'conditionGroup' : 'condition',
         'ruleRef',
-        parentNumber,
-        currentPosition,
+        expansionPath,
         null // No rule ID yet
       );
       
-      const newData = {
-        type: conditionData.type,
-        returnType: 'boolean',
-        name: newName,
-        ruleRef: {
-          id: null,
-          uuid: null,
-          version: 1,
-          returnType: 'boolean'
-        }
-      };
+      const newData = createDefaultRuleRef(newName);
       setConditionData(newData);
       onChange(newData);
     } else if (newSourceType === 'condition') {
@@ -200,12 +168,11 @@ const Condition = ({
         const firstCondition = conditionData.conditions[0];
         
         // Update name appropriately
-        const newName = updateNameOnTypeChange(
+        const newName = naming.updateName(
           conditionData.name,
           'conditionGroup',
           'condition',
-          parentNumber,
-          currentPosition
+          expansionPath
         );
         
         const updated = {
@@ -218,73 +185,47 @@ const Condition = ({
         // Otherwise create a new empty condition
         const { ruleRef, conjunction, conditions, ...rest } = conditionData;
         
-        const newName = updateNameOnTypeChange(
+        const newName = naming.updateName(
           conditionData.name,
           oldSourceType,
           'condition',
-          parentNumber,
-          currentPosition
+          expansionPath
         );
         
-        const newData = {
-          ...rest,
-          type: 'condition',
-          returnType: 'boolean',
-          name: newName,
-          left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-          operator: config?.types?.number?.defaultConditionOperator || 'equal',
-          right: createDirectExpression('value', 'number', 0)
-        };
+        const newData = createDefaultCondition(config, newName);
         setConditionData(newData);
         onChange(newData);
       }
     } else {
       // Switching to conditionGroup - wrap existing content + add new condition
-      const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
-      
       // Update group name
-      const groupName = updateNameOnTypeChange(
+      const groupName = naming.updateName(
         conditionData.name,
         oldSourceType,
         'conditionGroup',
-        parentNumber,
-        currentPosition
+        expansionPath
       );
       
-      // Calculate parent number for children
-      const childParentNumber = currentPosition === null ? '' : 
-        (parentNumber ? `${parentNumber}.${currentPosition}` : `${currentPosition}`);
+      // Get names for children using context
+      const child1Name = naming.getNameForNew('condition', expansionPath, []);
+      const child2Name = naming.getNameForNew('condition', expansionPath, [{ name: child1Name }]);
       
-      // Keep the existing condition as-is with proper numbering
-      const child1Name = generateDefaultName('condition', childParentNumber, 1);
+      // Keep the existing condition with proper name
       const wrappedExistingCondition = {
         ...conditionData,
         name: child1Name
       };
       
-      // Create new empty condition with direct expressions
-      const child2Name = generateDefaultName('condition', childParentNumber, 2);
-      const newCondition = {
-        type: 'condition',
-        returnType: 'boolean',
-        name: child2Name,
-        left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-        operator: defaultOperator,
-        right: createDirectExpression('value', 'number', 0)
-      };
+      // Create new condition with proper name
+      const newCondition = createDefaultCondition(config, child2Name);
       
-      // Create group containing existing item + new condition
-      const newData = {
-        type: 'conditionGroup',
-        returnType: 'boolean',
-        name: groupName,
-        conjunction: 'AND',
-        not: false,
-        conditions: [
-          wrappedExistingCondition,
-          newCondition
-        ]
-      };
+      // Create group
+      const newData = createDefaultConditionGroup(
+        config,
+        groupName,
+        [wrappedExistingCondition, newCondition]
+      );
+      
       setConditionData(newData);
       onChange(newData);
       
@@ -307,11 +248,22 @@ const Condition = ({
     let newName = conditionData.name;
     if (newRuleRef && newRuleRef.id) {
       // Rule selected - use rule ID as name
-      newName = newRuleRef.id;
+      newName = naming.updateName(
+        conditionData.name,
+        'ruleRef',
+        'ruleRef',
+        expansionPath,
+        newRuleRef.id
+      );
     } else if (!newRuleRef || !newRuleRef.id) {
       // Rule cleared - revert to auto-generated name
-      const currentPosition = position !== null ? position : (depth === 0 ? null : 1);
-      newName = generateDefaultName('condition', parentNumber, currentPosition);
+      newName = naming.updateName(
+        conditionData.name,
+        'ruleRef',
+        'ruleRef',
+        expansionPath,
+        null
+      );
     }
     
     const updated = {

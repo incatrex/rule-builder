@@ -17,6 +17,7 @@ import React from 'react';
 import Expression from '../components/RuleBuilder/Expression';
 import ExpressionGroup from '../components/RuleBuilder/ExpressionGroup';
 import ConditionGroup from '../components/RuleBuilder/ConditionGroup';
+import { NamingProvider } from '../components/RuleBuilder/contexts/NamingContext';
 import { defaultTestExpansionProps } from './helpers/expansionHelpers';
 
 // Mock config
@@ -187,19 +188,21 @@ describe('Default Operator Configuration', () => {
     };
 
     const { container } = render(
-      <ConditionGroup
-        value={{
-          type: 'conditionGroup',
-          returnType: 'boolean',
-          name: 'Test Group',
-          conjunction: 'AND',
-          not: false,
-          conditions: []
-        }}
-        onChange={handleChange}
-        config={customConfig}
-        {...defaultTestExpansionProps}
-      />
+      <NamingProvider>
+        <ConditionGroup
+          value={{
+            type: 'conditionGroup',
+            returnType: 'boolean',
+            name: 'Test Group',
+            conjunction: 'AND',
+            not: false,
+            conditions: []
+          }}
+          onChange={handleChange}
+          config={customConfig}
+          {...defaultTestExpansionProps}
+        />
+      </NamingProvider>
     );
 
     // Find and click the "Add Condition" button
@@ -292,19 +295,21 @@ describe('Default Operator Configuration', () => {
     };
 
     const { container } = render(
-      <ConditionGroup
-        value={{
-          type: 'conditionGroup',
-          returnType: 'boolean',
-          name: 'Test Group',
-          conjunction: 'AND',
-          not: false,
-          conditions: []
-        }}
-        onChange={handleChange}
-        config={minimalConfig}
-        {...defaultTestExpansionProps}
-      />
+      <NamingProvider>
+        <ConditionGroup
+          value={{
+            type: 'conditionGroup',
+            returnType: 'boolean',
+            name: 'Test Group',
+            conjunction: 'AND',
+            not: false,
+            conditions: []
+          }}
+          onChange={handleChange}
+          config={minimalConfig}
+          {...defaultTestExpansionProps}
+        />
+      </NamingProvider>
     );
 
     // Find and click the "Add Condition" button
