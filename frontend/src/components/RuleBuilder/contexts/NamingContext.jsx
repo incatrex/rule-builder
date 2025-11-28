@@ -29,7 +29,10 @@ function extractParentNumberFromPath(path) {
   if (!path) return '';
   
   // Parse path segments to build numbering
-  // Example: 'condition-0' → '', 'condition-0-condition-1' → '1'
+  // Example paths:
+  // - 'condition-0' → '' (root level, no parent)
+  // - 'condition-0-condition-1' → '' (child of root group, parent has no number prefix)
+  // - 'condition-0-condition-1-condition-2' → '2' (grandchild, parent is "Condition 2")
   const segments = path.split('-');
   const numbers = [];
   
@@ -42,11 +45,14 @@ function extractParentNumberFromPath(path) {
     }
   }
   
-  // Root level has no parent number
-  if (numbers.length <= 1) return '';
+  // Root level (depth 1) or direct children of root (depth 2) have no parent number
+  if (numbers.length <= 2) return '';
   
-  // Remove last number (that's the current item, not parent)
+  // For deeper nesting, remove last number (current item) and join parent numbers
   numbers.pop();
+  
+  // Also remove the first number (root group number) since we want relative numbering
+  numbers.shift();
   
   return numbers.join('.');
 }
@@ -61,6 +67,10 @@ function extractPositionFromPath(path) {
   if (!path) return null;
   
   const segments = path.split('-');
+  
+  // Root level (single segment pair like 'condition-0') has no position for naming
+  if (segments.length <= 2) return null;
+  
   const lastIndex = segments[segments.length - 1];
   
   if (!isNaN(lastIndex)) {

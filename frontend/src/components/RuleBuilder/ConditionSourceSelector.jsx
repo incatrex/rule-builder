@@ -24,6 +24,7 @@ const ConditionSourceSelector = ({ value, onChange, disabled = false }) => {
 
   return (
     <Select
+      data-testid="condition-source-selector"
       value={value}
       onChange={onChange}
       style={{ width: isDropdownOpen ? 130 : 50, minWidth: 50, transition: 'width 0.2s' }}

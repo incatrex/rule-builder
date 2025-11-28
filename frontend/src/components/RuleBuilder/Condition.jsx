@@ -199,6 +199,12 @@ const Condition = ({
     } else {
       // Switching to conditionGroup - wrap existing content + add new condition
       // Update group name
+      console.log('[Condition] Converting to conditionGroup:', {
+        currentName: conditionData.name,
+        oldSourceType,
+        expansionPath
+      });
+      
       const groupName = naming.updateName(
         conditionData.name,
         oldSourceType,
@@ -206,9 +212,15 @@ const Condition = ({
         expansionPath
       );
       
-      // Get names for children using context
-      const child1Name = naming.getNameForNew('condition', expansionPath, []);
-      const child2Name = naming.getNameForNew('condition', expansionPath, [{ name: child1Name }]);
+      // Extract the number from the group name to use as parent number for children
+      // E.g., "Condition Group 2" → children "2.1", "2.2"
+      // E.g., "Condition Group" (root) → children "1", "2" (no prefix)
+      const groupNumberMatch = groupName.match(/Condition Group (\d+(?:\.\d+)*)$/);
+      const groupNumber = groupNumberMatch ? groupNumberMatch[1] : '';
+      
+      // Generate proper child names based on group number
+      const child1Name = groupNumber ? `Condition ${groupNumber}.1` : 'Condition 1';
+      const child2Name = groupNumber ? `Condition ${groupNumber}.2` : 'Condition 2';
       
       // Keep the existing condition with proper name
       const wrappedExistingCondition = {
@@ -225,6 +237,8 @@ const Condition = ({
         groupName,
         [wrappedExistingCondition, newCondition]
       );
+      
+      console.log('[Condition] Created new group data:', newData);
       
       setConditionData(newData);
       onChange(newData);
@@ -488,7 +502,10 @@ const Condition = ({
       items={[{
         key: 'condition',
         label: (
-          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space 
+            style={{ width: '100%', justifyContent: 'space-between' }}
+            data-testid={`condition-header-${(conditionData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
+          >
             <Space size="small">
               <Space size="small" align="center">
                 <ConditionSourceSelector
@@ -589,7 +606,6 @@ const Condition = ({
         </div>
 
         {/* Operator */}
-        {console.log('[Condition] Rendering operator wrapper, darkMode:', darkMode)}
         <Select
           value={conditionData.operator}
           onChange={handleOperatorChange}

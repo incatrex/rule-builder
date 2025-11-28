@@ -149,13 +149,23 @@ const Case = ({
   // Handler for when source type changes
   const handleWhenSourceChange = (index, newSourceType) => {
     const currentWhen = caseData.whenClauses[index]?.when;
+    const whenPath = `${expansionPath}-when-${index}`;
+    const oldSourceType = getWhenSourceType(currentWhen);
     
     if (newSourceType === 'ruleRef') {
-      // Switching to ruleRef
+      // Switching to ruleRef - preserve name until rule selected
+      const newName = naming.updateName(
+        currentWhen?.name,
+        oldSourceType,
+        'ruleRef',
+        whenPath,
+        null // No rule ID yet
+      );
+      
       const newWhen = {
         type: 'conditionGroup',
         returnType: 'boolean',
-        name: currentWhen?.name || `Condition ${index + 1}`,
+        name: newName,
         ruleRef: {
           id: null,
           uuid: null,
@@ -169,13 +179,33 @@ const Case = ({
       if (currentWhen?.type === 'conditionGroup' && currentWhen.conditions?.length > 0) {
         // Extract first condition from group
         const firstCondition = currentWhen.conditions[0];
-        updateWhenClause(index, { when: firstCondition });
+        
+        // Update name appropriately
+        const newName = naming.updateName(
+          currentWhen.name,
+          oldSourceType,
+          'condition',
+          whenPath
+        );
+        
+        const updated = {
+          ...firstCondition,
+          name: newName
+        };
+        updateWhenClause(index, { when: updated });
       } else {
         // Create new empty condition
+        const newName = naming.updateName(
+          currentWhen?.name,
+          oldSourceType,
+          'condition',
+          whenPath
+        );
+        
         const newWhen = {
           type: 'condition',
           returnType: 'boolean',
-          name: currentWhen?.name || `Condition ${index + 1}`,
+          name: newName,
           left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
           operator: config?.types?.number?.defaultConditionOperator || 'equal',
           right: createDirectExpression('value', 'number', 0)
@@ -186,46 +216,64 @@ const Case = ({
       // Switching to conditionGroup - wrap existing or create new
       const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
       
+      // Update group name
+      const groupName = naming.updateName(
+        currentWhen?.name,
+        oldSourceType,
+        'conditionGroup',
+        whenPath
+      );
+      
       if (currentWhen?.type === 'condition') {
         // Wrap existing condition in a group
+        // Get names for children using naming context
+        const child1Name = naming.getNameForNew('condition', whenPath, []);
+        const child2Name = naming.getNameForNew('condition', whenPath, [{ name: child1Name }]);
+        
+        const wrappedCondition = {
+          ...currentWhen,
+          name: child1Name
+        };
+        
+        const newCondition = {
+          type: 'condition',
+          returnType: 'boolean',
+          name: child2Name,
+          left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+          operator: defaultOperator,
+          right: createDirectExpression('value', 'number', 0)
+        };
+        
         const newWhen = {
           type: 'conditionGroup',
           returnType: 'boolean',
-          name: currentWhen.name || `Condition ${index + 1}`,
+          name: groupName,
           conjunction: 'AND',
           not: false,
-          conditions: [
-            currentWhen,
-            {
-              type: 'condition',
-              returnType: 'boolean',
-              name: 'Condition 2',
-              left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-              operator: defaultOperator,
-              right: createDirectExpression('value', 'number', 0)
-            }
-          ]
+          conditions: [wrappedCondition, newCondition]
         };
         updateWhenClause(index, { when: newWhen });
         
         // Auto-expand conditions in the new group
         if (onSetExpansion) {
-          onSetExpansion(`${expansionPath}-when-${index}-condition-0`, true);
-          onSetExpansion(`${expansionPath}-when-${index}-condition-1`, true);
+          onSetExpansion(`${whenPath}-condition-0`, true);
+          onSetExpansion(`${whenPath}-condition-1`, true);
         }
       } else {
         // Create new condition group
+        const child1Name = naming.getNameForNew('condition', whenPath, []);
+        
         const newWhen = {
           type: 'conditionGroup',
           returnType: 'boolean',
-          name: currentWhen?.name || `Condition ${index + 1}`,
+          name: groupName,
           conjunction: 'AND',
           not: false,
           conditions: [
             {
               type: 'condition',
               returnType: 'boolean',
-              name: 'Condition 1',
+              name: child1Name,
               left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
               operator: defaultOperator,
               right: createDirectExpression('value', 'number', 0)
@@ -396,6 +444,7 @@ const Case = ({
 
         {/* Add WHEN Button */}
         <Button 
+          data-testid="add-when-clause-button"
           type="dashed" 
           onClick={addWhenClause} 
           icon={<PlusOutlined />}

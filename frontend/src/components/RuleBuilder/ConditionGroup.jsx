@@ -183,14 +183,23 @@ const ConditionGroup = ({
 
   // Handle source type changes (condition, conditionGroup, or ruleRef)
   const handleSourceChange = (newSourceType) => {
+    const oldSourceType = sourceType;
     setSourceType(newSourceType);
     
     if (newSourceType === 'ruleRef') {
-      // Switching to ruleRef - create new ruleRef
+      // Switching to ruleRef - preserve name until rule selected
+      const newName = naming.updateName(
+        groupData.name,
+        'conditionGroup',
+        'ruleRef',
+        expansionPath,
+        null // No rule ID yet
+      );
+      
       const newData = {
         type: 'conditionGroup',
         returnType: 'boolean',
-        name: groupData.name || 'Rule Reference',
+        name: newName,
         ruleRef: {
           id: null,
           uuid: null,
@@ -205,17 +214,38 @@ const ConditionGroup = ({
       if (groupData.type === 'conditionGroup' && groupData.conditions?.length > 0) {
         // If coming from a group, extract the first condition
         const firstCondition = groupData.conditions[0];
-        setGroupData(firstCondition);
-        onChange(firstCondition);
+        
+        // Update name appropriately
+        const newName = naming.updateName(
+          groupData.name,
+          'conditionGroup',
+          'condition',
+          expansionPath
+        );
+        
+        const updated = {
+          ...firstCondition,
+          name: newName
+        };
+        setGroupData(updated);
+        onChange(updated);
       } else {
         // Otherwise create a new empty condition
         const { ruleRef, conjunction, conditions, ...rest } = groupData;
         const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
+        
+        const newName = naming.updateName(
+          groupData.name,
+          oldSourceType,
+          'condition',
+          expansionPath
+        );
+        
         const newData = {
           ...rest,
           type: 'condition',
           returnType: 'boolean',
-          name: groupData.name || 'Condition',
+          name: newName,
           left: { 
             type: 'expressionGroup',
             returnType: 'number',
@@ -237,17 +267,29 @@ const ConditionGroup = ({
       // Switching to conditionGroup - wrap existing content + add new condition
       const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
       
-      // Keep the existing condition as-is (expressions can be direct Expression or ExpressionGroup)
+      // Update group name
+      const groupName = naming.updateName(
+        groupData.name,
+        oldSourceType,
+        'conditionGroup',
+        expansionPath
+      );
+      
+      // Get names for children using naming context
+      const child1Name = naming.getNameForNew('condition', expansionPath, []);
+      const child2Name = naming.getNameForNew('condition', expansionPath, [{ name: child1Name }]);
+      
+      // Keep the existing condition with proper name
       const wrappedExistingCondition = {
         ...groupData,
-        name: groupData.name || 'Condition 1'
+        name: child1Name
       };
       
-      // Create new empty condition with direct expressions
+      // Create new empty condition with proper name
       const newCondition = {
         type: 'condition',
         returnType: 'boolean',
-        name: 'Condition 2',
+        name: child2Name,
         left: { 
           type: 'field',
           returnType: 'number',
@@ -509,6 +551,7 @@ const ConditionGroup = ({
       {/* Add Buttons */}
       <Space wrap style={{ marginTop: groupData.conditions && groupData.conditions.length > 0 ? '8px' : '0' }}>
         <Button
+          data-testid="add-condition-button"
           type="primary"
           size="small"
           icon={<BranchesOutlined />}
@@ -518,6 +561,7 @@ const ConditionGroup = ({
         </Button>
         
         <Button
+          data-testid="add-group-button"
           size="small"
           icon={<GroupOutlined />}
           onClick={addConditionGroup}
@@ -562,7 +606,10 @@ const ConditionGroup = ({
           background: backgroundColor
         }}
         header={
-          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space 
+            style={{ width: '100%', justifyContent: 'space-between' }}
+            data-testid={`conditiongroup-header-${(groupData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
+          >
             <Space size="small">
               <Space size="small" align="center">
                 <ConditionSourceSelector
