@@ -101,6 +101,7 @@ const RuleReference = ({
             <RuleSelector
               value={null}
               onChange={() => {}}
+              config={config}
               darkMode={darkMode}
               placeholder="Filter by type"
               showRuleTypeFilter={true}
@@ -126,6 +127,7 @@ const RuleReference = ({
         <RuleSelector
           value={ruleKey}
           onChange={handleRuleChange}
+          config={config}
           darkMode={darkMode}
           placeholder="Select a rule"
           showReturnType={true}

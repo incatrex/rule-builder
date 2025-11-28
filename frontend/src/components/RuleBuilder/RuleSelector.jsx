@@ -55,6 +55,8 @@ const RuleSelector = ({
   }, [selectedRuleType]);
 
   const loadRuleIds = async () => {
+    console.log('[RuleSelector] loadRuleIds called', { config: !!config, onSearchRules: !!config?.onSearchRules, selectedRuleType });
+    
     if (!config?.onSearchRules) {
       console.warn('[RuleSelector] No onSearchRules callback provided in config');
       return;
@@ -63,6 +65,7 @@ const RuleSelector = ({
     try {
       setLoading(true);
       const ruleIds = await config.onSearchRules(selectedRuleType);
+      console.log('[RuleSelector] Received ruleIds:', ruleIds);
       
       // Transform the data for the Select component
       const options = ruleIds.map(rule => {
@@ -88,6 +91,7 @@ const RuleSelector = ({
         ? options.filter(opt => opt.returnType === filterReturnType)
         : options;
       
+      console.log('[RuleSelector] Setting ruleList:', { optionsCount: options.length, filteredCount: filteredOptions.length, filterReturnType });
       setRuleList(filteredOptions);
     } catch (error) {
       console.error('Error loading rule IDs:', error);

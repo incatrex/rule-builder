@@ -50,6 +50,7 @@ const { Text } = Typography;
  * - isExpanded: Function to check if a path is expanded
  * - onToggleExpansion: Function to toggle expansion state
  * - isNew: Boolean indicating new vs loaded rule (for expansion defaults)
+ * - showAddButton: Boolean to show Add Condition button (default: true at depth 0, false otherwise)
  */
 const Condition = ({ 
   value, 
@@ -64,7 +65,8 @@ const Condition = ({
   isExpanded,
   onToggleExpansion,
   onSetExpansion,
-  isNew = false
+  isNew = false,
+  showAddButton
 }) => {
   // Normalize the value to ensure it's a proper structure
   const normalizeValue = (val) => {
@@ -654,6 +656,20 @@ const Condition = ({
           </>
         )}
       </Space>
+        )}
+        
+        {/* Add Condition button - converts to group (only at parent level) */}
+        {(showAddButton !== undefined ? showAddButton : depth === 0) && (
+          <div style={{ marginTop: '12px' }}>
+            <Button
+              type="primary"
+              size="small"
+              icon={<BranchesOutlined />}
+              onClick={() => handleSourceChange('conditionGroup')}
+            >
+              Add Condition
+            </Button>
+          </div>
         )}
       </div>
         )

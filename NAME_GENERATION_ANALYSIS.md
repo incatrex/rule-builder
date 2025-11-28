@@ -11,6 +11,10 @@ This document analyzes all locations where names are generated in the rule build
   - `Case.jsx` - `addWhenClause()` function (manual add)
   - `useRuleBuilder.js` - `initializeDefinition()` function (structure change)
 - Updated `getWhenSourceType` default return value from `'conditionGroup'` to `'condition'`
+- **Added "Add Condition" button to single conditions (2025-11-28)**:
+  - Appears at the bottom of single condition rendering
+  - Converts the single condition to a conditionGroup (same as ConditionSourceSelector "Group")
+  - Available in: Root Condition structure and Case WHEN clauses
 
 ---
 
@@ -268,6 +272,47 @@ const newData = {
 **Behavior:**
 - **From group:** Inherits first child's name
 - **New:** Preserves existing or uses "Condition"
+
+---
+
+### 2.3.1 Add Condition Button (Added 2025-11-28)
+**Location:** `Condition.jsx:664-675` (in single condition rendering)
+**Trigger:** User clicks "Add Condition" button at bottom of single condition
+
+**Button:**
+```jsx
+{(showAddButton !== undefined ? showAddButton : depth === 0) && (
+  <Button
+    type="primary"
+    size="small"
+    icon={<BranchesOutlined />}
+    onClick={() => handleSourceChange('conditionGroup')}
+  >
+    Add Condition
+  </Button>
+)}
+```
+
+**Visibility:**
+- **Shows** when `depth === 0` (parent level conditions)
+- **Hidden** when `depth > 0` (nested conditions inside ConditionGroup)
+- Can be overridden with `showAddButton` prop
+
+**Available in:**
+- ✅ Root level Condition structure (RuleBuilderUI.jsx) - `depth=0`
+- ✅ Case WHEN clauses (Case.jsx) - `depth=0`
+- ❌ ConditionGroup children - `depth > 0` (they use parent's Add buttons)
+
+**Behavior:**
+- Calls `handleSourceChange('conditionGroup')` - same as ConditionSourceSelector "Group" option
+- Wraps current condition in a group with a new empty condition
+- Styled to match ConditionGroup's "Add Condition" button (primary, BranchesOutlined icon)
+
+**Name Generation:**
+- See section 2.4 for details on how names are generated when converting to group
+- Group name: Preserves existing or uses "Group"
+- First child (existing): Preserves name or uses "Condition 1"
+- Second child (new): "Condition 2"
 
 ---
 
