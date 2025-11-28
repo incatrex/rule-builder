@@ -249,21 +249,12 @@ export const useRuleBuilder = ({
         whenClauses: [
           {
             when: {
-              type: 'conditionGroup',
+              type: 'condition',
               returnType: 'boolean',
               name: 'Condition 1',
-              conjunction: 'AND',
-              not: false,
-              conditions: [
-                {
-                  type: 'condition',
-                  returnType: 'boolean',
-                  name: 'Condition 1',
-                  left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-                  operator: 'equal',
-                  right: createDirectExpression('value', 'number', 0)
-                }
-              ]
+              left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+              operator: 'equal',
+              right: createDirectExpression('value', 'number', 0)
             },
             then: createDirectExpression('value', 'number', 0),
             resultName: 'Result 1',

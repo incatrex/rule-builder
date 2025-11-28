@@ -102,22 +102,12 @@ const Case = ({
   const addWhenClause = () => {
     const newWhen = {
       when: {
-        type: 'conditionGroup',
+        type: 'condition',
         returnType: 'boolean',
         name: `Condition ${caseData.whenClauses.length + 1}`,
-        conjunction: 'AND',
-        not: false,
-        conditions: [
-          // Auto-add an empty condition to the new group
-          {
-            type: 'condition',
-            returnType: 'boolean',
-            name: 'Condition 1',
-            left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-            operator: config?.types?.number?.defaultConditionOperator || 'equal',
-            right: createDirectExpression('value', 'number', 0)
-          }
-        ]
+        left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
+        operator: config?.types?.number?.defaultConditionOperator || 'equal',
+        right: createDirectExpression('value', 'number', 0)
       },
       then: createDirectExpression('value', 'number', 0),
       resultName: `Result ${caseData.whenClauses.length + 1}`
@@ -145,11 +135,11 @@ const Case = ({
 
   // Helper to determine source type from when clause structure
   const getWhenSourceType = (whenClause) => {
-    if (!whenClause) return 'conditionGroup';
+    if (!whenClause) return 'condition';
     if (whenClause.ruleRef) return 'ruleRef';
     if (whenClause.type === 'condition') return 'condition';
     if (whenClause.type === 'conditionGroup') return 'conditionGroup';
-    return 'conditionGroup';
+    return 'condition';
   };
 
   // Handler for when source type changes
