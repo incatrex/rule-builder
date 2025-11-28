@@ -1,0 +1,69 @@
+﻿Test Scenario,Steps,Expected Names
+New Simple Condition - Verify Default Names,"Create new rule with structure = ""condition""",Condition
+,Change source to Group,"Condition Group --> Condition 1, Condition 2"
+,Chage source to Rule,Condition
+,Select Rule,Condition name = {rule id}
+,Change source to Condition,Condition
+,,
+,Add Condition,"Condition Group --> Condition 1, Condition 2"
+,Change Condition 1 source to Group,"Condition Group 1 --> Condition 1.1, Condition 1.2"
+,Change Condition 1 source to Rule,Condition 1
+,Select Rule,Condition name = {rule id}
+,Change Condition 1 source to Condition,Condition 1
+,Change Condition 2 source to Group,"Condition Group 2 --> Condition 2.1, Condition 2.2"
+,Change Condition 2.1 source to Group,"Condition Group 2.1 --> Condition 2.1.1, Condition 2.1.2"
+,Add Group (to Root Group),"Condition Group 3 --> Condition 3.1, Condition 3.2"
+,,
+,"Change Condition 1 name to ""User Named 1""",User Named 1
+,Change User Named 1 source to Group,"User Named 1 --> Condition 1.1, Condition 1.2"
+,Change User Named 1 source to Condition,User Named 1
+,Change User Named 1 source to Group,"User Named 1 --> Condition 1.1, Condition 1.2"
+,"Change Condition 1.1 name to ""User Named 2""",User Named 2
+,Change User Named 1 source to Condition,User Named 1
+,,
+,Change User named 1 source to Rule,User Named 1
+,Select Rule,{rule id}
+,Change source back to Condition,Condition 1
+,,
+,,
+New Case Expression - Verify Default Names,"Create new rule and change struture to ""case""","WHEN: Condition 1,THEN: Result 1, ELSE: Default"
+,Change Condition 1 source to Group,"Condition Group 1 --> Condition 1.1, Condition 1.2"
+,Change Condition 1 source to Rule,Condition 1
+,Select Rule,Condition name = {rule id}
+,Change Condition 1 source to Condition,Condition 1
+,Change expression source in Result 1 to Rule,THEN: Result 1
+,Select Rule,THEN: {rule id}
+,Change expression source back to Value,THEN: Result 1
+,,
+,Add Condition,"Condition Group 1 --> Condition 1.1, Condition 1.2"
+,Change Condition 1.1 source to Group,"Condition Group 1.1 --> Condition 1.1.1, Condition 1.1.2"
+,Change Condition 1.1 source to Rule,Condition 1.1
+,Select Rule,Condition name = {rule id}
+,Change Condition 1.1 source to Condition,Condition 1.1
+,Change Condition 1.2 source to Group,"Condition Group 1.2 --> Condition 1.2.1, Condition 1.2.2"
+,Change Condition 1.2.1 source to Group,"Condition Group 1.2.1 --> Condition 1.2.1.1, Condition 1.2.1.2"
+,Add Group (to WHEN clause root),"Condition Group 1.3 --> Condition 1.3.1, Condition 1.3.2"
+,,
+,add WHEN clause,"WHEN: Condition 2,THEN: Result 2, ELSE: Default"
+,Change Condition 2 source to Group,"Condition Group 2 --> Condition 2.1, Condition 2.2"
+,Change Condition 2 source to Rule,Condition 2
+,Select Rule,Condition name = {rule id}
+,Change Condition 2 source to Condition,Condition 2
+,,
+,Add Condition,"Condition Group 2 --> Condition 2.1, Condition 2.2"
+,Change Condition 2.1 source to Group,"Condition Group 2.1 --> Condition 2.1.1, Condition 2.1.2"
+,Change Condition 2.1 source to Rule,Condition 2.1
+,Select Rule,Condition name = {rule id}
+,Change Condition 2.1 source to Condition,Condition 2.1
+,Change Condition 2.2 source to Group,"Condition Group 2.2 --> Condition 2.2.1, Condition 2.2.2"
+,Change Condition 2.2.1 source to Group,"Condition Group 2.2.1 --> Condition 2.2.1.1, Condition 2.2.1.2"
+,Add Group (to WHEN clause root),"Condition Group 2.3 --> Condition 2.3.1, Condition 2.3.2"
+,,
+,Change expression source in Result 2 to Rule,THEN: Result 2
+,Select Rule,THEN: {rule id}
+,Change expression source back to Value,THEN: Result 2
+,,
+,"Change Result 2 name to ""User Named Result 2""",THEN: User Named Result 2
+,Change expression source in Result 2 to Rule,THEN: User Named Result 2
+,Select Rule,THEN: {rule id}
+,change expression source to Field,THEN: Result 2

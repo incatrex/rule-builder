@@ -3,6 +3,11 @@ import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from
 import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined, LinkOutlined, GroupOutlined, BranchesOutlined } from '@ant-design/icons';
 import ConditionSourceSelector from './ConditionSourceSelector';
 import {
+  generateDefaultName,
+  getNextNumber,
+  extractNumber
+} from './utils/conditionNaming';
+import {
   DndContext,
   closestCenter,
   KeyboardSensor,
