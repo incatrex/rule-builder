@@ -2,49 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { message } from 'antd';
 import { createDirectExpression } from './Expression';
 import { checkInternalTypeConsistency, getInternalMismatchMessage } from './utils/typeValidation';
-
-/**
- * Remove UI-only properties from rule data before sending to parent/API
- * This includes: editing flags, expanded states, placeholder UUIDs, and id fields
- */
-const cleanRuleData = (data) => {
-  if (!data || typeof data !== 'object') {
-    return data;
-  }
-
-  const cleanObject = (obj) => {
-    if (!obj || typeof obj !== 'object') {
-      return obj;
-    }
-
-    if (Array.isArray(obj)) {
-      return obj.map(cleanObject);
-    }
-
-    const cleaned = {};
-    for (const [key, value] of Object.entries(obj)) {
-      // Skip UI-only properties
-      if (key.startsWith('editing') || 
-          key === 'elseExpanded' || 
-          key === '__placeholderUUID' ||
-          key === 'hasInternalMismatch' ||
-          key.includes('Expanded') ||
-          key.includes('editing')) {
-        continue;
-      }
-      
-      // Recursively clean nested objects
-      if (value && typeof value === 'object') {
-        cleaned[key] = cleanObject(value);
-      } else {
-        cleaned[key] = value;
-      }
-    }
-    return cleaned;
-  };
-
-  return cleanObject(data);
-};
+import { cleanRuleData, cleanForSave } from './utils/dataCleaners';
 
 /**
  * useRuleBuilder Hook
@@ -270,7 +228,7 @@ export const useRuleBuilder = ({
       definition = {
         type: 'condition',
         returnType: 'boolean',
-        name: 'Condition 1',
+        name: 'Condition',
         left: {
           type: 'field',
           returnType: 'number',
@@ -379,7 +337,7 @@ export const useRuleBuilder = ({
    * Get clean rule output (without UI state)
    */
   const getRuleOutput = useCallback(() => {
-    const cleanDefinition = removeUIState(ruleData.definition);
+    const cleanDefinition = cleanForSave(ruleData.definition);
     
     return {
       structure: ruleData.structure,
@@ -391,40 +349,6 @@ export const useRuleBuilder = ({
       definition: cleanDefinition
     };
   }, [ruleData]);
-
-  /**
-   * Recursively remove UI state properties
-   */
-  const removeUIState = (obj) => {
-    if (!obj || typeof obj !== 'object') {
-      return obj;
-    }
-
-    if (Array.isArray(obj)) {
-      return obj.map(item => removeUIState(item));
-    }
-
-    const cleaned = {};
-    for (const [key, value] of Object.entries(obj)) {
-      // Skip UI-only properties
-      if (key === 'isExpanded' || 
-          key === 'isCollapsed' || 
-          key === 'editingName' || 
-          key === 'editingResultName' ||
-          key === 'hasInternalMismatch') {
-        continue;
-      }
-      
-      // Recursively clean nested objects
-      if (value && typeof value === 'object') {
-        cleaned[key] = removeUIState(value);
-      } else {
-        cleaned[key] = value;
-      }
-    }
-    
-    return cleaned;
-  };
 
   /**
    * Load rule data from JSON

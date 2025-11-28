@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from 'antd';
 import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined, LinkOutlined, GroupOutlined, BranchesOutlined } from '@ant-design/icons';
 import ConditionSourceSelector from './ConditionSourceSelector';
+import { useNaming } from './contexts/NamingContext';
 import {
-  generateDefaultName,
-  getNextNumber,
-  extractNumber
-} from './utils/conditionNaming';
+  createDefaultCondition,
+  createDefaultConditionGroup
+} from './utils/structureFactories';
 import {
   DndContext,
   closestCenter,
@@ -115,6 +115,8 @@ const ConditionGroup = ({
   onSetExpansion,
   isNew = false
 }) => {
+  const naming = useNaming();
+  
   const [groupData, setGroupData] = useState(value || {
     type: 'conditionGroup',
     returnType: 'boolean',
@@ -299,26 +301,13 @@ const ConditionGroup = ({
 
   const addCondition = () => {
     const conditions = groupData.conditions || [];
-    // Get default operator from config.types.number.defaultConditionOperator
-    const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
-    const newCondition = {
-      type: 'condition',
-      returnType: 'boolean',
-      name: `Condition ${conditions.length + 1}`,
-      left: { 
-        type: 'expressionGroup',
-        returnType: 'number',
-        expressions: [{ type: 'field', returnType: 'number', field: null }],
-        operators: []
-      },
-      operator: defaultOperator,
-      right: { 
-        type: 'expressionGroup',
-        returnType: 'number',
-        expressions: [{ type: 'value', returnType: 'number', value: '' }],
-        operators: []
-      }
-    };
+    
+    // Get name from naming context
+    const newName = naming.getNameForNew('condition', expansionPath, conditions);
+    
+    // Create condition using factory
+    const newCondition = createDefaultCondition(config, newName);
+    
     handleChange({ conditions: [...conditions, newCondition] });
     
     // Auto-expand the new condition
@@ -330,52 +319,25 @@ const ConditionGroup = ({
 
   const addConditionGroup = () => {
     const conditions = groupData.conditions || [];
-    const newGroup = {
-      type: 'conditionGroup',
-      returnType: 'boolean',
-      name: `Group ${depth + 2}.${conditions.filter(c => c.type === 'conditionGroup').length + 1}`,
-      conjunction: 'AND',
-      not: false,
-      conditions: [
-        // Auto-add 2 empty conditions to the new group (to prevent auto-unwrap)
-        {
-          type: 'condition',
-          returnType: 'boolean',
-          name: 'Condition 1',
-          left: { 
-            type: 'expressionGroup',
-            returnType: 'number',
-            expressions: [{ type: 'field', returnType: 'number', field: null }],
-            operators: []
-          },
-          operator: null,
-          right: { 
-            type: 'expressionGroup',
-            returnType: 'number',
-            expressions: [{ type: 'value', returnType: 'number', value: '' }],
-            operators: []
-          }
-        },
-        {
-          type: 'condition',
-          returnType: 'boolean',
-          name: 'Condition 2',
-          left: { 
-            type: 'expressionGroup',
-            returnType: 'number',
-            expressions: [{ type: 'field', returnType: 'number', field: null }],
-            operators: []
-          },
-          operator: null,
-          right: { 
-            type: 'expressionGroup',
-            returnType: 'number',
-            expressions: [{ type: 'value', returnType: 'number', value: '' }],
-            operators: []
-          }
-        }
-      ]
-    };
+    
+    // Get name for the new group from naming context
+    const groupName = naming.getNameForNew('conditionGroup', expansionPath, conditions);
+    
+    // Create group using factory (includes 2 default conditions)
+    const newGroup = createDefaultConditionGroup(config, groupName);
+    
+    // Note: Factory creates children with generic names.
+    // We'll use the new group's expansion path to generate proper child names.
+    const newGroupPath = `${expansionPath}-conditionGroup-${conditions.length}`;
+    
+    // Get proper names for the child conditions
+    const child1Name = naming.getNameForNew('condition', newGroupPath, []);
+    const child2Name = naming.getNameForNew('condition', newGroupPath, [{ name: child1Name }]);
+    
+    // Update child condition names
+    newGroup.conditions[0].name = child1Name;
+    newGroup.conditions[1].name = child2Name;
+    
     handleChange({ conditions: [...conditions, newGroup] });
     
     // Auto-expand the new group and its conditions

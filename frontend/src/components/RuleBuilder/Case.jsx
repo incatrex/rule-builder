@@ -5,6 +5,8 @@ import ConditionGroup from './ConditionGroup';
 import Condition from './Condition';
 import Expression, { createDirectExpression } from './Expression';
 import ConditionSourceSelector from './ConditionSourceSelector';
+import { useNaming } from './contexts/NamingContext';
+import { createDefaultWhenClause } from './utils/structureFactories';
 
 const { Text } = Typography;
 
@@ -40,6 +42,8 @@ const Case = ({
   onSetExpansion,
   isNew = true
 }) => {
+  const naming = useNaming();
+  
   const [caseData, setCaseData] = useState(value || {
     whenClauses: [],
     elseClause: createDirectExpression('value', 'number', 0),
@@ -100,20 +104,20 @@ const Case = ({
   };
 
   const addWhenClause = () => {
-    const newWhen = {
-      when: {
-        type: 'condition',
-        returnType: 'boolean',
-        name: `Condition ${caseData.whenClauses.length + 1}`,
-        left: createDirectExpression('field', 'number', 'TABLE1.NUMBER_FIELD_01'),
-        operator: config?.types?.number?.defaultConditionOperator || 'equal',
-        right: createDirectExpression('value', 'number', 0)
-      },
-      then: createDirectExpression('value', 'number', 0),
-      resultName: `Result ${caseData.whenClauses.length + 1}`
-    };
-    const newIndex = caseData.whenClauses.length;
-    handleChange({ whenClauses: [...caseData.whenClauses, newWhen] });
+    const whenClauses = caseData.whenClauses || [];
+    const newIndex = whenClauses.length;
+    
+    // Get names from naming context
+    const conditionName = naming.getNameForNew('condition', expansionPath, whenClauses.map(wc => wc.when));
+    const resultName = naming.getResultName(newIndex);
+    
+    // Get returnType from existing clauses or default to 'number'
+    const returnType = caseData.elseClause?.returnType || 'number';
+    
+    // Create WHEN clause using factory
+    const newWhen = createDefaultWhenClause(config, conditionName, resultName, returnType);
+    
+    handleChange({ whenClauses: [...whenClauses, newWhen] });
     
     // Auto-expand the new WHEN clause
     if (onSetExpansion) {
