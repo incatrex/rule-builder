@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useRuleHistory } from '../useRuleHistory';
+import { useRuleHistory } from './useRuleHistory';
 
 describe('useRuleHistory Hook', () => {
   let mockFetchHistory;

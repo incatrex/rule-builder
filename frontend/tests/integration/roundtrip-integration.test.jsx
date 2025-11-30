@@ -11,12 +11,12 @@
 import { describe, test, expect, vi } from 'vitest';
 import { render, waitFor, act } from '@testing-library/react';
 import React, { useRef, useEffect } from 'react';
-import { RuleBuilder } from '../components/RuleBuilder';
+import { RuleBuilder } from '../../src/components/RuleBuilder';
 
 // Import sample JSON files
-import MATH_EXPRESSION from './fixtures/math-expression.json';
-import SIMPLE_CONDITION from './fixtures/simple-condition.json';
-import CASE_EXPRESSION from './fixtures/case-expression.json';
+import MATH_EXPRESSION from '../fixtures/math-expression.json';
+import SIMPLE_CONDITION from '../fixtures/simple-condition.json';
+import CASE_EXPRESSION from '../fixtures/case-expression.json';
 
 // Mock config - basic version for testing
 const mockConfig = {

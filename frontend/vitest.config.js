@@ -6,11 +6,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: './src/tests/setup.js',
+    setupFiles: './tests/setup.js',
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
       '**/e2e/**', // Exclude Playwright E2E tests
+      '**/manual-tests/**', // Exclude manual HTML test files
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
     ],

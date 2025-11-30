@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { useExpansionState } from '../useExpansionState';
+import { useExpansionState } from './useExpansionState';
 
 describe('useExpansionState', () => {
   describe('New Rule (isNew = true)', () => {

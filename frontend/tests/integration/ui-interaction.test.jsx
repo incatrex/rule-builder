@@ -14,11 +14,11 @@ import { describe, test, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import Expression from '../components/RuleBuilder/Expression';
-import ExpressionGroup from '../components/RuleBuilder/ExpressionGroup';
-import ConditionGroup from '../components/RuleBuilder/ConditionGroup';
-import { NamingProvider } from '../components/RuleBuilder/contexts/NamingContext';
-import { defaultTestExpansionProps } from './helpers/expansionHelpers';
+import Expression from '../../src/components/RuleBuilder/Expression';
+import ExpressionGroup from '../../src/components/RuleBuilder/ExpressionGroup';
+import ConditionGroup from '../../src/components/RuleBuilder/ConditionGroup';
+import { NamingProvider } from '../../src/components/RuleBuilder/contexts/NamingContext';
+import { defaultTestExpansionProps } from '../helpers/expansionHelpers';
 
 // Mock config
 const mockConfig = {

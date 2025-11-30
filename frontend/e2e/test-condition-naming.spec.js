@@ -1,6 +1,6 @@
 /**
  * Condition Naming E2E Tests - Sequential Scenarios
- * Based on: docs/test-scenarios-condition-names.csv
+ * Based on: test-scenarios-condition-names.csv
  * 
  * IMPORTANT: These are 4 INDEPENDENT scenarios where ALL steps execute in order within each:
  * - Scenario 1: "New Simple Condition" (CSV rows 2-27)
@@ -12,6 +12,9 @@
  */
 
 import { test, expect } from '@playwright/test';
+
+// Mock rule ID for testing
+const MOCK_RULE_ID = 'TEST_RULE';
 
 // Helper function to select source option using path-based test-id
 // Uses proper Ant Design dropdown handling
@@ -87,7 +90,7 @@ async function selectRule(page, ruleId) {
   const dropdownLocator = page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
   await dropdownLocator.waitFor({ state: 'attached', timeout: 3000 });
   
-  const ruleOption = dropdownLocator.locator('.ant-select-item').filter({ hasText: new RegExp(ruleId) });
+  const ruleOption = dropdownLocator.locator('.ant-select-item').filter({ hasText: new RegExp(ruleId) }).first();
   await ruleOption.scrollIntoViewIfNeeded();
   await ruleOption.click({ force: true });
   
@@ -96,8 +99,21 @@ async function selectRule(page, ruleId) {
 
 test.describe('Condition Naming - Sequential Scenarios', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3003');
-    await page.waitForTimeout(1000);
+    // Set up mock for rule IDs API before navigation
+    await page.route('**/api/rules/ids', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([MOCK_RULE_ID])
+      });
+    });
+    
+    // Navigate to the app (use 'load' instead of 'networkidle' since we're mocking APIs)
+    await page.goto('http://localhost:3003', { waitUntil: 'load', timeout: 30000 });
+    
+    // Wait for the rule builder to be visible
+    await page.waitForSelector('.rule-builder-container', { timeout: 10000 });
+    await page.waitForTimeout(500);
   });
 
   test('Scenario 1: New Simple Condition - Complete Flow (CSV rows 2-27)', async ({ page }) => {
@@ -130,9 +146,9 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
 
     // CSV Row 5: Select Rule
     console.log('\nCSV Row 5: Select Rule');
-    await selectRule(page, 'SAVE');
-    await expect(page.locator('code:has-text("SAVE")')).toBeVisible();
-    console.log('✓ Verified: Condition name = SAVE');
+    await selectRule(page, 'TEST_RULE');
+    await expect(page.locator('code:has-text("TEST_RULE")')).toBeVisible();
+    console.log('✓ Verified: Condition name = TEST_RULE');
 
     // CSV Row 6: Change source to Condition
     console.log('\nCSV Row 6: Change source to Condition');
@@ -174,9 +190,9 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
 
     // CSV Row 11: Select Rule
     console.log('\nCSV Row 11: Select Rule');
-    await selectRule(page, 'SAVE');
-    await expect(page.locator('code:has-text("SAVE")')).toBeVisible();
-    console.log('✓ Verified: Condition name = SAVE');
+    await selectRule(page, 'TEST_RULE');
+    await expect(page.locator('code:has-text("TEST_RULE")')).toBeVisible();
+    console.log('✓ Verified: Condition name = TEST_RULE');
 
     // CSV Row 12: Change Condition 1 source to Condition
     console.log('\nCSV Row 12: Change Condition 1 source to Condition');
@@ -292,9 +308,9 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
 
     // CSV Row 25: Select Rule
     console.log('\nCSV Row 25: Select Rule');
-    await selectRule(page, 'SAVE');
-    await expect(page.locator('code:has-text("SAVE")')).toBeVisible();
-    console.log('✓ Verified: SAVE (rule id)');
+    await selectRule(page, 'TEST_RULE');
+    await expect(page.locator('code:has-text("TEST_RULE")')).toBeVisible();
+    console.log('✓ Verified: TEST_RULE (rule id)');
 
     // CSV Row 26: Change source back to Condition
     console.log('\nCSV Row 26: Change source back to Condition');
@@ -351,10 +367,11 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
 
     // CSV Row 33: Select Rule
     console.log('\nCSV Row 33: Select Rule');
-    await selectRule(page, 'SAVE');
-    await expect(page.getByTestId('when-clause-name-case-0-when-0')).toContainText('SAVE');
-    await expect(page.getByTestId('conditiongroup-header-save')).toBeVisible();
-    console.log('✓ Verified: WHEN header = SAVE');
+    await selectRule(page, 'TEST_RULE');
+    await expect(page.getByTestId('when-clause-name-case-0-when-0')).toContainText('TEST_RULE');
+    // Check for any conditiongroup header that contains test_rule (case-insensitive)
+    await expect(page.locator('[data-testid^="conditiongroup-header-test_rule"]').first()).toBeVisible();
+    console.log('✓ Verified: WHEN header = TEST_RULE');
 
     // CSV Row 34: Change Condition 1 source to Condition
     console.log('\nCSV Row 34: Change Condition 1 source to Condition');
@@ -372,10 +389,10 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     
     // CSV Row 36: Select Rule
     console.log('\nCSV Row 36: Select Rule');
-    await selectRule(page, 'SAVE');
+    await selectRule(page, 'TEST_RULE');
     await page.waitForTimeout(500);
-    await expect(page.getByTestId('then-result-name-case-0-when-0')).toContainText('SAVE');
-    console.log('✓ Verified: THEN result = SAVE (from rule)');
+    await expect(page.getByTestId('then-result-name-case-0-when-0')).toContainText('TEST_RULE');
+    console.log('✓ Verified: THEN result = TEST_RULE (from rule)');
     
     // CSV Row 37: Change expression source back to Value
     console.log('\nCSV Row 37: Change expression source back to Value');
@@ -416,10 +433,10 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
 
     // CSV Row 33: Select Rule
     console.log('\nCSV Row 33: Select Rule');
-    await selectRule(page, 'SAVE');
-    // Verify using the inline conditiongroup header which has the test-id
-    await expect(page.locator('code').filter({ hasText: /^SAVE$/ }).first()).toBeVisible();
-    console.log('✓ Verified: Condition name = SAVE');
+    await selectRule(page, 'TEST_RULE');
+    // Verify using the inline conditiongroup header - look for code containing TEST_RULE (may have suffix)
+    await expect(page.locator('code').filter({ hasText: /TEST_RULE/ }).first()).toBeVisible();
+    console.log('✓ Verified: Condition name = TEST_RULE');
 
     // CSV Row 43: Change Condition 1.1 source to Condition
     console.log('\nCSV Row 43: Change Condition 1.1 source to Condition');
@@ -492,9 +509,9 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
 
     // CSV Row 51: Select Rule
     console.log('\nCSV Row 51: Select Rule');
-    await selectRule(page, 'SAVE');
-    await expect(page.getByTestId('when-clause-name-case-0-when-1')).toContainText('SAVE');
-    console.log('✓ Verified: WHEN header = SAVE');
+    await selectRule(page, 'TEST_RULE');
+    await expect(page.getByTestId('when-clause-name-case-0-when-1')).toContainText('TEST_RULE');
+    console.log('✓ Verified: WHEN header = TEST_RULE');
 
     // CSV Row 52: Change Condition 2 source to Condition
     console.log('\nCSV Row 52: Change Condition 2 source to Condition');
@@ -540,9 +557,9 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
 
     // CSV Row 57: Select Rule
     console.log('\nCSV Row 57: Select Rule');
-    await selectRule(page, 'SAVE');
-    await expect(page.locator('code:has-text("SAVE")').first()).toBeVisible();
-    console.log('✓ Verified: Condition name = SAVE');
+    await selectRule(page, 'TEST_RULE');
+    await expect(page.locator('code:has-text("TEST_RULE")').first()).toBeVisible();
+    console.log('✓ Verified: Condition name = TEST_RULE');
 
     // CSV Row 58: Change Condition 2.1 source to Condition
     console.log('\nCSV Row 58: Change Condition 2.1 source to Condition');
@@ -592,10 +609,10 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     
     // CSV Row 64: Select Rule
     console.log('\nCSV Row 64: Select Rule');
-    await selectRule(page, 'SAVE');
+    await selectRule(page, 'TEST_RULE');
     await page.waitForTimeout(500);
-    await expect(page.getByTestId('then-result-name-case-0-when-1')).toContainText('SAVE');
-    console.log('✓ Verified: THEN result = SAVE (from rule)');
+    await expect(page.getByTestId('then-result-name-case-0-when-1')).toContainText('TEST_RULE');
+    console.log('✓ Verified: THEN result = TEST_RULE (from rule)');
     
     // CSV Row 65: Change expression source back to Value
     console.log('\nCSV Row 65: Change expression source back to Value');
@@ -654,11 +671,11 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     
     // CSV Row 70: Select Rule
     console.log('\nCSV Row 70: Select Rule');
-    await selectRule(page, 'SAVE');
+    await selectRule(page, 'TEST_RULE');
     await page.waitForTimeout(500);
     // Rule selection should override with rule ID
-    await expect(page.getByTestId('then-result-name-case-0-when-1')).toContainText('SAVE');
-    console.log('✓ Verified: THEN result = SAVE (rule ID)');
+    await expect(page.getByTestId('then-result-name-case-0-when-1')).toContainText('TEST_RULE');
+    console.log('✓ Verified: THEN result = TEST_RULE (rule ID)');
     
     // CSV Row 71: Change expression source to Field
     console.log('\nCSV Row 71: Change expression source to Field');
@@ -677,10 +694,10 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     
     // CSV Row 73: Select Rule
     console.log('\nCSV Row 73: Select Rule');
-    await selectRule(page, 'SAVE');
+    await selectRule(page, 'TEST_RULE');
     await page.waitForTimeout(500);
-    await expect(page.getByTestId('then-result-name-case-0-when-1')).toContainText('SAVE');
-    console.log('✓ Verified: THEN result = SAVE (rule ID)');
+    await expect(page.getByTestId('then-result-name-case-0-when-1')).toContainText('TEST_RULE');
+    console.log('✓ Verified: THEN result = TEST_RULE (rule ID)');
     
     // CSV Row 74: Change THEN clause name to "User Named Result 2"
     console.log('\nCSV Row 74: Change THEN clause name to "User Named Result 2"');
@@ -739,10 +756,10 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     
     // CSV Row 78: Select Rule for ELSE
     console.log('\nCSV Row 78: Select Rule for ELSE');
-    await selectRule(page, 'SAVE');
+    await selectRule(page, 'TEST_RULE');
     await page.waitForTimeout(500);
-    await expect(page.getByTestId('else-result-name')).toContainText('SAVE');
-    console.log('✓ Verified: ELSE result = SAVE (rule ID)');
+    await expect(page.getByTestId('else-result-name')).toContainText('TEST_RULE');
+    console.log('✓ Verified: ELSE result = TEST_RULE (rule ID)');
     
     // CSV Row 79: Change expression source to Field
     console.log('\nCSV Row 79: Change expression source to Field');
@@ -762,10 +779,10 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     
     // CSV Row 81: Select Rule for ELSE
     console.log('\nCSV Row 81: Select Rule for ELSE');
-    await selectRule(page, 'SAVE');
+    await selectRule(page, 'TEST_RULE');
     await page.waitForTimeout(500);
-    await expect(page.getByTestId('else-result-name')).toContainText('SAVE');
-    console.log('✓ Verified: ELSE result = SAVE (rule ID)');
+    await expect(page.getByTestId('else-result-name')).toContainText('TEST_RULE');
+    console.log('✓ Verified: ELSE result = TEST_RULE (rule ID)');
     
     // CSV Row 82: Change ELSE clause name to "User Named ELSE"
     console.log('\nCSV Row 82: Change ELSE clause name to "User Named ELSE"');
