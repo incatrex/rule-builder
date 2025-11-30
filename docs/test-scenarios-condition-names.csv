@@ -7,7 +7,7 @@ New Simple Condition - Verify Default Names,"Create new rule with structure = ""
 ,,
 ,Add Condition,"Condition Group --> Condition 1, Condition 2"
 ,Change Condition 1 source to Group,"Condition Group 1 --> Condition 1.1, Condition 1.2"
-,Change Condition 1 source to Rule,Condition 1
+,Change Condition Group 1 source to Rule,Condition Group 1
 ,Select Rule,Condition name = {rule id}
 ,Change Condition 1 source to Condition,Condition 1
 ,Change Condition 2 source to Group,"Condition Group 2 --> Condition 2.1, Condition 2.2"
@@ -28,7 +28,7 @@ New Simple Condition - Verify Default Names,"Create new rule with structure = ""
 ,,
 New Case Expression - Verify Default Names,"Create new rule and change struture to ""case""","WHEN: Condition 1,THEN: Result 1, ELSE: Default"
 ,Change Condition 1 source to Group,"Condition Group 1 --> Condition 1.1, Condition 1.2"
-,Change Condition 1 source to Rule,Condition 1
+,Change Condition Group 1 source to Rule,Condition Group 1
 ,Select Rule,Condition name = {rule id}
 ,Change Condition 1 source to Condition,Condition 1
 ,Change expression source in Result 1 to Rule,THEN: Result 1
@@ -37,7 +37,7 @@ New Case Expression - Verify Default Names,"Create new rule and change struture 
 ,,
 ,Add Condition,"Condition Group 1 --> Condition 1.1, Condition 1.2"
 ,Change Condition 1.1 source to Group,"Condition Group 1.1 --> Condition 1.1.1, Condition 1.1.2"
-,Change Condition 1.1 source to Rule,Condition 1.1
+,Change Condition Group 1.1 source to Rule,Condition Group 1.1
 ,Select Rule,Condition name = {rule id}
 ,Change Condition 1.1 source to Condition,Condition 1.1
 ,Change Condition 1.2 source to Group,"Condition Group 1.2 --> Condition 1.2.1, Condition 1.2.2"
@@ -46,13 +46,13 @@ New Case Expression - Verify Default Names,"Create new rule and change struture 
 ,,
 ,add WHEN clause,"WHEN: Condition 2,THEN: Result 2, ELSE: Default"
 ,Change Condition 2 source to Group,"Condition Group 2 --> Condition 2.1, Condition 2.2"
-,Change Condition 2 source to Rule,Condition 2
+,Change Condition Group 2 source to Rule,Condition Group 2
 ,Select Rule,Condition name = {rule id}
 ,Change Condition 2 source to Condition,Condition 2
 ,,
 ,Add Condition,"Condition Group 2 --> Condition 2.1, Condition 2.2"
 ,Change Condition 2.1 source to Group,"Condition Group 2.1 --> Condition 2.1.1, Condition 2.1.2"
-,Change Condition 2.1 source to Rule,Condition 2.1
+,Change Condition Group 2.1 source to Rule,Condition Group 2.1
 ,Select Rule,Condition name = {rule id}
 ,Change Condition 2.1 source to Condition,Condition 2.1
 ,Change Condition 2.2 source to Group,"Condition Group 2.2 --> Condition 2.2.1, Condition 2.2.2"
@@ -63,7 +63,19 @@ New Case Expression - Verify Default Names,"Create new rule and change struture 
 ,Select Rule,THEN: {rule id}
 ,Change expression source back to Value,THEN: Result 2
 ,,
+New Case Expression - Verify THEN names,add WHEN clause,"WHEN: Condition 2,THEN: Result 2, ELSE: Default"
 ,"Change Result 2 name to ""User Named Result 2""",THEN: User Named Result 2
 ,Change expression source in Result 2 to Rule,THEN: User Named Result 2
 ,Select Rule,THEN: {rule id}
-,change expression source to Field,THEN: Result 2
+,Change expression source to Field,THEN: Result 2
+,Change expression source in THEN clause to Rule,THEN: Result 2
+,Select Rule,THEN: {rule id}
+,"Change THEN clause name to ""User Named Result 2""",THEN: User Named Result 2
+,,
+New Case Expression - Verify ELSE names,"Change ELSE name to ""User Named ELSE""",ELSE: User Named ELSE
+,Change expression source in ELSE to Rule,ELSE: User Named ELSE
+,Select Rule,ELSE: {rule id}
+,Change expression source to Field,ELSE: Default
+,Change expression source in THEN clause to Rule,ELSE: Default
+,Select Rule,ELSE: {rule id}
+,"Change THEN clause name to ""User Named ELSE""",ELSE: User Named ELSE

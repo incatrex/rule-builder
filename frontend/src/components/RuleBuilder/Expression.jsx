@@ -523,6 +523,7 @@ const Expression = ({
     
     return (
       <Select
+        data-testid={expansionPath ? `expression-source-selector-${expansionPath}` : 'expression-source-selector'}
         value={source}
         onChange={handleSourceChange}
         style={{ width: isDropdownOpen ? 120 : 50, minWidth: 50, transition: 'width 0.2s' }}

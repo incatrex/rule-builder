@@ -268,12 +268,21 @@ const ConditionGroup = ({
       const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
       
       // Update group name
+      console.log('[ConditionGroup] Converting to conditionGroup:', {
+        currentName: groupData.name,
+        oldSourceType,
+        newSourceType,
+        expansionPath
+      });
+      
       const groupName = naming.updateName(
         groupData.name,
         oldSourceType,
         'conditionGroup',
         expansionPath
       );
+      
+      console.log('[ConditionGroup] New group name:', groupName);
       
       // Get names for children using naming context
       const child1Name = naming.getNameForNew('condition', expansionPath, []);
@@ -307,7 +316,7 @@ const ConditionGroup = ({
       const newData = {
         type: 'conditionGroup',
         returnType: 'boolean',
-        name: groupData.name || 'Group',
+        name: groupName,
         conjunction: 'AND',
         not: false,
         conditions: [
@@ -333,8 +342,31 @@ const ConditionGroup = ({
 
   // Handle rule reference changes
   const handleRuleRefChange = (newRuleRef) => {
+    // Update name to rule ID when rule is selected, or revert when cleared
+    let newName = groupData.name;
+    if (newRuleRef && newRuleRef.id) {
+      // Rule selected - use rule ID as name
+      newName = naming.updateName(
+        groupData.name,
+        'ruleRef',
+        'ruleRef',
+        expansionPath,
+        newRuleRef.id
+      );
+    } else if (!newRuleRef || !newRuleRef.id) {
+      // Rule cleared - revert to auto-generated name
+      newName = naming.updateName(
+        groupData.name,
+        'ruleRef',
+        'ruleRef',
+        expansionPath,
+        null
+      );
+    }
+    
     const updated = {
       ...groupData,
+      name: newName,
       ruleRef: { ...newRuleRef, returnType: 'boolean' } // Ensure boolean for condition groups
     };
     setGroupData(updated);
@@ -426,6 +458,47 @@ const ConditionGroup = ({
   // Main content that will be rendered either wrapped in Collapse or standalone
   const groupContent = (
     <div>
+      {/* When hideHeader is true, show source selector inline */}
+      {hideHeader && (
+        <Space size="small" style={{ marginBottom: '8px' }}>
+          <ConditionSourceSelector
+            value={sourceType}
+            onChange={handleSourceChange}
+            expansionPath={expansionPath}
+          />
+          <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
+          {editingName ? (
+            <Input
+              data-testid="conditiongroup-name-input"
+              size="small"
+              value={groupData.name || ''}
+              onChange={(e) => handleChange({ name: e.target.value })}
+              onPressEnter={() => setEditingName(false)}
+              onBlur={() => setEditingName(false)}
+              autoFocus
+              style={{ width: 200 }}
+            />
+          ) : (
+            <>
+              <code 
+                data-testid={`conditiongroup-header-${(groupData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
+              >
+                {groupData.name || 'Unnamed Group'}
+              </code>
+              <EditOutlined
+                data-testid="conditiongroup-edit-icon"
+                onClick={() => setEditingName(true)}
+                style={{ 
+                  cursor: 'pointer', 
+                  marginLeft: '4px',
+                  color: darkMode ? '#1890ff' : undefined
+                }}
+              />
+            </>
+          )}
+        </Space>
+      )}
+      
       {sourceType === 'ruleRef' ? (
         <RuleReference
           value={groupData.ruleRef || {}}
@@ -551,7 +624,7 @@ const ConditionGroup = ({
       {/* Add Buttons */}
       <Space wrap style={{ marginTop: groupData.conditions && groupData.conditions.length > 0 ? '8px' : '0' }}>
         <Button
-          data-testid="add-condition-button"
+          data-testid={`add-condition-button-${expansionPath}`}
           type="primary"
           size="small"
           icon={<BranchesOutlined />}
@@ -561,7 +634,7 @@ const ConditionGroup = ({
         </Button>
         
         <Button
-          data-testid="add-group-button"
+          data-testid={`add-group-button-${expansionPath}`}
           size="small"
           icon={<GroupOutlined />}
           onClick={addConditionGroup}
@@ -615,12 +688,13 @@ const ConditionGroup = ({
                 <ConditionSourceSelector
                   value={sourceType}
                   onChange={handleSourceChange}
+                  expansionPath={expansionPath}
                 />
               </Space>
               <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
               {editingName ? (
                 <Input
-                  data-testid={`conditionGroup-${depth}-name-input`}
+                  data-testid="conditiongroup-name-input"
                   size="small"
                   value={groupData.name || ''}
                   onChange={(e) => handleChange({ name: e.target.value })}
@@ -634,7 +708,7 @@ const ConditionGroup = ({
                 <>
                   <Text code>{groupData.name || 'Unnamed Group'}</Text>
                   <EditOutlined 
-                    data-testid={`conditionGroup-${depth}-name-edit-icon`}
+                    data-testid="conditiongroup-edit-icon"
                     style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
                     onClick={(e) => {
                       e.stopPropagation();

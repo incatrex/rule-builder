@@ -95,24 +95,26 @@ const RuleReference = ({
       }}
     >
       <Space direction="vertical" size="small" style={{ width: '100%' }}>
-        {/* Row 1: Rule Type Filter + Returns Tag */}
-        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-          <div style={{ width: '150px' }}>
+        {/* Single RuleSelector with both filter and selector */}
+        <Space style={{ width: '100%', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ flex: 1 }}>
             <RuleSelector
-              value={null}
-              onChange={() => {}}
+              value={ruleKey}
+              onChange={handleRuleChange}
               config={config}
               darkMode={darkMode}
-              placeholder="Filter by type"
+              placeholder="Select a rule"
+              showReturnType={true}
+              filterReturnType={expectedType}
               showRuleTypeFilter={true}
-              showRuleIdSelector={false}
+              showRuleIdSelector={true}
               ruleTypes={config?.ruleTypes || []}
               initialRuleType={ruleType}
               onRuleTypeChange={handleRuleTypeChange}
             />
           </div>
           {id && (
-            <Space size={4}>
+            <Space size={4} style={{ marginTop: '4px' }}>
               <Text type="secondary" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
                 Returns:
               </Text>
@@ -122,21 +124,6 @@ const RuleReference = ({
             </Space>
           )}
         </Space>
-
-        {/* Row 2: Rule ID Selector - Full Width */}
-        <RuleSelector
-          value={ruleKey}
-          onChange={handleRuleChange}
-          config={config}
-          darkMode={darkMode}
-          placeholder="Select a rule"
-          showReturnType={true}
-          filterReturnType={expectedType}
-          showRuleTypeFilter={false}
-          showRuleIdSelector={true}
-          ruleTypes={config?.ruleTypes || []}
-          initialRuleType={ruleType}
-        />
 
         {/* Warning Messages */}
         {internalMismatchMessage && (

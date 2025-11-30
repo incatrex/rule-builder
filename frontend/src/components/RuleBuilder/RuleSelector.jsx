@@ -171,6 +171,7 @@ const RuleSelector = ({
       {/* Rule Type Filter */}
       {showRuleTypeFilter && (
         <Select
+          data-testid="rule-type-filter"
           value={selectedRuleType}
           onChange={handleRuleTypeChange}
           placeholder="Filter by Rule Type..."
@@ -183,6 +184,7 @@ const RuleSelector = ({
       {/* Rule Selector */}
       {showRuleIdSelector && (
         <Select
+          data-testid="rule-selector"
           showSearch
           value={value}
           placeholder={placeholder}

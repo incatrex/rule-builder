@@ -132,6 +132,7 @@ const Condition = ({
         onToggleExpansion={onToggleExpansion}
         onSetExpansion={onSetExpansion}
         isNew={isNew}
+        hideHeader={true}
       />
     );
   }
@@ -146,6 +147,7 @@ const Condition = ({
   // Handle source type changes (condition, conditionGroup, or ruleRef)
   const handleSourceChange = (newSourceType) => {
     const oldSourceType = sourceType;
+    console.log('[Condition.handleSourceChange]', { oldSourceType, newSourceType, currentData: conditionData });
     setSourceType(newSourceType);
     
     if (newSourceType === 'ruleRef') {
@@ -159,6 +161,7 @@ const Condition = ({
       );
       
       const newData = createDefaultRuleRef(newName);
+      console.log('[Condition.handleSourceChange] Created ruleRef:', newData);
       setConditionData(newData);
       onChange(newData);
     } else if (newSourceType === 'condition') {
@@ -212,15 +215,12 @@ const Condition = ({
         expansionPath
       );
       
-      // Extract the number from the group name to use as parent number for children
-      // E.g., "Condition Group 2" → children "2.1", "2.2"
-      // E.g., "Condition Group" (root) → children "1", "2" (no prefix)
-      const groupNumberMatch = groupName.match(/Condition Group (\d+(?:\.\d+)*)$/);
-      const groupNumber = groupNumberMatch ? groupNumberMatch[1] : '';
-      
-      // Generate proper child names based on group number
-      const child1Name = groupNumber ? `Condition ${groupNumber}.1` : 'Condition 1';
-      const child2Name = groupNumber ? `Condition ${groupNumber}.2` : 'Condition 2';
+      // Extract the number from the original position to use for child naming
+      // Use naming context to determine the proper parent number based on path
+      // E.g., if this is "Condition 1" (at depth 2), children should be "1.1", "1.2"
+      // E.g., if this is root "Condition" (at depth 1), children should be "1", "2"
+      const child1Name = naming.getNameForNew('condition', expansionPath, []);
+      const child2Name = naming.getNameForNew('condition', expansionPath, [{ name: child1Name }]);
       
       // Keep the existing condition with proper name
       const wrappedExistingCondition = {
@@ -511,10 +511,12 @@ const Condition = ({
                 <ConditionSourceSelector
                   value={sourceType}
                   onChange={handleSourceChange}
+                  expansionPath={expansionPath}
                 />
               </Space>
               {editingName ? (
                 <Input
+                  data-testid="condition-name-input"
                   size="small"
                   value={conditionData.name || ''}
                   onChange={(e) => handleChange({ name: e.target.value })}
@@ -533,6 +535,7 @@ const Condition = ({
                     {conditionData.name || 'Unnamed Condition'}
                   </Text>
                   <EditOutlined 
+                    data-testid="condition-edit-icon"
                     style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -558,7 +561,7 @@ const Condition = ({
           </Space>
         ),
         children: (
-      <div>
+      <div data-testid="condition-content" data-source-type={sourceType}>
         {sourceType === 'ruleRef' ? (
           <RuleReference
             value={conditionData.ruleRef || {}}

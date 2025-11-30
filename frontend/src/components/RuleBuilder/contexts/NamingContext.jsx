@@ -25,6 +25,10 @@ const NamingContext = createContext(null);
  * @param {string} path - Expansion path
  * @returns {string} Parent number (e.g., '1', '1.2', or '' for root)
  */
+/**
+ * Extract parent number from expansion path (for items AT this path)
+ * This is used when updating an existing item's name based on its position
+ */
 function extractParentNumberFromPath(path) {
   if (!path) return '';
   
@@ -52,6 +56,34 @@ function extractParentNumberFromPath(path) {
   numbers.pop();
   
   // Also remove the first number (root group number) since we want relative numbering
+  numbers.shift();
+  
+  return numbers.join('.');
+}
+
+/**
+ * Extract parent number for CHILDREN of the item at this path
+ * This is used when creating new children within a parent
+ */
+function extractParentNumberForChildren(parentPath) {
+  if (!parentPath) return '';
+  
+  const segments = parentPath.split('-');
+  const numbers = [];
+  
+  for (let i = 0; i < segments.length; i += 2) {
+    const type = segments[i];
+    const index = segments[i + 1];
+    
+    if (index !== undefined && !isNaN(index)) {
+      numbers.push(parseInt(index, 10) + 1);
+    }
+  }
+  
+  // Root level (depth 1) - children have no parent number prefix
+  if (numbers.length <= 1) return '';
+  
+  // Remove the first number (root group number) for relative numbering
   numbers.shift();
   
   return numbers.join('.');
@@ -92,7 +124,8 @@ export function NamingProvider({ children }) {
    * Get name for a new item at a given path
    */
   const getNameForNew = useCallback((type, expansionPath = '', siblings = []) => {
-    const parentNumber = extractParentNumberFromPath(expansionPath);
+    // When called with parent's path, we need parent number for the NEW children
+    const parentNumber = extractParentNumberForChildren(expansionPath);
     const nextNum = getNextNumber(siblings, parentNumber);
     return generateDefaultName(type, parentNumber, nextNum);
   }, []);

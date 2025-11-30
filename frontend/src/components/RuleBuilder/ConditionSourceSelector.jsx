@@ -12,8 +12,9 @@ import { BranchesOutlined, GroupOutlined, LinkOutlined } from '@ant-design/icons
  * - value: Current source type ('condition', 'conditionGroup', or 'ruleRef')
  * - onChange: Callback when source type changes (newSourceType) => void
  * - disabled: Whether the selector is disabled
+ * - expansionPath: Optional path for unique test-id (for testing)
  */
-const ConditionSourceSelector = ({ value, onChange, disabled = false }) => {
+const ConditionSourceSelector = ({ value, onChange, disabled = false, expansionPath }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const sourceOptions = [
@@ -24,7 +25,7 @@ const ConditionSourceSelector = ({ value, onChange, disabled = false }) => {
 
   return (
     <Select
-      data-testid="condition-source-selector"
+      data-testid={expansionPath ? `condition-source-selector-${expansionPath}` : 'condition-source-selector'}
       value={value}
       onChange={onChange}
       style={{ width: isDropdownOpen ? 130 : 50, minWidth: 50, transition: 'width 0.2s' }}

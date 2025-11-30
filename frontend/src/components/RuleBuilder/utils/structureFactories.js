@@ -86,7 +86,8 @@ export function createDefaultRuleRef(name) {
 export function createDefaultExpression(sourceType, returnType, defaultValue = null, name = null) {
   const expression = createDirectExpression(sourceType, returnType, defaultValue);
   
-  // Add name if provided (for Case expressions)
+  // Only add name if explicitly provided (for backwards compatibility with loaded rules)
+  // New expressions will leave name undefined so it can derive from rule ID or use defaults
   if (name) {
     return { ...expression, name };
   }
@@ -99,15 +100,23 @@ export function createDefaultExpression(sourceType, returnType, defaultValue = n
  * 
  * @param {Object} config - Rule builder configuration
  * @param {string} conditionName - Name for the WHEN condition
- * @param {string} resultName - Name for the THEN result
+ * @param {string} resultName - Name for the THEN result (optional - if not provided, will derive from expression)
  * @param {string} returnType - Return type for the result expression
  * @returns {Object} WhenClause object with when/then
  */
 export function createDefaultWhenClause(config, conditionName, resultName, returnType) {
-  return {
+  const clause = {
     when: createDefaultCondition(config, conditionName),
-    then: createDefaultExpression('value', returnType, getDefaultValueForType(returnType), resultName)
+    then: createDefaultExpression('value', returnType, getDefaultValueForType(returnType))
   };
+  
+  // Only include resultName if explicitly provided (for backwards compatibility with existing rules)
+  // New rules will derive the name from the expression (rule ID) or use default
+  if (resultName) {
+    clause.resultName = resultName;
+  }
+  
+  return clause;
 }
 
 /**
@@ -117,7 +126,7 @@ export function createDefaultWhenClause(config, conditionName, resultName, retur
  * @param {string} name - Name for the ELSE result (default: "Default")
  * @returns {Object} Expression object for ELSE
  */
-export function createDefaultElseClause(returnType, name = 'Default') {
+export function createDefaultElseClause(returnType, name = null) {
   return createDefaultExpression('value', returnType, getDefaultValueForType(returnType), name);
 }
 
