@@ -1,6 +1,6 @@
 /**
  * Condition Naming E2E Tests - Sequential Scenarios
- * Based on: test-scenarios-condition-names.csv
+ * Based on: test-condition-naming.csv
  * 
  * IMPORTANT: These are 4 INDEPENDENT scenarios where ALL steps execute in order within each:
  * - Scenario 1: "New Simple Condition" (CSV rows 2-27)
