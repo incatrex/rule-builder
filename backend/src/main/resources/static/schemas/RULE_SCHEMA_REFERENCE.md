@@ -44,7 +44,7 @@ Used for all expression handling - wraps expressions for mathematical operations
 ```
 
 ### Expression (Leaf Expressions)
-Corresponds to `Expression.jsx` UI component and internal `BaseExpression` component.
+Corresponds to `Expression.jsx` UI component (smart router that delegates to specific expression types).
 ```jsonc
 // Value Expression
 {
