@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert, Tooltip } from 'antd';
 import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import RuleSelector from './RuleSelector';
+import RuleReference from './RuleReference';
 import ExpressionGroup from './ExpressionGroup';
 import { getInternalMismatchMessage, getContextMismatchMessage, checkInternalTypeConsistency } from './utils/typeValidation';
-import { RuleService } from '../../services/RuleService';
 
 const { Text } = Typography;
 
@@ -129,10 +128,14 @@ const Expression = ({
           expressionData.uuid && 
           expressionData.hasInternalMismatch === undefined) {
         
+        if (!config?.onLoadRule) {
+          console.warn('[Expression] No onLoadRule callback provided in config for ruleRef validation');
+          return;
+        }
+        
         try {
-          const ruleService = new RuleService();
           const version = expressionData.version || 'latest';
-          const ruleData = await ruleService.getRuleVersion(expressionData.uuid, version);
+          const ruleData = await config.onLoadRule(expressionData.uuid, version);
           
           if (ruleData) {
             // Check for internal consistency
@@ -520,6 +523,7 @@ const Expression = ({
     
     return (
       <Select
+        data-testid={expansionPath ? `expression-source-selector-${expansionPath}` : 'expression-source-selector'}
         value={source}
         onChange={handleSourceChange}
         style={{ width: isDropdownOpen ? 120 : 50, minWidth: 50, transition: 'width 0.2s' }}
@@ -1034,112 +1038,40 @@ const Expression = ({
   };
 
   const renderRuleSelector = () => {
-    const ruleKey = expressionData.id && expressionData.uuid 
-      ? `${expressionData.id}.${expressionData.uuid}`
-      : null;
-    
-    // Check if rule return type matches expected type (contextual mismatch)
-    const hasTypeMismatch = expressionData.returnType && expectedType && 
-      expressionData.returnType !== expectedType;
-    
-    // Check if rule has internal inconsistency (declared vs evaluated type)
-    const hasInternalMismatch = expressionData.hasInternalMismatch === true;
+    // Build ruleRef object from expressionData
+    const ruleRef = {
+      id: expressionData.id || null,
+      uuid: expressionData.uuid || null,
+      version: expressionData.version || null,
+      returnType: expressionData.returnType || null,
+      ruleType: expressionData.ruleType || null,
+      hasInternalMismatch: expressionData.hasInternalMismatch,
+      internalDeclaredType: expressionData.internalDeclaredType,
+      internalEvaluatedType: expressionData.internalEvaluatedType
+    };
+
+    const handleRuleRefChange = (newRuleRef) => {
+      handleValueChange({
+        id: newRuleRef.id,
+        uuid: newRuleRef.uuid,
+        version: newRuleRef.version,
+        returnType: newRuleRef.returnType,
+        ruleType: newRuleRef.ruleType,
+        hasInternalMismatch: newRuleRef.hasInternalMismatch,
+        internalDeclaredType: newRuleRef.internalDeclaredType,
+        internalEvaluatedType: newRuleRef.internalEvaluatedType
+      });
+    };
     
     return (
-      <Card
-        size="small"
-        style={{
-          background: darkMode ? '#2a2a2a' : '#fafafa',
-          border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`
-        }}
-      >
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          {/* Row 1: Rule Type filter + Returns tag */}
-          <Space size={8} style={{ width: '100%', alignItems: 'center' }}>
-            <div style={{ width: '150px' }}>
-              <RuleSelector
-                value={null}
-                onChange={() => {}}
-                darkMode={darkMode}
-                showRuleTypeFilter={true}
-                showRuleIdSelector={false}
-                ruleTypes={config.ruleTypes || []}
-                initialRuleType={expressionData.ruleType}
-                onRuleTypeChange={(newRuleType) => {
-                  // Update the rule type when filter changes
-                  handleValueChange({
-                    ...expressionData,
-                    ruleType: newRuleType,
-                    id: null,
-                    uuid: null,
-                    version: null
-                  });
-                }}
-              />
-            </div>
-            {expressionData.id && (
-              <Space size={4}>
-                <Text type="secondary" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
-                  Returns:
-                </Text>
-                <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
-                  {expressionData.returnType || 'unknown'}
-                </Tag>
-              </Space>
-            )}
-          </Space>
-          
-          {/* Row 2: Rule ID selector - full width */}
-          <RuleSelector
-            value={ruleKey}
-            onChange={(selection) => {
-              if (!selection) {
-                handleValueChange({
-                  id: null,
-                  uuid: null,
-                  version: null,
-                  returnType: expectedType || 'boolean',
-                  ruleType: expressionData.ruleType
-                });
-                return;
-              }
-              
-              const { metadata } = selection;
-              handleValueChange({
-                id: metadata.ruleId,
-                uuid: metadata.uuid,
-                version: metadata.version,
-                returnType: metadata.returnType,
-                ruleType: metadata.ruleType,
-                hasInternalMismatch: metadata.hasInternalMismatch,
-                internalDeclaredType: metadata.internalDeclaredType,
-                internalEvaluatedType: metadata.internalEvaluatedType
-              });
-            }}
-            darkMode={darkMode}
-            placeholder="Select a rule..."
-            showRuleTypeFilter={false}
-            showRuleIdSelector={true}
-            ruleTypes={config.ruleTypes || []}
-            initialRuleType={expressionData.ruleType}
-            filterReturnType={expectedType}
-          />
-          
-          {/* Warning for internal rule inconsistency (always show if present) */}
-          {hasInternalMismatch && (
-            <Text type="warning" style={{ fontSize: '11px', display: 'block', color: '#ff4d4f' }}>
-              {getInternalMismatchMessage(expressionData.internalDeclaredType, expressionData.internalEvaluatedType)}
-            </Text>
-          )}
-          
-          {/* Warning for contextual type mismatch (only when there's an expected type) */}
-          {hasTypeMismatch && !hasInternalMismatch && (
-            <Text type="warning" style={{ fontSize: '11px', display: 'block' }}>
-              {getContextMismatchMessage(expectedType, expressionData.returnType)}
-            </Text>
-          )}
-        </Space>
-      </Card>
+      <RuleReference
+        value={ruleRef}
+        onChange={handleRuleRefChange}
+        config={config}
+        darkMode={darkMode}
+        expectedType={expectedType}
+        compact={false}
+      />
     );
   };
 

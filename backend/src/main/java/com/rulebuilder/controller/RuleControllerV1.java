@@ -112,7 +112,7 @@ public class RuleControllerV1 {
             
             // Get ruleId - try multiple possible locations
             String ruleId = extractRuleId(mutableRule);
-            ruleService.saveRule(ruleId, "1", mutableRule);
+            ruleService.saveRule(ruleId, "1", mutableRule); // Service will parse to int
             
             // Return response with generated UUID
             Map<String, Object> response = new HashMap<>();

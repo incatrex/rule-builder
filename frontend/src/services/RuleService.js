@@ -38,8 +38,8 @@ class HttpHelper {
     return this.request('GET', url, null, params);
   }
 
-  async post(url, data) {
-    return this.request('POST', url, data);
+  async post(url, data, params = {}) {
+    return this.request('POST', url, data, params);
   }
 
   async put(url, data) {
@@ -173,10 +173,18 @@ class RuleService {
   /**
    * Validate rule structure
    * @param {Object} rule - Rule to validate
+   * @param {boolean} calculateLineNumbers - Whether to calculate line numbers (default: true)
+   * @param {boolean} disableFiltering - Whether to disable error filtering (default: false)
    * @returns {Object} - Validation result
    */
-  async validateRule(rule) {
-    const response = await this.http.post('/rules/validate', rule);
+  async validateRule(rule, calculateLineNumbers = true, disableFiltering = false) {
+    const params = {};
+    if (calculateLineNumbers !== undefined) params.calculateLineNumbers = calculateLineNumbers;
+    if (disableFiltering) params.disableFiltering = disableFiltering;
+    
+    // Send as JSON string so backend can calculate line numbers
+    const jsonString = JSON.stringify(rule, null, 2);
+    const response = await this.http.post('/rules/validate', jsonString, params);
     return response.data;
   }
 

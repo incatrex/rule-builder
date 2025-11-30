@@ -3,6 +3,7 @@ import { RuleService, RuleConfigService } from '../../services';
 import { useRuleBuilder } from './useRuleBuilder';
 import { useExpansionState } from './hooks/useExpansionState';
 import { RuleBuilderUI } from './RuleBuilderUI';
+import { NamingProvider } from './contexts/NamingContext';
 import './RuleBuilder.css';
 
 /**
@@ -151,30 +152,45 @@ const RuleBuilder = forwardRef(({
     handleChange({ definition });
   };
 
+  // Enhance config with ruleService callbacks to avoid API calls in child components
+  const enhancedConfig = {
+    ...config,
+    // Callback to search/load rule list (supports filtering and pagination)
+    onSearchRules: async (ruleType = null) => {
+      return await ruleService.getRuleIds(ruleType);
+    },
+    // Callback to load a specific rule version
+    onLoadRule: async (uuid, version = 'latest') => {
+      return await ruleService.getRuleVersion(uuid, version);
+    }
+  };
+
   return (
-    <RuleBuilderUI
-      ruleData={ruleData}
-      availableVersions={availableVersions}
-      loadingVersions={loadingVersions}
-      ruleTypes={ruleTypes}
-      isLoadedRule={isLoadedRule}
-      config={config}
-      darkMode={darkMode}
-      selectedRuleUuid={selectedRuleUuid}
-      onMetadataChange={handleMetadataChange}
-      onRuleTypeChange={handleRuleTypeChange}
-      onVersionChange={handleVersionChange}
-      onReturnTypeChange={handleReturnTypeChange}
-      onStructureChange={handleStructureChange}
-      onDefinitionChange={handleDefinitionChange}
-      onSave={handleSaveRule}
-      isNew={isNew}
-      isExpanded={isExpanded}
-      onToggleExpansion={toggleExpansion}
-      onSetExpansion={setExpansion}
-      onExpandAll={expandAll}
-      onCollapseAll={collapseAll}
-    />
+    <NamingProvider>
+      <RuleBuilderUI
+        ruleData={ruleData}
+        availableVersions={availableVersions}
+        loadingVersions={loadingVersions}
+        ruleTypes={ruleTypes}
+        isLoadedRule={isLoadedRule}
+        config={enhancedConfig}
+        darkMode={darkMode}
+        selectedRuleUuid={selectedRuleUuid}
+        onMetadataChange={handleMetadataChange}
+        onRuleTypeChange={handleRuleTypeChange}
+        onVersionChange={handleVersionChange}
+        onReturnTypeChange={handleReturnTypeChange}
+        onStructureChange={handleStructureChange}
+        onDefinitionChange={handleDefinitionChange}
+        onSave={handleSaveRule}
+        isNew={isNew}
+        isExpanded={isExpanded}
+        onToggleExpansion={toggleExpansion}
+        onSetExpansion={setExpansion}
+        onExpandAll={expandAll}
+        onCollapseAll={collapseAll}
+      />
+    </NamingProvider>
   );
 });
 

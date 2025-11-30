@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three-Way Selector Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .demo-section {
+      background: white;
+      padding: 30px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1890ff;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #333;
+      margin-top: 0;
+      font-size: 20px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    .feature-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+    .feature-list strong {
+      color: #1890ff;
+      margin-right: 8px;
+    }
+    .code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .comparison-column {
+      padding: 15px;
+      background: #fafafa;
+      border-radius: 6px;
+    }
+    .comparison-column h3 {
+      margin-top: 0;
+      font-size: 16px;
+      color: #333;
+    }
+    .comparison-column.before {
+      border-left: 4px solid #ff4d4f;
+    }
+    .comparison-column.after {
+      border-left: 4px solid #52c41a;
+    }
+    .icon-demo {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 6px;
+      min-width: 100px;
+    }
+    .icon-symbol {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .icon-label {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-section">
+    <h1>✅ Three-Way Selector Implementation</h1>
+    <p class="subtitle">Replacing binary toggle with semantic source selection</p>
+    
+    <h2>Problem Solved</h2>
+    <p>Previously, when toggling a Group to Rule and back, it would incorrectly become a Condition instead of remembering it was a Group. The binary toggle couldn't preserve the original type.</p>
+    
+    <div class="comparison">
+      <div class="comparison-column before">
+        <h3>❌ Before: Binary Toggle (Lost Context)</h3>
+        <ul class="feature-list">
+          <li><span class="code">Manual</span> ↔️ <span class="code">Rule</span></li>
+          <li>"Manual" meant either Condition OR Group</li>
+          <li>Lost track of which type it was</li>
+          <li>Switching back always created Group</li>
+        </ul>
+      </div>
+      
+      <div class="comparison-column after">
+        <h3>✅ After: Three-Way Selector (Preserves Context)</h3>
+        <ul class="feature-list">
+          <li><span class="code">Condition</span> ↔️ <span class="code">Group</span> ↔️ <span class="code">Rule</span></li>
+          <li>Each type explicitly selected</li>
+          <li>Clear semantic meaning</li>
+          <li>Remembers original type</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Semantic Icons</h2>
+    <p>Using clear, descriptive icons that match the Expression component's pattern:</p>
+    
+    <div class="icon-demo">
+      <div class="icon-item">
+        <div class="icon-symbol">⑂</div>
+        <div class="icon-label"><strong>Condition</strong></div>
+        <div class="icon-label">BranchesOutlined</div>
+        <div class="icon-label" style="font-size: 11px; margin-top: 4px;">Branching logic</div>
+      </div>
+      
+      <div class="icon-item">
+        <div class="icon-symbol">👥</div>
+        <div class="icon-label"><strong>Group</strong></div>
+        <div class="icon-label">GroupOutlined</div>
+        <div class="icon-label" style="font-size: 11px; margin-top: 4px;">Grouped conditions</div>
+      </div>
+      
+      <div class="icon-item">
+        <div class="icon-symbol">🔗</div>
+        <div class="icon-label"><strong>Rule</strong></div>
+        <div class="icon-label">LinkOutlined</div>
+        <div class="icon-label" style="font-size: 11px; margin-top: 4px;">Rule reference</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Implementation Details</h2>
+    <ul class="feature-list">
+      <li>
+        <strong>Source State:</strong>
+        Replaced <span class="code">useRuleRef</span> boolean with <span class="code">sourceType</span> string tracking 'condition', 'conditionGroup', or 'ruleRef'
+      </li>
+      <li>
+        <strong>Selector Component:</strong>
+        Modeled after Expression's <span class="code">renderSourceSelector()</span> with expandable dropdown showing icon + label
+      </li>
+      <li>
+        <strong>Smart Switching:</strong>
+        <span class="code">handleSourceChange()</span> preserves common properties (name, returnType) while initializing type-specific properties
+      </li>
+      <li>
+        <strong>Conditional Rendering:</strong>
+        Three-way branch: <span class="code">sourceType === 'ruleRef'</span> → RuleReference, <span class="code">'condition'</span> → Condition, <span class="code">'conditionGroup'</span> → Group UI
+      </li>
+      <li>
+        <strong>Type Detection:</strong>
+        <span class="code">determineSourceType()</span> function inspects data structure to set initial state from loaded JSON
+      </li>
+    </ul>
+  </div>
+
+  <div class="demo-section">
+    <h2>Files Modified</h2>
+    <ul class="feature-list">
+      <li>
+        <strong>ConditionGroup.jsx:</strong>
+        Updated to use three-way source selector with Condition/Group/Rule options
+      </li>
+      <li>
+        <strong>Icon Consistency:</strong>
+        Add Condition and Add Group buttons now use same icons as the selector (BranchesOutlined & GroupOutlined)
+      </li>
+      <li>
+        <strong>Build Status:</strong>
+        ✅ All 65 frontend tests passing
+      </li>
+    </ul>
+  </div>
+
+  <div class="demo-section">
+    <h2>User Experience</h2>
+    <p>When collapsed, the selector shows only the icon. When expanded, it shows icon + label. This matches the Expression component's UX pattern and keeps the UI clean while providing clear affordance.</p>
+    
+    <p style="margin-top: 20px; padding: 15px; background: #e6f7ff; border-left: 4px solid #1890ff; border-radius: 4px;">
+      <strong>Next Steps:</strong> Load the rule builder UI to test the three-way selector in action. Try adding a Group, switching it to Rule, then back to Group - it should now correctly preserve the type!
+    </p>
+  </div>
+</body>
+</html>

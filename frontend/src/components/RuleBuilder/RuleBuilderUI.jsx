@@ -3,6 +3,7 @@ import { Card, Select, Input, Switch, Button, Space, Tag, Divider, Typography, C
 import { SaveOutlined, ClearOutlined, InfoCircleOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
 import Case from './Case';
 import ConditionGroup from './ConditionGroup';
+import Condition from './Condition';
 import Expression from './Expression';
 import { getInternalMismatchMessage } from './utils/typeValidation';
 import './RuleBuilder.css';
@@ -300,13 +301,13 @@ export const RuleBuilderUI = ({
               )}
 
               {ruleData.structure === 'condition' && ruleData.definition && (
-                <ConditionGroup
+                <Condition
                   value={ruleData.definition}
                   onChange={onDefinitionChange}
                   config={config}
                   darkMode={darkMode}
                   isSimpleCondition={true}
-                  expansionPath="conditionGroup-0"
+                  expansionPath="condition-0"
                   isExpanded={isExpanded}
                   onToggleExpansion={onToggleExpansion}
                   onSetExpansion={onSetExpansion}

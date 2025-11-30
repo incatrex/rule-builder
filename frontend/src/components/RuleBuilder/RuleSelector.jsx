@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Select, Space, message } from 'antd';
-import { RuleService } from '../../services/RuleService.js';
 import { checkInternalTypeConsistency } from './utils/typeValidation.js';
 
 /**
  * RuleSelector Component
  * 
  * Reusable component for selecting rules from a dropdown.
- * Used by both RuleSearch and Expression components.
+ * Uses callbacks from config object to load rule data.
  * 
  * Props:
  * - value: Currently selected rule key (ruleId.uuid format)
  * - onChange: Callback when selection changes, receives full rule data
+ * - config: Config object containing onSearchRules and onLoadRule callbacks
  * - darkMode: Boolean for dark mode styling
  * - placeholder: Optional placeholder text
  * - showReturnType: Boolean to show return type in dropdown
@@ -25,6 +25,7 @@ import { checkInternalTypeConsistency } from './utils/typeValidation.js';
 const RuleSelector = ({ 
   value, 
   onChange, 
+  config,
   darkMode = false, 
   placeholder = "Search for a rule...",
   showReturnType = false,
@@ -38,9 +39,6 @@ const RuleSelector = ({
   const [ruleList, setRuleList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRuleType, setSelectedRuleType] = useState(initialRuleType);
-  
-  // Initialize RuleService
-  const ruleService = new RuleService();
   
   // Ensure ruleTypes is always an array with defaults
   const safeRuleTypes = Array.isArray(ruleTypes) && ruleTypes.length > 0 
@@ -57,9 +55,17 @@ const RuleSelector = ({
   }, [selectedRuleType]);
 
   const loadRuleIds = async () => {
+    console.log('[RuleSelector] loadRuleIds called', { config: !!config, onSearchRules: !!config?.onSearchRules, selectedRuleType });
+    
+    if (!config?.onSearchRules) {
+      console.warn('[RuleSelector] No onSearchRules callback provided in config');
+      return;
+    }
+    
     try {
       setLoading(true);
-      const ruleIds = await ruleService.getRuleIds(selectedRuleType);
+      const ruleIds = await config.onSearchRules(selectedRuleType);
+      console.log('[RuleSelector] Received ruleIds:', ruleIds);
       
       // Transform the data for the Select component
       const options = ruleIds.map(rule => {
@@ -85,6 +91,7 @@ const RuleSelector = ({
         ? options.filter(opt => opt.returnType === filterReturnType)
         : options;
       
+      console.log('[RuleSelector] Setting ruleList:', { optionsCount: options.length, filteredCount: filteredOptions.length, filterReturnType });
       setRuleList(filteredOptions);
     } catch (error) {
       console.error('Error loading rule IDs:', error);
@@ -114,10 +121,15 @@ const RuleSelector = ({
 
     const selectedRule = ruleList.find(rule => rule.value === selectedValue);
     if (!selectedRule) return;
+    
+    if (!config?.onLoadRule) {
+      console.warn('[RuleSelector] No onLoadRule callback provided in config');
+      return;
+    }
 
     try {
       // Load the latest version of the selected rule
-      const ruleData = await ruleService.getRuleVersion(
+      const ruleData = await config.onLoadRule(
         selectedRule.uuid, 
         selectedRule.latestVersion
       );
@@ -159,6 +171,7 @@ const RuleSelector = ({
       {/* Rule Type Filter */}
       {showRuleTypeFilter && (
         <Select
+          data-testid="rule-type-filter"
           value={selectedRuleType}
           onChange={handleRuleTypeChange}
           placeholder="Filter by Rule Type..."
@@ -171,6 +184,7 @@ const RuleSelector = ({
       {/* Rule Selector */}
       {showRuleIdSelector && (
         <Select
+          data-testid="rule-selector"
           showSearch
           value={value}
           placeholder={placeholder}

@@ -45,7 +45,7 @@ config:
 [ ] version min to be 0 instead of 1 - not required?
 
 [ ] Re-work validation
-    [ ] Move error translation to backend
+    [x] Move error translation to backend
     [ ] Confirm/test key validationi points
 
 [ ] Add Business Logic service + Component/Panel
@@ -57,9 +57,10 @@ config:
     [ ] data-test-id every element
     [ ] integration test coverage
     [ ] unit test coverage
+    [ ] rationalize front round trip tests - get rid of those not deeded
 
 [ ] Rule History
-    [ ] Release Tags/
+    [x] Release Tags/
     [ ] SQL
     [ ] double check test-integration.sh (4 vs 3 versions?)
 
@@ -75,15 +76,15 @@ config:
     [ ] ruleRef expansion?
     [ ] ruleRef for condition?
 
-[ ] rule Ref errors
-    [ ] error message shows uuid
-    [ ] expressions type defaulting to number
+[x] rule Ref errors
+    [x] error message shows uuid
+    [x] expressions type defaulting to number
 
 [x] add + exppression outside outside of ExpressionGroup
 
 [ ] expression groups and condition groups behave same way
 
-
+[ ] custom pop-ups
 
 Expand / Collapse Logic:
 
@@ -97,3 +98,17 @@ New Rule:
 
     structure = expression: default to show these all expanded:
         Expresion --> Value 
+
+
+    CASE WHEN:
+
+Simple Condition:
+    Start with Condition
+    
+    Condition:
+        Group -> Converts condition to group with existing condition + new condition
+        Rule --> converts condition to a Rule Reference
+        Condition --> Preserves only the first condition
+
+    Group:
+        

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from 'antd';
-import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined, LinkOutlined, GroupOutlined, BranchesOutlined } from '@ant-design/icons';
+import ConditionSourceSelector from './ConditionSourceSelector';
+import { useNaming } from './contexts/NamingContext';
+import {
+  createDefaultCondition,
+  createDefaultConditionGroup
+} from './utils/structureFactories';
 import {
   DndContext,
   closestCenter,
@@ -18,6 +24,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Condition from './Condition';
+import RuleReference from './RuleReference';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -101,12 +108,15 @@ const ConditionGroup = ({
   depth = 0, 
   isSimpleCondition = false, 
   compact = false,
+  hideHeader = false,
   expansionPath = 'conditionGroup-0',
   isExpanded,
   onToggleExpansion,
   onSetExpansion,
   isNew = false
 }) => {
+  const naming = useNaming();
+  
   const [groupData, setGroupData] = useState(value || {
     type: 'conditionGroup',
     returnType: 'boolean',
@@ -116,12 +126,21 @@ const ConditionGroup = ({
   });
   const [editingName, setEditingName] = useState(false);
   
+  // Track source type: 'condition', 'conditionGroup', or 'ruleRef'
+  const determineSourceType = (data) => {
+    if (data.ruleRef) return 'ruleRef';
+    if (data.type === 'condition') return 'condition';
+    return 'conditionGroup';
+  };
+  const [sourceType, setSourceType] = useState(determineSourceType(groupData));
+  
   // Use centralized expansion state
   const expanded = isExpanded(expansionPath);
 
   useEffect(() => {
     if (value) {
       setGroupData(value);
+      setSourceType(determineSourceType(value));
     }
   }, [value]);
 
@@ -162,28 +181,207 @@ const ConditionGroup = ({
     onChange(updated);
   };
 
+  // Handle source type changes (condition, conditionGroup, or ruleRef)
+  const handleSourceChange = (newSourceType) => {
+    const oldSourceType = sourceType;
+    setSourceType(newSourceType);
+    
+    if (newSourceType === 'ruleRef') {
+      // Switching to ruleRef - preserve name until rule selected
+      const newName = naming.updateName(
+        groupData.name,
+        'conditionGroup',
+        'ruleRef',
+        expansionPath,
+        null // No rule ID yet
+      );
+      
+      const newData = {
+        type: 'conditionGroup',
+        returnType: 'boolean',
+        name: newName,
+        ruleRef: {
+          id: null,
+          uuid: null,
+          version: 1,
+          returnType: 'boolean'
+        }
+      };
+      setGroupData(newData);
+      onChange(newData);
+    } else if (newSourceType === 'condition') {
+      // Switching to single condition
+      if (groupData.type === 'conditionGroup' && groupData.conditions?.length > 0) {
+        // If coming from a group, extract the first condition
+        const firstCondition = groupData.conditions[0];
+        
+        // Update name appropriately
+        const newName = naming.updateName(
+          groupData.name,
+          'conditionGroup',
+          'condition',
+          expansionPath
+        );
+        
+        const updated = {
+          ...firstCondition,
+          name: newName
+        };
+        setGroupData(updated);
+        onChange(updated);
+      } else {
+        // Otherwise create a new empty condition
+        const { ruleRef, conjunction, conditions, ...rest } = groupData;
+        const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
+        
+        const newName = naming.updateName(
+          groupData.name,
+          oldSourceType,
+          'condition',
+          expansionPath
+        );
+        
+        const newData = {
+          ...rest,
+          type: 'condition',
+          returnType: 'boolean',
+          name: newName,
+          left: { 
+            type: 'expressionGroup',
+            returnType: 'number',
+            expressions: [{ type: 'field', returnType: 'number', field: null }],
+            operators: []
+          },
+          operator: defaultOperator,
+          right: { 
+            type: 'expressionGroup',
+            returnType: 'number',
+            expressions: [{ type: 'value', returnType: 'number', value: '' }],
+            operators: []
+          }
+        };
+        setGroupData(newData);
+        onChange(newData);
+      }
+    } else {
+      // Switching to conditionGroup - wrap existing content + add new condition
+      const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
+      
+      // Update group name
+      console.log('[ConditionGroup] Converting to conditionGroup:', {
+        currentName: groupData.name,
+        oldSourceType,
+        newSourceType,
+        expansionPath
+      });
+      
+      const groupName = naming.updateName(
+        groupData.name,
+        oldSourceType,
+        'conditionGroup',
+        expansionPath
+      );
+      
+      console.log('[ConditionGroup] New group name:', groupName);
+      
+      // Get names for children using naming context
+      const child1Name = naming.getNameForNew('condition', expansionPath, []);
+      const child2Name = naming.getNameForNew('condition', expansionPath, [{ name: child1Name }]);
+      
+      // Keep the existing condition with proper name
+      const wrappedExistingCondition = {
+        ...groupData,
+        name: child1Name
+      };
+      
+      // Create new empty condition with proper name
+      const newCondition = {
+        type: 'condition',
+        returnType: 'boolean',
+        name: child2Name,
+        left: { 
+          type: 'field',
+          returnType: 'number',
+          field: 'TABLE1.NUMBER_FIELD_01'
+        },
+        operator: defaultOperator,
+        right: { 
+          type: 'value',
+          returnType: 'number',
+          value: 0
+        }
+      };
+      
+      // Create group containing existing item + new condition
+      const newData = {
+        type: 'conditionGroup',
+        returnType: 'boolean',
+        name: groupName,
+        conjunction: 'AND',
+        not: false,
+        conditions: [
+          wrappedExistingCondition,
+          newCondition
+        ]
+      };
+      setGroupData(newData);
+      onChange(newData);
+      
+      // Auto-expand both conditions in the new group
+      if (onSetExpansion) {
+        onSetExpansion(`${expansionPath}-condition-0`, true);
+        onSetExpansion(`${expansionPath}-condition-1`, true);
+      }
+    }
+    
+    // Ensure the item stays expanded after source change
+    if (onSetExpansion) {
+      onSetExpansion(expansionPath, true);
+    }
+  };
+
+  // Handle rule reference changes
+  const handleRuleRefChange = (newRuleRef) => {
+    // Update name to rule ID when rule is selected, or revert when cleared
+    let newName = groupData.name;
+    if (newRuleRef && newRuleRef.id) {
+      // Rule selected - use rule ID as name
+      newName = naming.updateName(
+        groupData.name,
+        'ruleRef',
+        'ruleRef',
+        expansionPath,
+        newRuleRef.id
+      );
+    } else if (!newRuleRef || !newRuleRef.id) {
+      // Rule cleared - revert to auto-generated name
+      newName = naming.updateName(
+        groupData.name,
+        'ruleRef',
+        'ruleRef',
+        expansionPath,
+        null
+      );
+    }
+    
+    const updated = {
+      ...groupData,
+      name: newName,
+      ruleRef: { ...newRuleRef, returnType: 'boolean' } // Ensure boolean for condition groups
+    };
+    setGroupData(updated);
+    onChange(updated);
+  };
+
   const addCondition = () => {
     const conditions = groupData.conditions || [];
-    // Get default operator from config.types.number.defaultConditionOperator
-    const defaultOperator = config?.types?.number?.defaultConditionOperator || 'equal';
-    const newCondition = {
-      type: 'condition',
-      returnType: 'boolean',
-      name: `Condition ${conditions.length + 1}`,
-      left: { 
-        type: 'expressionGroup',
-        returnType: 'number',
-        expressions: [{ type: 'field', returnType: 'number', field: null }],
-        operators: []
-      },
-      operator: defaultOperator,
-      right: { 
-        type: 'expressionGroup',
-        returnType: 'number',
-        expressions: [{ type: 'value', returnType: 'number', value: '' }],
-        operators: []
-      }
-    };
+    
+    // Get name from naming context
+    const newName = naming.getNameForNew('condition', expansionPath, conditions);
+    
+    // Create condition using factory
+    const newCondition = createDefaultCondition(config, newName);
+    
     handleChange({ conditions: [...conditions, newCondition] });
     
     // Auto-expand the new condition
@@ -195,52 +393,25 @@ const ConditionGroup = ({
 
   const addConditionGroup = () => {
     const conditions = groupData.conditions || [];
-    const newGroup = {
-      type: 'conditionGroup',
-      returnType: 'boolean',
-      name: `Group ${depth + 2}.${conditions.filter(c => c.type === 'conditionGroup').length + 1}`,
-      conjunction: 'AND',
-      not: false,
-      conditions: [
-        // Auto-add 2 empty conditions to the new group (to prevent auto-unwrap)
-        {
-          type: 'condition',
-          returnType: 'boolean',
-          name: 'Condition 1',
-          left: { 
-            type: 'expressionGroup',
-            returnType: 'number',
-            expressions: [{ type: 'field', returnType: 'number', field: null }],
-            operators: []
-          },
-          operator: null,
-          right: { 
-            type: 'expressionGroup',
-            returnType: 'number',
-            expressions: [{ type: 'value', returnType: 'number', value: '' }],
-            operators: []
-          }
-        },
-        {
-          type: 'condition',
-          returnType: 'boolean',
-          name: 'Condition 2',
-          left: { 
-            type: 'expressionGroup',
-            returnType: 'number',
-            expressions: [{ type: 'field', returnType: 'number', field: null }],
-            operators: []
-          },
-          operator: null,
-          right: { 
-            type: 'expressionGroup',
-            returnType: 'number',
-            expressions: [{ type: 'value', returnType: 'number', value: '' }],
-            operators: []
-          }
-        }
-      ]
-    };
+    
+    // Get name for the new group from naming context
+    const groupName = naming.getNameForNew('conditionGroup', expansionPath, conditions);
+    
+    // Create group using factory (includes 2 default conditions)
+    const newGroup = createDefaultConditionGroup(config, groupName);
+    
+    // Note: Factory creates children with generic names.
+    // We'll use the new group's expansion path to generate proper child names.
+    const newGroupPath = `${expansionPath}-conditionGroup-${conditions.length}`;
+    
+    // Get proper names for the child conditions
+    const child1Name = naming.getNameForNew('condition', newGroupPath, []);
+    const child2Name = naming.getNameForNew('condition', newGroupPath, [{ name: child1Name }]);
+    
+    // Update child condition names
+    newGroup.conditions[0].name = child1Name;
+    newGroup.conditions[1].name = child2Name;
+    
     handleChange({ conditions: [...conditions, newGroup] });
     
     // Auto-expand the new group and its conditions
@@ -258,11 +429,8 @@ const ConditionGroup = ({
     const conditions = groupData.conditions || [];
     const updatedConditions = conditions.filter((_, i) => i !== index);
     
-    // Auto-unwrap: if only 1 condition remains, return it directly instead of keeping the group
-    if (updatedConditions.length === 1 && onChange) {
-      onChange(updatedConditions[0]);
-      return;
-    }
+    // Allow single-condition groups (useful for NOT toggle on groups)
+    // No auto-unwrap - keep the group structure
     
     // If removing results in 0 conditions, let parent handle it (likely remove the entire group)
     if (updatedConditions.length === 0 && onRemove) {
@@ -289,6 +457,75 @@ const ConditionGroup = ({
 
   // Main content that will be rendered either wrapped in Collapse or standalone
   const groupContent = (
+    <div>
+      {/* When hideHeader is true, show source selector inline */}
+      {hideHeader && (
+        <Space size="small" style={{ marginBottom: '8px' }}>
+          <ConditionSourceSelector
+            value={sourceType}
+            onChange={handleSourceChange}
+            expansionPath={expansionPath}
+          />
+          <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
+          {editingName ? (
+            <Input
+              data-testid="conditiongroup-name-input"
+              size="small"
+              value={groupData.name || ''}
+              onChange={(e) => handleChange({ name: e.target.value })}
+              onPressEnter={() => setEditingName(false)}
+              onBlur={() => setEditingName(false)}
+              autoFocus
+              style={{ width: 200 }}
+            />
+          ) : (
+            <>
+              <code 
+                data-testid={`conditiongroup-header-${(groupData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
+              >
+                {groupData.name || 'Unnamed Group'}
+              </code>
+              <EditOutlined
+                data-testid="conditiongroup-edit-icon"
+                onClick={() => setEditingName(true)}
+                style={{ 
+                  cursor: 'pointer', 
+                  marginLeft: '4px',
+                  color: darkMode ? '#1890ff' : undefined
+                }}
+              />
+            </>
+          )}
+        </Space>
+      )}
+      
+      {sourceType === 'ruleRef' ? (
+        <RuleReference
+          value={groupData.ruleRef || {}}
+          onChange={handleRuleRefChange}
+          config={config}
+          darkMode={darkMode}
+          expectedType="boolean"
+          compact={compact}
+        />
+      ) : sourceType === 'condition' ? (
+        <Condition
+          value={groupData}
+          onChange={(updatedCondition) => {
+            setGroupData(updatedCondition);
+            onChange(updatedCondition);
+          }}
+          config={config}
+          darkMode={darkMode}
+          compact={compact}
+          hideRemove={true}
+          expansionPath={`${expansionPath}-single`}
+          isExpanded={isExpanded}
+          onToggleExpansion={onToggleExpansion}
+          onSetExpansion={onSetExpansion}
+          isNew={isNew}
+        />
+      ) : (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       {/* Group Controls - NOT and Conjunction */}
       <Space wrap>
@@ -387,24 +624,34 @@ const ConditionGroup = ({
       {/* Add Buttons */}
       <Space wrap style={{ marginTop: groupData.conditions && groupData.conditions.length > 0 ? '8px' : '0' }}>
         <Button
+          data-testid={`add-condition-button-${expansionPath}`}
           type="primary"
           size="small"
-          icon={<PlusOutlined />}
+          icon={<BranchesOutlined />}
           onClick={addCondition}
         >
           Add Condition
         </Button>
         
         <Button
+          data-testid={`add-group-button-${expansionPath}`}
           size="small"
+          icon={<GroupOutlined />}
           onClick={addConditionGroup}
         >
-          (+) Add Group
+          Add Group
         </Button>
       </Space>
-    </Space>
-  );
-
+      </Space>
+      )}
+    </div>
+  );  
+  
+  // Hide header mode: render content directly without any wrapper (used when embedded in Condition)
+  if (hideHeader) {
+    return groupContent;
+  }
+  
   // Compact mode: render without Collapse wrapper
   if (compact) {
     return (
@@ -428,13 +675,26 @@ const ConditionGroup = ({
     >
       <Panel
         key="group"
+        style={{
+          background: backgroundColor
+        }}
         header={
-          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space 
+            style={{ width: '100%', justifyContent: 'space-between' }}
+            data-testid={`conditiongroup-header-${(groupData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
+          >
             <Space size="small">
+              <Space size="small" align="center">
+                <ConditionSourceSelector
+                  value={sourceType}
+                  onChange={handleSourceChange}
+                  expansionPath={expansionPath}
+                />
+              </Space>
               <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
               {editingName ? (
                 <Input
-                  data-testid={`conditionGroup-${depth}-name-input`}
+                  data-testid="conditiongroup-name-input"
                   size="small"
                   value={groupData.name || ''}
                   onChange={(e) => handleChange({ name: e.target.value })}
@@ -448,7 +708,7 @@ const ConditionGroup = ({
                 <>
                   <Text code>{groupData.name || 'Unnamed Group'}</Text>
                   <EditOutlined 
-                    data-testid={`conditionGroup-${depth}-name-edit-icon`}
+                    data-testid="conditiongroup-edit-icon"
                     style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
                     onClick={(e) => {
                       e.stopPropagation();

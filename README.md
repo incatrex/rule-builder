@@ -6,15 +6,23 @@ A full-stack application for building and managing business rules with a visual 
 
 - 🎨 **Visual Rule Builder**: Intuitive interface for creating complex business rules
 - 📊 **Three Rule Structures**: Simple Conditions, Case Expressions, and Expressions
+- 🔗 **Rule References**: Compose rules by referencing other rules as conditions or expressions
 - 🔧 **Configurable Fields**: Support for text, number, date, and boolean field types
-- 📐 **Rich Operators**: Comprehensive set of comparison and logical operators
+- 📐 **Rich Operators**: Comprehensive set of comparison and logical operators including dynamic cardinality (IN, NOT IN)
 - 🧮 **Built-in Functions**: Text manipulation, mathematical operations, and date functions
-- 💾 **Rule Persistence**: Save and load rules with automatic versioning
+- 💾 **Rule Persistence**: Save and load rules with automatic UUID-based versioning
 - 📜 **Version History**: View and restore previous versions of rules
 - 🔄 **SQL Generation**: Convert rules to Oracle SQL WHERE clauses or CASE expressions
+- ✨ **Smart UI**: Auto-generated naming, drag-and-drop reordering, and collapsible sections
 - 🔄 **Hot Reload**: Development mode with automatic reload for both frontend and backend
 - ✅ **Testing**: Comprehensive unit tests (Vitest) and E2E tests (Playwright)
 - 🐳 **Dev Container**: Ready-to-use VS Code development container with all dependencies
+
+## Documentation
+
+- **[Rule Schema Reference](backend/src/main/resources/static/schemas/RULE_SCHEMA_REFERENCE.md)**: Complete JSON schema documentation with examples
+- **[Schema Visualization](docs/COMPONENT_HIERARCHY_SCHEMA.md)**: Visual hierarchy of schema components and composition rules
+- **[Frontend Component Hierarchy](docs/COMPONENT_HIERARCHY_FRONTEND.md)**: React component architecture and data flow patterns
 
 ## Project Structure
 
@@ -43,23 +51,43 @@ rule-builder/
 │   │   ├── App.jsx                                # Main application
 │   │   ├── components/
 │   │   │   ├── RuleBuilder/                       # Rule builder components
-│   │   │   └── RuleHistory/                       # Version history
+│   │   │   │   ├── RuleBuilder.jsx                # Container component
+│   │   │   │   ├── RuleBuilderUI.jsx              # Presentation component
+│   │   │   │   ├── Case.jsx                       # WHEN/THEN clauses
+│   │   │   │   ├── Condition.jsx                  # Smart router for conditions
+│   │   │   │   ├── ConditionGroup.jsx             # Logical condition groups
+│   │   │   │   ├── Expression.jsx                 # Smart router for expressions
+│   │   │   │   ├── ExpressionGroup.jsx            # Mathematical operations
+│   │   │   │   ├── RuleReference.jsx              # Rule composition
+│   │   │   │   └── contexts/NamingContext.jsx     # Auto-naming utilities
+│   │   │   ├── RuleHistory/                       # Version history
+│   │   │   ├── JsonEditor/                        # JSON editor component
+│   │   │   ├── SqlViewer/                         # SQL viewer component
+│   │   │   ├── RuleSearch/                        # Rule search dropdown
+│   │   │   └── RuleCanvas/                        # Visual rule display
 │   │   ├── services/                              # API services
-│   │   ├── tests/                                 # Vitest unit tests
-│   │   ├── JsonEditor.jsx                         # JSON editor component
-│   │   ├── SqlViewer.jsx                          # SQL viewer component
-│   │   └── RuleSearch.jsx                         # Rule search dropdown
+│   │   └── tests/                                 # Test files
+│   │       ├── integration/                       # Vitest integration tests
+│   │       ├── fixtures/                          # Test data
+│   │       └── helpers/                           # Test utilities
 │   ├── e2e/                                       # Playwright E2E tests
+│   ├── manual-tests/                              # HTML test files
 │   ├── package.json                               # npm dependencies
 │   ├── vite.config.js                             # Vite configuration
-│   └── vitest.config.js                           # Vitest configuration
+│   ├── vitest.config.js                           # Vitest configuration
+│   └── playwright.config.js                       # Playwright configuration
 ├── scripts/                    # Utility scripts
 │   ├── install.sh                                 # Install all dependencies
 │   ├── start-backend.sh                           # Start backend server
 │   ├── start-frontend.sh                          # Start frontend dev server
 │   ├── test.sh                                    # Run unit tests
-│   ├── test-integration.sh                        # Run E2E tests
+│   ├── test-e2e.sh                                # Run E2E tests (interactive)
+│   ├── test-integration.sh                        # Run all E2E tests
 │   └── test-sql-api.sh                            # Test SQL API manually
+├── docs/                       # Documentation
+│   ├── COMPONENT_HIERARCHY_SCHEMA.md              # Schema visualization
+│   ├── COMPONENT_HIERARCHY_FRONTEND.md            # Frontend architecture
+│   └── [other documentation files]
 └── .devcontainer/              # VS Code dev container config
     └── devcontainer.json
 ```
@@ -140,95 +168,47 @@ rule-builder/
 
 The backend provides the following REST endpoints:
 
-### Configuration Endpoints
-- `GET /api/config` - Get rule builder configuration
-- `GET /api/fields` - Get available field definitions
-- `GET /api/ruleTypes` - Get rule type definitions
-
 ### Rule Management Endpoints
-- `GET /api/rules/ids` - Get list of all rule IDs (sorted alphabetically by folder, then by ID)
-- `GET /api/rules/{ruleId}` - Get a specific rule by ID
-- `GET /api/rules/{uuid}/latest` - Get the latest version of a rule by UUID
+- `GET /api/rules/ids` - Get list of all rule IDs with filtering support
+  - Query parameter: `ruleType` (optional) - Filter by rule type
+- `GET /api/rules/{ruleId}` - Get a specific rule by ID (timestamped format: `RULE_ID_timestamp`)
+- `GET /api/rules/{uuid}/versions` - Get list of available versions for a rule
+- `GET /api/rules/{uuid}/versions/{version}` - Get a specific version of a rule
 - `POST /api/rules` - Save a new rule or create a new version
-- `DELETE /api/rules/{ruleId}` - Delete a rule by ID
+- `PUT /api/rules/{uuid}` - Update an existing rule (creates new version)
 
 ### Rule History Endpoints
 - `GET /api/rules/{uuid}/history` - Get version history for a rule
 - `POST /api/rules/{uuid}/restore/{version}` - Restore a specific version of a rule as a new version
+- `DELETE /api/rules/{ruleId}` - Delete a rule by ID
 
+### Rule History Endpoints
+- `GET /api/rules/{uuid}/history` - Get version history for a rule
 ### SQL Generation Endpoints
 - `POST /api/sql/generate` - Generate Oracle SQL from a rule structure
-  - Supports three rule types:
-    - **Simple Condition**: Generates WHERE clause from conditions
-    - **Case Expression**: Generates CASE statement from cases
+  - Supports three rule structures:
+    - **Condition**: Generates WHERE clause from conditions and condition groups
+    - **Case**: Generates CASE statement from WHEN/THEN clauses
     - **Expression**: Generates expression with functions and operators
 
-Example request body for SQL generation:
-```json
-{
-  "type": "condition",
-  "structure": {
-    "condition": {
-      "and": [
-        {
-          "field": "AGE",
-          "operator": ">=",
-          "value": 18
-        },
-        {
-          "field": "STATUS",
-          "operator": "=",
-          "value": "ACTIVE"
-        }
-      ]
-    }
-  }
-}
-```
+For detailed information about rule structures, operators, functions, and configuration, see:
+- **[Rule Schema Reference](backend/src/main/resources/static/schemas/RULE_SCHEMA_REFERENCE.md)** - Complete schema documentation with examples
+- **[Schema Visualization](docs/COMPONENT_HIERARCHY_SCHEMA.md)** - Visual representation of the schema hierarchy
 
 ## Configuration
 
-### Available Fields
+The application configuration is driven by the JSON Schema located at `backend/src/main/resources/static/schemas/rule-schema-current.json` (v2.1.1). The schema defines:
+- **Field definitions** - Available fields organized hierarchically by table with type constraints
+- **Operators** - Supported operators with cardinality rules, labels, and separators
+- **Functions** - Built-in functions with argument specifications and return types
+- **Rule types** - Business rule type enumeration and validation rules
+- **Structure rules** - Composition patterns for conditions, cases, and expressions
 
-The application comes pre-configured with the following fields:
+Additional configuration files in `backend/src/main/resources/static/`:
+- **fields.json** - Field definitions loaded at runtime (structure validated by schema)
+- **ruleTypes.json** - Rule type definitions (validated against schema enums)
 
-**Table 1**:
-- TEXT_FIELD_01, TEXT_FIELD_02 (text)
-- NUMBER_FIELD_01, NUMBER_FIELD_02 (number)
-- DATE_FIELD_01, DATE_FIELD_02 (date)
-- BOOLEAN_FIELD_01, BOOLEAN_FIELD_02 (boolean)
-
-**Table 2**:
-- TEXT_FIELD_01, TEXT_FIELD_02 (text)
-- NUMBER_FIELD_01, NUMBER_FIELD_02 (number)
-- DATE_FIELD_01, DATE_FIELD_02 (date)
-- BOOLEAN_FIELD_01, BOOLEAN_FIELD_02 (boolean)
-
-### Available Functions
-
-**Text Functions**:
-- `TEXT.CONCAT(text, text)` → text: Concatenate two text values
-- `TEXT.MID(text, number, number)` → text: Extract substring
-- `TEXT.LEN(text)` → number: Get text length
-
-**Math Functions**:
-- `MATH.ROUND(number, number)` → number: Round to decimal places
-- `MATH.ABS(number)` → number: Absolute value
-
-**Date Functions**:
-- `DATE.DIFF(date, date)` → number: Calculate difference between dates
-
-### Available Operators
-
-- Equal (`==`)
-- Not Equal (`!=`)
-- Less Than (`<`)
-- Less or Equal (`<=`)
-- Greater Than (`>`)
-- Greater or Equal (`>=`)
-- Contains
-- Starts With
-- Ends With
+For complete configuration documentation including all available fields, operators, functions, and customization options, please refer to the [Rule Schema Reference](backend/src/main/resources/static/schemas/RULE_SCHEMA_REFERENCE.md).
 - Is Empty
 - Is Not Empty
 
@@ -294,23 +274,30 @@ This pattern ensures tests remain stable even when UI styling or structure chang
 ### Run Backend Tests Only
 ```bash
 cd backend
-mvn test
-```
+### E2E Tests (Playwright)
+Complete workflow tests with backend and frontend running:
 
-### Run Frontend Tests Only
+**Interactive mode** (choose which test to run):
 ```bash
-cd frontend
-npm test
+./scripts/test-e2e.sh
 ```
 
-## Building for Production
-
-### Build Backend
+**Run all tests** (non-interactive):
 ```bash
-cd backend
-mvn clean package
+./scripts/test-integration.sh
 ```
-The executable JAR will be created in `backend/target/`
+
+Both scripts automatically:
+1. Start backend server (if not running)
+2. Start frontend dev server (if not running)
+3. Run Playwright tests in `frontend/e2e/`
+4. Clean up any servers they started
+
+**E2E Test Coverage**:
+- Rule versioning workflow (create, modify, view history, restore)
+- Complete user journey from empty canvas to saved rule
+- Version history UI and restore functionality
+- Sequential condition naming scenarios from CSV test data/target/`
 
 ### Build Frontend
 ```bash
@@ -366,26 +353,42 @@ Edit `backend/src/main/resources/static/config.json` and modify the `operators` 
 ## Technologies Used
 
 ### Backend
-- **Spring Boot 3.2.0**: Application framework
-- **Spring Web**: REST API development
-- **Spring DevTools**: Hot reload support
-- **Jackson**: JSON processing
-- **Maven**: Dependency management and build tool
-- **JUnit 5**: Testing framework
-
 ### Frontend
 - **React 18.2**: UI framework
-- **Vite 5**: Build tool and dev server
+- **Vite 5**: Build tool and dev server with HMR
 - **Ant Design 5**: UI component library
+- **@dnd-kit**: Drag and drop functionality
+- **React Flow**: Visual rule canvas
 - **Axios**: HTTP client
 - **Vitest**: Unit testing framework
 - **Playwright**: E2E testing framework
 - **npm**: Package manager
 
-## License
+For detailed frontend architecture, see:
+- **[Frontend Component Hierarchy](docs/COMPONENT_HIERARCHY_FRONTEND.md)**
+## Customization
 
-This project is provided as-is for development purposes.
+The application is highly customizable through its JSON Schema (v2.1.1). All configuration is defined in and validated by the schema at `backend/src/main/resources/static/schemas/rule-schema-current.json`.
 
-## Support
+### Adding New Fields
+Edit `backend/src/main/resources/static/fields.json` to add or modify field definitions. Fields must conform to the schema's field definition structure (hierarchical organization by table, with id, label, dataType, and optional tableName).
+
+### Modifying Functions and Operators
+Functions and operators are defined in the JSON Schema's `x-ui` extension properties. To add or modify:
+1. Edit the schema file to add new function or operator definitions
+2. Ensure proper typing and cardinality rules are specified
+3. The UI will automatically reflect changes on reload
+
+### Schema-Driven Validation
+The application uses JSON Schema Draft 7 for all validation. Changes to the schema automatically enforce validation rules across:
+- Rule structure and composition
+- Field references and types
+- Operator usage and cardinality
+- Function signatures and return types
+- Rule reference patterns
+
+For detailed information about customization options and schema structure, see:
+- **[Rule Schema Reference](backend/src/main/resources/static/schemas/RULE_SCHEMA_REFERENCE.md)** - Complete schema documentation
+- **[Schema Visualization](docs/COMPONENT_HIERARCHY_SCHEMA.md)** - Visual hierarchy and composition rules
 
 For issues or questions, please refer to the documentation or create an issue in the project repository.

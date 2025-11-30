@@ -47,9 +47,9 @@ public class RuleService {
         // Reorder fields to put uuId and version at the top
         ObjectNode orderedRule = objectMapper.createObjectNode();
         
-        // Add uuId and version first
+        // Add uuId and version first (ensure version is an integer)
         orderedRule.put("uuId", uuid);
-        orderedRule.put("version", version);
+        orderedRule.put("version", Integer.parseInt(version));
         
         // Then add all other fields from the original rule, except uuId and version if they exist
         rule.fields().forEachRemaining(entry -> {
