@@ -3,7 +3,8 @@
 
 Based on actual UI component implementation and JSON structures used by the Rule Builder application.
 
-**Schema Version:** v1.2.0  
+**Schema Version:** v2.1.1  
+**Schema ID:** https://api.rulebuilder.com/schemas/rule-v2.1.1.json  
 **JSON Schema Draft:** Draft 7 (http://json-schema.org/draft-07/schema#)
 
 ## Core Data Structures
@@ -73,10 +74,25 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
     ]
   }
 }
+
+// Rule Reference Expression
+{
+  "type": "ruleRef",
+  "returnType": "boolean" | "number" | "text" | "date",
+  "ruleRef": {
+    "id": string, // human-readable rule identifier
+    "uuid": string, // UUID for version tracking
+    "version": number, // minimum 1
+    "returnType": "boolean" | "number" | "text" | "date",
+    "ruleType": "Reporting" | "Transformation" | "Aggregation" | "Validation", // optional filter
+    "name": string // optional display name
+  }
+}
 ```
 
-### ConditionGroup (Logical Group Container) - chains condtions with conjuctions (AND/OR)
+### ConditionGroup (Logical Group Container) - chains conditions with conjunctions (AND/OR)
 ```jsonc
+// Standard ConditionGroup
 {
   "type": "conditionGroup",
   "returnType": "boolean",
@@ -87,22 +103,53 @@ Corresponds to `Expression.jsx` UI component and internal `BaseExpression` compo
     Condition | ConditionGroup // Recursive nesting supported, can be empty array
   ]
 }
+
+// Rule Reference ConditionGroup
+{
+  "type": "conditionGroup",
+  "returnType": "boolean",
+  "name": string,
+  "ruleRef": {
+    "id": string,
+    "uuid": string,
+    "version": number,
+    "returnType": "boolean", // must be boolean for condition groups
+    "ruleType": string, // optional
+    "name": string // optional
+  }
+}
 ```
 
 ### Condition (Single Comparison)
+### CaseContent (Case/When/Then Structure)
 ```jsonc
 {
+  "whenClauses": [
+    {
+      "when": Condition | ConditionGroup, // can be single condition or group
+      "then": Expression | ExpressionGroup,
+      "resultName": string // optional display name
+    }
+  ],
+  "elseClause": Expression | ExpressionGroup, // optional
+  "elseResultName": string // optional display name
+}
+```/ - null for "is_empty"/"is_not_empty"
+}
+
+// Rule Reference Condition
+{
   "type": "condition",
-  "returnType": "boolean", 
+  "returnType": "boolean",
   "name": string,
-  "id": string, // unique identifier for UI management (optional)
-  "left": Expression | ExpressionGroup,
-  "operator": string, // from schema operators (e.g., "equal", "greater_or_equal", "contains", "in", "not_in")
-  "right": Expression | ExpressionGroup | [Expression | ExpressionGroup, ...] | null 
-  // - Single Expression/ExpressionGroup for most operators
-  // - Array of 2 for "between"/"not_between" 
-  // - Array of 1-10 for "in"/"not_in" (dynamic cardinality)
-  // - null for "is_empty"/"is_not_empty"
+  "ruleRef": {
+    "id": string,
+    "uuid": string,
+    "version": number,
+    "returnType": "boolean", // must be boolean for conditions
+    "ruleType": string, // optional
+    "name": string // optional
+  }
 }
 ```
 
@@ -388,8 +435,12 @@ Functions accept Expression or ExpressionGroup as argument values:
 5. **Function Arguments**: Accept Expression or ExpressionGroup as values, providing flexibility in how arguments are constructed
 6. **UI State Management**: Condition `id` field is optional and used for React key management in the UI
 7. **Type Safety**: `returnType` fields ensure type compatibility across the system
-8. **Schema Version**: v1.2.0 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) with x-ui-* extensions for UI configuration
+8. **Schema Version**: v2.1.1 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) with x-ui-* extensions for UI configuration
 9. **Validation Approach**: Schema uses `if/then/else` conditional pattern based on the `structure` field to determine which content type to validate against (CaseContent, ConditionGroup, or ExpressionGroup)
 10. **Null Right Side**: Condition `right` property can be `null` for operators like `is_empty` and `is_not_empty` that don't require a comparison value
 11. **Dynamic Cardinality**: The `in` and `not_in` operators support variable-length arrays (1-10 values) with configurable separators and +/- buttons in the UI
 12. **Empty Condition Groups**: ConditionGroup `conditions` array can be empty (minItems: 0), allowing initialization of groups before adding conditions
+13. **Rule References**: Conditions, ConditionGroups, and Expressions can all be backed by rule references via the `ruleRef` property. This enables rule reusability and composition.
+14. **RuleReference Type Constraints**: When used in conditions/conditionGroups, `ruleRef.returnType` must be "boolean". When used in expressions, it can be any return type.
+15. **Dual Modes**: Conditions and ConditionGroups support two modes: (1) Standard mode with left/operator/right or conjunction/conditions, (2) RuleRef mode with just the ruleRef property
+16. **Schema URI**: The schema has a canonical URI identifier: `https://api.rulebuilder.com/schemas/rule-v2.1.1.json`
