@@ -456,47 +456,6 @@ const ConditionGroup = ({
   // Main content that will be rendered either wrapped in Collapse or standalone
   const groupContent = (
     <div>
-      {/* When hideHeader is true, show source selector inline */}
-      {hideHeader && (
-        <Space size="small" style={{ marginBottom: '8px' }}>
-          <ConditionSourceSelector
-            value={sourceType}
-            onChange={handleSourceChange}
-            expansionPath={expansionPath}
-          />
-          <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
-          {editingName ? (
-            <Input
-              data-testid="conditiongroup-name-input"
-              size="small"
-              value={groupData.name || ''}
-              onChange={(e) => handleChange({ name: e.target.value })}
-              onPressEnter={() => setEditingName(false)}
-              onBlur={() => setEditingName(false)}
-              autoFocus
-              style={{ width: 200 }}
-            />
-          ) : (
-            <>
-              <code 
-                data-testid={`conditiongroup-header-${(groupData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
-              >
-                {groupData.name || 'Unnamed Group'}
-              </code>
-              <EditOutlined
-                data-testid="conditiongroup-edit-icon"
-                onClick={() => setEditingName(true)}
-                style={{ 
-                  cursor: 'pointer', 
-                  marginLeft: '4px',
-                  color: darkMode ? '#1890ff' : undefined
-                }}
-              />
-            </>
-          )}
-        </Space>
-      )}
-      
       {sourceType === 'ruleRef' ? (
         <RuleReference
           value={groupData.ruleRef || {}}
@@ -589,8 +548,7 @@ const ConditionGroup = ({
                         darkMode={darkMode}
                         onRemove={() => removeChild(index)}
                         depth={depth + 1}
-                        isSimpleCondition={isSimpleCondition}
-                        compact={false}
+                        hideHeader={false}
                         expansionPath={`${expansionPath}-condition-${index}`}
                         isExpanded={isExpanded}
                         onToggleExpansion={onToggleExpansion}
@@ -655,7 +613,7 @@ const ConditionGroup = ({
       activeKey={expanded ? ['group'] : []}
       onChange={() => onToggleExpansion(expansionPath)}
       style={{
-        background: darkMode ? '#1f1f1f' : '#e6f4ff',
+        background: darkMode ? '#0d1829' : '#e6f4ff',
         borderLeft: '3px solid #1890ff',
         marginLeft: depth > 0 ? '20px' : '0',
         marginBottom: '8px'
@@ -675,7 +633,6 @@ const ConditionGroup = ({
                   expansionPath={expansionPath}
                 />
               </Space>
-              <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
               {editingName ? (
                 <Input
                   data-testid="conditiongroup-name-input"

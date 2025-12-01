@@ -436,6 +436,7 @@ const Case = ({
                     <ConditionSourceSelector
                       value={getWhenSourceType(clause.when)}
                       onChange={(newType) => handleWhenSourceChange(index, newType)}
+                      expansionPath={`${expansionPath}-when-${index}`}
                     />
                     {editingStates[`${index}_name`] ? (
                       <Input

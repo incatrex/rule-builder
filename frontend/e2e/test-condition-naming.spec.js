@@ -353,8 +353,8 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await expect(page.locator('code:has-text("User Named 1")')).toBeVisible();
     console.log('✓ Verified: User Named 1');
 
-    // CSV Row 35: Select a rule
-    console.log('\nCSV Row 35: Select a rule');
+    // CSV Row 25: Select a rule
+    console.log('\nCSV Row 25: Select a rule');
     await selectRule(page, testRuleId);
     await expect(page.locator(`code:has-text("${testRuleId}")`)).toBeVisible();
     console.log(`✓ Verified: ${testRuleId} (rule id)`);
@@ -397,8 +397,9 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await page.waitForTimeout(1000);
     
     // Verify: WHEN header shows "Condition Group 1"
+    // Note: With hideHeader=true, the internal conditiongroup-header is not rendered
+    // We only verify the WHEN clause name shows the correct group name
     await expect(page.getByTestId('when-clause-name-case-0-when-0')).toContainText('Condition Group 1');
-    await expect(page.getByTestId('conditiongroup-header-condition-group-1')).toBeVisible();
     console.log('✓ Verified: WHEN header = Condition Group 1; Children: Condition 1.1, Condition 1.2');
 
     // CSV Row 32: Change Condition Group 1 source to Rule
@@ -409,8 +410,8 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await expect(page.getByTestId('when-clause-name-case-0-when-0')).toContainText('Condition Group 1');
     console.log('✓ Verified: WHEN header = Condition Group 1');
 
-    // CSV Row 68: Select a rule
-    console.log('\nCSV Row 68: Select a rule');
+    // CSV Row 33: Select a rule
+    console.log('\nCSV Row 33: Select a rule');
     await selectRule(page, testRuleId);
     await expect(page.getByTestId('when-clause-name-case-0-when-0')).toContainText(testRuleId);
     console.log(`✓ Verified: WHEN header = ${testRuleId}`);
@@ -473,8 +474,8 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await expect(page.locator('code:has-text("Condition Group 1.1")').first()).toBeVisible();
     console.log('✓ Verified: Condition Group 1.1');
 
-    // CSV Row 77: Select a rule
-    console.log('\nCSV Row 77: Select a rule');
+    // CSV Row 42: Select a rule
+    console.log('\nCSV Row 42: Select a rule');
     await selectRule(page, testRuleId);
     // Verify using the inline conditiongroup header - look for code containing the rule ID (may have suffix)
     await expect(page.locator('code').filter({ hasText: new RegExp(testRuleId) }).first()).toBeVisible();

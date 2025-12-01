@@ -28,22 +28,18 @@ const ConditionSourceSelector = ({ value, onChange, disabled = false, expansionP
       data-testid={expansionPath ? `condition-source-selector-${expansionPath}` : 'condition-source-selector'}
       value={value}
       onChange={onChange}
-      style={{ width: isDropdownOpen ? 130 : 50, minWidth: 50, transition: 'width 0.2s' }}
+      style={{ width: 120, minWidth: 120 }}
       size="small"
       disabled={disabled}
       onDropdownVisibleChange={setIsDropdownOpen}
       onClick={(e) => e.stopPropagation()}
       labelRender={(props) => {
         const option = sourceOptions.find(opt => opt.value === props.value);
-        return isDropdownOpen ? (
+        return (
           <Space size={4}>
             {option?.icon}
             <span>{option?.label}</span>
           </Space>
-        ) : (
-          <span style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            {option?.icon}
-          </span>
         );
       }}
       options={sourceOptions}
