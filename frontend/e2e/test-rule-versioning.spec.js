@@ -22,7 +22,7 @@ test.describe('Rule Versioning E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Generate unique rule ID for this test run
     const timestamp = Date.now();
-    testRuleId = `TEST_RULE_${timestamp}`;
+    testRuleId = `TEST_VERSIONING_${timestamp}`;
     
     // Listen to console logs
     page.on('console', msg => {
@@ -82,8 +82,8 @@ test.describe('Rule Versioning E2E Tests', () => {
     // Save the rule using test ID
     await page.getByTestId('rule-save-button').click();
 
-    // Wait for success message - "Rule created: TEST_RULE_1 v1"
-    await expect(page.locator('text=/Rule created.*TEST_RULE_1.*v1/i')).toBeVisible({ timeout: 10000 });
+    // Wait for success message - "Rule created: TEST_VERSIONING_1 v1"
+    await expect(page.locator('text=/Rule created.*TEST_VERSIONING_1.*v1/i')).toBeVisible({ timeout: 10000 });
     
     // Check that Version 1 shows in Rule History
     // Wait for the history table to populate (it starts empty)
