@@ -27,7 +27,6 @@ import Condition from './Condition';
 import RuleReference from './RuleReference';
 
 const { Text } = Typography;
-const { Panel } = Collapse;
 
 /**
  * DraggableItem - Wrapper component to make children draggable
@@ -650,24 +649,20 @@ const ConditionGroup = ({
     return groupContent;
   }
 
-  // Normal mode: render with Collapse wrapper and header
+  // Normal mode: render with Collapse wrapper and header (matching Condition's Card style)
   return (
     <Collapse
       activeKey={expanded ? ['group'] : []}
       onChange={() => onToggleExpansion(expansionPath)}
       style={{
-        background: backgroundColor,
-        border: depth === 0 ? '2px solid #1890ff' : '1px solid #d9d9d9',
+        background: darkMode ? '#1f1f1f' : '#e6f4ff',
+        borderLeft: '3px solid #1890ff',
         marginLeft: depth > 0 ? '20px' : '0',
         marginBottom: '8px'
       }}
-    >
-      <Panel
-        key="group"
-        style={{
-          background: backgroundColor
-        }}
-        header={
+      items={[{
+        key: 'group',
+        label: (
           <Space 
             style={{ width: '100%', justifyContent: 'space-between' }}
             data-testid={`conditiongroup-header-${(groupData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
@@ -695,7 +690,9 @@ const ConditionGroup = ({
                 />
               ) : (
                 <>
-                  <Text code>{groupData.name || 'Unnamed Group'}</Text>
+                  <Text code style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
+                    {groupData.name || 'Unnamed Group'}
+                  </Text>
                   <EditOutlined 
                     data-testid="conditiongroup-edit-icon"
                     style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
@@ -707,23 +704,20 @@ const ConditionGroup = ({
                 </>
               )}
             </Space>
+            {depth > 0 && onRemove && (
+              <CloseOutlined
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                style={{ color: 'red', cursor: 'pointer' }}
+              />
+            )}
           </Space>
-        }
-        extra={
-          depth > 0 && onRemove ? (
-            <CloseOutlined
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove();
-              }}
-              style={{ color: 'red', cursor: 'pointer' }}
-            />
-          ) : null
-        }
-      >
-        {groupContent}
-      </Panel>
-    </Collapse>
+        ),
+        children: groupContent
+      }]}
+    />
   );
 };
 
