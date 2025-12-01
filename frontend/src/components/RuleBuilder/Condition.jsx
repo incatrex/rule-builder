@@ -51,7 +51,7 @@ const { Text } = Typography;
  * - onRemove: Callback to remove this condition
  * - depth: Nesting depth (for ConditionGroup styling)
  * - isSimpleCondition: Whether this is a simple condition (for ConditionGroup)
- * - compact: Compact mode (for ConditionGroup)
+ * - hideHeader: Hide Card/Collapse wrapper (used in CASE WHEN clauses)
  * - expansionPath: Unique path identifier for expansion state (e.g., 'condition-0')
  * - isExpanded: Function to check if a path is expanded
  * - onToggleExpansion: Function to toggle expansion state
@@ -66,7 +66,7 @@ const Condition = ({
   onRemove, 
   depth = 0, 
   isSimpleCondition = false, 
-  compact = false,
+  hideHeader = false,
   expansionPath = 'condition-0',
   isExpanded,
   onToggleExpansion,
@@ -125,14 +125,12 @@ const Condition = ({
         darkMode={darkMode}
         onRemove={onRemove}
         depth={depth}
-        isSimpleCondition={isSimpleCondition}
-        compact={compact}
+        hideHeader={hideHeader}
         expansionPath={expansionPath}
         isExpanded={isExpanded}
         onToggleExpansion={onToggleExpansion}
         onSetExpansion={onSetExpansion}
         isNew={isNew}
-        hideHeader={true}
       />
     );
   }
@@ -569,7 +567,6 @@ const Condition = ({
             config={config}
             darkMode={darkMode}
             expectedType="boolean"
-            compact={compact}
           />
         ) : sourceType === 'conditionGroup' ? (
           <ConditionGroup
@@ -583,13 +580,12 @@ const Condition = ({
             onRemove={onRemove}
             depth={depth + 1}
             isSimpleCondition={false}
-            compact={compact}
+            hideHeader={hideHeader}
             expansionPath={expansionPath}
             isExpanded={isExpanded}
             onToggleExpansion={onToggleExpansion}
             onSetExpansion={onSetExpansion}
             isNew={isNew}
-            hideHeader={true}
           />
         ) : (
       <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>

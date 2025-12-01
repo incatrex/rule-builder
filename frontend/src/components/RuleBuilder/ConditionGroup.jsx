@@ -107,7 +107,6 @@ const ConditionGroup = ({
   onRemove, 
   depth = 0, 
   isSimpleCondition = false, 
-  compact = false,
   hideHeader = false,
   expansionPath = 'conditionGroup-0',
   isExpanded,
@@ -506,7 +505,6 @@ const ConditionGroup = ({
           config={config}
           darkMode={darkMode}
           expectedType="boolean"
-          compact={compact}
         />
       ) : sourceType === 'condition' ? (
         <Condition
@@ -517,7 +515,7 @@ const ConditionGroup = ({
           }}
           config={config}
           darkMode={darkMode}
-          compact={compact}
+          hideHeader={false}
           hideRemove={true}
           expansionPath={`${expansionPath}-single`}
           isExpanded={isExpanded}
@@ -650,15 +648,6 @@ const ConditionGroup = ({
   // Hide header mode: render content directly without any wrapper (used when embedded in Condition)
   if (hideHeader) {
     return groupContent;
-  }
-  
-  // Compact mode: render without Collapse wrapper
-  if (compact) {
-    return (
-      <div style={{ width: '100%' }}>
-        {groupContent}
-      </div>
-    );
   }
 
   // Normal mode: render with Collapse wrapper and header
