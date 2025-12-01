@@ -48,9 +48,8 @@ test.describe('Rule Versioning E2E Tests', () => {
     
     console.log(`STEP 1: Creating new rule v1 with ID: ${testRuleId}...`);
     
-    // Find "New Rule" button in Rule Search card
-    const ruleSearchCard = page.locator('.ant-card').filter({ hasText: 'Rule Search' });
-    await ruleSearchCard.locator('button:has-text("New Rule")').click();
+    // Click "New Rule" button in Rule Search card
+    await page.getByTestId('new-rule-button').click();
 
     // Wait for rule builder to be ready
     await page.waitForTimeout(1000);
@@ -64,18 +63,18 @@ test.describe('Rule Versioning E2E Tests', () => {
     await page.waitForTimeout(1000);
     
     // Expand the condition collapse to see its content
-    const conditionCollapse = page.locator('.ant-collapse-header').first();
+    const conditionCollapse = page.getByTestId('condition-header-condition');
     await conditionCollapse.click();
     await page.waitForTimeout(500);
     
     // Edit the condition name to "Condition v1"
     // Look for the name edit icon
-    const editIcon = page.locator('.anticon-edit').first();
+    const editIcon = page.getByTestId('condition-edit-icon');
     await editIcon.click();
     await page.waitForTimeout(300);
     
     // Fill in the condition name
-    const nameInput = page.locator('input[value*="Condition"]').first();
+    const nameInput = page.getByTestId('condition-name-input');
     await nameInput.fill('Condition v1');
     await nameInput.press('Enter');
     await page.waitForTimeout(300);
@@ -125,11 +124,11 @@ test.describe('Rule Versioning E2E Tests', () => {
 
     console.log('  - Editing condition name...');
     // Change Condition name to "Condition v2"
-    // Click the edit icon (not using test ID since it's a simple Condition now)
-    const editIcon2 = page.locator('.anticon-edit').first();
+    // Click the edit icon
+    const editIcon2 = page.getByTestId('condition-edit-icon');
     await editIcon2.click();
     await page.waitForTimeout(300);
-    const nameInput2 = page.locator('input[value*="Condition"]').first();
+    const nameInput2 = page.getByTestId('condition-name-input');
     await nameInput2.fill('Condition v2');
     await nameInput2.press('Enter');
     await page.waitForTimeout(500);

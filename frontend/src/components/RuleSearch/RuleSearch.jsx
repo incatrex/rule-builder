@@ -133,6 +133,7 @@ const RuleSearch = forwardRef(({ onRuleSelect, onNewRule, darkMode = false, onCo
         
         {/* New Rule Button */}
         <Button 
+          data-testid="new-rule-button"
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleNewRule}

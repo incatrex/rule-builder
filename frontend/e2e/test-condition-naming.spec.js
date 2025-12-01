@@ -376,7 +376,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     
     // CSV Row 30: Create new rule and change structure to "case"
     console.log('CSV Row 30: Create new rule and change structure to "case"');
-    const structureSelector = page.locator('text=Simple Condition');
+    const structureSelector = page.getByTestId('rule-structure-select');
     await structureSelector.click();
     await page.waitForTimeout(300);
     await page.keyboard.press('ArrowDown');
@@ -671,7 +671,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     console.log('\n=== SCENARIO 3: New Case Expression - Verify THEN names ===\n');
     
     // Create a new Case expression first
-    const structureSelector = page.locator('text=Simple Condition');
+    const structureSelector = page.getByTestId('rule-structure-select');
     await structureSelector.click();
     await page.waitForTimeout(300);
     await page.keyboard.press('ArrowDown');
@@ -763,7 +763,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     console.log('\n=== SCENARIO 4: New Case Expression - Verify ELSE names ===\n');
     
     // Create a new Case expression first
-    const structureSelector = page.locator('text=Simple Condition');
+    const structureSelector = page.getByTestId('rule-structure-select');
     await structureSelector.click();
     await page.waitForTimeout(300);
     await page.keyboard.press('ArrowDown');

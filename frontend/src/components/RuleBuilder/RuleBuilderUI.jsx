@@ -100,6 +100,7 @@ export const RuleBuilderUI = ({
                 Structure:
               </Text>
               <Select
+                data-testid="rule-structure-select"
                 value={ruleData.structure}
                 onChange={onStructureChange}
                 style={{ flex: 1 }}
