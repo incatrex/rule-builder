@@ -27,7 +27,6 @@ import Condition from './Condition';
 import RuleReference from './RuleReference';
 
 const { Text } = Typography;
-const { Panel } = Collapse;
 
 /**
  * DraggableItem - Wrapper component to make children draggable
@@ -107,7 +106,6 @@ const ConditionGroup = ({
   onRemove, 
   depth = 0, 
   isSimpleCondition = false, 
-  compact = false,
   hideHeader = false,
   expansionPath = 'conditionGroup-0',
   isExpanded,
@@ -458,47 +456,6 @@ const ConditionGroup = ({
   // Main content that will be rendered either wrapped in Collapse or standalone
   const groupContent = (
     <div>
-      {/* When hideHeader is true, show source selector inline */}
-      {hideHeader && (
-        <Space size="small" style={{ marginBottom: '8px' }}>
-          <ConditionSourceSelector
-            value={sourceType}
-            onChange={handleSourceChange}
-            expansionPath={expansionPath}
-          />
-          <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
-          {editingName ? (
-            <Input
-              data-testid="conditiongroup-name-input"
-              size="small"
-              value={groupData.name || ''}
-              onChange={(e) => handleChange({ name: e.target.value })}
-              onPressEnter={() => setEditingName(false)}
-              onBlur={() => setEditingName(false)}
-              autoFocus
-              style={{ width: 200 }}
-            />
-          ) : (
-            <>
-              <code 
-                data-testid={`conditiongroup-header-${(groupData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
-              >
-                {groupData.name || 'Unnamed Group'}
-              </code>
-              <EditOutlined
-                data-testid="conditiongroup-edit-icon"
-                onClick={() => setEditingName(true)}
-                style={{ 
-                  cursor: 'pointer', 
-                  marginLeft: '4px',
-                  color: darkMode ? '#1890ff' : undefined
-                }}
-              />
-            </>
-          )}
-        </Space>
-      )}
-      
       {sourceType === 'ruleRef' ? (
         <RuleReference
           value={groupData.ruleRef || {}}
@@ -506,7 +463,6 @@ const ConditionGroup = ({
           config={config}
           darkMode={darkMode}
           expectedType="boolean"
-          compact={compact}
         />
       ) : sourceType === 'condition' ? (
         <Condition
@@ -517,7 +473,7 @@ const ConditionGroup = ({
           }}
           config={config}
           darkMode={darkMode}
-          compact={compact}
+          hideHeader={false}
           hideRemove={true}
           expansionPath={`${expansionPath}-single`}
           isExpanded={isExpanded}
@@ -592,8 +548,7 @@ const ConditionGroup = ({
                         darkMode={darkMode}
                         onRemove={() => removeChild(index)}
                         depth={depth + 1}
-                        isSimpleCondition={isSimpleCondition}
-                        compact={false}
+                        hideHeader={false}
                         expansionPath={`${expansionPath}-condition-${index}`}
                         isExpanded={isExpanded}
                         onToggleExpansion={onToggleExpansion}
@@ -651,34 +606,21 @@ const ConditionGroup = ({
   if (hideHeader) {
     return groupContent;
   }
-  
-  // Compact mode: render without Collapse wrapper
-  if (compact) {
-    return (
-      <div style={{ width: '100%' }}>
-        {groupContent}
-      </div>
-    );
-  }
 
-  // Normal mode: render with Collapse wrapper and header
+  // Normal mode: render with Collapse wrapper and header (matching Condition's Card style)
   return (
     <Collapse
       activeKey={expanded ? ['group'] : []}
       onChange={() => onToggleExpansion(expansionPath)}
       style={{
-        background: backgroundColor,
-        border: depth === 0 ? '2px solid #1890ff' : '1px solid #d9d9d9',
+        background: darkMode ? '#0d1829' : '#e6f4ff',
+        borderLeft: '3px solid #1890ff',
         marginLeft: depth > 0 ? '20px' : '0',
         marginBottom: '8px'
       }}
-    >
-      <Panel
-        key="group"
-        style={{
-          background: backgroundColor
-        }}
-        header={
+      items={[{
+        key: 'group',
+        label: (
           <Space 
             style={{ width: '100%', justifyContent: 'space-between' }}
             data-testid={`conditiongroup-header-${(groupData.name || 'unnamed').replace(/\s+/g, '-').toLowerCase()}`}
@@ -691,7 +633,6 @@ const ConditionGroup = ({
                   expansionPath={expansionPath}
                 />
               </Space>
-              <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>Condition Group:</Text>
               {editingName ? (
                 <Input
                   data-testid="conditiongroup-name-input"
@@ -706,7 +647,9 @@ const ConditionGroup = ({
                 />
               ) : (
                 <>
-                  <Text code>{groupData.name || 'Unnamed Group'}</Text>
+                  <Text code style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
+                    {groupData.name || 'Unnamed Group'}
+                  </Text>
                   <EditOutlined 
                     data-testid="conditiongroup-edit-icon"
                     style={{ fontSize: '12px', cursor: 'pointer', color: darkMode ? '#b0b0b0' : '#8c8c8c' }}
@@ -718,23 +661,20 @@ const ConditionGroup = ({
                 </>
               )}
             </Space>
+            {depth > 0 && onRemove && (
+              <CloseOutlined
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                style={{ color: 'red', cursor: 'pointer' }}
+              />
+            )}
           </Space>
-        }
-        extra={
-          depth > 0 && onRemove ? (
-            <CloseOutlined
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove();
-              }}
-              style={{ color: 'red', cursor: 'pointer' }}
-            />
-          ) : null
-        }
-      >
-        {groupContent}
-      </Panel>
-    </Collapse>
+        ),
+        children: groupContent
+      }]}
+    />
   );
 };
 

@@ -436,6 +436,7 @@ const Case = ({
                     <ConditionSourceSelector
                       value={getWhenSourceType(clause.when)}
                       onChange={(newType) => handleWhenSourceChange(index, newType)}
+                      expansionPath={`${expansionPath}-when-${index}`}
                     />
                     {editingStates[`${index}_name`] ? (
                       <Input
@@ -518,7 +519,7 @@ const Case = ({
                       onChange={(newWhen) => updateWhenClause(index, { when: newWhen })}
                       config={config}
                       darkMode={darkMode}
-                      compact={true}
+                      hideHeader={true}
                       expansionPath={`${expansionPath}-when-${index}`}
                       isExpanded={isExpanded}
                       onToggleExpansion={onToggleExpansion}

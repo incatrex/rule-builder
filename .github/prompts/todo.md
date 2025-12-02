@@ -72,9 +72,9 @@ config:
     [x] POST /api/rules - confirm how this is being used.
     [ ] get rules is sending folderPath - thought it was doing that in service
 
-[ ] ruleRef / named conditions
-    [ ] ruleRef expansion?
-    [ ] ruleRef for condition?
+[x] ruleRef / named conditions
+    [x] ruleRef expansion?
+    [x] ruleRef for condition?
 
 [x] rule Ref errors
     [x] error message shows uuid
@@ -82,33 +82,9 @@ config:
 
 [x] add + exppression outside outside of ExpressionGroup
 
-[ ] expression groups and condition groups behave same way
+[x] expression groups and condition groups behave same way
 
 [ ] custom pop-ups
 
 Expand / Collapse Logic:
 
-New Rule:
-    structure = condition: default to show these all expanded:
-        Condition Group --> Condition --> Expression
-    structure = case: default to show these all expanded:
-        WHEN Conndition Group --> Condition --> Expresion
-        THEN --> Expression
-        ELSE --> Expression
-
-    structure = expression: default to show these all expanded:
-        Expresion --> Value 
-
-
-    CASE WHEN:
-
-Simple Condition:
-    Start with Condition
-    
-    Condition:
-        Group -> Converts condition to group with existing condition + new condition
-        Rule --> converts condition to a Rule Reference
-        Condition --> Preserves only the first condition
-
-    Group:
-        

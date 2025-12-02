@@ -51,7 +51,7 @@ const { Text } = Typography;
  * - onRemove: Callback to remove this condition
  * - depth: Nesting depth (for ConditionGroup styling)
  * - isSimpleCondition: Whether this is a simple condition (for ConditionGroup)
- * - compact: Compact mode (for ConditionGroup)
+ * - hideHeader: Hide Card/Collapse wrapper (used in CASE WHEN clauses)
  * - expansionPath: Unique path identifier for expansion state (e.g., 'condition-0')
  * - isExpanded: Function to check if a path is expanded
  * - onToggleExpansion: Function to toggle expansion state
@@ -66,7 +66,7 @@ const Condition = ({
   onRemove, 
   depth = 0, 
   isSimpleCondition = false, 
-  compact = false,
+  hideHeader = false,
   expansionPath = 'condition-0',
   isExpanded,
   onToggleExpansion,
@@ -125,14 +125,12 @@ const Condition = ({
         darkMode={darkMode}
         onRemove={onRemove}
         depth={depth}
-        isSimpleCondition={isSimpleCondition}
-        compact={compact}
+        hideHeader={hideHeader}
         expansionPath={expansionPath}
         isExpanded={isExpanded}
         onToggleExpansion={onToggleExpansion}
         onSetExpansion={onSetExpansion}
         isNew={isNew}
-        hideHeader={true}
       />
     );
   }
@@ -490,6 +488,125 @@ const Condition = ({
   const canAddValue = isDynamicCardinality && Array.isArray(conditionData.right) && conditionData.right.length < (operatorDef?.maxCardinality || 999);
   const canRemoveValue = isDynamicCardinality && Array.isArray(conditionData.right) && conditionData.right.length > (operatorDef?.minCardinality || 1);
 
+  // Render the comparison content (left operator right)
+  const renderComparisonContent = () => (
+    <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
+      {/* Left Expression */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <Expression
+          value={conditionData.left}
+          onChange={handleLeftChange}
+          config={config}
+          darkMode={darkMode}
+          expansionPath={`${expansionPath}-left`}
+          isExpanded={isExpanded}
+          onToggleExpansion={onToggleExpansion}
+          onSetExpansion={onSetExpansion}
+          isNew={isNew}
+        />
+      </div>
+
+      {/* Operator */}
+      <Select
+        value={conditionData.operator}
+        onChange={handleOperatorChange}
+        placeholder="Select operator"
+        className={`operator-select ${darkMode ? 'operator-select-dark' : ''}`}
+        style={{ 
+          minWidth: '60px'
+        }}
+        popupClassName={darkMode ? 'dark-mode-dropdown' : ''}
+        getPopupContainer={(trigger) => trigger.parentNode}
+        size="small"
+        options={availableOperators}
+        dropdownStyle={darkMode ? {
+          backgroundColor: '#2d2d2d'
+        } : {}}
+        dropdownMatchSelectWidth={false}
+      />
+
+      {/* Right Expression(s) */}
+      {cardinality === 1 && (
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Expression
+            value={conditionData.right}
+            onChange={(newRight) => handleChange({ right: newRight })}
+            config={config}
+            expectedType={conditionData.left?.returnType}
+            darkMode={darkMode}
+            expansionPath={`${expansionPath}-right`}
+            isExpanded={isExpanded}
+            onToggleExpansion={onToggleExpansion}
+            onSetExpansion={onSetExpansion}
+            isNew={isNew}
+          />
+        </div>
+      )}
+
+      {/* Multiple Right Expressions for cardinality > 1 (e.g., between, IN) */}
+      {cardinality > 1 && Array.isArray(conditionData.right) && (
+        <>
+          {conditionData.right.map((rightVal, index) => {
+            return (
+            <React.Fragment key={index}>
+              {index > 0 && (
+                <Text strong style={{ color: '#1890ff', margin: '0 8px' }}>
+                  {operatorDef?.separator || 'AND'}
+                </Text>
+              )}
+              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                <Expression
+                  value={rightVal}
+                  onChange={(newVal) => {
+                    const updatedRight = [...conditionData.right];
+                    updatedRight[index] = newVal;
+                    handleChange({ right: updatedRight });
+                  }}
+                  config={config}
+                  expectedType={conditionData.left?.returnType}
+                  darkMode={darkMode}
+                  expansionPath={`${expansionPath}-right-${index}`}
+                  isExpanded={isExpanded}
+                  onToggleExpansion={onToggleExpansion}
+                  onSetExpansion={onSetExpansion}
+                  isNew={isNew}
+                />
+                {canRemoveValue && (
+                  <Button 
+                    size="small" 
+                    icon={<CloseOutlined />} 
+                    onClick={() => handleRemoveValue(index)}
+                    danger
+                    type="text"
+                    title="Remove value"
+                    style={{ flexShrink: 0 }}
+                  />
+                )}
+              </div>
+            </React.Fragment>
+            );
+          })}
+          {canAddValue && (
+            <Button 
+              size="small" 
+              icon={<PlusOutlined />} 
+              onClick={handleAddValue}
+              type="dashed"
+              style={{ flexShrink: 0 }}
+            >
+              Add Value
+            </Button>
+          )}
+        </>
+      )}
+    </Space>
+  );
+
+  // When hideHeader is true, render content directly without Collapse wrapper
+  if (hideHeader && sourceType !== 'conditionGroup' && sourceType !== 'ruleRef') {
+    return renderComparisonContent();
+  }
+
   return (
     <Collapse
       activeKey={expanded ? ['condition'] : []}
@@ -569,7 +686,6 @@ const Condition = ({
             config={config}
             darkMode={darkMode}
             expectedType="boolean"
-            compact={compact}
           />
         ) : sourceType === 'conditionGroup' ? (
           <ConditionGroup
@@ -583,125 +699,15 @@ const Condition = ({
             onRemove={onRemove}
             depth={depth + 1}
             isSimpleCondition={false}
-            compact={compact}
+            hideHeader={hideHeader}
             expansionPath={expansionPath}
             isExpanded={isExpanded}
             onToggleExpansion={onToggleExpansion}
             onSetExpansion={onSetExpansion}
             isNew={isNew}
-            hideHeader={true}
           />
         ) : (
-      <Space direction="horizontal" size="middle" wrap style={{ width: '100%' }}>
-        {/* Left Expression */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <Expression
-            value={conditionData.left}
-            onChange={handleLeftChange}
-            config={config}
-            darkMode={darkMode}
-            expansionPath={`${expansionPath}-left`}
-            isExpanded={isExpanded}
-            onToggleExpansion={onToggleExpansion}
-            onSetExpansion={onSetExpansion}
-            isNew={isNew}
-          />
-        </div>
-
-        {/* Operator */}
-        <Select
-          value={conditionData.operator}
-          onChange={handleOperatorChange}
-          placeholder="Select operator"
-          className={`operator-select ${darkMode ? 'operator-select-dark' : ''}`}
-          style={{ 
-            minWidth: '60px'
-          }}
-          popupClassName={darkMode ? 'dark-mode-dropdown' : ''}
-          getPopupContainer={(trigger) => trigger.parentNode}
-          size="small"
-          options={availableOperators}
-          dropdownStyle={darkMode ? {
-            backgroundColor: '#2d2d2d'
-          } : {}}
-          dropdownMatchSelectWidth={false}
-        />
-
-        {/* Right Expression(s) */}
-        {cardinality === 1 && (
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <Expression
-              value={conditionData.right}
-              onChange={(newRight) => handleChange({ right: newRight })}
-              config={config}
-              expectedType={conditionData.left?.returnType}
-              darkMode={darkMode}
-              expansionPath={`${expansionPath}-right`}
-              isExpanded={isExpanded}
-              onToggleExpansion={onToggleExpansion}
-              onSetExpansion={onSetExpansion}
-              isNew={isNew}
-            />
-          </div>
-        )}
-
-        {/* Multiple Right Expressions for cardinality > 1 (e.g., between, IN) */}
-        {cardinality > 1 && Array.isArray(conditionData.right) && (
-          <>
-            {conditionData.right.map((rightVal, index) => {
-              return (
-              <React.Fragment key={index}>
-                {index > 0 && (
-                  <Text strong style={{ color: '#1890ff', margin: '0 8px' }}>
-                    {operatorDef?.separator || 'AND'}
-                  </Text>
-                )}
-                <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1, minWidth: 0 }}>
-                  <Expression
-                    value={rightVal}
-                    onChange={(newVal) => {
-                      const updatedRight = [...conditionData.right];
-                      updatedRight[index] = newVal;
-                      handleChange({ right: updatedRight });
-                    }}
-                    config={config}
-                    expectedType={conditionData.left?.returnType}
-                    darkMode={darkMode}
-                    expansionPath={`${expansionPath}-right-${index}`}
-                    isExpanded={isExpanded}
-                    onToggleExpansion={onToggleExpansion}
-                    onSetExpansion={onSetExpansion}
-                    isNew={isNew}
-                  />
-                  {canRemoveValue && (
-                    <Button 
-                      size="small" 
-                      icon={<CloseOutlined />} 
-                      onClick={() => handleRemoveValue(index)}
-                      danger
-                      type="text"
-                      title="Remove value"
-                      style={{ flexShrink: 0 }}
-                    />
-                  )}
-                </div>
-              </React.Fragment>
-              );
-            })}
-            {canAddValue && (
-              <Button 
-                size="small" 
-                icon={<PlusOutlined />} 
-                onClick={handleAddValue}
-                type="dashed"
-                style={{ flexShrink: 0 }}
-              >
-                Add Value
-              </Button>
-            )}
-          </>
-        )}
-      </Space>
+          renderComparisonContent()
         )}
         
         {/* Add Condition button - converts to group (only at parent level) */}

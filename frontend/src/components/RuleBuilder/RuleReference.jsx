@@ -17,15 +17,13 @@ const { Text } = Typography;
  * - config: Config with ruleTypes, etc.
  * - darkMode: Dark mode styling
  * - expectedType: Expected return type for validation (e.g., 'boolean' for conditions)
- * - compact: Compact mode (optional)
  */
 const RuleReference = ({
   value = {},
   onChange,
   config,
   darkMode = false,
-  expectedType = null,
-  compact = false
+  expectedType = null
 }) => {
   const {
     id,
@@ -89,7 +87,7 @@ const RuleReference = ({
     <Card
       size="small"
       style={{
-        marginTop: compact ? '4px' : '8px',
+        marginTop: '8px',
         backgroundColor: darkMode ? '#1f1f1f' : '#fafafa',
         border: darkMode ? '1px solid #303030' : '1px solid #d9d9d9'
       }}
