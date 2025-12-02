@@ -686,6 +686,7 @@ const Condition = ({
             config={config}
             darkMode={darkMode}
             expectedType="boolean"
+            ruleTypeConstraint={{ mode: 'const', value: 'Condition' }}
           />
         ) : sourceType === 'conditionGroup' ? (
           <ConditionGroup

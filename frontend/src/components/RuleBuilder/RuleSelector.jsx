@@ -34,24 +34,36 @@ const RuleSelector = ({
   filterReturnType = null,
   showRuleTypeFilter = false,
   showRuleIdSelector = true,
-  ruleTypes = ['Reporting', 'Transformation', 'Aggregation', 'Validation'],
+  ruleTypes = ['Reporting', 'Transformation', 'Aggregation', 'Validation', 'Condition', 'Condition Group'],
   initialRuleType = null,
   onRuleTypeChange = null,
-  returnType = null // Current rule's return type for display
+  returnType = null, // Current rule's return type for display
+  ruleTypeConstraint = null // { mode: 'const'|'default', value: 'RuleType' } or null
 }) => {
   const [ruleList, setRuleList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRuleType, setSelectedRuleType] = useState(initialRuleType);
   
+  // Determine effective ruleType based on constraint
+  const isConstrained = ruleTypeConstraint?.mode === 'const';
+  const hasDefault = ruleTypeConstraint?.mode === 'default';
+  const constraintValue = ruleTypeConstraint?.value;
+  
   // Ensure ruleTypes is always an array with defaults
   const safeRuleTypes = Array.isArray(ruleTypes) && ruleTypes.length > 0 
     ? ruleTypes 
-    : ['Reporting', 'Transformation', 'Aggregation', 'Validation'];
+    : ['Reporting', 'Transformation', 'Aggregation', 'Validation', 'Condition', 'Condition Group'];
 
   // Update selectedRuleType when initialRuleType prop changes
   useEffect(() => {
-    setSelectedRuleType(initialRuleType);
-  }, [initialRuleType]);
+    // Priority: explicit initialRuleType > constraint value > current selection
+    if (initialRuleType !== null) {
+      setSelectedRuleType(initialRuleType);
+    } else if (constraintValue && selectedRuleType === null) {
+      // Apply constraint default/const on initial load
+      setSelectedRuleType(constraintValue);
+    }
+  }, [initialRuleType, constraintValue]);
 
   useEffect(() => {
     loadRuleIds();
@@ -176,10 +188,12 @@ const RuleSelector = ({
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Select
             data-testid="rule-type-filter"
+            aria-label="Rule Type filter"
             value={selectedRuleType}
             onChange={handleRuleTypeChange}
             placeholder="Filter by Rule Type..."
-            allowClear
+            allowClear={!isConstrained}
+            disabled={isConstrained}
             style={{ minWidth: '150px', width: 'auto' }}
             options={safeRuleTypes.map(type => ({ value: type, label: type }))}
           />
@@ -200,6 +214,7 @@ const RuleSelector = ({
       {showRuleIdSelector && (
         <Select
           data-testid="rule-selector"
+          aria-label="Select a rule"
           showSearch
           value={value}
           placeholder={placeholder}

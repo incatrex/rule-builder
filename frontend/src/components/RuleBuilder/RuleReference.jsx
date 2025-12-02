@@ -17,13 +17,15 @@ const { Text } = Typography;
  * - config: Config with ruleTypes, etc.
  * - darkMode: Dark mode styling
  * - expectedType: Expected return type for validation (e.g., 'boolean' for conditions)
+ * - ruleTypeConstraint: { mode: 'const'|'default', value: 'RuleType' } or null
  */
 const RuleReference = ({
   value = {},
   onChange,
   config,
   darkMode = false,
-  expectedType = null
+  expectedType = null,
+  ruleTypeConstraint = null
 }) => {
   const {
     id,
@@ -38,6 +40,9 @@ const RuleReference = ({
 
   // Build rule key for selector (must match RuleSelector's format: ruleId.uuid)
   const ruleKey = id && uuid ? `${id}.${uuid}` : null;
+
+  // Determine initial ruleType: use existing value, or constraint value
+  const effectiveInitialRuleType = ruleType || ruleTypeConstraint?.value || null;
 
   const handleRuleTypeChange = (newRuleType) => {
     onChange({
@@ -105,9 +110,10 @@ const RuleReference = ({
           showRuleTypeFilter={true}
           showRuleIdSelector={true}
           ruleTypes={config?.ruleTypes || []}
-          initialRuleType={ruleType}
+          initialRuleType={effectiveInitialRuleType}
           onRuleTypeChange={handleRuleTypeChange}
           returnType={returnType}
+          ruleTypeConstraint={ruleTypeConstraint}
         />
 
         {/* Warning Messages */}

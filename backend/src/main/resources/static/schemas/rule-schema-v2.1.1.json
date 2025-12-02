@@ -101,7 +101,7 @@
   "definitions": {
     "RuleType": {
       "type": "string",
-      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "Condition", "Condition Group"],
+      "enum": ["Reporting", "Transformation", "Aggregation", "Validation"],
       "description": "Rule type enumeration - single source of truth for rule types"
     },
     "RuleReference": {
@@ -250,8 +250,7 @@
           "properties": {
             "ruleRef": {
               "properties": {
-                "returnType": { "const": "boolean" },
-                "ruleType": { "const": "Condition Group" }
+                "returnType": { "const": "boolean" }
               }
             }
           }
@@ -406,8 +405,7 @@
           "properties": {
             "ruleRef": {
               "properties": {
-                "returnType": { "const": "boolean" },
-                "ruleType": { "const": "Condition" }
+                "returnType": { "const": "boolean" }
               }
             }
           }
@@ -766,12 +764,7 @@
         {
           "required": ["type", "returnType", "ruleRef"],
           "properties": {
-            "type": { "const": "ruleRef" },
-            "ruleRef": {
-              "properties": {
-                "ruleType": { "default": "Transformation" }
-              }
-            }
+            "type": { "const": "ruleRef" }
           }
         }
       ],
