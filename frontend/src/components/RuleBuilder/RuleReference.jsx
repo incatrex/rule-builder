@@ -93,35 +93,22 @@ const RuleReference = ({
       }}
     >
       <Space direction="vertical" size="small" style={{ width: '100%' }}>
-        {/* Single RuleSelector with both filter and selector */}
-        <Space style={{ width: '100%', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{ flex: 1 }}>
-            <RuleSelector
-              value={ruleKey}
-              onChange={handleRuleChange}
-              config={config}
-              darkMode={darkMode}
-              placeholder="Select a rule"
-              showReturnType={true}
-              filterReturnType={expectedType}
-              showRuleTypeFilter={true}
-              showRuleIdSelector={true}
-              ruleTypes={config?.ruleTypes || []}
-              initialRuleType={ruleType}
-              onRuleTypeChange={handleRuleTypeChange}
-            />
-          </div>
-          {id && (
-            <Space size={4} style={{ marginTop: '4px' }}>
-              <Text type="secondary" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
-                Returns:
-              </Text>
-              <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
-                {returnType || 'unknown'}
-              </Tag>
-            </Space>
-          )}
-        </Space>
+        {/* RuleSelector with both filter and selector */}
+        <RuleSelector
+          value={ruleKey}
+          onChange={handleRuleChange}
+          config={config}
+          darkMode={darkMode}
+          placeholder="Select a rule"
+          showReturnType={true}
+          filterReturnType={expectedType}
+          showRuleTypeFilter={true}
+          showRuleIdSelector={true}
+          ruleTypes={config?.ruleTypes || []}
+          initialRuleType={ruleType}
+          onRuleTypeChange={handleRuleTypeChange}
+          returnType={returnType}
+        />
 
         {/* Warning Messages */}
         {internalMismatchMessage && (

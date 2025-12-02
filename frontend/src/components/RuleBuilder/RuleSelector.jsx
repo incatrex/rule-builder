@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Space, message } from 'antd';
+import { Select, Space, message, Typography, Tag } from 'antd';
 import { checkInternalTypeConsistency } from './utils/typeValidation.js';
+
+const { Text } = Typography;
 
 /**
  * RuleSelector Component
@@ -34,7 +36,8 @@ const RuleSelector = ({
   showRuleIdSelector = true,
   ruleTypes = ['Reporting', 'Transformation', 'Aggregation', 'Validation'],
   initialRuleType = null,
-  onRuleTypeChange = null
+  onRuleTypeChange = null,
+  returnType = null // Current rule's return type for display
 }) => {
   const [ruleList, setRuleList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -167,18 +170,30 @@ const RuleSelector = ({
   };
 
   return (
-    <>
-      {/* Rule Type Filter */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+      {/* Rule Type Filter and Returns Tag Row */}
       {showRuleTypeFilter && (
-        <Select
-          data-testid="rule-type-filter"
-          value={selectedRuleType}
-          onChange={handleRuleTypeChange}
-          placeholder="Filter by Rule Type..."
-          allowClear
-          style={{ width: '100%' }}
-          options={safeRuleTypes.map(type => ({ value: type, label: type }))}
-        />
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Select
+            data-testid="rule-type-filter"
+            value={selectedRuleType}
+            onChange={handleRuleTypeChange}
+            placeholder="Filter by Rule Type..."
+            allowClear
+            style={{ minWidth: '150px', width: 'auto' }}
+            options={safeRuleTypes.map(type => ({ value: type, label: type }))}
+          />
+          {returnType && (
+            <Space size={4}>
+              <Text type="secondary" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
+                Returns:
+              </Text>
+              <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
+                {returnType}
+              </Tag>
+            </Space>
+          )}
+        </Space>
       )}
       
       {/* Rule Selector */}
@@ -210,7 +225,7 @@ const RuleSelector = ({
           }}
         />
       )}
-    </>
+    </div>
   );
 };
 
