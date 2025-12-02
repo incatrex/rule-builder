@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert, Tooltip } from 'antd';
-import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
+import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Typography, Button, Tooltip } from 'antd';
+import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import RuleReference from './RuleReference';
 import ExpressionGroup from './ExpressionGroup';
-import { getInternalMismatchMessage, getContextMismatchMessage, checkInternalTypeConsistency } from './utils/typeValidation';
+import FunctionExpression from './FunctionExpression';
+import { checkInternalTypeConsistency } from './utils/typeValidation';
 
 const { Text } = Typography;
 
@@ -457,7 +458,7 @@ const Expression = ({
     let current = config.fields;
     
     for (const part of parts) {
-      if (!current[part]) return null;
+      if (!current[part]) return fieldPath;
       current = current[part];
       
       if (current.type === '!struct' && current.subfields) {
@@ -720,320 +721,20 @@ const Expression = ({
     );
   };
 
-  const getFunctionSummary = (funcData) => {
-    if (!funcData || !funcData.name) return '?';
-    
-    const funcName = funcData.name.split('.').pop();
-    const args = funcData.args || [];
-    
-    const argSummaries = args.map(arg => {
-      if (!arg.value) return '?';
-      const expr = arg.value;
-      
-      switch (expr.type) {
-        case 'value':
-          // Handle array values (multiselect fields)
-          if (Array.isArray(expr.value)) {
-            if (expr.value.length === 0) return '[]';
-            // Map field paths to display names
-            const fieldLabels = expr.value.map(fieldPath => 
-              getFieldDisplayName(fieldPath, config?.fields) || fieldPath
-            );
-            return `[${fieldLabels.join(', ')}]`;
-          }
-          return expr.value !== undefined ? String(expr.value) : '?';
-        case 'field':
-          // Handle single field (could also be multiselect stored in value array)
-          if (Array.isArray(expr.value)) {
-            if (expr.value.length === 0) return '[]';
-            const fieldLabels = expr.value.map(fieldPath => 
-              getFieldDisplayName(fieldPath, config?.fields) || fieldPath
-            );
-            return `[${fieldLabels.join(', ')}]`;
-          }
-          return getFieldDisplayName(expr.field, config?.fields) || '?';
-        case 'function':
-          return getFunctionSummary(expr.function);
-        case 'expressionGroup':
-          if (expr.expressions && expr.expressions.length > 1) {
-            const nestedSummaries = expr.expressions.map((nestedExpr, index) => {
-              const summary = nestedExpr.type === 'value' ? (nestedExpr.value !== undefined ? String(nestedExpr.value) : '?')
-                : nestedExpr.type === 'field' ? getFieldDisplayName(nestedExpr.field, config?.fields) || '?'
-                : nestedExpr.type === 'function' ? getFunctionSummary(nestedExpr.function)
-                : '?';
-              let operator = '';
-              if (index > 0 && expr.operators?.[index - 1]) {
-                const operatorSymbol = expr.operators[index - 1].split(' ')[0];
-                operator = ` ${operatorSymbol} `;
-              }
-              return operator + summary;
-            });
-            return `(${nestedSummaries.join('')})`;
-          } else if (expr.expressions && expr.expressions.length === 1) {
-            return getFunctionSummary(expr.expressions[0]);
-          }
-          return '?';
-        default:
-          return '?';
-      }
-    });
-    
-    return `${funcName}(${argSummaries.join(', ')})`;
-  };
-
-  const getFieldDisplayName = (fieldPath, fields) => {
-    if (!fieldPath || !fields) return fieldPath;
-    
-    const parts = fieldPath.split('.');
-    let current = fields;
-    
-    for (const part of parts) {
-      if (!current[part]) return fieldPath;
-      current = current[part];
-      
-      if (current.type === '!struct' && current.subfields) {
-        current = current.subfields;
-      }
-    }
-    
-    return current.label || parts[parts.length - 1];
-  };
-
   const renderFunctionBuilder = () => {
-    const funcTreeData = buildFuncTreeData(config?.functions || {});
-    const funcDef = getFuncDef(expressionData.function?.name);
-    
-    // Render collapsed view when not expanded and function has args
-    if (!expanded && funcDef && expressionData.function?.args && expressionData.function.args.length > 0) {
-      return (
-        <Space size={4} style={{ cursor: 'pointer' }} onClick={() => onToggleExpansion(expansionPath)}>
-          <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
-          <Text code style={{ fontSize: '12px' }}>
-            {getFunctionSummary(expressionData.function)}
-          </Text>
-          <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
-            {expressionData.returnType || 'unknown'}
-          </Tag>
-        </Space>
-      );
-    }
-    
     return (
-      <Card
-        size="small"
-        style={{
-          background: darkMode ? '#2a2a2a' : '#fafafa',
-          border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`
-        }}
-      >
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          {/* Function selector with collapse button and return type */}
-          <Space size={4} style={{ width: '100%' }}>
-            {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && (
-              <Button
-                type="text"
-                size="small"
-                icon={expanded ? <DownOutlined /> : <RightOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleExpansion(expansionPath);
-                }}
-                style={{ padding: 0, color: darkMode ? '#e0e0e0' : 'inherit', flexShrink: 0 }}
-              />
-            )}
-            <TreeSelect
-              value={expressionData.function?.name || null}
-              onChange={(funcPath) => {
-                const funcDef = getFuncDef(funcPath);
-                let initialArgs = [];
-                
-                if (funcDef?.dynamicArgs) {
-                  // Handle dynamic args - create minimum number of args
-                  const minArgs = funcDef.dynamicArgs.minArgs || 2;
-                  for (let i = 0; i < minArgs; i++) {
-                    initialArgs.push({
-                      name: `arg${i + 1}`,
-                      value: { 
-                        type: 'value', 
-                        returnType: funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
-                        value: funcDef.dynamicArgs.defaultValue ?? ''
-                      }
-                    });
-                  }
-                } else if (funcDef?.args) {
-                  // Handle fixed args - support both array and object formats
-                  
-                  if (Array.isArray(funcDef.args)) {
-                    // Array format: [{name: "arg1", type: "text", ...}, ...]
-                    initialArgs = funcDef.args.map(argDef => {
-                      const initialType = argDef.valueSources?.length === 1 ? argDef.valueSources[0] : 'value';
-                      return {
-                        name: argDef.name,
-                        value: {
-                          type: initialType,
-                          returnType: argDef.type || 'text',
-                          value: argDef.defaultValue ?? ''
-                        }
-                      };
-                    });
-                  } else {
-                    // Object format: {arg1: {type: "text", ...}, ...}
-                    initialArgs = Object.keys(funcDef.args).map(argKey => {
-                      const argDef = funcDef.args[argKey];
-                      const initialType = argDef.valueSources?.length === 1 ? argDef.valueSources[0] : 'value';
-                      return {
-                        name: argKey,
-                        value: { 
-                          type: initialType, 
-                          returnType: argDef.type || 'text',
-                          value: argDef.defaultValue ?? ''
-                        }
-                      };
-                    });
-                  }
-                }
-                
-                handleValueChange({ 
-                  returnType: funcDef?.returnType || expectedType || 'text',
-                  function: {
-                    name: funcPath,
-                    args: initialArgs
-                  }
-                });
-              }}
-              treeData={funcTreeData}
-              placeholder="Select function"
-              style={{ flex: 1 }}
-              showSearch
-              treeDefaultExpandAll
-              popupClassName="compact-tree-select"
-              treeIcon={false}
-              popupMatchSelectWidth={false}
-              onClick={(e) => e.stopPropagation()}
-              onFocus={(e) => e.stopPropagation()}
-            />
-            {funcDef && (
-              <>
-                <Text type="secondary" style={{ fontSize: '11px', margin: 0 }}>
-                  Returns:
-                </Text>
-                <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
-                  {expressionData.returnType || 'unknown'}
-                </Tag>
-              </>
-            )}
-          </Space>
-
-          {/* Function arguments */}
-          {funcDef && expressionData.function?.args && expressionData.function.args.length > 0 && expanded && (
-            <Card
-              size="small"
-              title={
-                <Text strong style={{ color: darkMode ? '#e0e0e0' : 'inherit' }}>
-                  Arguments
-                </Text>
-              }
-              style={{
-                background: darkMode ? '#2a2a2a' : '#fafafa',
-                border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`
-              }}
-            >
-              <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                {expressionData.function.args.map((arg, index) => {
-                    const isDynamicArgs = funcDef?.dynamicArgs;
-                    
-                    // Handle both array and object formats for args
-                    let argDef;
-                    if (isDynamicArgs) {
-                      argDef = funcDef.dynamicArgs || funcDef.argSpec;
-                    } else if (Array.isArray(funcDef.args)) {
-                      argDef = funcDef.args.find(a => a.name === arg.name);
-                    } else {
-                      argDef = funcDef.args[arg.name];
-                    }
-                    const expectedArgType = isDynamicArgs ? (funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType) : argDef?.type;
-                    
-                    return (
-                      <div key={index} style={{ 
-                        paddingLeft: '12px', 
-                        borderLeft: darkMode ? '2px solid #555555' : '2px solid #d9d9d9' 
-                      }}>
-                        <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                          <Space>
-                            <Text type="secondary" style={{ fontSize: '12px' }}>
-                              {isDynamicArgs ? `Arg ${index + 1}` : (argDef?.label || arg.name)}
-                              {expectedArgType && (
-                                <Tag color="blue" style={{ marginLeft: '8px', fontSize: '10px' }}>
-                                  {expectedArgType}
-                                </Tag>
-                              )}
-                            </Text>
-                            {isDynamicArgs && expressionData.function.args.length > (funcDef.dynamicArgs.minArgs || 2) && (
-                              <Button
-                                type="text"
-                                size="small"
-                                danger
-                                icon={<CloseOutlined />}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const updatedArgs = [...expressionData.function.args];
-                                  updatedArgs.splice(index, 1);
-                                  handleValueChange({ function: { ...expressionData.function, args: updatedArgs } });
-                                }}
-                                title="Remove argument"
-                              />
-                            )}
-                          </Space>
-                          <Expression
-                            value={arg.value}
-                            onChange={(newValue) => {
-                              const updatedArgs = [...expressionData.function.args];
-                              updatedArgs[index] = { ...arg, value: newValue };
-                              handleValueChange({ function: { ...expressionData.function, args: updatedArgs } });
-                            }}
-                            config={config}
-                            expectedType={expectedArgType}
-                            propArgDef={argDef}
-                            darkMode={darkMode}
-                            expansionPath={`${expansionPath}-arg-${index}`}
-                            isExpanded={isExpanded}
-                            onToggleExpansion={onToggleExpansion}
-                            isNew={isNew}
-                          />
-                        </Space>
-                      </div>
-                    );
-                  })}
-                  {/* Add argument button for dynamic args */}
-                  {funcDef?.dynamicArgs && (!funcDef.dynamicArgs.maxArgs || 
-                    expressionData.function.args.length < funcDef.dynamicArgs.maxArgs) && (
-                    <Button
-                      type="dashed"
-                      size="small"
-                      icon={<PlusOutlined />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newArgs = [...expressionData.function.args];
-                        newArgs.push({
-                          name: `arg${newArgs.length + 1}`,
-                          value: { 
-                            type: 'value', 
-                            returnType: funcDef.dynamicArgs.type || funcDef.dynamicArgs.argType || 'text', // Support both new 'type' and legacy 'argType'
-                            value: funcDef.dynamicArgs.defaultValue ?? ''
-                          }
-                        });
-                        handleValueChange({ function: { ...expressionData.function, args: newArgs } });
-                      }}
-                      style={{ width: '100%' }}
-                    >
-                      Add Argument
-                    </Button>
-                  )}
-                </Space>
-            </Card>
-          )}
-        </Space>
-      </Card>
+      <FunctionExpression
+        value={expressionData}
+        onChange={handleValueChange}
+        config={config}
+        darkMode={darkMode}
+        expansionPath={expansionPath}
+        isExpanded={isExpanded}
+        onToggleExpansion={onToggleExpansion}
+        expanded={expanded}
+        expectedType={expectedType}
+        isNew={isNew}
+      />
     );
   };
 
