@@ -4,7 +4,7 @@ import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, Link
 import moment from 'moment';
 import RuleReference from './RuleReference';
 import ExpressionGroup from './ExpressionGroup';
-import FunctionExpression from './FunctionExpression';
+import Function from './Function';
 import { checkInternalTypeConsistency } from './utils/typeValidation';
 
 const { Text } = Typography;
@@ -723,7 +723,7 @@ const Expression = ({
 
   const renderFunctionBuilder = () => {
     return (
-      <FunctionExpression
+      <Function
         value={expressionData}
         onChange={handleValueChange}
         config={config}

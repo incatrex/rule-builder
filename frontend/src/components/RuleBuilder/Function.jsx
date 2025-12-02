@@ -6,7 +6,7 @@ import FunctionArgument from './FunctionArgument';
 const { Text } = Typography;
 
 /**
- * FunctionExpression Component
+ * Function Component
  * 
  * Renders a function builder with function selector and argument editors.
  * Supports both fixed and dynamic argument functions.
@@ -23,7 +23,7 @@ const { Text } = Typography;
  * - expectedType: Expected return type
  * - isNew: Whether this is a new rule
  */
-const FunctionExpression = ({
+const Function = ({
   value,
   onChange,
   config,
@@ -408,4 +408,4 @@ const FunctionExpression = ({
   );
 };
 
-export default FunctionExpression;
+export default Function;
