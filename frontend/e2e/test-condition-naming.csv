@@ -1,8 +1,8 @@
 ﻿Test Scenario,Steps,Expected Names
 New Simple Condition - Verify Default Names,"Create new rule with structure = ""condition""",Condition
 ,Change source to Group,"Condition Group --> Condition 1, Condition 2"
-,Chage source to Rule,Condition
-,Select Rule,Condition name = {rule id}
+,Change source to Rule,Condition Group
+,Select Rule,{rule id}
 ,Change source to Condition,Condition
 ,,
 ,Add Condition,"Condition Group --> Condition 1, Condition 2"
@@ -38,7 +38,7 @@ New Case Expression - Verify Default Names,"Create new rule and change struture 
 ,Add Condition,"Condition Group 1 --> Condition 1.1, Condition 1.2"
 ,Change Condition 1.1 source to Group,"Condition Group 1.1 --> Condition 1.1.1, Condition 1.1.2"
 ,Change Condition Group 1.1 source to Rule,Condition Group 1.1
-,Select Rule,Condition name = {rule id}
+,Select Rule,{rule id}
 ,Change Condition 1.1 source to Condition,Condition 1.1
 ,Change Condition 1.2 source to Group,"Condition Group 1.2 --> Condition 1.2.1, Condition 1.2.2"
 ,Change Condition 1.2.1 source to Group,"Condition Group 1.2.1 --> Condition 1.2.1.1, Condition 1.2.1.2"
@@ -47,13 +47,13 @@ New Case Expression - Verify Default Names,"Create new rule and change struture 
 ,add WHEN clause,"WHEN: Condition 2,THEN: Result 2, ELSE: Default"
 ,Change Condition 2 source to Group,"Condition Group 2 --> Condition 2.1, Condition 2.2"
 ,Change Condition Group 2 source to Rule,Condition Group 2
-,Select Rule,Condition name = {rule id}
+,Select Rule,{rule id}
 ,Change Condition 2 source to Condition,Condition 2
 ,,
 ,Add Condition,"Condition Group 2 --> Condition 2.1, Condition 2.2"
 ,Change Condition 2.1 source to Group,"Condition Group 2.1 --> Condition 2.1.1, Condition 2.1.2"
 ,Change Condition Group 2.1 source to Rule,Condition Group 2.1
-,Select Rule,Condition name = {rule id}
+,Select Rule,{rule id}
 ,Change Condition 2.1 source to Condition,Condition 2.1
 ,Change Condition 2.2 source to Group,"Condition Group 2.2 --> Condition 2.2.1, Condition 2.2.2"
 ,Change Condition 2.2.1 source to Group,"Condition Group 2.2.1 --> Condition 2.2.1.1, Condition 2.2.1.2"

@@ -186,16 +186,23 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     // CSV Row 4: Change source to Rule
     console.log('\nCSV Row 4: Change source to Rule');
     await selectSourceByPath(page, 'condition-0', 'Rule');
+    await page.waitForTimeout(500);
     
-    // Verify: Back to "Condition"
-    await expect(page.locator('code:has-text("Condition")')).toBeVisible();
-    console.log('✓ Verified: Condition');
+    // Verify: "Condition Group" (name preserved from when it was a group)
+    const jsonTextarea = page.getByTestId('json-editor-textarea');
+    const jsonContent = await jsonTextarea.inputValue();
+    const parsedJson = JSON.parse(jsonContent);
+    expect(parsedJson.definition.name).toBe('Condition Group');
+    console.log('✓ Verified: Condition Group');
 
     // CSV Row 5: Select Rule
     console.log('\nCSV Row 5: Select Rule');
     await selectRule(page, testRuleId);
-    await expect(page.locator(`code:has-text("${testRuleId}")`)).toBeVisible();
-    console.log(`✓ Verified: Condition name = ${testRuleId}`);
+    await page.waitForTimeout(500);
+    const jsonAfterRule = await page.getByTestId('json-editor-textarea').inputValue();
+    const parsedAfterRule = JSON.parse(jsonAfterRule);
+    expect(parsedAfterRule.definition.name).toBe(testRuleId);
+    console.log(`✓ Verified: ${testRuleId}`);
 
     // CSV Row 6: Change source to Condition
     console.log('\nCSV Row 6: Change source to Condition');
@@ -230,16 +237,22 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     // CSV Row 10: Change Condition Group 1 source to Rule
     console.log('\nCSV Row 10: Change Condition Group 1 source to Rule');
     await selectSourceByPath(page, 'condition-0-condition-0', 'Rule');
+    await page.waitForTimeout(500);
     
-    // Verify: "Condition Group 1"
-    await expect(page.locator('code:has-text("Condition Group 1")')).toBeVisible();
+    // Verify: "Condition Group 1" (name preserved until rule selected)
+    const json10 = await page.getByTestId('json-editor-textarea').inputValue();
+    const parsed10 = JSON.parse(json10);
+    expect(parsed10.definition.conditions[0].name).toBe('Condition Group 1');
     console.log('✓ Verified: Condition Group 1');
 
     // CSV Row 11: Select Rule
     console.log('\nCSV Row 11: Select Rule');
     await selectRule(page, testRuleId);
-    await expect(page.locator(`code:has-text("${testRuleId}")`)).toBeVisible();
-    console.log(`✓ Verified: Condition name = ${testRuleId}`);
+    await page.waitForTimeout(500);
+    const json11 = await page.getByTestId('json-editor-textarea').inputValue();
+    const parsed11 = JSON.parse(json11);
+    expect(parsed11.definition.conditions[0].name).toBe(testRuleId);
+    console.log(`✓ Verified: ${testRuleId}`);
 
     // CSV Row 12: Change Condition 1 source to Condition
     console.log('\nCSV Row 12: Change Condition 1 source to Condition');
@@ -406,7 +419,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     console.log('\nCSV Row 32: Change Condition Group 1 source to Rule');
     await selectSourceByPath(page, 'case-0-when-0', 'Rule');
     
-    // Verify: WHEN header still shows "Condition Group 1" (now with rule selector, no longer a group with children)
+    // Verify: WHEN header still shows "Condition Group 1" (name preserved until rule selected)
     await expect(page.getByTestId('when-clause-name-case-0-when-0')).toContainText('Condition Group 1');
     console.log('✓ Verified: WHEN header = Condition Group 1');
 
@@ -469,17 +482,23 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     // CSV Row 41: Change Condition Group 1.1 source to Rule
     console.log('\nCSV Row 41: Change Condition Group 1.1 source to Rule');
     await selectSourceByPath(page, 'case-0-when-0-condition-0', 'Rule');
+    await page.waitForTimeout(500);
     
-    // Verify: "Condition Group 1.1" (use .first() as header also has name)
-    await expect(page.locator('code:has-text("Condition Group 1.1")').first()).toBeVisible();
+    // Verify: "Condition Group 1.1" (name preserved until rule selected)
+    const json41 = await page.getByTestId('json-editor-textarea').inputValue();
+    const parsed41 = JSON.parse(json41);
+    expect(parsed41.definition.whenClauses[0].when.conditions[0].name).toBe('Condition Group 1.1');
     console.log('✓ Verified: Condition Group 1.1');
 
     // CSV Row 42: Select a rule
     console.log('\nCSV Row 42: Select a rule');
     await selectRule(page, testRuleId);
-    // Verify using the inline conditiongroup header - look for code containing the rule ID (may have suffix)
-    await expect(page.locator('code').filter({ hasText: new RegExp(testRuleId) }).first()).toBeVisible();
-    console.log(`✓ Verified: Condition name = ${testRuleId}`);
+    await page.waitForTimeout(500);
+    // Verify the rule ID is shown in the name field
+    const json42 = await page.getByTestId('json-editor-textarea').inputValue();
+    const parsed42 = JSON.parse(json42);
+    expect(parsed42.definition.whenClauses[0].when.conditions[0].name).toBe(testRuleId);
+    console.log(`✓ Verified: ${testRuleId}`);
 
     // CSV Row 43: Change Condition 1.1 source to Condition
     console.log('\nCSV Row 43: Change Condition 1.1 source to Condition');
@@ -546,7 +565,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     console.log('\nCSV Row 50: Change Condition Group 2 source to Rule');
     await selectSourceByPath(page, 'case-0-when-1', 'Rule');
     
-    // Verify: WHEN header still shows "Condition Group 2" (now with rule selector)
+    // Verify: WHEN header still shows "Condition Group 2" (name preserved until rule selected)
     await expect(page.getByTestId('when-clause-name-case-0-when-1')).toContainText('Condition Group 2');
     console.log('✓ Verified: WHEN header = Condition Group 2');
 
@@ -593,16 +612,22 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     // CSV Row 56: Change Condition Group 2.1 source to Rule
     console.log('\nCSV Row 56: Change Condition Group 2.1 source to Rule');
     await selectSourceByPath(page, 'case-0-when-1-condition-0', 'Rule');
+    await page.waitForTimeout(500);
     
-    // Verify: "Condition Group 2.1" (use .first() as header also has name)
-    await expect(page.locator('code:has-text("Condition Group 2.1")').first()).toBeVisible();
+    // Verify: "Condition Group 2.1" (name preserved until rule selected)
+    const json56 = await page.getByTestId('json-editor-textarea').inputValue();
+    const parsed56 = JSON.parse(json56);
+    expect(parsed56.definition.whenClauses[1].when.conditions[0].name).toBe('Condition Group 2.1');
     console.log('✓ Verified: Condition Group 2.1');
 
     // CSV Row 57: Select Rule
     console.log('\nCSV Row 57: Select Rule');
     await selectRule(page, testRuleId);
-    await expect(page.locator(`code:has-text("${testRuleId}")`).first()).toBeVisible();
-    console.log(`✓ Verified: Condition name = ${testRuleId}`);
+    await page.waitForTimeout(500);
+    const json57 = await page.getByTestId('json-editor-textarea').inputValue();
+    const parsed57 = JSON.parse(json57);
+    expect(parsed57.definition.whenClauses[1].when.conditions[0].name).toBe(testRuleId);
+    console.log(`✓ Verified: ${testRuleId}`);
 
     // CSV Row 58: Change Condition 2.1 source to Condition
     console.log('\nCSV Row 58: Change Condition 2.1 source to Condition');
