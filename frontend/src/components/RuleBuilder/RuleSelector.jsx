@@ -86,8 +86,7 @@ const RuleSelector = ({
       const options = ruleIds.map(rule => {
         // Build display label with folder path if present
         const folderPrefix = rule.folderPath ? `${rule.folderPath}/` : '';
-        const returnTypeLabel = showReturnType && rule.returnType ? ` [${rule.returnType}]` : '';
-        const displayLabel = `${folderPrefix}${rule.ruleId} (v${rule.latestVersion})${returnTypeLabel}`;
+        const displayLabel = `${folderPrefix}${rule.ruleId} (v${rule.latestVersion})`;
         
         return {
           value: `${rule.ruleId}.${rule.uuid}`,
