@@ -784,4 +784,297 @@ class RuleValidationServiceTest {
         // path, schemaPath, arguments may be null for some errors
     }
 
+    // ==================== NEW RULETYPE VALUES ====================
+
+    @Test
+    @DisplayName("RuleType 'Condition' should be valid")
+    void testRuleTypeCondition() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Condition",
+              "uuId": "12345678-1234-1234-1234-123456789012",
+              "version": 1,
+              "metadata": {
+                "id": "CONDITION_RULE",
+                "description": "A condition rule"
+              },
+              "definition": {
+                "type": "condition",
+                "returnType": "boolean",
+                "name": "Test Condition",
+                "left": {
+                  "type": "field",
+                  "returnType": "number",
+                  "field": "PERSON.AGE"
+                },
+                "operator": "greater",
+                "right": {
+                  "type": "value",
+                  "returnType": "number",
+                  "value": 18
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        assertNotNull(result);
+        assertEquals(0, result.getErrorCount(), 
+            "RuleType 'Condition' should be valid. Errors: " + result.getErrors());
+    }
+
+    @Test
+    @DisplayName("RuleType 'Condition Group' should be valid")
+    void testRuleTypeConditionGroup() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Condition Group",
+              "uuId": "12345678-1234-1234-1234-123456789012",
+              "version": 1,
+              "metadata": {
+                "id": "CONDITION_GROUP_RULE",
+                "description": "A condition group rule"
+              },
+              "definition": {
+                "type": "conditionGroup",
+                "returnType": "boolean",
+                "name": "Test Group",
+                "conjunction": "AND",
+                "not": false,
+                "conditions": [
+                  {
+                    "type": "condition",
+                    "returnType": "boolean",
+                    "name": "Age check",
+                    "left": {
+                      "type": "field",
+                      "returnType": "number",
+                      "field": "PERSON.AGE"
+                    },
+                    "operator": "greater",
+                    "right": {
+                      "type": "value",
+                      "returnType": "number",
+                      "value": 18
+                    }
+                  }
+                ]
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        assertNotNull(result);
+        assertEquals(0, result.getErrorCount(), 
+            "RuleType 'Condition Group' should be valid. Errors: " + result.getErrors());
+    }
+
+    // ==================== RULETYPE CONSTRAINTS IN RULEREF ====================
+
+    @Test
+    @DisplayName("Condition with ruleRef must have ruleType='Condition'")
+    void testConditionRuleRefRequiresConditionRuleType() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "12345678-1234-1234-1234-123456789012",
+              "version": 1,
+              "metadata": {
+                "id": "CONDITION_WITH_RULEREF",
+                "description": "Condition using rule reference"
+              },
+              "definition": {
+                "type": "condition",
+                "returnType": "boolean",
+                "name": "Referenced Condition",
+                "ruleRef": {
+                  "id": "OTHER_CONDITION",
+                  "uuid": "87654321-4321-4321-4321-210987654321",
+                  "version": 1,
+                  "returnType": "boolean",
+                  "ruleType": "Condition"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        assertNotNull(result);
+        assertEquals(0, result.getErrorCount(), 
+            "Condition with ruleRef having ruleType='Condition' should be valid. Errors: " + result.getErrors());
+    }
+
+    @Test
+    @DisplayName("Condition with ruleRef having wrong ruleType should fail schema validation")
+    void testConditionRuleRefWrongRuleType() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "12345678-1234-1234-1234-123456789012",
+              "version": 1,
+              "metadata": {
+                "id": "CONDITION_WITH_WRONG_RULEREF",
+                "description": "Condition with wrong ruleType in ruleRef"
+              },
+              "definition": {
+                "type": "condition",
+                "returnType": "boolean",
+                "name": "Referenced Condition",
+                "ruleRef": {
+                  "id": "OTHER_RULE",
+                  "uuid": "87654321-4321-4321-4321-210987654321",
+                  "version": 1,
+                  "returnType": "boolean",
+                  "ruleType": "Reporting"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        assertNotNull(result);
+        assertTrue(result.getErrorCount() > 0, "Should have validation errors");
+        
+        // Schema's const constraint should catch this
+        boolean hasRuleTypeError = result.getErrors().stream()
+            .anyMatch(err -> err.getType().equals("const") && 
+                           err.getMessage().contains("ruleType") &&
+                           err.getMessage().contains("Condition"));
+        assertTrue(hasRuleTypeError, 
+            "Should have const error about ruleType='Condition' requirement. Errors: " + result.getErrors());
+    }
+
+    @Test
+    @DisplayName("ConditionGroup with ruleRef must have ruleType='Condition Group'")
+    void testConditionGroupRuleRefRequiresConditionGroupRuleType() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "12345678-1234-1234-1234-123456789012",
+              "version": 1,
+              "metadata": {
+                "id": "CONDITIONGROUP_WITH_RULEREF",
+                "description": "ConditionGroup using rule reference"
+              },
+              "definition": {
+                "type": "conditionGroup",
+                "returnType": "boolean",
+                "name": "Referenced Group",
+                "ruleRef": {
+                  "id": "OTHER_GROUP",
+                  "uuid": "87654321-4321-4321-4321-210987654321",
+                  "version": 1,
+                  "returnType": "boolean",
+                  "ruleType": "Condition Group"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        assertNotNull(result);
+        assertEquals(0, result.getErrorCount(), 
+            "ConditionGroup with ruleRef having ruleType='Condition Group' should be valid. Errors: " + result.getErrors());
+    }
+
+    @Test
+    @DisplayName("ConditionGroup with ruleRef having wrong ruleType should fail schema validation")
+    void testConditionGroupRuleRefWrongRuleType() throws IOException {
+        String json = """
+            {
+              "structure": "condition",
+              "returnType": "boolean",
+              "ruleType": "Validation",
+              "uuId": "12345678-1234-1234-1234-123456789012",
+              "version": 1,
+              "metadata": {
+                "id": "CONDITIONGROUP_WITH_WRONG_RULEREF",
+                "description": "ConditionGroup with wrong ruleType in ruleRef"
+              },
+              "definition": {
+                "type": "conditionGroup",
+                "returnType": "boolean",
+                "name": "Referenced Group",
+                "ruleRef": {
+                  "id": "OTHER_RULE",
+                  "uuid": "87654321-4321-4321-4321-210987654321",
+                  "version": 1,
+                  "returnType": "boolean",
+                  "ruleType": "Validation"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        assertNotNull(result);
+        assertTrue(result.getErrorCount() > 0, "Should have validation errors");
+        
+        // Schema's const constraint should catch this - may appear as either
+        // "Condition" (from Condition branch of oneOf) or "Condition Group" (from ConditionGroup branch)
+        boolean hasRuleTypeError = result.getErrors().stream()
+            .anyMatch(err -> err.getType().equals("const") && 
+                           err.getMessage().contains("ruleType"));
+        assertTrue(hasRuleTypeError, 
+            "Should have const error about ruleType requirement. Errors: " + result.getErrors());
+    }
+
+    @Test
+    @DisplayName("Expression with ruleRef can have any valid ruleType (schema default is Transformation)")
+    void testExpressionRuleRefFlexibleRuleType() throws IOException {
+        String json = """
+            {
+              "structure": "expression",
+              "returnType": "number",
+              "ruleType": "Reporting",
+              "uuId": "12345678-1234-1234-1234-123456789012",
+              "version": 1,
+              "metadata": {
+                "id": "EXPRESSION_WITH_RULEREF",
+                "description": "Expression using rule reference"
+              },
+              "definition": {
+                "type": "ruleRef",
+                "returnType": "number",
+                "ruleRef": {
+                  "id": "OTHER_RULE",
+                  "uuid": "87654321-4321-4321-4321-210987654321",
+                  "version": 1,
+                  "returnType": "number",
+                  "ruleType": "Aggregation"
+                }
+              }
+            }
+            """;
+
+        JsonNode rule = objectMapper.readTree(json);
+        ValidationResult result = validationService.validate(rule);
+
+        assertNotNull(result);
+        assertEquals(0, result.getErrorCount(), 
+            "Expression with ruleRef should accept any valid ruleType. Errors: " + result.getErrors());
+    }
+
 }

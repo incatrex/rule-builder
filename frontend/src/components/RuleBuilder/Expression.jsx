@@ -1071,6 +1071,7 @@ const Expression = ({
         darkMode={darkMode}
         expectedType={expectedType}
         compact={false}
+        ruleTypeConstraint={{ mode: 'default', value: 'Transformation' }}
       />
     );
   };

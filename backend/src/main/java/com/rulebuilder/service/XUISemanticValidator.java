@@ -631,6 +631,32 @@ public class XUISemanticValidator {
                 Map.of("expectedType", "boolean", "actualType", returnType, "context", context)
             ));
         }
+        
+        // Check ruleType constraint based on context (schema const values)
+        // Note: ruleType is optional in the base RuleReference definition,
+        // but if present, it must match the context-specific constraint
+        if (ruleRef.has("ruleType")) {
+            String ruleType = ruleRef.get("ruleType").asText();
+            String expectedRuleType = null;
+            
+            // Based on schema const constraints:
+            // - Condition context requires ruleType = "Condition"
+            // - ConditionGroup context requires ruleType = "Condition Group"
+            if ("condition".equals(context)) {
+                expectedRuleType = "Condition";
+            } else if ("conditionGroup".equals(context)) {
+                expectedRuleType = "Condition Group";
+            }
+            
+            if (expectedRuleType != null && !expectedRuleType.equals(ruleType)) {
+                errors.add(createError(
+                    "x-ui-validation",
+                    path + ".ruleType",
+                    "Rule reference in " + context + " context must have ruleType='" + expectedRuleType + "', got: " + ruleType,
+                    Map.of("expectedRuleType", expectedRuleType, "actualRuleType", ruleType, "context", context)
+                ));
+            }
+        }
     }
     
     /**
