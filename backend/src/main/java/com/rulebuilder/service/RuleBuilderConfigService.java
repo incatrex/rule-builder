@@ -207,6 +207,14 @@ public class RuleBuilderConfigService {
                 funcDefNode.put("label", funcDef.get("label").asText());
                 funcDefNode.put("returnType", funcDef.get("returnType").asText());
                 
+                // Add customUI flag if present
+                if (funcDef.has("customUI")) {
+                    JsonNode customUINode = funcDef.get("customUI");
+                    if (customUINode.isBoolean()) {
+                        funcDefNode.put("customUI", customUINode.asBoolean());
+                    }
+                }
+                
                 // Handle dynamic vs fixed args
                 if (funcDef.has("dynamicArgs") && funcDef.get("dynamicArgs").asBoolean()) {
                     funcDefNode.set("dynamicArgs", funcDef.get("argSpec"));
@@ -228,6 +236,12 @@ public class RuleBuilderConfigService {
                             }
                             if (arg.has("options")) {
                                 argDef.set("options", arg.get("options"));
+                            }
+                            if (arg.has("optionsRef")) {
+                                JsonNode optionsRefNode = arg.get("optionsRef");
+                                if (optionsRefNode.isTextual()) {
+                                    argDef.put("optionsRef", optionsRefNode.asText());
+                                }
                             }
                             if (arg.has("valueSources")) {
                                 argDef.set("valueSources", arg.get("valueSources"));

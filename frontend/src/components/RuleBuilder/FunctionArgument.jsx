@@ -1,7 +1,8 @@
-import React from 'react';
-import { Space, Typography, Tag, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Space, Typography, Tag, Button, Spin } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import Expression from './Expression';
+import argumentOptionsService from '../../services/ArgumentOptionsService';
 
 const { Text } = Typography;
 
@@ -40,9 +41,49 @@ const FunctionArgument = ({
   onToggleExpansion,
   isNew
 }) => {
+  const [dynamicOptions, setDynamicOptions] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const expectedArgType = isDynamicArgs 
     ? (argDef?.type || argDef?.argType) 
     : argDef?.type;
+
+  // Load dynamic options if optionsRef is specified
+  useEffect(() => {
+    if (argDef?.optionsRef) {
+      setIsLoading(true);
+      argumentOptionsService.getOptionsForRef(argDef.optionsRef)
+        .then(options => {
+          setDynamicOptions(options);
+          setIsLoading(false);
+        })
+        .catch(err => {
+          console.error(`Failed to load options for ${argDef.optionsRef}:`, err);
+          setDynamicOptions([]);
+          setIsLoading(false);
+        });
+    }
+  }, [argDef?.optionsRef]);
+
+  // Determine final options and pagination status
+  const options = argDef?.optionsRef ? dynamicOptions : argDef?.options;
+  const isPaginated = argDef?.optionsRef && 
+    argumentOptionsService.isPaginated(argDef.optionsRef);
+
+  // Create enhanced argDef with dynamic options
+  const enhancedArgDef = {
+    ...argDef,
+    options,
+    isPaginated,
+    loading: isLoading,
+    onSearch: isPaginated ? (searchTerm) => {
+      argumentOptionsService.getOptionsForRef(argDef.optionsRef, searchTerm)
+        .then(setDynamicOptions)
+        .catch(err => {
+          console.error(`Search failed for ${argDef.optionsRef}:`, err);
+        });
+    } : undefined
+  };
   
   return (
     <div style={{ 
@@ -73,18 +114,24 @@ const FunctionArgument = ({
             />
           )}
         </Space>
-        <Expression
-          value={arg.value}
-          onChange={onChange}
-          config={config}
-          expectedType={expectedArgType}
-          propArgDef={argDef}
-          darkMode={darkMode}
-          expansionPath={`${expansionPath}-arg-${index}`}
-          isExpanded={isExpanded}
-          onToggleExpansion={onToggleExpansion}
-          isNew={isNew}
-        />
+        {isLoading ? (
+          <div data-testid="loading-indicator">
+            <Spin size="small" />
+          </div>
+        ) : (
+          <Expression
+            value={arg.value}
+            onChange={onChange}
+            config={config}
+            expectedType={expectedArgType}
+            propArgDef={enhancedArgDef}
+            darkMode={darkMode}
+            expansionPath={`${expansionPath}-arg-${index}`}
+            isExpanded={isExpanded}
+            onToggleExpansion={onToggleExpansion}
+            isNew={isNew}
+          />
+        )}
       </Space>
     </div>
   );

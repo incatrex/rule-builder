@@ -40,33 +40,11 @@ config:
 
 [x] distinguish buttons for add Expression vs add ExpressionGroup
 
-[ ] uuid to lowercase
+[x] version min to be 0 instead of 1 - NOT REQUIRED
 
-[ ] version min to be 0 instead of 1 - not required?
-
-[ ] Re-work validation
-    [x] Move error translation to backend
-    [ ] Confirm/test key validationi points
-
-[ ] Add Business Logic service + Component/Panel
-
-[ ] Review / Simplify components
-    [ ] expand / collapse logic - standardize and test
-
-[ ] Testing
-    [ ] data-test-id every element
-    [ ] integration test coverage
-    [ ] unit test coverage
-    [ ] rationalize front round trip tests - get rid of those not deeded
-
-[ ] Rule History
-    [x] Release Tags/
-    [ ] SQL
-    [ ] double check test-integration.sh (4 vs 3 versions?)
-
+[X] Re-work validation - Move error translation to backend
 
 [ ] Services
-    [ ] filter by tenant/sub-tenant?
     [x] GET api/rules/ids = /list?
     [x] GET api/config = /api/rules/config
     [x] POST /api/rules - confirm how this is being used.
@@ -84,7 +62,34 @@ config:
 
 [x] expression groups and condition groups behave same way
 
-[ ] custom pop-ups
+[ ] custom argument options
+[ ] custom function modals
 
-Expand / Collapse Logic:
+[ ] allow multiple options (but subset) of rule types for Condition / Condition Group 
+[ ] configure URL:
+    load: uuid={uuid}, version={version or latest}
+    new: structure = {condition|case|expression}, ruleType = {ruleType}, returnType = {boolean|number|text|date}
 
+[ ] Type checking + warnings on UI
+    [ ] Allow edit of return type
+
+[ ] Date format - add to schema? (YYYY-MM-DD)
+
+[ ] Rule History MVP - requires SQL
+
+[ ] Add Business Logic service + Component/Panel
+
+[ ] Review / Simplify components
+    [ ] expand / collapse logic - standardize and test
+
+[ ] Testing
+    [ ] Vitest vs Jest?
+    [ ] Playwright vs cucumber + selenium?
+    [ ] data-test-id every element
+    [ ] coverage - backend
+    [ ] coverage - frontend vitest
+    [ ] coverage - e2e
+    [ ] validate - more good + bad rule samples
+    [ ] optimize for speed
+
+[ ] uuid to lowercase

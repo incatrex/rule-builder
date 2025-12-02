@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Space, TreeSelect, Card, Typography, Tag, Button } from 'antd';
-import { DownOutlined, RightOutlined, PlusOutlined } from '@ant-design/icons';
+import { DownOutlined, RightOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import FunctionArgument from './FunctionArgument';
+import CustomFunctionModal from './CustomFunctionModal';
 
 const { Text } = Typography;
 
@@ -174,6 +175,9 @@ const Function = ({
   const funcTreeData = buildFuncTreeData(config?.functions || {});
   const funcDef = getFuncDef(value.function?.name);
 
+  // State for custom UI modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Handle value changes
   const handleValueChange = (updates) => {
     const updated = { ...value, ...updates };
@@ -268,6 +272,29 @@ const Function = ({
     handleValueChange({ function: { ...value.function, args: newArgs } });
   };
 
+  // Handle custom UI modal save
+  const handleModalSave = (argValues) => {
+    // Convert argValues object to args array
+    const argsArray = Object.keys(argValues).map(argName => ({
+      name: argName,
+      value: argValues[argName]
+    }));
+    
+    handleValueChange({ function: { ...value.function, args: argsArray } });
+    setIsModalOpen(false);
+  };
+
+  // Get initial values for modal from existing args
+  const getModalInitialValues = () => {
+    if (!value.function?.args) return {};
+    
+    const initialValues = {};
+    value.function.args.forEach(arg => {
+      initialValues[arg.name] = arg.value;
+    });
+    return initialValues;
+  };
+
   // Render collapsed view when not expanded and function has args
   if (!expanded && funcDef && value.function?.args && value.function.args.length > 0) {
     return (
@@ -323,6 +350,20 @@ const Function = ({
           />
           {funcDef && (
             <>
+              {funcDef.customUI && (
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<SettingOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsModalOpen(true);
+                  }}
+                  data-testid="configure-arguments-button"
+                >
+                  Configure Arguments
+                </Button>
+              )}
               <Text type="secondary" style={{ fontSize: '11px', margin: 0 }}>
                 Returns:
               </Text>
@@ -334,7 +375,7 @@ const Function = ({
         </Space>
 
         {/* Function arguments */}
-        {funcDef && value.function?.args && value.function.args.length > 0 && expanded && (
+        {funcDef && !funcDef.customUI && value.function?.args && value.function.args.length > 0 && expanded && (
           <Card
             size="small"
             title={
@@ -402,6 +443,19 @@ const Function = ({
               )}
             </Space>
           </Card>
+        )}
+
+        {/* Custom UI Modal */}
+        {funcDef?.customUI && (
+          <CustomFunctionModal
+            open={isModalOpen}
+            funcDef={funcDef}
+            initialValues={getModalInitialValues()}
+            config={config}
+            darkMode={darkMode}
+            onSave={handleModalSave}
+            onCancel={() => setIsModalOpen(false)}
+          />
         )}
       </Space>
     </Card>

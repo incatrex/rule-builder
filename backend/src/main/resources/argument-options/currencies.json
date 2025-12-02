@@ -1,0 +1,10 @@
+[
+  { "value": "USD", "label": "US Dollar ($)" },
+  { "value": "EUR", "label": "Euro (€)" },
+  { "value": "GBP", "label": "British Pound (£)" },
+  { "value": "JPY", "label": "Japanese Yen (¥)" },
+  { "value": "CHF", "label": "Swiss Franc (CHF)" },
+  { "value": "CAD", "label": "Canadian Dollar (C$)" },
+  { "value": "AUD", "label": "Australian Dollar (A$)" },
+  { "value": "CNY", "label": "Chinese Yuan (¥)" }
+]
