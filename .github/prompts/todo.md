@@ -65,10 +65,13 @@ config:
 [x] custom argument options
 [x] custom function modals
 
-[ ] allow multiple options (but subset) of rule types for Condition / Condition Group 
+[x] allow multiple options (but subset) of rule types for Condition / Condition Group 
+
 [ ] configure URL:
     load: uuid={uuid}, version={version or latest}
     new: structure = {condition|case|expression}, ruleType = {ruleType}, returnType = {boolean|number|text|date}
+
+[ ] open rule from RuleRefernce
 
 [ ] Type checking + warnings on UI
     [ ] Allow edit of return type

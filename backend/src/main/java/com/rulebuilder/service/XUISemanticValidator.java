@@ -632,28 +632,32 @@ public class XUISemanticValidator {
             ));
         }
         
-        // Check ruleType constraint based on context (schema const values)
+        // Check ruleType constraint based on context (schema const/enum values)
         // Note: ruleType is optional in the base RuleReference definition,
         // but if present, it must match the context-specific constraint
         if (ruleRef.has("ruleType")) {
             String ruleType = ruleRef.get("ruleType").asText();
-            String expectedRuleType = null;
+            Set<String> allowedRuleTypes = new HashSet<>();
             
-            // Based on schema const constraints:
-            // - Condition context requires ruleType = "Condition"
-            // - ConditionGroup context requires ruleType = "Condition Group"
+            // Based on schema constraints:
+            // - Condition context allows enum: ["Condition", "List"]
+            // - ConditionGroup context requires const: "Condition Group"
             if ("condition".equals(context)) {
-                expectedRuleType = "Condition";
+                allowedRuleTypes.add("Condition");
+                allowedRuleTypes.add("List");
             } else if ("conditionGroup".equals(context)) {
-                expectedRuleType = "Condition Group";
+                allowedRuleTypes.add("Condition Group");
             }
             
-            if (expectedRuleType != null && !expectedRuleType.equals(ruleType)) {
+            if (!allowedRuleTypes.isEmpty() && !allowedRuleTypes.contains(ruleType)) {
+                String allowedTypesStr = allowedRuleTypes.size() == 1 
+                    ? "'" + allowedRuleTypes.iterator().next() + "'"
+                    : allowedRuleTypes.toString();
                 errors.add(createError(
                     "x-ui-validation",
                     path + ".ruleType",
-                    "Rule reference in " + context + " context must have ruleType='" + expectedRuleType + "', got: " + ruleType,
-                    Map.of("expectedRuleType", expectedRuleType, "actualRuleType", ruleType, "context", context)
+                    "Rule reference in " + context + " context must have ruleType=" + allowedTypesStr + ", got: " + ruleType,
+                    Map.of("allowedRuleTypes", allowedRuleTypes, "actualRuleType", ruleType, "context", context)
                 ));
             }
         }

@@ -38,7 +38,7 @@ const RuleSelector = ({
   initialRuleType = null,
   onRuleTypeChange = null,
   returnType = null, // Current rule's return type for display
-  ruleTypeConstraint = null // { mode: 'const'|'default', value: 'RuleType' } or null
+  ruleTypeConstraint = null // { mode: 'const'|'default'|'allowlist', value: 'RuleType', values: ['Type1', 'Type2'] } or null
 }) => {
   const [ruleList, setRuleList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -47,12 +47,21 @@ const RuleSelector = ({
   // Determine effective ruleType based on constraint
   const isConstrained = ruleTypeConstraint?.mode === 'const';
   const hasDefault = ruleTypeConstraint?.mode === 'default';
+  const isAllowlist = ruleTypeConstraint?.mode === 'allowlist';
   const constraintValue = ruleTypeConstraint?.value;
+  const constraintValues = ruleTypeConstraint?.values; // For allowlist mode
   
   // Ensure ruleTypes is always an array with defaults
-  const safeRuleTypes = Array.isArray(ruleTypes) && ruleTypes.length > 0 
+  let safeRuleTypes = Array.isArray(ruleTypes) && ruleTypes.length > 0 
     ? ruleTypes 
-    : ['Reporting', 'Transformation', 'Aggregation', 'Validation', 'Condition', 'Condition Group'];
+    : ['Reporting', 'Transformation', 'Aggregation', 'Validation', 'Condition', 'Condition Group', 'List'];
+  
+  // Filter ruleTypes based on constraint mode
+  if (isConstrained && constraintValue) {
+    safeRuleTypes = [constraintValue];
+  } else if (isAllowlist && Array.isArray(constraintValues)) {
+    safeRuleTypes = constraintValues;
+  }
 
   // Update selectedRuleType when initialRuleType prop changes
   useEffect(() => {
@@ -191,7 +200,7 @@ const RuleSelector = ({
             value={selectedRuleType}
             onChange={handleRuleTypeChange}
             placeholder="Filter by Rule Type..."
-            allowClear={!isConstrained}
+            allowClear={!isConstrained && !isAllowlist}
             disabled={isConstrained}
             style={{ minWidth: '150px', width: 'auto' }}
             options={safeRuleTypes.map(type => ({ value: type, label: type }))}
