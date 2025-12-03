@@ -231,8 +231,9 @@ const Function = ({
       
       if (Array.isArray(funcDef.args)) {
         // Array format: [{name: "arg1", type: "text", ...}, ...]
-        initialArgs = funcDef.args.map(argDef => {
-          const initialType = argDef.valueSources?.length === 1 ? argDef.valueSources[0] : 'value';
+        initialArgs = funcDef.args.map((argDef, idx) => {
+          // Use first available source from valueSources, or 'value' as fallback
+          const initialType = argDef.valueSources?.[0] || 'value';
           // Provide sensible defaults based on type
           let defaultValue = argDef.defaultValue;
           if (defaultValue === undefined) {
@@ -257,7 +258,8 @@ const Function = ({
         // Object format: {arg1: {type: "text", ...}, ...}
         initialArgs = Object.keys(funcDef.args).map(argKey => {
           const argDef = funcDef.args[argKey];
-          const initialType = argDef.valueSources?.length === 1 ? argDef.valueSources[0] : 'value';
+          // Use first available source from valueSources, or 'value' as fallback
+          const initialType = argDef.valueSources?.[0] || 'value';
           // Provide sensible defaults based on type
           let defaultValue = argDef.defaultValue;
           if (defaultValue === undefined) {
