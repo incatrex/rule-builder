@@ -25,6 +25,7 @@ const { Text } = Typography;
  * - isExpanded: Expansion state checker
  * - onToggleExpansion: Toggle expansion callback
  * - isNew: Whether this is a new rule
+ * - customComponents: Map of custom component names to implementations
  */
 const FunctionArgument = ({
   arg,

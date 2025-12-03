@@ -63,6 +63,7 @@ export const createDirectExpression = (type = 'value', returnType = 'text', valu
  * - propArgDef: Custom argument definition for dropdowns
  * - isLoadedRule: Whether this is a loaded rule (affects expansion state)
  * - allowedSources: Allowed value sources for filtering
+ * - customComponents: Map of custom component names to implementations
  */
 const Expression = ({ 
   value, 
@@ -78,7 +79,7 @@ const Expression = ({
   onSetExpansion,
   isNew = true,
   allowedSources = null, 
-  onAddExpression = null 
+  onAddExpression = null
 }) => {
   // Normalize the value to ensure it's a proper structure
   const normalizeValue = (val) => {

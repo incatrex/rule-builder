@@ -45,6 +45,7 @@ const { Panel } = Collapse;
  * @param {Function} props.onSetExpansion - Function to set expansion explicitly
  * @param {Function} props.onExpandAll - Function to expand all
  * @param {Function} props.onCollapseAll - Function to collapse all
+ * @param {Object} props.customComponents - Map of custom component names to implementations
  */
 export const RuleBuilderUI = ({
   ruleData,

@@ -727,6 +727,7 @@
                   "category": "CURRENCY",
                   "returnType": "number",
                   "customUI": true,
+                  "customUIComponent": "CurrencyConversion",
                   "args": [
                     {"name": "amount", "label": "Amount", "type": "number", "required": true, "valueSources": ["value", "field", "function"]},
                     {"name": "fromCurrency", "label": "From Currency", "type": "text", "required": true, "valueSources": ["value"]},

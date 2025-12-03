@@ -215,6 +215,14 @@ public class RuleBuilderConfigService {
                     }
                 }
                 
+                // Add customUIComponent if present
+                if (funcDef.has("customUIComponent")) {
+                    JsonNode customUIComponentNode = funcDef.get("customUIComponent");
+                    if (customUIComponentNode.isTextual()) {
+                        funcDefNode.put("customUIComponent", customUIComponentNode.asText());
+                    }
+                }
+                
                 // Handle dynamic vs fixed args
                 if (funcDef.has("dynamicArgs") && funcDef.get("dynamicArgs").asBoolean()) {
                     funcDefNode.set("dynamicArgs", funcDef.get("argSpec"));

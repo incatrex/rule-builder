@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Layout, ConfigProvider, theme, Switch, Space, Spin, message, Button, Tabs } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { RuleConfigService } from './services/RuleConfigService.js';
@@ -12,6 +12,8 @@ import JsonEditor from './components/JsonEditor/JsonEditor';
 import SqlViewer from './components/SqlViewer/SqlViewer';
 import RuleCanvas from './components/RuleCanvas/RuleCanvas';
 import ResizablePanels from './ResizablePanels';
+import CurrencyConversion from './components/RuleBuilder/custom-functions/CurrencyConversion';
+import { CustomComponentsProvider } from './contexts/CustomComponentsContext';
 
 const { Header, Content } = Layout;
 
@@ -32,6 +34,11 @@ const App = () => {
   const configService = new RuleConfigService();
   const fieldService = new FieldService();
   const ruleService = new RuleService();
+  
+  // Memoize custom components to prevent recreation on every render
+  const customComponents = useMemo(() => ({
+    'CurrencyConversion': CurrencyConversion
+  }), []);
   
   // Check if this is canvas-only mode
   const isCanvasMode = new URLSearchParams(window.location.search).get('canvas') === 'true';
@@ -410,28 +417,30 @@ const App = () => {
                         defaultCollapsed={false}
                         maxHeight="calc(100vh - 300px)"
                       />
-                      <RuleBuilder
-                        ref={ruleBuilderRef}
-                        config={ruleConfig}
-                        darkMode={darkMode}
-                        selectedRuleUuid={selectedRuleUuid}
-                        onRuleChange={(data) => setRuleBuilderData(data)}
-                        onSaveSuccess={(result) => {
-                          // Update selected UUID if it's a new rule
-                          if (result && result.uuid && !selectedRuleUuid) {
-                            setSelectedRuleUuid(result.uuid);
-                          } else if (selectedRuleUuid) {
-                            // For existing rules, force history refresh by clearing and resetting UUID
-                            setSelectedRuleUuid(null);
-                            setTimeout(() => setSelectedRuleUuid(result.uuid), 0);
-                          }
-                          
-                          // Refresh the rule search dropdown after successful save
-                          if (ruleSearchRef.current) {
-                            ruleSearchRef.current.refresh();
-                          }
-                        }}
-                      />
+                      <CustomComponentsProvider customComponents={customComponents}>
+                        <RuleBuilder
+                          ref={ruleBuilderRef}
+                          config={ruleConfig}
+                          darkMode={darkMode}
+                          selectedRuleUuid={selectedRuleUuid}
+                          onRuleChange={(data) => setRuleBuilderData(data)}
+                          onSaveSuccess={(result) => {
+                            // Update selected UUID if it's a new rule
+                            if (result && result.uuid && !selectedRuleUuid) {
+                              setSelectedRuleUuid(result.uuid);
+                            } else if (selectedRuleUuid) {
+                              // For existing rules, force history refresh by clearing and resetting UUID
+                              setSelectedRuleUuid(null);
+                              setTimeout(() => setSelectedRuleUuid(result.uuid), 0);
+                            }
+                            
+                            // Refresh the rule search dropdown after successful save
+                            if (ruleSearchRef.current) {
+                              ruleSearchRef.current.refresh();
+                            }
+                          }}
+                        />
+                      </CustomComponentsProvider>
                     </div>
                   </div>
                 }

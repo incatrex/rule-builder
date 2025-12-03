@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { CustomComponentsProvider } from '../../contexts/CustomComponentsContext';
 
 // Mock CustomFunctionModal
 vi.mock('./CustomFunctionModal', () => ({
@@ -85,7 +86,7 @@ describe('Function - Custom UI Support', () => {
     vi.clearAllMocks();
   });
 
-  it('should render configure button for functions with customUI', () => {
+  it('should auto-open modal for functions with customUI', () => {
     // Given
     const value = {
       type: 'function',
@@ -98,21 +99,23 @@ describe('Function - Custom UI Support', () => {
 
     // When
     render(
-      <Function
-        value={value}
-        onChange={mockOnChange}
-        config={mockConfig}
-        expansionPath="func"
-        isExpanded={mockIsExpanded}
-        onToggleExpansion={mockOnToggleExpansion}
-      />
+      <CustomComponentsProvider customComponents={{}}>
+        <Function
+          value={value}
+          onChange={mockOnChange}
+          config={mockConfig}
+          expansionPath="func"
+          isExpanded={mockIsExpanded}
+          onToggleExpansion={mockOnToggleExpansion}
+        />
+      </CustomComponentsProvider>
     );
 
-    // Then
-    expect(screen.getByTestId('configure-arguments-button')).toBeInTheDocument();
+    // Then - modal should be open automatically
+    expect(screen.getByTestId('custom-function-modal')).toBeInTheDocument();
   });
 
-  it('should not render configure button for functions without customUI', () => {
+  it('should not auto-open modal for functions without customUI', () => {
     // Given
     const value = {
       type: 'function',
@@ -128,53 +131,20 @@ describe('Function - Custom UI Support', () => {
 
     // When
     render(
-      <Function
-        value={value}
-        onChange={mockOnChange}
-        config={mockConfig}
-        expansionPath="func"
-        isExpanded={mockIsExpanded}
-        onToggleExpansion={mockOnToggleExpansion}
-      />
+      <CustomComponentsProvider customComponents={{}}>
+        <Function
+          value={value}
+          onChange={mockOnChange}
+          config={mockConfig}
+          expansionPath="func"
+          isExpanded={mockIsExpanded}
+          onToggleExpansion={mockOnToggleExpansion}
+        />
+      </CustomComponentsProvider>
     );
 
-    // Then
-    expect(screen.queryByTestId('configure-arguments-button')).not.toBeInTheDocument();
-  });
-
-  it('should open CustomFunctionModal when configure button clicked', async () => {
-    // Given
-    const user = userEvent.setup();
-    const value = {
-      type: 'function',
-      returnType: 'number',
-      function: {
-        name: 'CURRENCY.CONVERT',
-        args: []
-      }
-    };
-
-    render(
-      <Function
-        value={value}
-        onChange={mockOnChange}
-        config={mockConfig}
-        expansionPath="func"
-        isExpanded={mockIsExpanded}
-        onToggleExpansion={mockOnToggleExpansion}
-      />
-    );
-
-    // When
-    await user.click(screen.getByTestId('configure-arguments-button'));
-
-    // Then
-    await waitFor(() => {
-      expect(screen.getByTestId('custom-function-modal')).toBeInTheDocument();
-      // Check for modal title in h3 specifically to avoid ambiguity
-      const modalTitle = screen.getByRole('heading', { level: 3, name: /Convert Currency/i });
-      expect(modalTitle).toBeInTheDocument();
-    });
+    // Then - modal should not be open
+    expect(screen.queryByTestId('custom-function-modal')).not.toBeInTheDocument();
   });
 
   it('should save argument values from modal and close it', async () => {
@@ -190,24 +160,24 @@ describe('Function - Custom UI Support', () => {
     };
 
     render(
-      <Function
-        value={value}
-        onChange={mockOnChange}
-        config={mockConfig}
-        expansionPath="func"
-        isExpanded={mockIsExpanded}
-        onToggleExpansion={mockOnToggleExpansion}
-      />
+      <CustomComponentsProvider customComponents={{}}>
+        <Function
+          value={value}
+          onChange={mockOnChange}
+          config={mockConfig}
+          expansionPath="func"
+          isExpanded={mockIsExpanded}
+          onToggleExpansion={mockOnToggleExpansion}
+        />
+      </CustomComponentsProvider>
     );
 
-    // When - open modal
-    await user.click(screen.getByTestId('configure-arguments-button'));
-    
+    // Modal should be open automatically
     await waitFor(() => {
       expect(screen.getByTestId('custom-function-modal')).toBeInTheDocument();
     });
 
-    // Click save button in modal
+    // When - Click save button in modal
     await user.click(screen.getByTestId('modal-save-button'));
 
     // Then
@@ -244,24 +214,24 @@ describe('Function - Custom UI Support', () => {
     };
 
     render(
-      <Function
-        value={value}
-        onChange={mockOnChange}
-        config={mockConfig}
-        expansionPath="func"
-        isExpanded={mockIsExpanded}
-        onToggleExpansion={mockOnToggleExpansion}
-      />
+      <CustomComponentsProvider customComponents={{}}>
+        <Function
+          value={value}
+          onChange={mockOnChange}
+          config={mockConfig}
+          expansionPath="func"
+          isExpanded={mockIsExpanded}
+          onToggleExpansion={mockOnToggleExpansion}
+        />
+      </CustomComponentsProvider>
     );
 
-    // When - open modal
-    await user.click(screen.getByTestId('configure-arguments-button'));
-    
+    // Modal should be open automatically
     await waitFor(() => {
       expect(screen.getByTestId('custom-function-modal')).toBeInTheDocument();
     });
 
-    // Click cancel
+    // When - Click cancel
     await user.click(screen.getByTestId('modal-cancel-button'));
 
     // Then - modal closed, no onChange called
@@ -271,7 +241,7 @@ describe('Function - Custom UI Support', () => {
     expect(mockOnChange).not.toHaveBeenCalled();
   });
 
-  it('should pass existing argument values as initialValues to modal', async () => {
+  it('should open modal when clicking on function name for functions with existing args', async () => {
     // Given
     const user = userEvent.setup();
     const value = {
@@ -287,27 +257,29 @@ describe('Function - Custom UI Support', () => {
     };
 
     render(
-      <Function
-        value={value}
-        onChange={mockOnChange}
-        config={mockConfig}
-        expansionPath="func"
-        isExpanded={mockIsExpanded}
-        onToggleExpansion={mockOnToggleExpansion}
-        expanded={true}  // Make sure it's expanded so button is visible
-      />
+      <CustomComponentsProvider customComponents={{}}>
+        <Function
+          value={value}
+          onChange={mockOnChange}
+          config={mockConfig}
+          expansionPath="func"
+          isExpanded={mockIsExpanded}
+          onToggleExpansion={mockOnToggleExpansion}
+        />
+      </CustomComponentsProvider>
     );
 
-    // When - open modal
-    await user.click(screen.getByTestId('configure-arguments-button'));
+    // Find and click the function summary
+    const functionSummary = screen.getByTestId('custom-function-summary');
+    await user.click(functionSummary);
 
-    // Then - modal should be open (the modal mock doesn't show initial values, but they would be passed)
+    // Modal should be open with existing values
     await waitFor(() => {
       expect(screen.getByTestId('custom-function-modal')).toBeInTheDocument();
     });
   });
 
-  it('should show function summary with argument count for customUI functions', () => {
+  it('should show function summary for customUI functions', () => {
     // Given
     const value = {
       type: 'function',
@@ -324,19 +296,21 @@ describe('Function - Custom UI Support', () => {
 
     // When
     render(
-      <Function
-        value={value}
-        onChange={mockOnChange}
-        config={mockConfig}
-        expansionPath="func"
-        isExpanded={mockIsExpanded}
-        onToggleExpansion={mockOnToggleExpansion}
-        expanded={false}
-      />
+      <CustomComponentsProvider customComponents={{}}>
+        <Function
+          value={value}
+          onChange={mockOnChange}
+          config={mockConfig}
+          expansionPath="func"
+          isExpanded={mockIsExpanded}
+          onToggleExpansion={mockOnToggleExpansion}
+          expanded={false}
+        />
+      </CustomComponentsProvider>
     );
 
-    // Then - should show function name and args count or summary
-    expect(screen.getByText(/CONVERT/i)).toBeInTheDocument();
+    // Then - should show function summary with argument values
+    expect(screen.getByText(/CONVERT\(100, USD, EUR\)/i)).toBeInTheDocument();
   });
 
   it('should pass darkMode prop to CustomFunctionModal', async () => {
@@ -352,23 +326,63 @@ describe('Function - Custom UI Support', () => {
     };
 
     render(
-      <Function
-        value={value}
-        onChange={mockOnChange}
-        config={mockConfig}
-        darkMode={true}
-        expansionPath="func"
-        isExpanded={mockIsExpanded}
-        onToggleExpansion={mockOnToggleExpansion}
-      />
+      <CustomComponentsProvider customComponents={{}}>
+        <Function
+          value={value}
+          onChange={mockOnChange}
+          config={mockConfig}
+          darkMode={true}
+          expansionPath="func"
+          isExpanded={mockIsExpanded}
+          onToggleExpansion={mockOnToggleExpansion}
+        />
+      </CustomComponentsProvider>
     );
 
-    // When - open modal
-    await user.click(screen.getByTestId('configure-arguments-button'));
-
-    // Then - modal should be open (darkMode would be passed to real modal)
+    // Modal should be open automatically with darkMode
     await waitFor(() => {
       expect(screen.getByTestId('custom-function-modal')).toBeInTheDocument();
     });
+  });
+
+  it('should remove function and show dropdown when X button clicked', async () => {
+    // Given
+    const user = userEvent.setup();
+    const value = {
+      type: 'function',
+      returnType: 'number',
+      function: {
+        name: 'CURRENCY.CONVERT',
+        args: [
+          { name: 'amount', value: { type: 'value', returnType: 'number', value: 100 } }
+        ]
+      }
+    };
+
+    render(
+      <CustomComponentsProvider customComponents={{}}>
+        <Function
+          value={value}
+          onChange={mockOnChange}
+          config={mockConfig}
+          expansionPath="func"
+          isExpanded={mockIsExpanded}
+          onToggleExpansion={mockOnToggleExpansion}
+        />
+      </CustomComponentsProvider>
+    );
+
+    // Find and click the remove button
+    const removeButton = screen.getByTestId('remove-function-button');
+    await user.click(removeButton);
+
+    // Then - onChange should be called with cleared function
+    expect(mockOnChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'function',
+        returnType: 'number',
+        function: { name: null, args: [] }
+      })
+    );
   });
 });
