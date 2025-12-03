@@ -62,8 +62,8 @@ config:
 
 [x] expression groups and condition groups behave same way
 
-[ ] custom argument options
-[ ] custom function modals
+[x] custom argument options
+[x] custom function modals
 
 [ ] allow multiple options (but subset) of rule types for Condition / Condition Group 
 [ ] configure URL:
