@@ -14,11 +14,32 @@ const { Text } = Typography;
 const CurrencyConversion = ({ initialData, onSave, onCancel }) => {
   const [form] = Form.useForm();
   
-  // Initialize form when initialData changes
+  console.log('[CurrencyConversion] Received initialData:', initialData);
+  
+  // Default values
+  const defaults = {
+    fromCurrency: 'USD',
+    toCurrency: 'EUR',
+    rate: 1.17
+  };
+  
+  // Initialize form with defaults or initialData
   useEffect(() => {
-    if (initialData) {
-      form.setFieldsValue(initialData);
-    }
+    // Check if initialData has any meaningful (non-empty, non-zero) values
+    const hasMeaningfulData = initialData && Object.entries(initialData).some(([key, value]) => {
+      // Skip 'amount' field from this check since 0 is valid for amount
+      if (key === 'amount') return false;
+      // Check if value is meaningful (not empty string, not 0, not null/undefined)
+      return value !== '' && value !== 0 && value != null;
+    });
+    
+    // Use defaults for fields that are empty, but keep non-empty values from initialData
+    const formValues = hasMeaningfulData 
+      ? { ...defaults, ...initialData }
+      : defaults;
+    
+    console.log('[CurrencyConversion] Setting form values:', formValues);
+    form.setFieldsValue(formValues);
   }, [initialData, form]);
   
   const handleSubmit = (values) => {
@@ -31,6 +52,7 @@ const CurrencyConversion = ({ initialData, onSave, onCancel }) => {
       form={form} 
       onFinish={handleSubmit}
       layout="vertical"
+      initialValues={defaults}
       data-testid="currency-conversion-form"
     >
       <Form.Item 
