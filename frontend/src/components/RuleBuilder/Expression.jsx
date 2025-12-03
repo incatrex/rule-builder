@@ -63,6 +63,7 @@ export const createDirectExpression = (type = 'value', returnType = 'text', valu
  * - propArgDef: Custom argument definition for dropdowns
  * - isLoadedRule: Whether this is a loaded rule (affects expansion state)
  * - allowedSources: Allowed value sources for filtering
+ * - customComponents: Map of custom component names to implementations
  */
 const Expression = ({ 
   value, 
@@ -78,7 +79,7 @@ const Expression = ({
   onSetExpansion,
   isNew = true,
   allowedSources = null, 
-  onAddExpression = null 
+  onAddExpression = null
 }) => {
   // Normalize the value to ensure it's a proper structure
   const normalizeValue = (val) => {
@@ -783,8 +784,10 @@ const Expression = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Space.Compact style={{ width: '100%' }}>
-        {renderSourceSelector()}
+      <Space.Compact style={{ width: '100%', alignItems: 'flex-start' }}>
+        <div style={{ paddingTop: '6px' }}>
+          {renderSourceSelector()}
+        </div>
         <div style={{ flex: 1, marginLeft: '8px' }}>
           <Space style={{ width: '100%' }} size={0}>
             <div style={{ flex: 1 }}>

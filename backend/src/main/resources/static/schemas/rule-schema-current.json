@@ -101,7 +101,7 @@
   "definitions": {
     "RuleType": {
       "type": "string",
-      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "Condition", "Condition Group"],
+      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "Condition", "Condition Group", "List"],
       "description": "Rule type enumeration - single source of truth for rule types"
     },
     "RuleReference": {
@@ -407,7 +407,7 @@
             "ruleRef": {
               "properties": {
                 "returnType": { "const": "boolean" },
-                "ruleType": { "const": "Condition" }
+                "ruleType": { "enum": ["Condition", "List"] }
               }
             }
           }
@@ -583,7 +583,8 @@
                 "MATH.ADD", "MATH.SUBTRACT", "MATH.MULTIPLY", "MATH.DIVIDE", 
                 "MATH.SUM", "MATH.ROUND", "MATH.ABS",
                 "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN", "TEXT.CASE",
-                "DATE.DIFF"
+                "DATE.DIFF", "DATE.DAYS_TO_PAYMENT",
+                "CURRENCY.CONVERT"
               ],
               "description": "Function name in category.function format",
               "x-ui-functions": {
@@ -710,6 +711,28 @@
                     {"name": "units", "label": "Units", "type": "text", "required": true, "widget": "select", "defaultValue": "DAY", "options": [{"value": "DAY", "label": "Day"}, {"value": "MONTH", "label": "Month"}, {"value": "YEAR", "label": "Year"}], "valueSources": ["value"]},
                     {"name": "date1", "label": "Date 1", "type": "date", "required": true, "valueSources": ["value", "field", "function", "ruleRef"]},
                     {"name": "date2", "label": "Date 2", "type": "date", "required": true, "valueSources": ["value", "field", "function", "ruleRef"]}
+                  ]
+                },
+                "DATE.DAYS_TO_PAYMENT": {
+                  "label": "Days to Payment",
+                  "category": "DATE",
+                  "returnType": "date",
+                  "args": [
+                    {"name": "payday", "label": "Pay Day of Month", "type": "number", "required": true, "widget": "select", "optionsRef": "daysOfMonth", "valueSources": ["value"]},
+                    {"name": "fromDate", "label": "From Date", "type": "date", "required": true, "valueSources": ["value", "field", "function", "ruleRef"]}
+                  ]
+                },
+                "CURRENCY.CONVERT": {
+                  "label": "Currency Conversion",
+                  "category": "CURRENCY",
+                  "returnType": "number",
+                  "customUI": true,
+                  "customUIComponent": "CurrencyConversion",
+                  "args": [
+                    {"name": "amount", "label": "Amount", "type": "number", "required": true, "valueSources": ["value", "field", "function"]},
+                    {"name": "fromCurrency", "label": "From Currency", "type": "text", "required": true, "valueSources": ["value"]},
+                    {"name": "toCurrency", "label": "To Currency", "type": "text", "required": true, "valueSources": ["value"]},
+                    {"name": "rate", "label": "Exchange Rate", "type": "number", "required": true, "valueSources": ["value"]}
                   ]
                 }
               }

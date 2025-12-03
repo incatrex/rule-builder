@@ -1,7 +1,8 @@
-import React from 'react';
-import { Space, TreeSelect, Card, Typography, Tag, Button } from 'antd';
-import { DownOutlined, RightOutlined, PlusOutlined } from '@ant-design/icons';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Space, TreeSelect, Card, Typography, Tag, Button, Tooltip } from 'antd';
+import { DownOutlined, RightOutlined, PlusOutlined, SettingOutlined, DeleteOutlined } from '@ant-design/icons';
 import FunctionArgument from './FunctionArgument';
+import CustomFunctionModal from './CustomFunctionModal';
 
 const { Text } = Typography;
 
@@ -22,6 +23,7 @@ const { Text } = Typography;
  * - expanded: Whether this function is expanded
  * - expectedType: Expected return type
  * - isNew: Whether this is a new rule
+ * - customComponents: Map of custom component names to implementations
  */
 const Function = ({
   value,
@@ -174,10 +176,36 @@ const Function = ({
   const funcTreeData = buildFuncTreeData(config?.functions || {});
   const funcDef = getFuncDef(value.function?.name);
 
+  // State for custom UI modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [justSelectedCustomUI, setJustSelectedCustomUI] = useState(false);
+
+  // Auto-open modal for customUI functions when first selected
+  useEffect(() => {
+    if (value?.function?.name && funcDef?.customUI) {
+      if (justSelectedCustomUI) {
+        setIsModalOpen(true);
+        setJustSelectedCustomUI(false);
+      } else if (!value.function.args || value.function.args.length === 0) {
+        setIsModalOpen(true);
+      }
+    }
+  }, [value?.function?.name, funcDef?.customUI, justSelectedCustomUI, value?.function?.args?.length]);
+
   // Handle value changes
   const handleValueChange = (updates) => {
     const updated = { ...value, ...updates };
     onChange(updated);
+  };
+
+  // Handle removing function (clear selection)
+  const handleRemoveFunction = (e) => {
+    e.stopPropagation();
+    onChange({
+      type: 'function',
+      returnType: value.returnType,
+      function: { name: null, args: [] }
+    });
   };
 
   // Handle function selection
@@ -205,12 +233,23 @@ const Function = ({
         // Array format: [{name: "arg1", type: "text", ...}, ...]
         initialArgs = funcDef.args.map(argDef => {
           const initialType = argDef.valueSources?.length === 1 ? argDef.valueSources[0] : 'value';
+          // Provide sensible defaults based on type
+          let defaultValue = argDef.defaultValue;
+          if (defaultValue === undefined) {
+            if (argDef.type === 'number') {
+              defaultValue = 0;
+            } else if (argDef.type === 'boolean') {
+              defaultValue = false;
+            } else {
+              defaultValue = '';
+            }
+          }
           return {
             name: argDef.name,
             value: {
               type: initialType,
               returnType: argDef.type || 'text',
-              value: argDef.defaultValue ?? ''
+              value: defaultValue
             }
           };
         });
@@ -219,12 +258,23 @@ const Function = ({
         initialArgs = Object.keys(funcDef.args).map(argKey => {
           const argDef = funcDef.args[argKey];
           const initialType = argDef.valueSources?.length === 1 ? argDef.valueSources[0] : 'value';
+          // Provide sensible defaults based on type
+          let defaultValue = argDef.defaultValue;
+          if (defaultValue === undefined) {
+            if (argDef.type === 'number') {
+              defaultValue = 0;
+            } else if (argDef.type === 'boolean') {
+              defaultValue = false;
+            } else {
+              defaultValue = '';
+            }
+          }
           return {
             name: argKey,
             value: { 
               type: initialType, 
               returnType: argDef.type || 'text',
-              value: argDef.defaultValue ?? ''
+              value: defaultValue
             }
           };
         });
@@ -238,6 +288,11 @@ const Function = ({
         args: initialArgs
       }
     });
+    
+    // Auto-open modal if this is a custom UI function
+    if (funcDef?.customUI) {
+      setJustSelectedCustomUI(true);
+    }
   };
 
   // Handle argument value change
@@ -268,18 +323,121 @@ const Function = ({
     handleValueChange({ function: { ...value.function, args: newArgs } });
   };
 
-  // Render collapsed view when not expanded and function has args
-  if (!expanded && funcDef && value.function?.args && value.function.args.length > 0) {
+  // Handle custom UI modal save
+  const handleModalSave = (argValues) => {
+    // Convert argValues object to args array
+    const argsArray = Object.keys(argValues).map(argName => ({
+      name: argName,
+      value: argValues[argName]
+    }));
+    
+    handleValueChange({ function: { ...value.function, args: argsArray } });
+    setIsModalOpen(false);
+  };
+
+  // Get initial values for modal from existing args
+  const modalInitialValues = useMemo(() => {
+    if (!value.function?.args) return {};
+    
+    const initialValues = {};
+    value.function.args.forEach(arg => {
+      initialValues[arg.name] = arg.value;
+    });
+    return initialValues;
+  }, [value.function?.args]);
+
+  // Render collapsed view for customUI functions (always collapsed, clickable to open modal)
+  if (funcDef && funcDef.customUI && value.function?.args && value.function.args.length > 0) {
     return (
-      <Space size={4} style={{ cursor: 'pointer' }} onClick={() => onToggleExpansion(expansionPath)}>
-        <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
-        <Text code style={{ fontSize: '12px' }}>
-          {getFunctionSummary(value.function)}
-        </Text>
-        <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
-          {value.returnType || 'unknown'}
-        </Tag>
-      </Space>
+      <>
+        <Card
+          size="small"
+          style={{
+            background: darkMode ? '#2a2a2a' : '#fafafa',
+            border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`,
+            cursor: 'pointer',
+          }}
+          bodyStyle={{ padding: '6px 8px' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsModalOpen(true);
+          }}
+          data-testid="custom-function-summary"
+        >
+          <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Text
+              code
+              style={{
+                color: darkMode ? '#e0e0e0' : 'inherit',
+                fontSize: '14px',
+              }}
+            >
+              {getFunctionSummary(value.function)}
+            </Text>
+            <Space size={4}>
+              <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
+                {value.returnType || 'unknown'}
+              </Tag>
+              <Tooltip title="Remove function">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveFunction(e);
+                  }}
+                  style={{ padding: '0 4px', color: darkMode ? '#666' : '#bbb', transition: 'color 0.2s' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#ff4d4f';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = darkMode ? '#666' : '#bbb';
+                  }}
+                  data-testid="remove-function-button"
+                />
+              </Tooltip>
+            </Space>
+          </Space>
+        </Card>
+        <CustomFunctionModal
+          open={isModalOpen}
+          funcDef={funcDef}
+          initialValues={modalInitialValues}
+          config={config}
+          darkMode={darkMode}
+          onSave={handleModalSave}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </>
+    );
+  }
+
+  // Render collapsed view when not expanded and function has args (non-customUI functions)
+  if (!expanded && funcDef && !funcDef.customUI && value.function?.args && value.function.args.length > 0) {
+    return (
+      <Card
+        size="small"
+        style={{
+          background: darkMode ? '#2a2a2a' : '#fafafa',
+          border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`,
+          cursor: 'pointer',
+        }}
+        bodyStyle={{ padding: '6px 8px' }}
+        onClick={() => onToggleExpansion(expansionPath)}
+      >
+        <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space size={4}>
+            <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
+            <Text code style={{ fontSize: '14px' }}>
+              {getFunctionSummary(value.function)}
+            </Text>
+          </Space>
+          <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
+            {value.returnType || 'unknown'}
+          </Tag>
+        </Space>
+      </Card>
     );
   }
 
@@ -295,7 +453,8 @@ const Function = ({
       <Space direction="vertical" style={{ width: '100%' }} size="small">
         {/* Function selector with collapse button and return type */}
         <Space size={4} style={{ width: '100%' }}>
-          {funcDef && value.function?.args && value.function.args.length > 0 && (
+          {/* Show collapse button only for non-customUI functions with args */}
+          {funcDef && !funcDef.customUI && value.function?.args && value.function.args.length > 0 && (
             <Button
               type="text"
               size="small"
@@ -307,20 +466,59 @@ const Function = ({
               style={{ padding: 0, color: darkMode ? '#e0e0e0' : 'inherit', flexShrink: 0 }}
             />
           )}
-          <TreeSelect
-            value={value.function?.name || null}
-            onChange={handleFunctionSelect}
-            treeData={funcTreeData}
-            placeholder="Select function"
-            style={{ flex: 1 }}
-            showSearch
-            treeDefaultExpandAll
-            popupClassName="compact-tree-select"
-            treeIcon={false}
-            popupMatchSelectWidth={false}
-            onClick={(e) => e.stopPropagation()}
-            onFocus={(e) => e.stopPropagation()}
-          />
+          
+          {/* Show function selector only when no function selected OR function is not customUI */}
+          {(!funcDef || !funcDef.customUI) && (
+            <TreeSelect
+              value={value.function?.name || null}
+              onChange={handleFunctionSelect}
+              treeData={funcTreeData}
+              placeholder="Select function"
+              style={{ flex: 1 }}
+              showSearch
+              treeDefaultExpandAll
+              popupClassName="compact-tree-select"
+              treeIcon={false}
+              popupMatchSelectWidth={false}
+              onClick={(e) => e.stopPropagation()}
+              onFocus={(e) => e.stopPropagation()}
+            />
+          )}
+          
+          {/* For customUI functions, show clickable function name */}
+          {funcDef && funcDef.customUI && (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsModalOpen(true);
+              }}
+              style={{
+                flex: 1,
+                padding: '4px 8px',
+                cursor: 'pointer',
+                borderRadius: '4px',
+                background: darkMode ? '#3a3a3a' : '#f0f0f0',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = darkMode ? '#4a4a4a' : '#e0e0e0';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = darkMode ? '#3a3a3a' : '#f0f0f0';
+              }}
+            >
+              <Text
+                style={{
+                  color: darkMode ? '#e0e0e0' : 'inherit',
+                  fontSize: '12px',
+                  fontFamily: 'monospace'
+                }}
+              >
+                {getFunctionSummary(value.function)}
+              </Text>
+            </div>
+          )}
+          
           {funcDef && (
             <>
               <Text type="secondary" style={{ fontSize: '11px', margin: 0 }}>
@@ -329,12 +527,31 @@ const Function = ({
               <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
                 {value.returnType || 'unknown'}
               </Tag>
+              {/* Show remove button for customUI functions */}
+              {funcDef.customUI && (
+                <Tooltip title="Remove function">
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    onClick={handleRemoveFunction}
+                    style={{ padding: '0 4px', color: darkMode ? '#666' : '#bbb', transition: 'color 0.2s' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#ff4d4f';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = darkMode ? '#666' : '#bbb';
+                    }}
+                    data-testid="remove-function-button"
+                  />
+                </Tooltip>
+              )}
             </>
           )}
         </Space>
 
         {/* Function arguments */}
-        {funcDef && value.function?.args && value.function.args.length > 0 && expanded && (
+        {funcDef && !funcDef.customUI && value.function?.args && value.function.args.length > 0 && expanded && (
           <Card
             size="small"
             title={
@@ -402,6 +619,19 @@ const Function = ({
               )}
             </Space>
           </Card>
+        )}
+
+        {/* Custom UI Modal */}
+        {funcDef?.customUI && (
+          <CustomFunctionModal
+            open={isModalOpen}
+            funcDef={funcDef}
+            initialValues={modalInitialValues}
+            config={config}
+            darkMode={darkMode}
+            onSave={handleModalSave}
+            onCancel={() => setIsModalOpen(false)}
+          />
         )}
       </Space>
     </Card>

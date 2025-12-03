@@ -13,6 +13,51 @@
 
 import { test, expect } from '@playwright/test';
 
+// Helper function for robust clicking with fallback to native events
+async function robustClick(locator, options = {}) {
+  try {
+    // First attempt: scroll into view and click
+    await locator.scrollIntoViewIfNeeded({ timeout: 2000 });
+    await locator.click({ ...options, timeout: 5000 });
+  } catch (error) {
+    console.log(`  [robustClick] Standard click failed, using fallback: ${error.message}`);
+    // Fallback: use native mousedown/mouseup events via evaluate
+    await locator.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      
+      const mousedown = new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        clientX: x,
+        clientY: y
+      });
+      
+      const mouseup = new MouseEvent('mouseup', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        clientX: x,
+        clientY: y
+      });
+      
+      const click = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        clientX: x,
+        clientY: y
+      });
+      
+      el.dispatchEvent(mousedown);
+      el.dispatchEvent(mouseup);
+      el.dispatchEvent(click);
+    });
+  }
+}
+
 // Helper function to select source option using path-based test-id
 // Uses proper Ant Design dropdown handling
 async function selectSourceByPath(page, expansionPath, optionText) {
@@ -21,8 +66,8 @@ async function selectSourceByPath(page, expansionPath, optionText) {
   // Wait for selector to be available
   await selector.waitFor({ state: 'attached', timeout: 5000 });
   
-  // Force click to handle nested conditions in collapsed panels
-  await selector.click({ force: true });
+  // Use robust click to handle nested conditions in collapsed panels
+  await robustClick(selector, { force: true });
   
   // Wait for the Ant Design dropdown to be visible (not hidden)
   const dropdownLocator = page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
@@ -34,15 +79,8 @@ async function selectSourceByPath(page, expansionPath, optionText) {
   // Wait for the option to be present
   await optionLocator.first().waitFor({ state: 'attached', timeout: 3000 });
   
-  // Scroll into view with timeout to avoid hanging
-  try {
-    await optionLocator.first().scrollIntoViewIfNeeded({ timeout: 2000 });
-  } catch (e) {
-    // Continue if scroll times out
-  }
-  
-  // Click directly
-  await optionLocator.first().click({ force: true });
+  // Use robust click for the option
+  await robustClick(optionLocator.first(), { force: true });
   
   // Wait for the change to be processed
   await page.waitForTimeout(300);
@@ -55,8 +93,8 @@ async function selectExpressionSource(page, expansionPath, optionText) {
   // Wait for selector to be available
   await selector.waitFor({ state: 'attached', timeout: 5000 });
   
-  // Force click to handle nested expressions
-  await selector.click({ force: true });
+  // Use robust click to handle nested expressions
+  await robustClick(selector, { force: true });
   
   // Wait for the Ant Design dropdown to be visible
   const dropdownLocator = page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
@@ -68,15 +106,8 @@ async function selectExpressionSource(page, expansionPath, optionText) {
   // Wait for the option to be present
   await optionLocator.first().waitFor({ state: 'attached', timeout: 3000 });
   
-  // Scroll into view with timeout to avoid hanging
-  try {
-    await optionLocator.first().scrollIntoViewIfNeeded({ timeout: 2000 });
-  } catch (e) {
-    // Continue if scroll times out
-  }
-  
-  // Click directly
-  await optionLocator.first().click({ force: true });
+  // Use robust click for the option
+  await robustClick(optionLocator.first(), { force: true });
   
   // Wait for the change to be processed
   await page.waitForTimeout(300);
@@ -107,15 +138,8 @@ async function selectRule(page, ruleId) {
   const ruleOption = dropdownLocator.locator('.ant-select-item').filter({ hasText: new RegExp(ruleId) }).first();
   await ruleOption.waitFor({ state: 'attached', timeout: 10000 });
   
-  // Scroll into view with timeout to avoid hanging
-  try {
-    await ruleOption.scrollIntoViewIfNeeded({ timeout: 2000 });
-  } catch (e) {
-    // Continue if scroll times out
-  }
-  
-  // Click directly
-  await ruleOption.click({ force: true });
+  // Use robust click for the rule option
+  await robustClick(ruleOption, { force: true });
   await page.waitForTimeout(300);
 }
 
@@ -125,6 +149,9 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
   let testRuleIdTransformation;
 
   test.beforeEach(async ({ page }) => {
+    // Set larger viewport to reduce scrolling issues
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    
     // Generate unique rule IDs for this test run
     const now = new Date();
     const timestamp = now.getFullYear() + '-' + 

@@ -45,6 +45,7 @@ const { Panel } = Collapse;
  * @param {Function} props.onSetExpansion - Function to set expansion explicitly
  * @param {Function} props.onExpandAll - Function to expand all
  * @param {Function} props.onCollapseAll - Function to collapse all
+ * @param {Object} props.customComponents - Map of custom component names to implementations
  */
 export const RuleBuilderUI = ({
   ruleData,
@@ -183,8 +184,8 @@ export const RuleBuilderUI = ({
               }
             >
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              <Space style={{ width: '100%' }} size="middle">
-                <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', gap: '12px', width: '100%', alignItems: 'flex-start' }}>
+                <div style={{ flex: '1 1 auto', minWidth: '240px', display: 'flex', flexDirection: 'column' }}>
                   <Text 
                     strong 
                     className="rule-builder-label"
@@ -204,10 +205,11 @@ export const RuleBuilderUI = ({
                       id: e.target.value 
                     })}
                     placeholder="Enter unique rule identifier"
+                    style={{ width: '100%' }}
                   />
                 </div>
                 
-                <div style={{ width: '150px' }}>
+                <div style={{ flex: '150px' }}>
                   <Text 
                     strong 
                     className="rule-builder-label"
@@ -228,7 +230,7 @@ export const RuleBuilderUI = ({
                   />
                 </div>
                 
-                <div style={{ width: '100px' }}>
+                <div style={{ flex: '0 0 100px' }}>
                   <Text 
                     strong 
                     className="rule-builder-label"
@@ -257,7 +259,7 @@ export const RuleBuilderUI = ({
                   />
                 )}
               </div>
-            </Space>
+            </div>
             
             <div>
               <Text 

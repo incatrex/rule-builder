@@ -951,13 +951,13 @@ class RuleValidationServiceTest {
         assertNotNull(result);
         assertTrue(result.getErrorCount() > 0, "Should have validation errors");
         
-        // Schema's const constraint should catch this
+        // Schema's enum constraint should catch this (allowlist: [Condition, List])
         boolean hasRuleTypeError = result.getErrors().stream()
-            .anyMatch(err -> err.getType().equals("const") && 
+            .anyMatch(err -> err.getType().equals("enum") && 
                            err.getMessage().contains("ruleType") &&
-                           err.getMessage().contains("Condition"));
+                           (err.getMessage().contains("Condition") || err.getMessage().contains("List")));
         assertTrue(hasRuleTypeError, 
-            "Should have const error about ruleType='Condition' requirement. Errors: " + result.getErrors());
+            "Should have enum error about ruleType allowlist [Condition, List]. Errors: " + result.getErrors());
     }
 
     @Test
@@ -1032,13 +1032,14 @@ class RuleValidationServiceTest {
         assertNotNull(result);
         assertTrue(result.getErrorCount() > 0, "Should have validation errors");
         
-        // Schema's const constraint should catch this - may appear as either
-        // "Condition" (from Condition branch of oneOf) or "Condition Group" (from ConditionGroup branch)
+        // Schema should catch this - Condition context has enum [Condition, List]
+        // Note: This is testing a conditionGroup type but in Condition context,
+        // so it will fail the Condition enum check
         boolean hasRuleTypeError = result.getErrors().stream()
-            .anyMatch(err -> err.getType().equals("const") && 
+            .anyMatch(err -> err.getType().equals("enum") && 
                            err.getMessage().contains("ruleType"));
         assertTrue(hasRuleTypeError, 
-            "Should have const error about ruleType requirement. Errors: " + result.getErrors());
+            "Should have enum error about ruleType requirement. Errors: " + result.getErrors());
     }
 
     @Test

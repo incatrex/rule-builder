@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Space, Typography, Input, Collapse, Switch } from 'antd';
-import { PlusOutlined, CloseOutlined, MenuOutlined, EditOutlined, LinkOutlined, GroupOutlined, BranchesOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, MenuOutlined, EditOutlined, LinkOutlined, GroupOutlined, BranchesOutlined } from '@ant-design/icons';
 import ConditionSourceSelector from './ConditionSourceSelector';
 import { useNaming } from './contexts/NamingContext';
 import {
@@ -663,7 +663,7 @@ const ConditionGroup = ({
               )}
             </Space>
             {depth > 0 && onRemove && (
-              <CloseOutlined
+              <DeleteOutlined
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove();

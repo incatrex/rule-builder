@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Space, Select, Input, InputNumber, DatePicker, Switch, TreeSelect, Card, Typography, Button, Tag, Alert, Tooltip } from 'antd';
-import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, CloseOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
+import { NumberOutlined, FieldTimeOutlined, FunctionOutlined, PlusOutlined, DeleteOutlined, DownOutlined, RightOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import Expression from './Expression';
 
@@ -528,7 +528,7 @@ const ExpressionGroup = ({
                     <Button
                       type="text"
                       size="small"
-                      icon={<CloseOutlined />}
+                      icon={<DeleteOutlined />}
                       onClick={() => removeExpression(actualIndex)}
                       style={{ 
                         minWidth: 'auto', 
