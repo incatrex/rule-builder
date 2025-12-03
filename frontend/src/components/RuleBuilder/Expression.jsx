@@ -784,8 +784,10 @@ const Expression = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Space.Compact style={{ width: '100%' }}>
-        {renderSourceSelector()}
+      <Space.Compact style={{ width: '100%', alignItems: 'flex-start' }}>
+        <div style={{ paddingTop: '6px' }}>
+          {renderSourceSelector()}
+        </div>
         <div style={{ flex: 1, marginLeft: '8px' }}>
           <Space style={{ width: '100%' }} size={0}>
             <div style={{ flex: 1 }}>

@@ -349,52 +349,52 @@ const Function = ({
   // Render collapsed view for customUI functions (always collapsed, clickable to open modal)
   if (funcDef && funcDef.customUI && value.function?.args && value.function.args.length > 0) {
     return (
-      <Space size={4} style={{ width: '100%' }}>
-        <div
+      <>
+        <Card
+          size="small"
+          style={{
+            background: darkMode ? '#2a2a2a' : '#fafafa',
+            border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`,
+            cursor: 'pointer',
+          }}
+          bodyStyle={{ padding: '6px 8px' }}
           onClick={(e) => {
             e.stopPropagation();
             setIsModalOpen(true);
           }}
           data-testid="custom-function-summary"
-          style={{
-            flex: 1,
-            padding: '4px 8px',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            background: darkMode ? '#3a3a3a' : '#f0f0f0',
-            transition: 'background 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = darkMode ? '#4a4a4a' : '#e0e0e0';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = darkMode ? '#3a3a3a' : '#f0f0f0';
-          }}
         >
-          <Text
-            code
-            style={{
-              color: darkMode ? '#e0e0e0' : 'inherit',
-              fontSize: '12px',
-            }}
-          >
-            {getFunctionSummary(value.function)}
-          </Text>
-        </div>
-        <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
-          {value.returnType || 'unknown'}
-        </Tag>
-        <Tooltip title="Remove function">
-          <Button
-            type="text"
-            size="small"
-            icon={<CloseOutlined />}
-            onClick={handleRemoveFunction}
-            style={{ padding: '0 4px', color: darkMode ? '#e0e0e0' : 'inherit' }}
-            danger
-            data-testid="remove-function-button"
-          />
-        </Tooltip>
+          <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Text
+              code
+              style={{
+                color: darkMode ? '#e0e0e0' : 'inherit',
+                fontSize: '14px',
+              }}
+            >
+              {getFunctionSummary(value.function)}
+            </Text>
+            <Space size={4}>
+              <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
+                {value.returnType || 'unknown'}
+              </Tag>
+              <Tooltip title="Remove function">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CloseOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveFunction(e);
+                  }}
+                  style={{ padding: '0 4px', color: darkMode ? '#e0e0e0' : 'inherit' }}
+                  danger
+                  data-testid="remove-function-button"
+                />
+              </Tooltip>
+            </Space>
+          </Space>
+        </Card>
         <CustomFunctionModal
           open={isModalOpen}
           funcDef={funcDef}
@@ -404,22 +404,35 @@ const Function = ({
           onSave={handleModalSave}
           onCancel={() => setIsModalOpen(false)}
         />
-      </Space>
+      </>
     );
   }
 
   // Render collapsed view when not expanded and function has args (non-customUI functions)
   if (!expanded && funcDef && !funcDef.customUI && value.function?.args && value.function.args.length > 0) {
     return (
-      <Space size={4} style={{ cursor: 'pointer' }} onClick={() => onToggleExpansion(expansionPath)}>
-        <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
-        <Text code style={{ fontSize: '12px' }}>
-          {getFunctionSummary(value.function)}
-        </Text>
-        <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px' }}>
-          {value.returnType || 'unknown'}
-        </Tag>
-      </Space>
+      <Card
+        size="small"
+        style={{
+          background: darkMode ? '#2a2a2a' : '#fafafa',
+          border: `1px solid ${darkMode ? '#555555' : '#d9d9d9'}`,
+          cursor: 'pointer',
+        }}
+        bodyStyle={{ padding: '6px 8px' }}
+        onClick={() => onToggleExpansion(expansionPath)}
+      >
+        <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space size={4}>
+            <RightOutlined style={{ fontSize: '10px', color: darkMode ? '#888' : '#666' }} />
+            <Text code style={{ fontSize: '14px' }}>
+              {getFunctionSummary(value.function)}
+            </Text>
+          </Space>
+          <Tag color="blue" style={{ fontSize: '10px', lineHeight: '16px', margin: 0 }}>
+            {value.returnType || 'unknown'}
+          </Tag>
+        </Space>
+      </Card>
     );
   }
 
