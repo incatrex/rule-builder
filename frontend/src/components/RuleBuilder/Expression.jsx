@@ -105,7 +105,30 @@ const Expression = ({
   };
 
   const initialValue = normalizeValue(value);
-  const [source, setSource] = useState(initialValue.type || 'value');
+  
+  // Determine available sources for default type selection
+  const getAvailableSources = () => {
+    return allowedSources || 
+           propArgDef?.valueSources || 
+           config?.settings?.defaultValueSources || 
+           ['value', 'field', 'function', 'ruleRef'];
+  };
+  
+  // Default to first available source if current type not in available sources
+  const getInitialSource = () => {
+    const currentType = initialValue.type || 'value';
+    const availableSources = getAvailableSources();
+    
+    // If current type is valid, use it
+    if (availableSources.includes(currentType)) {
+      return currentType;
+    }
+    
+    // Otherwise default to first available source
+    return availableSources[0] || 'value';
+  };
+  
+  const [source, setSource] = useState(getInitialSource());
   const [expressionData, setExpressionData] = useState(initialValue);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -545,13 +568,13 @@ const Expression = ({
             </span>
           );
         }}
-        options={sourceOptions}
         optionRender={(option) => (
           <Space size={4}>
-            {option.icon}
-            <span>{option.label}</span>
+            {option.data.icon}
+            <span>{option.data.label}</span>
           </Space>
         )}
+        options={sourceOptions}
         onClick={(e) => e.stopPropagation()}
         onFocus={(e) => e.stopPropagation()}
       />

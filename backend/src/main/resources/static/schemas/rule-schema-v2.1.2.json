@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.3.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.2.json",
   "version": "2.1.1",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Single source of truth with x-ui extensions for UI configuration",
@@ -580,7 +580,6 @@
             "name": {
               "type": "string",
               "enum": [
-                "AGGREGATION.COUNT", "AGGREGATION.DISTINCT",
                 "MATH.ADD", "MATH.SUBTRACT", "MATH.MULTIPLY", "MATH.DIVIDE", 
                 "MATH.SUM", "MATH.ROUND", "MATH.ABS",
                 "TEXT.CONCAT", "TEXT.MID", "TEXT.LEN", "TEXT.CASE",
@@ -594,16 +593,8 @@
                   "category": "AGGREGATION",
                   "returnType": "number",
                   "args": [
-                    {"name": "attribute", "label": "Attribute", "type": "text", "required": true, "defaultValue": "", "valueSources": ["field", "function"]},
+                    {"name": "attribute", "label": "Attribute", "type": "text", "required": true, "defaultValue": "", "valueSources": ["field"]},
                     {"name": "groupBy", "label": "Group By", "type": "text", "required": false, "defaultValue": [], "valueSources": ["field"], "widget": "multiselect"}
-                  ]
-                },
-                "AGGREGATION.DISTINCT": {
-                  "label": "DISTINCT",
-                  "category": "AGGREGATION",
-                  "returnType": "text",
-                  "args": [
-                    {"name": "attribute", "label": "Group By", "type": "text", "required": false, "defaultValue": [], "valueSources": ["field"], "widget": "multiselect"}
                   ]
                 },
                 "MATH.ADD": {
