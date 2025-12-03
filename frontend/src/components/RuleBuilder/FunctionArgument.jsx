@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Space, Typography, Tag, Button, Spin } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import Expression from './Expression';
 import argumentOptionsService from '../../services/ArgumentOptionsService';
 
@@ -106,7 +106,7 @@ const FunctionArgument = ({
               type="text"
               size="small"
               danger
-              icon={<CloseOutlined />}
+              icon={<DeleteOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove();

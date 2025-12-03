@@ -574,7 +574,7 @@ const Condition = ({
                 {canRemoveValue && (
                   <Button 
                     size="small" 
-                    icon={<CloseOutlined />} 
+                    icon={<DeleteOutlined />} 
                     onClick={() => handleRemoveValue(index)}
                     danger
                     type="text"
@@ -667,7 +667,7 @@ const Condition = ({
                 type="text"
                 size="small"
                 danger
-                icon={<CloseOutlined />}
+                icon={<DeleteOutlined />}
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove();

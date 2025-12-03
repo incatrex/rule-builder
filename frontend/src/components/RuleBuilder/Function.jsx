@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Space, TreeSelect, Card, Typography, Tag, Button, Tooltip } from 'antd';
-import { DownOutlined, RightOutlined, PlusOutlined, SettingOutlined, CloseOutlined } from '@ant-design/icons';
+import { DownOutlined, RightOutlined, PlusOutlined, SettingOutlined, DeleteOutlined } from '@ant-design/icons';
 import FunctionArgument from './FunctionArgument';
 import CustomFunctionModal from './CustomFunctionModal';
 
@@ -382,13 +382,18 @@ const Function = ({
                 <Button
                   type="text"
                   size="small"
-                  icon={<CloseOutlined />}
+                  icon={<DeleteOutlined />}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRemoveFunction(e);
                   }}
-                  style={{ padding: '0 4px', color: darkMode ? '#e0e0e0' : 'inherit' }}
-                  danger
+                  style={{ padding: '0 4px', color: darkMode ? '#666' : '#bbb', transition: 'color 0.2s' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#ff4d4f';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = darkMode ? '#666' : '#bbb';
+                  }}
                   data-testid="remove-function-button"
                 />
               </Tooltip>
@@ -528,10 +533,15 @@ const Function = ({
                   <Button
                     type="text"
                     size="small"
-                    icon={<CloseOutlined />}
+                    icon={<DeleteOutlined />}
                     onClick={handleRemoveFunction}
-                    style={{ padding: '0 4px', color: darkMode ? '#e0e0e0' : 'inherit' }}
-                    danger
+                    style={{ padding: '0 4px', color: darkMode ? '#666' : '#bbb', transition: 'color 0.2s' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#ff4d4f';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = darkMode ? '#666' : '#bbb';
+                    }}
                     data-testid="remove-function-button"
                   />
                 </Tooltip>
