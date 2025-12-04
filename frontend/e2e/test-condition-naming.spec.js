@@ -166,8 +166,8 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     testRuleIdTransformation = `TEST_TRANSFORM_${timestamp}`;
     
     console.log(`\n[beforeEach] Creating test rules:`);
-    console.log(`  - ${testRuleIdCondition} (ruleType="Condition")`);
-    console.log(`  - ${testRuleIdConditionGroup} (ruleType="Condition Group")`);
+    console.log(`  - ${testRuleIdCondition} (ruleType="{Condition}")`);
+    console.log(`  - ${testRuleIdConditionGroup} (ruleType="{Condition Group}")`);
     console.log(`  - ${testRuleIdTransformation} (ruleType="Transformation")`);
     
     // Navigate to the app

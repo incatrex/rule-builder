@@ -41,14 +41,14 @@ const RULE_TYPE_MAPPINGS = {
   // - Right side: New value you want
   
   // Example: To rename back to originals, uncomment these:
-  'Condition': 'TEST_CONDITION',
-  'Condition Group': 'TEST_CONDITION_GROUP',
-  'List': 'TEST_LIST',
+  // '{Condition}': 'Condition',
+  // '{Condition Group}': 'Condition Group',
+  // '{List}': 'List',
   
   // Example: To rename to something completely new:
-  // 'GCondition': 'BusinessRule',
-  // 'SCondition Group': 'RuleGroup',
-  // 'AList': 'DataList',
+  // '{Condition}': 'Business Rule',
+  // '{Condition Group}': 'Busines Rule Group',
+  // '{List}': 'Value List',
 };
 
 // Files to update (relative to project root)

@@ -18,30 +18,30 @@
  * 
  * Variable naming convention:
  * - Left side (CONDITION, CONDITION_GROUP, LIST): SCondition Group/original names (what they represent)
- * - Right side ('TEST_CONDITION', 'TEST_CONDITION_GROUP', 'TEST_LIST'): Current schema values (what they're called)
+ * - Right side ('{Condition}', '{Condition Group}', '{List}'): Current schema values (what they're called)
  * 
  * This allows the schema values to change without breaking test logic.
  * 
  * Mappings:
- * - CONDITION: "TEST_CONDITION" type rules (currently 'TEST_CONDITION' in schema)
- * - CONDITION_GROUP: "TEST_CONDITION_GROUP" type rules (currently 'TEST_CONDITION_GROUP' in schema)
- * - LIST: "TEST_LIST" type rules (currently 'TEST_LIST' in schema)
+ * - CONDITION: "{Condition}" type rules (currently '{Condition}' in schema)
+ * - CONDITION_GROUP: "{Condition Group}" type rules (currently '{Condition Group}' in schema)
+ * - LIST: "{List}" type rules (currently '{List}' in schema)
  */
 export const TEST_RULE_TYPES = {
   // Boolean-returning rule types
-  CONDITION: 'TEST_CONDITION',
-  CONDITION_GROUP: 'TEST_CONDITION_GROUP',
+  CONDITION: '{Condition}',
+  CONDITION_GROUP: '{Condition Group}',
   
   // Other rule types
-  LIST: 'TEST_LIST',
+  LIST: '{List}',
   REPORTING: 'Reporting',
   TRANSFORMATION: 'Transformation',
   AGGREGATION: 'Aggregation',
   VALIDATION: 'Validation',
   
   // Common arrays for testing
-  ALL_BOOLEAN: ['TEST_CONDITION', 'TEST_CONDITION_GROUP'],
-  ALL: ['Reporting', 'Transformation', 'Aggregation', 'Validation', 'TEST_CONDITION', 'TEST_CONDITION_GROUP', 'TEST_LIST']
+  ALL_BOOLEAN: ['{Condition}', '{Condition Group}'],
+  ALL: ['Reporting', 'Transformation', 'Aggregation', 'Validation', '{Condition}', '{Condition Group}', '{List}']
 };
 
 /**
@@ -76,10 +76,10 @@ export const TEST_MOCK_CONFIG = {
  * Example of CORRECT hardcoded structure types:
  * - rule.structure.type = 'condition'
  * - rule.structure.type = 'conditionGroup'
- * - defaultName for type 'condition' is 'TEST_CONDITION'
+ * - defaultName for type 'condition' is '{Condition}'
  * 
  * Example of values that SHOULD use this config:
- * - rule.ruleType = TEST_RULE_TYPES.CONDITION (currently 'TEST_CONDITION')
- * - ruleTypeConstraint.value = TEST_RULE_TYPES.CONDITION_GROUP (currently 'TEST_CONDITION_GROUP')
+ * - rule.ruleType = TEST_RULE_TYPES.CONDITION (currently '{Condition}')
+ * - ruleTypeConstraint.value = TEST_RULE_TYPES.CONDITION_GROUP (currently '{Condition Group}')
  * - config.ruleTypes array
  */

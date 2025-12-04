@@ -69,7 +69,7 @@ public class TestRuleTypes {
                 }
             }
             
-            // Extract Condition ruleType constraint (enum: ["TEST_CONDITION", "TEST_LIST"])
+            // Extract Condition ruleType constraint (enum: ["{Condition}", "{List}"])
             if (definitions != null && definitions.has("Condition")) {
                 JsonNode condition = definitions.get("Condition");
                 JsonNode oneOf = condition.get("oneOf");
@@ -90,7 +90,7 @@ public class TestRuleTypes {
                 }
             }
             
-            // Extract ConditionGroup ruleType constraint (const: "TEST_CONDITION_GROUP")
+            // Extract ConditionGroup ruleType constraint (const: "{Condition Group}")
             if (definitions != null && definitions.has("ConditionGroup")) {
                 JsonNode conditionGroup = definitions.get("ConditionGroup");
                 JsonNode oneOf = conditionGroup.get("oneOf");
@@ -114,10 +114,10 @@ public class TestRuleTypes {
     
     /**
      * Get a rule type that can be used for Condition ruleRef.
-     * Returns first value from schema enum ["TEST_CONDITION", "TEST_LIST"]
+     * Returns first value from schema enum ["{Condition}", "{List}"]
      */
     public String getConditionRuleType() {
-        // Return the first non-conditionGroup type (typically "TEST_CONDITION")
+        // Return the first non-conditionGroup type (typically "{Condition}")
         return conditionRuleTypes.stream()
             .filter(type -> !type.equals(getConditionGroupRuleType()))
             .findFirst()
@@ -126,7 +126,7 @@ public class TestRuleTypes {
     
     /**
      * Get the rule type for ConditionGroup ruleRef.
-     * Returns value from schema const "TEST_CONDITION_GROUP"
+     * Returns value from schema const "{Condition Group}"
      */
     public String getConditionGroupRuleType() {
         return conditionGroupRuleType;
@@ -134,10 +134,10 @@ public class TestRuleTypes {
     
     /**
      * Get a list rule type that can be used for Condition ruleRef.
-     * Returns "TEST_LIST" from schema enum ["TEST_CONDITION", "TEST_LIST"]
+     * Returns "{List}" from schema enum ["{Condition}", "{List}"]
      */
     public String getListRuleType() {
-        // Return the second value from condition enum (typically "TEST_LIST")
+        // Return the second value from condition enum (typically "{List}")
         return conditionRuleTypes.stream()
             .filter(type -> !type.equals(getConditionRuleType()) && !type.equals(getConditionGroupRuleType()))
             .findFirst()

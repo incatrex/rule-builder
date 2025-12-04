@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.4.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.5.json",
   "version": "2.1.1",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Single source of truth with x-ui extensions for UI configuration",
@@ -101,7 +101,7 @@
   "definitions": {
     "RuleType": {
       "type": "string",
-      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "TEST_CONDITION", "TEST_CONDITION_GROUP", "TEST_LIST"],
+      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "{Condition}", "{Condition Group}", "{List}"],
       "description": "Rule type enumeration - single source of truth for rule types"
     },
     "RuleReference": {
@@ -251,7 +251,7 @@
             "ruleRef": {
               "properties": {
                 "returnType": { "const": "boolean" },
-                "ruleType": { "const": "TEST_CONDITION_GROUP" }
+                "ruleType": { "const": "{Condition Group}" }
               }
             }
           }
@@ -407,7 +407,7 @@
             "ruleRef": {
               "properties": {
                 "returnType": { "const": "boolean" },
-                "ruleType": { "enum": ["TEST_CONDITION", "TEST_LIST"] }
+                "ruleType": { "enum": ["{Condition}", "{List}"] }
               }
             }
           }
