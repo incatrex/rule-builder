@@ -63,7 +63,47 @@ public class RuleBuilderConfigService {
         config.set("settings", extractSettings());
         config.set("ruleTypes", extractRuleTypes());
         
+        // Extract rule type constraints for ruleRef contexts
+        extractRuleTypeConstraints(config);
+        
         return config;
+    }
+    
+    /**
+     * Extract rule type constraints from schema for ruleRef contexts
+     * Adds conditionGroupRuleType and conditionAllowedRuleTypes to config
+     */
+    private void extractRuleTypeConstraints(ObjectNode config) {
+        JsonNode definitions = schema.get("definitions");
+        if (definitions == null) return;
+        
+        // Extract Condition ruleType constraint (enum) -> conditionAllowedRuleTypes
+        if (definitions.has("Condition")) {
+            JsonNode condition = definitions.get("Condition");
+            JsonNode oneOf = condition.get("oneOf");
+            if (oneOf != null && oneOf.isArray() && oneOf.size() > 1) {
+                JsonNode ruleRefSchema = oneOf.get(1);
+                JsonNode ruleTypeNode = ruleRefSchema.at("/properties/ruleRef/properties/ruleType");
+                if (ruleTypeNode.has("enum")) {
+                    ArrayNode allowedTypes = objectMapper.createArrayNode();
+                    ruleTypeNode.get("enum").forEach(allowedTypes::add);
+                    config.set("conditionAllowedRuleTypes", allowedTypes);
+                }
+            }
+        }
+        
+        // Extract ConditionGroup ruleType constraint (const) -> conditionGroupRuleType
+        if (definitions.has("ConditionGroup")) {
+            JsonNode conditionGroup = definitions.get("ConditionGroup");
+            JsonNode oneOf = conditionGroup.get("oneOf");
+            if (oneOf != null && oneOf.isArray() && oneOf.size() > 1) {
+                JsonNode ruleRefSchema = oneOf.get(1);
+                JsonNode ruleTypeNode = ruleRefSchema.at("/properties/ruleRef/properties/ruleType");
+                if (ruleTypeNode.has("const")) {
+                    config.put("conditionGroupRuleType", ruleTypeNode.get("const").asText());
+                }
+            }
+        }
     }
     
     /**
