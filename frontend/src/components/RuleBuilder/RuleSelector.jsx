@@ -34,7 +34,7 @@ const RuleSelector = ({
   filterReturnType = null,
   showRuleTypeFilter = false,
   showRuleIdSelector = true,
-  ruleTypes = ['Reporting', 'Transformation', 'Aggregation', 'Validation', 'Condition', 'Condition Group'],
+  ruleTypes = [],
   initialRuleType = null,
   onRuleTypeChange = null,
   returnType = null, // Current rule's return type for display
@@ -51,10 +51,10 @@ const RuleSelector = ({
   const constraintValue = ruleTypeConstraint?.value;
   const constraintValues = ruleTypeConstraint?.values; // For allowlist mode
   
-  // Ensure ruleTypes is always an array with defaults
+  // Ensure ruleTypes is always an array
   let safeRuleTypes = Array.isArray(ruleTypes) && ruleTypes.length > 0 
     ? ruleTypes 
-    : ['Reporting', 'Transformation', 'Aggregation', 'Validation', 'Condition', 'Condition Group', 'List'];
+    : [];
   
   // Filter ruleTypes based on constraint mode
   if (isConstrained && constraintValue) {

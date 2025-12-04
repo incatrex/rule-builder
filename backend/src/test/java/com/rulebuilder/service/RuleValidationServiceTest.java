@@ -2,11 +2,13 @@ package com.rulebuilder.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rulebuilder.testutil.TestRuleTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,12 +20,14 @@ class RuleValidationServiceTest {
 
     private RuleValidationService validationService;
     private ObjectMapper objectMapper;
+    private TestRuleTypes testRuleTypes;
 
     @BeforeEach
     void setUp() throws IOException {
         XUISemanticValidator xuiValidator = new XUISemanticValidator();
         validationService = new RuleValidationService(xuiValidator);
         objectMapper = new ObjectMapper();
+        testRuleTypes = TestRuleTypes.getInstance();
     }
 
     // ==================== VALID RULES ====================
@@ -789,11 +793,11 @@ class RuleValidationServiceTest {
     @Test
     @DisplayName("RuleType 'Condition' should be valid")
     void testRuleTypeCondition() throws IOException {
-        String json = """
+        String json = String.format("""
             {
               "structure": "condition",
               "returnType": "boolean",
-              "ruleType": "Condition",
+              "ruleType": "%s",
               "uuId": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
@@ -817,24 +821,24 @@ class RuleValidationServiceTest {
                 }
               }
             }
-            """;
+            """, testRuleTypes.getConditionRuleType());
 
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule);
 
         assertNotNull(result);
         assertEquals(0, result.getErrorCount(), 
-            "RuleType 'Condition' should be valid. Errors: " + result.getErrors());
+            "RuleType '" + testRuleTypes.getConditionRuleType() + "' should be valid. Errors: " + result.getErrors());
     }
 
     @Test
     @DisplayName("RuleType 'Condition Group' should be valid")
     void testRuleTypeConditionGroup() throws IOException {
-        String json = """
+        String json = String.format("""
             {
               "structure": "condition",
               "returnType": "boolean",
-              "ruleType": "Condition Group",
+              "ruleType": "%s",
               "uuId": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
@@ -867,22 +871,20 @@ class RuleValidationServiceTest {
                 ]
               }
             }
-            """;
+            """, testRuleTypes.getConditionGroupRuleType());
 
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule);
 
         assertNotNull(result);
-        assertEquals(0, result.getErrorCount(), 
-            "RuleType 'Condition Group' should be valid. Errors: " + result.getErrors());
-    }
-
-    // ==================== RULETYPE CONSTRAINTS IN RULEREF ====================
+        assertEquals(0, result.getErrorCount(),
+            "RuleType '" + testRuleTypes.getConditionGroupRuleType() + "' should be valid. Errors: " + result.getErrors());
+    }    // ==================== RULETYPE CONSTRAINTS IN RULEREF ====================
 
     @Test
-    @DisplayName("Condition with ruleRef must have ruleType='Condition'")
+    @DisplayName("Condition with ruleRef must have correct ruleType")
     void testConditionRuleRefRequiresConditionRuleType() throws IOException {
-        String json = """
+        String json = String.format("""
             {
               "structure": "condition",
               "returnType": "boolean",
@@ -902,18 +904,18 @@ class RuleValidationServiceTest {
                   "uuid": "87654321-4321-4321-4321-210987654321",
                   "version": 1,
                   "returnType": "boolean",
-                  "ruleType": "Condition"
+                  "ruleType": "%s"
                 }
               }
             }
-            """;
+            """, testRuleTypes.getConditionRuleType());
 
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule);
 
         assertNotNull(result);
         assertEquals(0, result.getErrorCount(), 
-            "Condition with ruleRef having ruleType='Condition' should be valid. Errors: " + result.getErrors());
+            "Condition with ruleRef having ruleType='" + testRuleTypes.getConditionRuleType() + "' should be valid. Errors: " + result.getErrors());
     }
 
     @Test
@@ -951,19 +953,20 @@ class RuleValidationServiceTest {
         assertNotNull(result);
         assertTrue(result.getErrorCount() > 0, "Should have validation errors");
         
-        // Schema's enum constraint should catch this (allowlist: [Condition, List])
+        // Schema's enum constraint should catch this (current allowlist from schema)
+        Set<String> allowedTypes = testRuleTypes.getConditionAllowedRuleTypes();
         boolean hasRuleTypeError = result.getErrors().stream()
             .anyMatch(err -> err.getType().equals("enum") && 
                            err.getMessage().contains("ruleType") &&
-                           (err.getMessage().contains("Condition") || err.getMessage().contains("List")));
+                           allowedTypes.stream().anyMatch(type -> err.getMessage().contains(type)));
         assertTrue(hasRuleTypeError, 
-            "Should have enum error about ruleType allowlist [Condition, List]. Errors: " + result.getErrors());
+            "Should have enum error about ruleType allowlist " + allowedTypes + ". Errors: " + result.getErrors());
     }
 
     @Test
-    @DisplayName("ConditionGroup with ruleRef must have ruleType='Condition Group'")
+    @DisplayName("ConditionGroup with ruleRef must have correct ruleType")
     void testConditionGroupRuleRefRequiresConditionGroupRuleType() throws IOException {
-        String json = """
+        String json = String.format("""
             {
               "structure": "condition",
               "returnType": "boolean",
@@ -983,18 +986,18 @@ class RuleValidationServiceTest {
                   "uuid": "87654321-4321-4321-4321-210987654321",
                   "version": 1,
                   "returnType": "boolean",
-                  "ruleType": "Condition Group"
+                  "ruleType": "%s"
                 }
               }
             }
-            """;
+            """, testRuleTypes.getConditionGroupRuleType());
 
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule);
 
         assertNotNull(result);
         assertEquals(0, result.getErrorCount(), 
-            "ConditionGroup with ruleRef having ruleType='Condition Group' should be valid. Errors: " + result.getErrors());
+            "ConditionGroup with ruleRef having ruleType='" + testRuleTypes.getConditionGroupRuleType() + "' should be valid. Errors: " + result.getErrors());
     }
 
     @Test

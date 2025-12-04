@@ -38,6 +38,9 @@ public class XUISemanticValidator {
     private final Set<String> validReturnTypes = new HashSet<>();
     private final Set<String> defaultValueSources = new HashSet<>();
     
+    // Rule type constraints extracted from schema (schema-driven)
+    private final Map<String, Set<String>> ruleTypeConstraints = new HashMap<>();
+    
     public XUISemanticValidator() throws IOException {
         loadXUIMetadata();
     }
@@ -128,6 +131,62 @@ public class XUISemanticValidator {
                 xuiSettings.get("defaultValueSources").forEach(source -> 
                     defaultValueSources.add(source.asText())
                 );
+            }
+            
+            // Load rule type constraints from schema (schema-driven)
+            loadRuleTypeConstraints(definitions);
+        }
+    }
+    
+    /**
+     * Load rule type constraints from schema definitions.
+     * Extracts the ruleType constraints from Condition and ConditionGroup oneOf schemas.
+     * This makes the validator schema-driven instead of hardcoding values like 'Condition', 'Condition Group', 'List'.
+     */
+    private void loadRuleTypeConstraints(JsonNode definitions) {
+        // Extract Condition ruleType constraint (enum)
+        // Path: /definitions/Condition/oneOf[1]/properties/ruleRef/properties/ruleType/enum
+        if (definitions != null && definitions.has("Condition")) {
+            JsonNode condition = definitions.get("Condition");
+            JsonNode oneOf = condition.get("oneOf");
+            if (oneOf != null && oneOf.isArray() && oneOf.size() > 1) {
+                JsonNode ruleRefSchema = oneOf.get(1); // Second oneOf option is the ruleRef variant
+                JsonNode properties = ruleRefSchema.get("properties");
+                if (properties != null && properties.has("ruleRef")) {
+                    JsonNode ruleRefProps = properties.get("ruleRef");
+                    JsonNode ruleRefPropsNested = ruleRefProps.get("properties");
+                    if (ruleRefPropsNested != null && ruleRefPropsNested.has("ruleType")) {
+                        JsonNode ruleTypeNode = ruleRefPropsNested.get("ruleType");
+                        if (ruleTypeNode.has("enum")) {
+                            Set<String> allowedTypes = new HashSet<>();
+                            ruleTypeNode.get("enum").forEach(type -> allowedTypes.add(type.asText()));
+                            ruleTypeConstraints.put("condition", allowedTypes);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Extract ConditionGroup ruleType constraint (const)
+        // Path: /definitions/ConditionGroup/oneOf[1]/properties/ruleRef/properties/ruleType/const
+        if (definitions != null && definitions.has("ConditionGroup")) {
+            JsonNode conditionGroup = definitions.get("ConditionGroup");
+            JsonNode oneOf = conditionGroup.get("oneOf");
+            if (oneOf != null && oneOf.isArray() && oneOf.size() > 1) {
+                JsonNode ruleRefSchema = oneOf.get(1); // Second oneOf option is the ruleRef variant
+                JsonNode properties = ruleRefSchema.get("properties");
+                if (properties != null && properties.has("ruleRef")) {
+                    JsonNode ruleRefProps = properties.get("ruleRef");
+                    JsonNode ruleRefPropsNested = ruleRefProps.get("properties");
+                    if (ruleRefPropsNested != null && ruleRefPropsNested.has("ruleType")) {
+                        JsonNode ruleTypeNode = ruleRefPropsNested.get("ruleType");
+                        if (ruleTypeNode.has("const")) {
+                            Set<String> allowedTypes = new HashSet<>();
+                            allowedTypes.add(ruleTypeNode.get("const").asText());
+                            ruleTypeConstraints.put("conditionGroup", allowedTypes);
+                        }
+                    }
+                }
             }
         }
     }
@@ -637,19 +696,11 @@ public class XUISemanticValidator {
         // but if present, it must match the context-specific constraint
         if (ruleRef.has("ruleType")) {
             String ruleType = ruleRef.get("ruleType").asText();
-            Set<String> allowedRuleTypes = new HashSet<>();
             
-            // Based on schema constraints:
-            // - Condition context allows enum: ["Condition", "List"]
-            // - ConditionGroup context requires const: "Condition Group"
-            if ("condition".equals(context)) {
-                allowedRuleTypes.add("Condition");
-                allowedRuleTypes.add("List");
-            } else if ("conditionGroup".equals(context)) {
-                allowedRuleTypes.add("Condition Group");
-            }
+            // Get allowed rule types from schema constraints (schema-driven)
+            Set<String> allowedRuleTypes = ruleTypeConstraints.get(context);
             
-            if (!allowedRuleTypes.isEmpty() && !allowedRuleTypes.contains(ruleType)) {
+            if (allowedRuleTypes != null && !allowedRuleTypes.isEmpty() && !allowedRuleTypes.contains(ruleType)) {
                 String allowedTypesStr = allowedRuleTypes.size() == 1 
                     ? "'" + allowedRuleTypes.iterator().next() + "'"
                     : allowedRuleTypes.toString();

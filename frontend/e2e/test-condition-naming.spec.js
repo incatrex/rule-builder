@@ -12,6 +12,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { RULE_TYPES } from './testConfig.js';
 
 // Helper function for robust clicking with fallback to native events
 async function robustClick(locator, options = {}) {
@@ -165,8 +166,8 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     testRuleIdTransformation = `TEST_TRANSFORM_${timestamp}`;
     
     console.log(`\n[beforeEach] Creating test rules:`);
-    console.log(`  - ${testRuleIdCondition} (ruleType="Condition")`);
-    console.log(`  - ${testRuleIdConditionGroup} (ruleType="Condition Group")`);
+    console.log(`  - ${testRuleIdCondition} (ruleType="{Condition}")`);
+    console.log(`  - ${testRuleIdConditionGroup} (ruleType="{Condition Group}")`);
     console.log(`  - ${testRuleIdTransformation} (ruleType="Transformation")`);
     
     // Navigate to the app
@@ -186,7 +187,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await page.waitForTimeout(200);
     let dropdown = page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
     await dropdown.waitFor({ state: 'visible', timeout: 5000 });
-    await dropdown.getByText('Condition', { exact: true }).click();
+    await dropdown.getByText(RULE_TYPES.CONDITION, { exact: true }).click();
     await page.waitForTimeout(300);
     
     // Save the first rule
@@ -210,7 +211,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await page.waitForTimeout(200);
     dropdown = page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
     await dropdown.waitFor({ state: 'visible', timeout: 5000 });
-    await dropdown.getByText('Condition Group', { exact: true }).click();
+    await dropdown.getByText(RULE_TYPES.CONDITION_GROUP, { exact: true }).click();
     await page.waitForTimeout(300);
     
     // Save the second rule

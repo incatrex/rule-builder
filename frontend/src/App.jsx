@@ -151,7 +151,10 @@ const App = () => {
         functions: configData.functions, // Already hierarchical from schema
         types: configData.types,
         expressionOperators: configData.expressionOperators,
-        settings: configData.settings
+        settings: configData.settings,
+        ruleTypes: configData.ruleTypes,
+        conditionGroupRuleType: configData.conditionGroupRuleType,
+        conditionAllowedRuleTypes: configData.conditionAllowedRuleTypes
       };
       
       setRuleConfig(ruleConfigData);

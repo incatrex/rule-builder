@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.3.json",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.5.json",
   "version": "2.1.1",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Single source of truth with x-ui extensions for UI configuration",
@@ -101,12 +101,12 @@
   "definitions": {
     "RuleType": {
       "type": "string",
-      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "Condition", "Condition Group", "List"],
+      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "{Condition}", "{Condition Group}", "{List}"],
       "description": "Rule type enumeration - single source of truth for rule types"
     },
     "RuleReference": {
       "type": "object",
-      "description": "Reference to another rule (shared across Expression, Condition, and ConditionGroup)",
+      "description": "Reference to another rule shared in Expression, Condition or Condition",
       "required": ["id", "uuid", "version", "returnType"],
       "properties": {
         "id": {
@@ -251,7 +251,7 @@
             "ruleRef": {
               "properties": {
                 "returnType": { "const": "boolean" },
-                "ruleType": { "const": "Condition Group" }
+                "ruleType": { "const": "{Condition Group}" }
               }
             }
           }
@@ -407,7 +407,7 @@
             "ruleRef": {
               "properties": {
                 "returnType": { "const": "boolean" },
-                "ruleType": { "enum": ["Condition", "List"] }
+                "ruleType": { "enum": ["{Condition}", "{List}"] }
               }
             }
           }
