@@ -21,15 +21,16 @@ public class TestRuleTypes {
     
     // Rule type values extracted from schema
     private final Set<String> conditionRuleTypes = new HashSet<>();
-    private final String conditionGroupRuleType;
+    private String conditionGroupRuleType;  // Changed to non-final so we can set it during extraction
     private final Set<String> allRuleTypes = new HashSet<>();
     
     private TestRuleTypes() throws IOException {
         loadFromSchema();
         
-        // Set conditionGroupRuleType from the extracted constraint
-        this.conditionGroupRuleType = conditionRuleTypes.isEmpty() ? null 
-            : conditionRuleTypes.iterator().next();
+        // Validate that conditionGroupRuleType was found
+        if (conditionGroupRuleType == null) {
+            throw new IllegalStateException("ConditionGroup ruleType constraint not found in schema");
+        }
     }
     
     /**
@@ -68,7 +69,7 @@ public class TestRuleTypes {
                 }
             }
             
-            // Extract Condition ruleType constraint (enum: ["GCondition", "AList"])
+            // Extract Condition ruleType constraint (enum: ["Condition", "List"])
             if (definitions != null && definitions.has("Condition")) {
                 JsonNode condition = definitions.get("Condition");
                 JsonNode oneOf = condition.get("oneOf");
@@ -89,8 +90,7 @@ public class TestRuleTypes {
                 }
             }
             
-            // Extract ConditionGroup ruleType constraint (const: "SCondition Group")
-            // Note: We'll extract this to the same conditionRuleTypes set for the constructor
+            // Extract ConditionGroup ruleType constraint (const: "Condition Group")
             if (definitions != null && definitions.has("ConditionGroup")) {
                 JsonNode conditionGroup = definitions.get("ConditionGroup");
                 JsonNode oneOf = conditionGroup.get("oneOf");
@@ -102,10 +102,8 @@ public class TestRuleTypes {
                         if (ruleRefProps != null && ruleRefProps.has("ruleType")) {
                             JsonNode ruleTypeNode = ruleRefProps.get("ruleType");
                             if (ruleTypeNode.has("const")) {
-                                // Store temporarily for constructor
-                                Set<String> temp = new HashSet<>();
-                                temp.add(ruleTypeNode.get("const").asText());
-                                conditionRuleTypes.add(ruleTypeNode.get("const").asText());
+                                // Set the conditionGroupRuleType directly (don't add to conditionRuleTypes)
+                                conditionGroupRuleType = ruleTypeNode.get("const").asText();
                             }
                         }
                     }
@@ -116,10 +114,10 @@ public class TestRuleTypes {
     
     /**
      * Get a rule type that can be used for Condition ruleRef.
-     * Returns first value from schema enum ["GCondition", "AList"]
+     * Returns first value from schema enum ["Condition", "List"]
      */
     public String getConditionRuleType() {
-        // Return the first non-conditionGroup type (typically "GCondition")
+        // Return the first non-conditionGroup type (typically "Condition")
         return conditionRuleTypes.stream()
             .filter(type -> !type.equals(getConditionGroupRuleType()))
             .findFirst()
@@ -128,7 +126,7 @@ public class TestRuleTypes {
     
     /**
      * Get the rule type for ConditionGroup ruleRef.
-     * Returns value from schema const "SCondition Group"
+     * Returns value from schema const "Condition Group"
      */
     public String getConditionGroupRuleType() {
         return conditionGroupRuleType;
@@ -136,10 +134,10 @@ public class TestRuleTypes {
     
     /**
      * Get a list rule type that can be used for Condition ruleRef.
-     * Returns "AList" from schema enum ["GCondition", "AList"]
+     * Returns "List" from schema enum ["Condition", "List"]
      */
     public String getListRuleType() {
-        // Return the second value from condition enum (typically "AList")
+        // Return the second value from condition enum (typically "List")
         return conditionRuleTypes.stream()
             .filter(type -> !type.equals(getConditionRuleType()) && !type.equals(getConditionGroupRuleType()))
             .findFirst()

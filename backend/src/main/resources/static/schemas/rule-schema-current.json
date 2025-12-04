@@ -101,7 +101,7 @@
   "definitions": {
     "RuleType": {
       "type": "string",
-      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "GCondition", "SCondition Group", "AList"],
+      "enum": ["Reporting", "Transformation", "Aggregation", "Validation", "Condition", "Condition Group", "List"],
       "description": "Rule type enumeration - single source of truth for rule types"
     },
     "RuleReference": {
@@ -251,7 +251,7 @@
             "ruleRef": {
               "properties": {
                 "returnType": { "const": "boolean" },
-                "ruleType": { "const": "SCondition Group" }
+                "ruleType": { "const": "Condition Group" }
               }
             }
           }
@@ -407,7 +407,7 @@
             "ruleRef": {
               "properties": {
                 "returnType": { "const": "boolean" },
-                "ruleType": { "enum": ["GCondition", "AList"] }
+                "ruleType": { "enum": ["Condition", "List"] }
               }
             }
           }

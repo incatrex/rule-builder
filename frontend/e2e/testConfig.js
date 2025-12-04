@@ -5,7 +5,7 @@
  * 
  * IMPORTANT - Variable Naming Convention:
  * - Variable names (left side): SCondition Group/original names (e.g., CONDITION, CONDITION_GROUP)
- * - String values (right side): Current schema values (e.g., 'GCondition', 'SCondition Group')
+ * - String values (right side): Current schema values (e.g., 'Condition', 'Condition Group')
  * 
  * This allows schema values to change without breaking test logic.
  * When schema changes, only update the values here.
@@ -21,9 +21,9 @@
  * These must match the ruleType enum values in the schema
  */
 export const RULE_TYPES = {
-  CONDITION: 'GCondition',              // Condition rules (boolean-returning)
-  CONDITION_GROUP: 'SCondition Group',        // Condition group rules (boolean-returning)
-  LIST: 'AList',           // List rules (array-returning)
+  CONDITION: 'Condition',              // Condition rules (boolean-returning)
+  CONDITION_GROUP: 'Condition Group',        // Condition group rules (boolean-returning)
+  LIST: 'List',           // List rules (array-returning)
   REPORTING: 'Reporting',
   TRANSFORMATION: 'Transformation',
   AGGREGATION: 'Aggregation',

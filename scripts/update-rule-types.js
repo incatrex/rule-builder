@@ -41,9 +41,9 @@ const RULE_TYPE_MAPPINGS = {
   // - Right side: New value you want
   
   // Example: To rename back to originals, uncomment these:
-  // 'GCondition': 'Condition',
-  // 'SCondition Group': 'Condition Group',
-  // 'AList': 'List',
+  'GCondition': 'Condition',
+  'SCondition Group': 'Condition Group',
+  'AList': 'List',
   
   // Example: To rename to something completely new:
   // 'GCondition': 'BusinessRule',

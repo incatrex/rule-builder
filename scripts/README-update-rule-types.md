@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `update-rule-types.js` script provides a centralized way to update rule type string values throughout the entire codebase. This ensures consistency across schema definitions, test configurations, sample data, and test files.
+The [update-rule-types.js](./update-rule-types.js) script provides a centralized way to update rule type string values throughout the entire codebase. This ensures consistency across schema definitions, test configurations, sample data, and test files.
 
 **IMPORTANT**: Due to the schema-driven architecture, you only need to change values in the schema and test files. The application code extracts rule type values from the schema at runtime.
 
