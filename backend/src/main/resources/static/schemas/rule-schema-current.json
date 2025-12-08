@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://api.rulebuilder.com/schemas/rule-v2.1.5.json",
-  "version": "2.1.1",
+  "$id": "https://api.rulebuilder.com/schemas/rule-v0.0.1.json",
+  "version": "0.0.1",
   "title": "Rule Builder Schema",
   "description": "JSON Schema for validating Rule Builder generated rules - Single source of truth with x-ui extensions for UI configuration",
   "type": "object",
