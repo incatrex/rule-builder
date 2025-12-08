@@ -3,8 +3,8 @@
 
 Based on actual UI component implementation and JSON structures used by the Rule Builder application.
 
-**Schema Version:** v2.1.1  
-**Schema ID:** https://api.rulebuilder.com/schemas/rule-v2.1.1.json  
+**Schema Version:** v0.0.1
+**Schema ID:** https://api.rulebuilder.com/schemas/rule-v0.0.1.json  
 **JSON Schema Draft:** Draft 7 (http://json-schema.org/draft-07/schema#)
 
 ## Core Data Structures
@@ -435,7 +435,7 @@ Functions accept Expression or ExpressionGroup as argument values:
 5. **Function Arguments**: Accept Expression or ExpressionGroup as values, providing flexibility in how arguments are constructed
 6. **UI State Management**: Condition `id` field is optional and used for React key management in the UI
 7. **Type Safety**: `returnType` fields ensure type compatibility across the system
-8. **Schema Version**: v2.1.1 - Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) with x-ui-* extensions for UI configuration
+8. **Schema Validation**: Uses JSON Schema Draft 7 (`http://json-schema.org/draft-07/schema#`) with x-ui-* extensions for UI configuration
 9. **Validation Approach**: Schema uses `if/then/else` conditional pattern based on the `structure` field to determine which content type to validate against (CaseContent, ConditionGroup, or ExpressionGroup)
 10. **Null Right Side**: Condition `right` property can be `null` for operators like `is_empty` and `is_not_empty` that don't require a comparison value
 11. **Dynamic Cardinality**: The `in` and `not_in` operators support variable-length arrays (1-10 values) with configurable separators and +/- buttons in the UI
@@ -443,4 +443,3 @@ Functions accept Expression or ExpressionGroup as argument values:
 13. **Rule References**: Conditions, ConditionGroups, and Expressions can all be backed by rule references via the `ruleRef` property. This enables rule reusability and composition.
 14. **RuleReference Type Constraints**: When used in conditions/conditionGroups, `ruleRef.returnType` must be "boolean". When used in expressions, it can be any return type.
 15. **Dual Modes**: Conditions and ConditionGroups support two modes: (1) Standard mode with left/operator/right or conjunction/conditions, (2) RuleRef mode with just the ruleRef property
-16. **Schema URI**: The schema has a canonical URI identifier: `https://api.rulebuilder.com/schemas/rule-v2.1.1.json`
