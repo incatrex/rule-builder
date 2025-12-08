@@ -1,0 +1,45 @@
+{
+  "uuId" : "f5d57b99-07a7-40a2-8b26-7ff647bdcad8",
+  "version" : 1,
+  "structure" : "condition",
+  "returnType" : "boolean",
+  "ruleType" : "{Condition Group}",
+  "metadata" : {
+    "id" : "CONDITION_GROUP_ACTIVE_WITH_MULTIPLE_ACCOUNTS",
+    "description" : ""
+  },
+  "definition" : {
+    "type" : "conditionGroup",
+    "returnType" : "boolean",
+    "name" : "Active with Multiple Accounts",
+    "conjunction" : "AND",
+    "not" : false,
+    "conditions" : [ {
+      "type" : "condition",
+      "returnType" : "boolean",
+      "name" : "CONDITION_MULTIPLE_ACCOUNTS",
+      "ruleRef" : {
+        "id" : "CONDITION_MULTIPLE_ACCOUNTS",
+        "uuid" : "39430d19-2151-4001-973d-d9549b59a589",
+        "version" : 2,
+        "returnType" : "boolean",
+        "ruleType" : "{Condition}"
+      }
+    }, {
+      "type" : "condition",
+      "returnType" : "boolean",
+      "name" : "Active Status",
+      "left" : {
+        "type" : "field",
+        "returnType" : "text",
+        "field" : "GENERAL_LEDGER.STATUS_1"
+      },
+      "operator" : "equal",
+      "right" : {
+        "type" : "value",
+        "returnType" : "text",
+        "value" : "Active"
+      }
+    } ]
+  }
+}

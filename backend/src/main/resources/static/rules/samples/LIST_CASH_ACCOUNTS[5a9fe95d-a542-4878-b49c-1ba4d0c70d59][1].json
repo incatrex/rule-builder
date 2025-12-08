@@ -1,0 +1,39 @@
+{
+  "uuId" : "5a9fe95d-a542-4878-b49c-1ba4d0c70d59",
+  "version" : 1,
+  "structure" : "condition",
+  "returnType" : "boolean",
+  "ruleType" : "{List}",
+  "metadata" : {
+    "id" : "LIST_CASH_ACCOUNTS",
+    "description" : ""
+  },
+  "definition" : {
+    "type" : "condition",
+    "returnType" : "boolean",
+    "name" : "In Cash Accounts List",
+    "left" : {
+      "type" : "field",
+      "returnType" : "number",
+      "field" : "TABLE1.NUMBER_FIELD_01"
+    },
+    "operator" : "in",
+    "right" : [ {
+      "type" : "value",
+      "returnType" : "number",
+      "value" : 1234567890
+    }, {
+      "type" : "value",
+      "returnType" : "number",
+      "value" : 1234567891
+    }, {
+      "type" : "value",
+      "returnType" : "number",
+      "value" : 1234567892
+    }, {
+      "type" : "value",
+      "returnType" : "number",
+      "value" : 1234567893
+    } ]
+  }
+}
