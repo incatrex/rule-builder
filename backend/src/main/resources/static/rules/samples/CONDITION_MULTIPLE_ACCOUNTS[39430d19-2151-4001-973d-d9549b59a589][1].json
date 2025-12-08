@@ -1,6 +1,6 @@
 {
   "uuId" : "39430d19-2151-4001-973d-d9549b59a589",
-  "version" : 2,
+  "version" : 1,
   "structure" : "condition",
   "returnType" : "boolean",
   "ruleType" : "{Condition}",
