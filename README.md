@@ -20,8 +20,10 @@ A full-stack application for building and managing business rules with a visual 
 
 ## Documentation
 
+The current JSON schema is located at `backend/src/main/resources/static/schemas/rule-schema-current.json`.
+
 - **[Rule Schema Reference](backend/src/main/resources/static/schemas/RULE_SCHEMA_REFERENCE.md)**: Complete JSON schema documentation with examples
-- **[Schema Visualization](docs/COMPONENT_HIERARCHY_SCHEMA.md)**: Visual hierarchy of schema components and composition rules
+- **[Schema Visualization](backend/src/main/resources/static/schemas/RULE_SCHEMA_VISUALIZATION.md)**: Visual hierarchy of schema components and composition rules
 - **[Frontend Component Hierarchy](docs/COMPONENT_HIERARCHY_FRONTEND.md)**: React component architecture and data flow patterns
 
 ## Project Structure
@@ -65,12 +67,14 @@ rule-builder/
 │   │   │   ├── SqlViewer/                         # SQL viewer component
 │   │   │   ├── RuleSearch/                        # Rule search dropdown
 │   │   │   └── RuleCanvas/                        # Visual rule display
-│   │   ├── services/                              # API services
-│   │   └── tests/                                 # Test files
-│   │       ├── integration/                       # Vitest integration tests
-│   │       ├── fixtures/                          # Test data
-│   │       └── helpers/                           # Test utilities
+│   ├── services/                              # API services
+│   └── tests/                                 # Test utilities
 │   ├── e2e/                                       # Playwright E2E tests
+│   ├── tests/                                     # Vitest test files
+│       ├── integration/                       # Integration tests
+│       ├── unit/                              # Unit tests
+│       ├── fixtures/                          # Test data
+│       └── helpers/                           # Test utilities
 │   ├── manual-tests/                              # HTML test files
 │   ├── package.json                               # npm dependencies
 │   ├── vite.config.js                             # Vite configuration
@@ -169,23 +173,21 @@ rule-builder/
 The backend provides the following REST endpoints:
 
 ### Rule Management Endpoints
-- `GET /api/rules/ids` - Get list of all rule IDs with filtering support
-  - Query parameter: `ruleType` (optional) - Filter by rule type
-- `GET /api/rules/{ruleId}` - Get a specific rule by ID (timestamped format: `RULE_ID_timestamp`)
-- `GET /api/rules/{uuid}/versions` - Get list of available versions for a rule
-- `GET /api/rules/{uuid}/versions/{version}` - Get a specific version of a rule
-- `POST /api/rules` - Save a new rule or create a new version
-- `PUT /api/rules/{uuid}` - Update an existing rule (creates new version)
+- `GET /api/v1/rules` - Get list of all rules with filtering and pagination support
+  - Query parameters: `ruleType`, `search`, `page`, `size`
+- `POST /api/v1/rules` - Create a new rule (server-generated UUID at version 1)
+- `PUT /api/v1/rules/{uuid}` - Update an existing rule (creates new version)
+- `GET /api/v1/rules/{uuid}/versions` - Get list of available versions for a rule
+- `GET /api/v1/rules/{uuid}/versions/{version}` - Get a specific version of a rule
+- `POST /api/v1/rules/{uuid}/versions/{version}/restore` - Restore a specific version as new version
 
-### Rule History Endpoints
-- `GET /api/rules/{uuid}/history` - Get version history for a rule
-- `POST /api/rules/{uuid}/restore/{version}` - Restore a specific version of a rule as a new version
-- `DELETE /api/rules/{ruleId}` - Delete a rule by ID
+### Configuration Endpoints
+- `GET /api/v1/fields` - Get field definitions
+- `GET /api/v1/rules/ui/config` - Get UI configuration from schema
 
-### Rule History Endpoints
-- `GET /api/rules/{uuid}/history` - Get version history for a rule
-### SQL Generation Endpoints
-- `POST /api/sql/generate` - Generate Oracle SQL from a rule structure
+### Validation and SQL Generation Endpoints
+- `POST /api/v1/rules/validate` - Validate a rule against the schema
+- `POST /api/v1/rules/to-sql` - Generate Oracle SQL from a rule structure
   - Supports three rule structures:
     - **Condition**: Generates WHERE clause from conditions and condition groups
     - **Case**: Generates CASE statement from WHEN/THEN clauses
@@ -193,11 +195,11 @@ The backend provides the following REST endpoints:
 
 For detailed information about rule structures, operators, functions, and configuration, see:
 - **[Rule Schema Reference](backend/src/main/resources/static/schemas/RULE_SCHEMA_REFERENCE.md)** - Complete schema documentation with examples
-- **[Schema Visualization](docs/COMPONENT_HIERARCHY_SCHEMA.md)** - Visual representation of the schema hierarchy
+- **[Schema Visualization](backend/src/main/resources/static/schemas/RULE_SCHEMA_VISUALIZATION.md)** - Visual representation of the schema hierarchy
 
 ## Configuration
 
-The application configuration is driven by the JSON Schema located at `backend/src/main/resources/static/schemas/rule-schema-current.json` (v2.1.1). The schema defines:
+The application configuration is driven by the JSON Schema located at `backend/src/main/resources/static/schemas/rule-schema-current.json`. The schema defines:
 - **Field definitions** - Available fields organized hierarchically by table with type constraints
 - **Operators** - Supported operators with cardinality rules, labels, and separators
 - **Functions** - Built-in functions with argument specifications and return types
@@ -206,11 +208,8 @@ The application configuration is driven by the JSON Schema located at `backend/s
 
 Additional configuration files in `backend/src/main/resources/static/`:
 - **fields.json** - Field definitions loaded at runtime (structure validated by schema)
-- **ruleTypes.json** - Rule type definitions (validated against schema enums)
 
 For complete configuration documentation including all available fields, operators, functions, and customization options, please refer to the [Rule Schema Reference](backend/src/main/resources/static/schemas/RULE_SCHEMA_REFERENCE.md).
-- Is Empty
-- Is Not Empty
 
 ## Running Tests
 
@@ -245,16 +244,6 @@ This automatically:
 - Complete user journey from empty canvas to saved rule
 - Version history UI and restore functionality
 
-### Manual API Testing
-
-Test SQL generation API directly:
-
-```bash
-./scripts/test-sql-api.sh
-```
-
-Tests SQL generation for conditions, case expressions, and mathematical expressions.
-
 ### Testing Best Practices
 
 The application uses `data-testid` attributes for reliable test selectors:
@@ -277,27 +266,22 @@ cd backend
 ### E2E Tests (Playwright)
 Complete workflow tests with backend and frontend running:
 
-**Interactive mode** (choose which test to run):
+**Run E2E tests**:
 ```bash
 ./scripts/test-e2e.sh
 ```
 
-**Run all tests** (non-interactive):
-```bash
-./scripts/test-integration.sh
-```
-
-Both scripts automatically:
-1. Start backend server (if not running)
-2. Start frontend dev server (if not running)
-3. Run Playwright tests in `frontend/e2e/`
-4. Clean up any servers they started
+The script automatically:
+1. Starts backend server (if not running)
+2. Starts frontend dev server (if not running)
+3. Runs Playwright tests in `frontend/e2e/`
+4. Cleans up any servers it started
 
 **E2E Test Coverage**:
 - Rule versioning workflow (create, modify, view history, restore)
 - Complete user journey from empty canvas to saved rule
 - Version history UI and restore functionality
-- Sequential condition naming scenarios from CSV test data/target/`
+- Condition naming scenarios (data-driven tests from CSV)
 
 ### Build Frontend
 ```bash
@@ -353,6 +337,14 @@ Edit `backend/src/main/resources/static/config.json` and modify the `operators` 
 ## Technologies Used
 
 ### Backend
+- **Spring Boot 3.2.0**: Application framework
+- **Java 17**: Programming language
+- **Maven**: Build tool and dependency management
+- **Jackson**: JSON processing
+- **NetworkNT JSON Schema Validator**: Schema validation
+- **SpringDoc OpenAPI**: API documentation (Swagger UI)
+- **JUnit 5**: Unit testing framework
+
 ### Frontend
 - **React 18.2**: UI framework
 - **Vite 5**: Build tool and dev server with HMR
@@ -366,9 +358,10 @@ Edit `backend/src/main/resources/static/config.json` and modify the `operators` 
 
 For detailed frontend architecture, see:
 - **[Frontend Component Hierarchy](docs/COMPONENT_HIERARCHY_FRONTEND.md)**
+
 ## Customization
 
-The application is highly customizable through its JSON Schema (v2.1.1). All configuration is defined in and validated by the schema at `backend/src/main/resources/static/schemas/rule-schema-current.json`.
+The application is highly customizable through its JSON Schema. All configuration is defined in and validated by the schema at `backend/src/main/resources/static/schemas/rule-schema-current.json`.
 
 ### Adding New Fields
 Edit `backend/src/main/resources/static/fields.json` to add or modify field definitions. Fields must conform to the schema's field definition structure (hierarchical organization by table, with id, label, dataType, and optional tableName).
@@ -389,6 +382,6 @@ The application uses JSON Schema Draft 7 for all validation. Changes to the sche
 
 For detailed information about customization options and schema structure, see:
 - **[Rule Schema Reference](backend/src/main/resources/static/schemas/RULE_SCHEMA_REFERENCE.md)** - Complete schema documentation
-- **[Schema Visualization](docs/COMPONENT_HIERARCHY_SCHEMA.md)** - Visual hierarchy and composition rules
+- **[Schema Visualization](backend/src/main/resources/static/schemas/RULE_SCHEMA_VISUALIZATION.md)** - Visual hierarchy and composition rules
 
 For issues or questions, please refer to the documentation or create an issue in the project repository.

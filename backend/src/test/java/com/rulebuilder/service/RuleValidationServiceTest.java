@@ -60,7 +60,7 @@ class RuleValidationServiceTest {
         // Assertions
         assertNotNull(result);
         assertEquals("rule-schema-current.json", result.getSchemaFilename());
-        assertEquals("2.1.1", result.getSchemaVersion());
+        assertEquals("0.0.1", result.getSchemaVersion());
         assertEquals(0, result.getErrorCount());
         assertTrue(result.getErrors().isEmpty());
     }
@@ -754,7 +754,7 @@ class RuleValidationServiceTest {
         assertNotNull(result.getErrors());
         
         assertEquals("rule-schema-current.json", result.getSchemaFilename());
-        assertEquals("2.1.1", result.getSchemaVersion());
+        assertEquals("0.0.1", result.getSchemaVersion());
     }
 
     @Test
