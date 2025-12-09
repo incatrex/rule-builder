@@ -135,10 +135,10 @@ const Function = ({
           }
           return expr.value !== undefined ? String(expr.value) : '?';
         case 'field':
-          // Handle single field (could also be multiselect stored in value array)
-          if (Array.isArray(expr.value)) {
-            if (expr.value.length === 0) return '[]';
-            const fieldLabels = expr.value.map(fieldPath => 
+          // Handle field array (multiselect stored in field property)
+          if (Array.isArray(expr.field)) {
+            if (expr.field.length === 0) return '[]';
+            const fieldLabels = expr.field.map(fieldPath => 
               getFieldDisplayName(fieldPath, config?.fields) || fieldPath
             );
             return `[${fieldLabels.join(', ')}]`;

@@ -675,10 +675,10 @@ const Expression = ({
         <TreeSelect
           treeCheckable
           showCheckedStrategy="SHOW_CHILD"
-          value={expressionData.value || []}
+          value={expressionData.field || []}
           onChange={(fieldPaths) => {
             handleValueChange({ 
-              value: fieldPaths,
+              field: fieldPaths,
               returnType: 'text' // multiselect returns array of field paths
             });
           }}

@@ -564,13 +564,39 @@
             { "type": "string" },
             { "type": "number" },
             { "type": "boolean" },
-            { "type": "null" }
+            { "type": "null" },
+            {
+              "type": "array",
+              "description": "Array of values (for multiselect widgets)",
+              "items": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "number" },
+                  { "type": "boolean" }
+                ]
+              },
+              "minItems": 0
+            }
           ]
         },
         "field": {
-          "type": "string",
-          "description": "Field path in dot notation (only when type=field)",
-          "pattern": "^[A-Z0-9_]+\\.[A-Z0-9_]+$"
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Single field path in dot notation",
+              "pattern": "^[A-Z0-9_]+\\.[A-Z0-9_]+$"
+            },
+            {
+              "type": "array",
+              "description": "Array of field paths (for multiselect widgets)",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Z0-9_]+\\.[A-Z0-9_]+$"
+              },
+              "minItems": 1
+            }
+          ],
+          "description": "Field path(s) in dot notation (only when type=field)"
         },
         "function": {
           "type": "object",

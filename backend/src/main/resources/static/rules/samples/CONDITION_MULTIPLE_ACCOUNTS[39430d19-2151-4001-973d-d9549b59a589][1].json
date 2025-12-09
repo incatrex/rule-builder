@@ -29,7 +29,7 @@
                 "value" : {
                   "type" : "field",
                   "returnType" : "text",
-                  "value" : [ "GENERAL_LEDGER.CATEGORY_1", "GENERAL_LEDGER.ACCOUNT_NUMBER_1" ]
+                  "field" : [ "GENERAL_LEDGER.CATEGORY_1", "GENERAL_LEDGER.ACCOUNT_NUMBER_1" ]
                 }
               } ]
             }
@@ -39,7 +39,7 @@
           "value" : {
             "type" : "field",
             "returnType" : "text",
-            "value" : [ "GENERAL_LEDGER.CATEGORY_1", "GENERAL_LEDGER.ACCOUNT_NUMBER_1" ]
+            "field" : [ "GENERAL_LEDGER.CATEGORY_1", "GENERAL_LEDGER.ACCOUNT_NUMBER_1" ]
           }
         } ]
       }
