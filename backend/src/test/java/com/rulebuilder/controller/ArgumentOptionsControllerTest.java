@@ -38,7 +38,7 @@ public class ArgumentOptionsControllerTest {
         when(argumentOptionsService.getOptions("days-of-month")).thenReturn(daysOfMonth);
 
         // When/Then
-        mockMvc.perform(get("/api/config/argument-options/days-of-month"))
+        mockMvc.perform(get("/api/v1/rules/ui/config/argument-options/days-of-month"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -57,7 +57,7 @@ public class ArgumentOptionsControllerTest {
         when(argumentOptionsService.getOptions("currencies")).thenReturn(currencies);
 
         // When/Then
-        mockMvc.perform(get("/api/config/argument-options/currencies"))
+        mockMvc.perform(get("/api/v1/rules/ui/config/argument-options/currencies"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -72,7 +72,7 @@ public class ArgumentOptionsControllerTest {
         when(argumentOptionsService.getOptions("invalid-ref")).thenReturn(null);
 
         // When/Then
-        mockMvc.perform(get("/api/config/argument-options/invalid-ref"))
+        mockMvc.perform(get("/api/v1/rules/ui/config/argument-options/invalid-ref"))
                 .andExpect(status().isNotFound());
     }
 
@@ -82,7 +82,7 @@ public class ArgumentOptionsControllerTest {
         when(argumentOptionsService.getOptions("missing")).thenReturn(Arrays.asList());
 
         // When/Then
-        mockMvc.perform(get("/api/config/argument-options/missing"))
+        mockMvc.perform(get("/api/v1/rules/ui/config/argument-options/missing"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -98,7 +98,7 @@ public class ArgumentOptionsControllerTest {
         when(argumentOptionsService.searchOptions("currencies", "dollar")).thenReturn(filteredOptions);
 
         // When/Then
-        mockMvc.perform(get("/api/config/argument-options/currencies")
+        mockMvc.perform(get("/api/v1/rules/ui/config/argument-options/currencies")
                         .param("q", "dollar"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -117,7 +117,7 @@ public class ArgumentOptionsControllerTest {
         when(argumentOptionsService.getOptions("currencies")).thenReturn(allOptions);
 
         // When/Then
-        mockMvc.perform(get("/api/config/argument-options/currencies")
+        mockMvc.perform(get("/api/v1/rules/ui/config/argument-options/currencies")
                         .param("q", ""))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));

@@ -12,10 +12,10 @@ describe('ArgumentOptionsService', () => {
     vi.clearAllMocks();
     // Create new service instance with test config
     const testConfig = {
-      'daysOfMonth': '/api/config/argument-options/days-of-month',
-      'currencies': '/api/config/argument-options/currencies',
+      'daysOfMonth': '/api/v1/rules/ui/config/argument-options/days-of-month',
+      'currencies': '/api/v1/rules/ui/config/argument-options/currencies',
       'customers': {
-        endpoint: '/api/config/argument-options/customers',
+        endpoint: '/api/v1/rules/ui/config/argument-options/customers',
         paginated: true,
         searchParam: 'q'
       }
@@ -43,7 +43,7 @@ describe('ArgumentOptionsService', () => {
       expect(options1).toEqual(mockOptions);
       expect(options2).toEqual(mockOptions);
       expect(global.fetch).toHaveBeenCalledTimes(1); // Cached after first call
-      expect(global.fetch).toHaveBeenCalledWith('/api/config/argument-options/days-of-month');
+      expect(global.fetch).toHaveBeenCalledWith('/api/v1/rules/ui/config/argument-options/days-of-month');
     });
 
     it('should fetch paginated options with search', async () => {
@@ -63,7 +63,7 @@ describe('ArgumentOptionsService', () => {
       expect(options).toEqual(mockResults);
       expect(global.fetch).toHaveBeenCalledTimes(1);
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/config/argument-options/customers?q=acme'
+        '/api/v1/rules/ui/config/argument-options/customers?q=acme'
       );
     });
 
