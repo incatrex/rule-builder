@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, Space, Alert } from 'antd';
 import FunctionArgument from './FunctionArgument';
-import { useCustomComponents } from '../../contexts/CustomComponentsContext';
+import { useCustomComponents } from './contexts/CustomComponentsContext';
 
 /**
  * CustomFunctionModal Component

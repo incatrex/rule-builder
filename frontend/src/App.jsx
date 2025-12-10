@@ -13,7 +13,7 @@ import SqlViewer from './components/SqlViewer/SqlViewer';
 import RuleCanvas from './components/RuleCanvas/RuleCanvas';
 import ResizablePanels from './ResizablePanels';
 import CurrencyConversion from './components/RuleBuilder/custom-functions/CurrencyConversion';
-import { CustomComponentsProvider } from './contexts/CustomComponentsContext';
+import { CustomComponentsProvider } from './components/RuleBuilder/contexts/CustomComponentsContext';
 
 const { Header, Content } = Layout;
 
