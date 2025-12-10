@@ -7,6 +7,7 @@
  * - Test configuration files
  * - Sample data files
  * - Backend test files
+ * - E2E test console.log messages
  * 
  * Usage:
  *   node scripts/update-rule-types.js [--dry-run]
@@ -59,6 +60,7 @@ const FILES_TO_UPDATE = {
   sampleDataDir: 'backend/src/main/resources/static/rules/samples',
   backendTests: 'backend/src/test/java/com/rulebuilder/service/RuleValidationServiceTest.java',
   backendTestUtils: 'backend/src/test/java/com/rulebuilder/testutil/TestRuleTypes.java',
+  e2eTestsDir: 'frontend/e2e',
 };
 
 // Command line arguments
@@ -248,6 +250,60 @@ function updateBackendTestUtils() {
   }
 }
 
+function updateE2ETestLogs() {
+  console.log('\n📋 Updating E2E test console.log messages...');
+  const e2eDir = path.join(projectRoot, FILES_TO_UPDATE.e2eTestsDir);
+  
+  if (!fs.existsSync(e2eDir)) {
+    console.log('  ⚠️  E2E test directory not found');
+    return;
+  }
+
+  const files = fs.readdirSync(e2eDir).filter(f => f.endsWith('.spec.js'));
+  let totalChanged = 0;
+
+  files.forEach(file => {
+    const filePath = path.join(FILES_TO_UPDATE.e2eTestsDir, file);
+    let content = readFile(filePath);
+    let fileChanged = false;
+
+    Object.entries(RULE_TYPE_MAPPINGS).forEach(([oldValue, newValue]) => {
+      if (oldValue !== newValue) {
+        const escapedOld = escapeRegex(oldValue);
+        
+        // Update console.log messages that reference rule types in various formats:
+        // 1. In console.log strings with double quotes: console.log("... ruleType=\"{Condition}\" ...")
+        // 2. In console.log strings with single quotes: console.log('... ruleType="{Condition}" ...')
+        // 3. In template literals: console.log(`... ruleType="{Condition}" ...`)
+        // 4. Direct rule type mentions in messages: "Condition Group" → "New Name"
+        
+        // Match in strings (handles all quote types)
+        const stringRegex = new RegExp(`(["'\`])([^"'\`]*?)${escapedOld}([^"'\`]*?)(["'\`])`, 'g');
+        const newContent = content.replace(stringRegex, (match, openQuote, before, after, closeQuote) => {
+          return `${openQuote}${before}${newValue}${after}${closeQuote}`;
+        });
+        
+        if (newContent !== content) {
+          content = newContent;
+          fileChanged = true;
+        }
+      }
+    });
+
+    if (fileChanged) {
+      writeFile(filePath, content);
+      console.log(`  ✓ Updated ${file}`);
+      totalChanged++;
+    }
+  });
+
+  if (totalChanged > 0) {
+    console.log(`  ✅ Updated ${totalChanged} E2E test file(s)`);
+  } else {
+    console.log('  ℹ️  No changes needed');
+  }
+}
+
 function validateMappings() {
   console.log('\n🔍 Validating rule type mappings...');
   
@@ -304,6 +360,7 @@ function main() {
     updateSampleData();
     updateBackendTests();
     updateBackendTestUtils();
+    updateE2ETestLogs();
     
     console.log('\n═══════════════════════════════════════════════════════════');
     if (DRY_RUN) {
@@ -337,4 +394,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { RULE_TYPE_MAPPINGS, updateSchema, updateTestConfig, updateSampleData, updateBackendTests, updateBackendTestUtils };
+module.exports = { RULE_TYPE_MAPPINGS, updateSchema, updateTestConfig, updateSampleData, updateBackendTests, updateBackendTestUtils, updateE2ETestLogs };

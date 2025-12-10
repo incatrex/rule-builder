@@ -36,6 +36,7 @@ These files contain hardcoded strings for tests and samples:
 - ❌ Test configuration files
 - ❌ Sample data JSON files
 - ❌ Test file string literals
+- ❌ E2E test console.log messages (for debugging output)
 
 ## How It Works
 
@@ -116,6 +117,9 @@ The script automatically updates these files:
 4. **Backend test files**
    - `backend/src/test/java/com/rulebuilder/service/RuleValidationServiceTest.java`
    - `backend/src/test/java/com/rulebuilder/testutil/TestRuleTypes.java` (documentation comments)
+
+5. **E2E test files**
+   - All `.spec.js` files in `frontend/e2e/` (console.log messages)
 
 ## Complete Workflow
 
@@ -231,6 +235,26 @@ export const RULE_TYPES = {
   }
 }
 ```
+
+### In E2E Test Console Logs
+The script updates console.log messages in all `.spec.js` files in `frontend/e2e/` that reference rule types. This includes:
+- Log messages showing rule type values: `ruleType="{Condition}"`
+- Verification messages with rule type names: `"Condition Group --> Condition 1"`
+- Any string (single quote, double quote, or template literal) containing rule type names
+
+```javascript
+// Before
+console.log(`  - ${testRuleIdCondition} (ruleType="{Condition}")`);
+console.log('✓ Verified: Condition Group --> Condition 1, Condition 2');
+// Comment: Create test rule with ruleType="Condition Group"
+
+// After (example: if renamed to Business Rule)
+console.log(`  - ${testRuleIdCondition} (ruleType="Business Rule")`);
+console.log('✓ Verified: Business Rule Group --> Business Rule 1, Business Rule 2');
+// Comment: Create test rule with ruleType="Business Rule Group"
+```
+
+**Note**: The script intelligently updates rule type references within strings while preserving the surrounding text and code structure. It handles all JavaScript string formats (single quotes, double quotes, and template literals).
 
 ## Important Notes
 
