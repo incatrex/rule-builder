@@ -36,10 +36,10 @@ const generatePlaceholderUUID = () => { /* ... */ }
 
 // Add placeholder UUID if needed
 const addPlaceholderUUID = (data) => { 
-  if ((data.structure || data.metadata) && (!data.uuId || data.uuId === null)) {
+  if ((data.structure || data.metadata) && (!data.uuid || data.uuid === null)) {
     return {
       ...data,
-      uuId: generatePlaceholderUUID(),
+      uuid: generatePlaceholderUUID(),
       __placeholderUUID: true // Tracking flag
     };
   }
@@ -95,14 +95,14 @@ const [hasPlaceholderUUID, setHasPlaceholderUUID] = useState(false);
 {
   "structure": "condition",
   "metadata": { "id": "test-rule" }
-  // No uuId field
+  // No uuid field
 }
 
 // After Enhancement
 {
   "structure": "condition", 
   "metadata": { "id": "test-rule" },
-  "uuId": "a1b2c3d4-...", 
+  "uuid": "a1b2c3d4-...", 
   "__placeholderUUID": true
 }
 ```
@@ -112,13 +112,13 @@ const [hasPlaceholderUUID, setHasPlaceholderUUID] = useState(false);
 // Input  
 {
   "structure": "condition",
-  "uuId": null
+  "uuid": null
 }
 
 // After Enhancement
 {
   "structure": "condition",
-  "uuId": "a1b2c3d4-...",
+  "uuid": "a1b2c3d4-...",
   "__placeholderUUID": true  
 }
 ```
@@ -128,7 +128,7 @@ const [hasPlaceholderUUID, setHasPlaceholderUUID] = useState(false);
 // Input & Output (No Changes)
 {
   "structure": "condition",
-  "uuId": "real-uuid-from-server"
+  "uuid": "real-uuid-from-server"
 }
 ```
 
@@ -136,7 +136,7 @@ const [hasPlaceholderUUID, setHasPlaceholderUUID] = useState(false);
 
 The placeholder UUID enhancement works seamlessly with the new service-based architecture:
 
-1. **RuleBuilder**: Creates rules with `uuId: null`
+1. **RuleBuilder**: Creates rules with `uuid: null`
 2. **JsonEditor**: Adds placeholder UUID for validation
 3. **RuleService**: Removes placeholder flags and handles server UUID generation
 4. **Backend**: Generates final UUID and returns it

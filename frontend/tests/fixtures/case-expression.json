@@ -2,7 +2,7 @@
   "structure": "case",
   "returnType": "text",
   "ruleType": "Transformation",
-  "uuId": "bbbbbbbb-2222-3333-4444-000000000002",
+  "uuid": "bbbbbbbb-2222-3333-4444-000000000002",
   "version": 1,
   "metadata": {
     "id": "CASE_EXPRESSION",

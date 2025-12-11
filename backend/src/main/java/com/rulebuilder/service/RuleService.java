@@ -42,20 +42,20 @@ public class RuleService {
         }
 
         // Extract UUID from the rule
-        String uuid = rule.has("uuId") ? rule.get("uuId").asText() : "unknown";
+        String uuid = rule.has("uuid") ? rule.get("uuid").asText() : "unknown";
         
-        // Reorder fields to put uuId and version at the top
+        // Reorder fields to put uuid and version at the top
         ObjectNode orderedRule = objectMapper.createObjectNode();
         
-        // Add uuId and version first (ensure version is an integer)
-        orderedRule.put("uuId", uuid);
+        // Add uuid and version first (ensure version is an integer)
+        orderedRule.put("uuid", uuid);
         orderedRule.put("version", Integer.parseInt(version));
         
-        // Then add all other fields from the original rule, except uuId and version if they exist
+        // Then add all other fields from the original rule, except uuid and version if they exist
         rule.fields().forEachRemaining(entry -> {
             String key = entry.getKey();
-            // Skip uuId and version (already added at top)
-            if (!key.equals("uuId") && !key.equals("version")) {
+            // Skip uuid and version (already added at top)
+            if (!key.equals("uuid") && !key.equals("version")) {
                 orderedRule.set(key, entry.getValue());
             }
         });

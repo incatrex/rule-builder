@@ -152,7 +152,7 @@ This document proposes a comprehensive backend validation service that validates
 | `MISSING_REQUIRED_FIELD` | Required field '{field}' is missing | Field 'returnType' is required but missing |
 | `INVALID_TYPE` | Field '{field}' must be type {expectedType}, found {actualType} | Field 'version' must be integer, found string |
 | `INVALID_ENUM_VALUE` | Field '{field}' must be one of [{validValues}], found '{actualValue}' | Field 'structure' must be one of [case, condition, expression], found 'rule' |
-| `PATTERN_MISMATCH` | Field '{field}' must match pattern {pattern} | Field 'uuId' must match UUID pattern |
+| `PATTERN_MISMATCH` | Field '{field}' must match pattern {pattern} | Field 'uuid' must match UUID pattern |
 | `ARRAY_TOO_SHORT` | Array '{field}' must have at least {minItems} items, found {actualCount} | Array 'expressions' must have at least 2 items, found 1 |
 | `ARRAY_TOO_LONG` | Array '{field}' must have at most {maxItems} items, found {actualCount} | Array 'right' must have at most 10 items, found 12 |
 | `NUMBER_TOO_SMALL` | Field '{field}' must be >= {minimum}, found {actualValue} | Field 'version' must be >= 1, found 0 |

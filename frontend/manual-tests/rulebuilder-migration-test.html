@@ -195,7 +195,7 @@
 
             async createRule(rule) {
                 const cleanRule = { ...rule };
-                delete cleanRule.uuId;
+                delete cleanRule.uuid;
                 delete cleanRule.version;
                 
                 const response = await this.http.post('/rules', cleanRule);
@@ -204,7 +204,7 @@
 
             async updateRule(uuid, rule) {
                 const cleanRule = { ...rule };
-                delete cleanRule.uuId;
+                delete cleanRule.uuid;
                 delete cleanRule.version;
                 
                 const response = await this.http.put(`/rules/${uuid}`, cleanRule);

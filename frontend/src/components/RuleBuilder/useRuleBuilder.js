@@ -38,7 +38,7 @@ export const useRuleBuilder = ({
   const [ruleData, setRuleData] = useState({
     structure: 'condition',
     returnType: 'boolean',
-    uuId: null,
+    uuid: null,
     version: 1,
     ruleType: 'Reporting',
     metadata: {
@@ -128,7 +128,7 @@ export const useRuleBuilder = ({
           structure,
           returnType: ruleVersionData.returnType || 'boolean',
           ruleType: ruleVersionData.ruleType || 'Reporting',
-          uuId: ruleVersionData.uuId || selectedRuleUuid,
+          uuid: ruleVersionData.uuid || selectedRuleUuid,
           version: ruleVersionData.version || version,
           metadata: ruleVersionData.metadata || { id: '', description: '' },
           definition
@@ -279,9 +279,9 @@ export const useRuleBuilder = ({
       const ruleOutput = getRuleOutput();
       let result;
       
-      if (ruleData.uuId) {
+      if (ruleData.uuid) {
         // Update existing rule (creates new version automatically)
-        result = await ruleService.updateRule(ruleData.uuId, ruleOutput);
+        result = await ruleService.updateRule(ruleData.uuid, ruleOutput);
         message.success(`Rule updated: ${result.ruleId} v${result.version}`);
       } else {
         // Create new rule (server generates UUID)
@@ -291,7 +291,7 @@ export const useRuleBuilder = ({
       
       // Update local state with server response
       handleChange({ 
-        uuId: result.uuid,
+        uuid: result.uuid,
         version: result.version 
       });
       
@@ -321,7 +321,7 @@ export const useRuleBuilder = ({
       structure: ruleData.structure,
       returnType: ruleData.returnType,
       ruleType: ruleData.ruleType,
-      uuId: ruleData.uuId,
+      uuid: ruleData.uuid,
       version: ruleData.version,
       metadata: ruleData.metadata,
       definition: cleanDefinition
@@ -350,7 +350,7 @@ export const useRuleBuilder = ({
       structure,
       returnType: data.returnType || 'boolean',
       ruleType: data.ruleType || 'Reporting',
-      uuId: data.uuId || null,
+      uuid: data.uuid || null,
       version: data.version || 1,
       metadata: data.metadata || { id: '', description: '' },
       definition: content,
@@ -379,7 +379,7 @@ export const useRuleBuilder = ({
       structure,
       returnType: data.returnType || 'boolean',
       ruleType: data.ruleType || 'Reporting',
-      uuId: null,
+      uuid: null,
       version: 1,
       metadata: data.metadata || { id: '', description: '' },
       definition: null

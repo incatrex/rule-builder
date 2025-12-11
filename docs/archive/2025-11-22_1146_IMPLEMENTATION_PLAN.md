@@ -775,7 +775,7 @@ const RuleBuilder = () => {
   // Reset expansion state when loading a new rule
   useEffect(() => {
     reset(ruleData.structure, isNew);
-  }, [ruleData.uuId, ruleData.version, reset]);
+  }, [ruleData.uuid, ruleData.version, reset]);
 
   // Auto-expand newly added elements
   const handleDefinitionChange = useCallback((newDefinition) => {

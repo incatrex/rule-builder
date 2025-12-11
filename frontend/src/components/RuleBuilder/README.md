@@ -131,7 +131,7 @@ console.log(output);
 //   structure: 'condition',
 //   returnType: 'boolean',
 //   ruleType: 'Reporting',
-//   uuId: '...',
+//   uuid: '...',
 //   version: 1,
 //   metadata: { id: 'MY_RULE', description: '...' },
 //   definition: { ... }

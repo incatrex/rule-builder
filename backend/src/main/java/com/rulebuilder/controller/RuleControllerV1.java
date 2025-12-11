@@ -107,7 +107,7 @@ public class RuleControllerV1 {
             
             // Create mutable copy of rule and inject UUID
             ObjectNode mutableRule = rule.deepCopy();
-            mutableRule.put("uuId", uuid);
+            mutableRule.put("uuid", uuid);
             mutableRule.put("version", 1); // Always start at version 1
             
             // Get ruleId - try multiple possible locations
@@ -147,7 +147,7 @@ public class RuleControllerV1 {
             
             // Create mutable copy and inject UUID + new version
             ObjectNode mutableRule = rule.deepCopy();
-            mutableRule.put("uuId", uuid); // Keep same UUID
+            mutableRule.put("uuid", uuid); // Keep same UUID
             mutableRule.put("version", newVersion);
             
             // Save with new version
@@ -202,8 +202,8 @@ public class RuleControllerV1 {
             return rule.get("name").asText().replaceAll("[^a-zA-Z0-9_-]", "-").toLowerCase();
         }
         // Last resort - generate from UUID
-        if (rule.has("uuId")) {
-            return "rule-" + rule.get("uuId").asText().substring(0, 8);
+        if (rule.has("uuid")) {
+            return "rule-" + rule.get("uuid").asText().substring(0, 8);
         }
         // Final fallback
         return "rule-" + System.currentTimeMillis();

@@ -2,7 +2,7 @@
   "structure": "expression",
   "returnType": "number",
   "ruleType": "Reporting",
-  "uuId": "cccccccc-3333-4444-5555-000000000003",
+  "uuid": "cccccccc-3333-4444-5555-000000000003",
   "version": 1,
   "metadata": {
     "id": "MATH_EXPRESSION",

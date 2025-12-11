@@ -273,7 +273,7 @@ const RuleBuilder = () => {
   // Reset expansion state when loading a new rule
   useEffect(() => {
     reset(ruleData.structure, isNew);
-  }, [ruleData.uuId, ruleData.version]); // Reset on rule change
+  }, [ruleData.uuid, ruleData.version]); // Reset on rule change
 
   return (
     <RuleBuilderUI

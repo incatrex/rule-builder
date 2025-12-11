@@ -125,7 +125,7 @@ const RuleBuilder = forwardRef(({
   // Reset expansion state when loading a new rule
   useEffect(() => {
     reset(ruleData.structure, isNew);
-  }, [ruleData.uuId, ruleData.version, reset]);
+  }, [ruleData.uuid, ruleData.version, reset]);
 
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({

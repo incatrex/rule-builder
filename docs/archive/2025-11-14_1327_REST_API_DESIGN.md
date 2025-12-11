@@ -141,7 +141,7 @@ GET    /api/fields/schema
   "version": 1,
   "ruleId": "customer-age-validation",
   "rule": {
-    "uuId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "version": 1,
     "structure": "expression",
     "returnType": "boolean",
@@ -176,7 +176,7 @@ GET    /api/fields/schema
   "version": 2,
   "ruleId": "customer-age-validation",
   "rule": {
-    "uuId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "version": 2,
     "structure": "expression",
     /* updated fields from request */

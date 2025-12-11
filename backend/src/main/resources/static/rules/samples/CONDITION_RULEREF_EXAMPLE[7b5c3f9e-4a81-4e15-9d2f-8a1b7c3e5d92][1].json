@@ -2,7 +2,7 @@
   "structure": "condition",
   "returnType": "boolean",
   "ruleType": "Validation",
-  "uuId": "7b5c3f9e-4a81-4e15-9d2f-8a1b7c3e5d92",
+  "uuid": "7b5c3f9e-4a81-4e15-9d2f-8a1b7c3e5d92",
   "version": 1,
   "metadata": {
     "id": "CONDITION_RULEREF_EXAMPLE",

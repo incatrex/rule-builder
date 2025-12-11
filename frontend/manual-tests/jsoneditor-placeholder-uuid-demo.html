@@ -113,7 +113,7 @@
     "type": "conditionGroup",
     "conditions": []
   }
-  // ❌ No uuId - validation fails
+  // ❌ No uuid - validation fails
 }</div>
                 <p>🚫 <strong>Result:</strong> Schema validation fails due to missing UUID</p>
             </div>
@@ -125,7 +125,7 @@
   "structure": "condition",
   "returnType": "boolean",
   "ruleType": "Reporting", 
-  "<span class="highlight">uuId</span>": "<span class="highlight">a1b2c3d4-e5f6-7890-abcd-ef1234567890</span>",
+  "<span class="highlight">uuid</span>": "<span class="highlight">a1b2c3d4-e5f6-7890-abcd-ef1234567890</span>",
   "<span class="highlight">__placeholderUUID</span>": <span class="highlight">true</span>,
   "metadata": {
     "id": "my-new-rule", 
@@ -176,11 +176,11 @@
         <h4>Detection Logic</h4>
         <div class="example-json">
 // Detects if rule needs placeholder UUID
-if ((data.structure || data.metadata) && (!data.uuId || data.uuId === null)) {
+if ((data.structure || data.metadata) && (!data.uuid || data.uuid === null)) {
     // Add placeholder UUID for validation
     return {
         ...data,
-        uuId: generatePlaceholderUUID(),
+        uuid: generatePlaceholderUUID(),
         __placeholderUUID: true  // Flag for tracking
     };
 }</div>
@@ -232,19 +232,19 @@ const removePlaceholderFlags = (data) => {
         
         <div class="scenario">
             <h4>Scenario A: New Rule Without UUID</h4>
-            <p><strong>Input:</strong> Rule with no uuId field</p>
+            <p><strong>Input:</strong> Rule with no uuid field</p>
             <p><strong>Expected:</strong> Placeholder UUID added, validation passes, notice shown</p>
         </div>
         
         <div class="scenario">
             <h4>Scenario B: New Rule with null UUID</h4>
-            <p><strong>Input:</strong> Rule with uuId: null</p>
+            <p><strong>Input:</strong> Rule with uuid: null</p>
             <p><strong>Expected:</strong> Placeholder UUID replaces null, validation passes, notice shown</p>
         </div>
         
         <div class="scenario">
             <h4>Scenario C: Existing Rule with UUID</h4>
-            <p><strong>Input:</strong> Rule with valid uuId</p>
+            <p><strong>Input:</strong> Rule with valid uuid</p>
             <p><strong>Expected:</strong> No changes, no notice, validation works as normal</p>
         </div>
         

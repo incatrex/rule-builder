@@ -21,7 +21,7 @@ public class ErrorCascadeAnalysisTest {
             {
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {}
@@ -35,7 +35,7 @@ public class ErrorCascadeAnalysisTest {
               "structure": "condition",
               "returnType": "INVALID_TYPE",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {}
@@ -49,7 +49,7 @@ public class ErrorCascadeAnalysisTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -67,7 +67,7 @@ public class ErrorCascadeAnalysisTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -87,7 +87,7 @@ public class ErrorCascadeAnalysisTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": "not-a-number",
               "metadata": ["array-instead-of-object"],
               "definition": {
@@ -105,7 +105,7 @@ public class ErrorCascadeAnalysisTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "invalid-uuid",
+              "uuid": "invalid-uuid",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -123,7 +123,7 @@ public class ErrorCascadeAnalysisTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -140,7 +140,7 @@ public class ErrorCascadeAnalysisTest {
               "structure": "case",
               "returnType": "text",
               "ruleType": "Transformation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -156,7 +156,7 @@ public class ErrorCascadeAnalysisTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
