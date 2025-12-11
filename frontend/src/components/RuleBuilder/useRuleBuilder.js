@@ -31,7 +31,8 @@ export const useRuleBuilder = ({
   configService,
   selectedRuleUuid,
   onRuleChange,
-  onSaveSuccess 
+  onSaveSuccess,
+  config
 }) => {
   // Core rule state
   const [ruleData, setRuleData] = useState({
@@ -51,11 +52,11 @@ export const useRuleBuilder = ({
   const [availableVersions, setAvailableVersions] = useState([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
   
-  // Configuration state - loaded from API
-  const [ruleTypes, setRuleTypes] = useState([]);
-  
   // UI state flags
   const [isLoadedRule, setIsLoadedRule] = useState(false);
+  
+  // Extract ruleTypes from config prop (no need to fetch from API)
+  const ruleTypes = config?.ruleTypes || [];
 
   // Initialize definition on mount
   useEffect(() => {
@@ -63,29 +64,6 @@ export const useRuleBuilder = ({
       initializeDefinition(ruleData.structure);
     }
   }, []);
-
-  // Load rule types from config service
-  useEffect(() => {
-    const loadRuleTypes = async () => {
-      if (!configService) return;
-      
-      try {
-        const config = await configService.getConfig();
-        if (config.ruleTypes && Array.isArray(config.ruleTypes) && config.ruleTypes.length > 0) {
-          setRuleTypes(config.ruleTypes);
-          // Update current ruleType if it's not in the new list
-          if (!config.ruleTypes.includes(ruleData.ruleType)) {
-            handleChange({ ruleType: config.ruleTypes[0] });
-          }
-        }
-      } catch (error) {
-        console.error('Error loading rule types:', error);
-        // Keep default values if API fails
-      }
-    };
-
-    loadRuleTypes();
-  }, [configService]);
 
   // Load versions when selectedRuleUuid changes
   useEffect(() => {

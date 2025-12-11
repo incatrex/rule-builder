@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useEffect } from 'react';
+import React, { forwardRef, useImperativeHandle, useEffect, useMemo } from 'react';
 import { RuleService, RuleConfigService } from '../../services';
 import { useRuleBuilder } from './useRuleBuilder';
 import { useExpansionState } from './hooks/useExpansionState';
@@ -85,16 +85,15 @@ const RuleBuilder = forwardRef(({
   ruleService: customRuleService,
   configService: customConfigService
 }, ref) => {
-  // Initialize services (use custom or default)
-  const ruleService = customRuleService || new RuleService();
-  const configService = customConfigService || new RuleConfigService();
+  // Initialize services (use custom or default) - memoize to prevent recreation
+  const ruleService = useMemo(() => customRuleService || new RuleService(), [customRuleService]);
+  const configService = useMemo(() => customConfigService || new RuleConfigService(), [customConfigService]);
 
   // Use the headless hook for all logic
   const {
     ruleData,
     availableVersions,
     loadingVersions,
-    ruleTypes,
     isLoadedRule,
     handleChange,
     handleStructureChange,
@@ -108,7 +107,8 @@ const RuleBuilder = forwardRef(({
     configService,
     selectedRuleUuid,
     onRuleChange,
-    onSaveSuccess
+    onSaveSuccess,
+    config
   });
 
   // Expansion state management
@@ -164,6 +164,9 @@ const RuleBuilder = forwardRef(({
       return await ruleService.getRuleVersion(uuid, version);
     }
   };
+  
+  // Extract ruleTypes from config
+  const ruleTypes = config?.ruleTypes || [];
 
   return (
     <NamingProvider>

@@ -30,10 +30,10 @@ const App = () => {
   const [jsonPanelCollapsed, setJsonPanelCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('json');
   
-  // Initialize services
-  const configService = new RuleConfigService();
-  const fieldService = new FieldService();
-  const ruleService = new RuleService();
+  // Initialize services - memoize to prevent recreation on every render
+  const configService = useMemo(() => new RuleConfigService(), []);
+  const fieldService = useMemo(() => new FieldService(), []);
+  const ruleService = useMemo(() => new RuleService(), []);
   
   // Memoize custom components to prevent recreation on every render
   const customComponents = useMemo(() => ({
