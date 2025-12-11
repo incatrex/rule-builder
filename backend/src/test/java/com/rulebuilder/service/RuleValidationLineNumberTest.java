@@ -36,7 +36,7 @@ class RuleValidationLineNumberTest {
               "structure": "expression",
               "returnType": "string",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -68,7 +68,7 @@ class RuleValidationLineNumberTest {
               "structure": "invalid",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -100,7 +100,7 @@ class RuleValidationLineNumberTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "description": "Test"
@@ -135,7 +135,7 @@ class RuleValidationLineNumberTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -171,7 +171,7 @@ class RuleValidationLineNumberTest {
               "structure": "case",
               "returnType": "text",
               "ruleType": "Transformation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -223,7 +223,7 @@ class RuleValidationLineNumberTest {
               "structure": "invalid",
               "returnType": "string",
               "ruleType": "InvalidType",
-              "uuId": "not-a-uuid",
+              "uuid": "not-a-uuid",
               "version": "not-a-number",
               "metadata": {
                 "description": "Missing id"
@@ -256,13 +256,13 @@ class RuleValidationLineNumberTest {
             assertEquals(3, returnTypeError.getLineNumber(), "returnType on line 3");
         }
         
-        // uuId error on line 5
+        // uuid error on line 5
         ValidationError uuidError = result.getErrors().stream()
-            .filter(err -> err.getPath().equals("$.uuId"))
+            .filter(err -> err.getPath().equals("$.uuid"))
             .findFirst()
             .orElse(null);
         if (uuidError != null) {
-            assertEquals(5, uuidError.getLineNumber(), "uuId on line 5");
+            assertEquals(5, uuidError.getLineNumber(), "uuid on line 5");
         }
         
         // version error on line 6
@@ -278,7 +278,7 @@ class RuleValidationLineNumberTest {
     @Test
     @DisplayName("Compact JSON should still calculate line numbers")
     void testLineNumber_CompactJson() throws IOException {
-        String json = "{\"structure\":\"invalid\",\"returnType\":\"number\",\"ruleType\":\"Reporting\",\"uuId\":\"12345678-1234-1234-1234-123456789012\",\"version\":1,\"metadata\":{\"id\":\"TEST\",\"description\":\"Test\"},\"definition\":{}}";
+        String json = "{\"structure\":\"invalid\",\"returnType\":\"number\",\"ruleType\":\"Reporting\",\"uuid\":\"12345678-1234-1234-1234-123456789012\",\"version\":1,\"metadata\":{\"id\":\"TEST\",\"description\":\"Test\"},\"definition\":{}}";
 
         JsonNode rule = objectMapper.readTree(json);
         ValidationResult result = validationService.validate(rule, json, true, false);
@@ -298,7 +298,7 @@ class RuleValidationLineNumberTest {
               "structure": "expression",
                 "returnType": "string",
             "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -329,7 +329,7 @@ class RuleValidationLineNumberTest {
         String json = """
             { "structure": "expression",
               "returnType": "string", "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012", "version": 1,
+              "uuid": "12345678-1234-1234-1234-123456789012", "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": { "type": "value", "returnType": "number", "value": 1 }
             }
@@ -358,7 +358,7 @@ class RuleValidationLineNumberTest {
               
               "returnType"   :   "string"  ,
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -394,7 +394,7 @@ class RuleValidationLineNumberTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -449,7 +449,7 @@ class RuleValidationLineNumberTest {
             {
               "structure": "condition",
               "returnType": "boolean",
-              "uuId": "5375b666-a80b-434b-b754-8e8abbcd8c5d",
+              "uuid": "5375b666-a80b-434b-b754-8e8abbcd8c5d",
               "version": 1,
               "rul3eType": "Reporting",
               "metadata": {

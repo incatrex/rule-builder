@@ -23,10 +23,10 @@ const addPlaceholderUUID = (data) => {
   }
 
   // Check if this looks like rule data without a UUID
-  if ((data.structure || data.metadata) && (!data.uuId || data.uuId === null)) {
+  if ((data.structure || data.metadata) && (!data.uuid || data.uuid === null)) {
     return {
       ...data,
-      uuId: generatePlaceholderUUID(),
+      uuid: generatePlaceholderUUID(),
       __placeholderUUID: true // Flag to indicate this is a placeholder
     };
   }

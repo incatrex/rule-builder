@@ -22,7 +22,7 @@ public class ValidationTestRunner {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "SIMPLE_EXPR",
@@ -43,7 +43,7 @@ public class ValidationTestRunner {
             {
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -61,7 +61,7 @@ public class ValidationTestRunner {
               "structure": "invalid_structure",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -79,7 +79,7 @@ public class ValidationTestRunner {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "not-a-valid-uuid",
+              "uuid": "not-a-valid-uuid",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -101,7 +101,7 @@ public class ValidationTestRunner {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -123,7 +123,7 @@ public class ValidationTestRunner {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -146,7 +146,7 @@ public class ValidationTestRunner {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "description": "Test"

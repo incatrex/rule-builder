@@ -38,7 +38,7 @@ Created a comprehensive test suite for `RuleValidationService` that validates ru
 
 ### 🔴 Missing Required Fields (3 tests)
 - **Missing 'structure' field** - `required` error
-- **Missing 'uuId' field** - `required` error
+- **Missing 'uuid' field** - `required` error
 - **Missing 'metadata.id' field** - `required` error with nested path
 
 ### 🔴 Invalid Enum Values (3 tests)
@@ -107,9 +107,9 @@ Error Count: 1
 Error #1:
   type: pattern
   code: 1023
-  path: $.uuId
-  schemaPath: #/properties/uuId/pattern
-  message: $.uuId: does not match the regex pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+  path: $.uuid
+  schemaPath: #/properties/uuid/pattern
+  message: $.uuid: does not match the regex pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
   arguments: {arg0=^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$}
 ```
 

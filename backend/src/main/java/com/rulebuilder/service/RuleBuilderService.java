@@ -53,7 +53,7 @@ public class RuleBuilderService {
         }
 
         // Extract UUID from the rule
-        String uuid = rule.has("uuId") ? rule.get("uuId").asText() : "unknown";
+        String uuid = rule.has("uuid") ? rule.get("uuid").asText() : "unknown";
         
         // Save with new naming convention: {ruleId}[{uuid}][{version}].json
         String filename = String.format("%s[%s][%s].json", ruleId, uuid, version);

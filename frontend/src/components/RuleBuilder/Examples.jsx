@@ -135,7 +135,7 @@ class MockRuleService {
     return {
       structure: 'condition',
       returnType: 'boolean',
-      uuId: uuid,
+      uuid: uuid,
       version,
       metadata: { id: `RULE_${version}`, description: 'Mock rule' },
       definition: { type: 'conditionGroup', conditions: [] }
@@ -270,7 +270,7 @@ export function Example6_PresentationOnly() {
   const [ruleData, setRuleData] = useState({
     structure: 'condition',
     returnType: 'boolean',
-    uuId: null,
+    uuid: null,
     version: 1,
     ruleType: 'Reporting',
     metadata: { id: 'CUSTOM_UI', description: 'Custom controlled UI' },

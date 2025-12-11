@@ -15,7 +15,7 @@ Based on actual UI component implementation and JSON structures used by the Rule
   "structure": "case" | "condition" | "expression",
   "returnType": "boolean" | "number" | "text" | "date",
   "ruleType": "Reporting" | "Transformation" | "Aggregation" | "Validation",
-  "uuId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", // UUID v4 format (mixed case supported)
+  "uuid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", // UUID v4 format (mixed case supported)
   "version": number,
   "metadata": {
     "id": string, // Rule identifier/name

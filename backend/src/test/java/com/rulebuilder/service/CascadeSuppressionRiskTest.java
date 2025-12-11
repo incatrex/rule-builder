@@ -22,7 +22,7 @@ public class CascadeSuppressionRiskTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -40,7 +40,7 @@ public class CascadeSuppressionRiskTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -57,7 +57,7 @@ public class CascadeSuppressionRiskTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -74,7 +74,7 @@ public class CascadeSuppressionRiskTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "bad-uuid",
+              "uuid": "bad-uuid",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -92,7 +92,7 @@ public class CascadeSuppressionRiskTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -110,7 +110,7 @@ public class CascadeSuppressionRiskTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {

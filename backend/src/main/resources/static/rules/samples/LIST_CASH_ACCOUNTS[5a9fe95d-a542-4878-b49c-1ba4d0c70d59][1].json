@@ -1,5 +1,5 @@
 {
-  "uuId" : "5a9fe95d-a542-4878-b49c-1ba4d0c70d59",
+  "uuid" : "5a9fe95d-a542-4878-b49c-1ba4d0c70d59",
   "version" : 1,
   "structure" : "condition",
   "returnType" : "boolean",

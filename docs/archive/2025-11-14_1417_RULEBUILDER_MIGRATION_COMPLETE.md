@@ -35,7 +35,7 @@ const versions = await ruleService.getRuleVersions(uuid);
 ### 1. Server-Side UUID Generation
 - ✅ **Before**: Client-generated UUIDs with collision risks
 - ✅ **After**: Server-controlled UUID generation eliminates conflicts
-- ✅ New rules start with `uuId: null`, server assigns UUID on save
+- ✅ New rules start with `uuid: null`, server assigns UUID on save
 
 ### 2. Automatic Version Management  
 - ✅ **Before**: Manual version incrementing with potential conflicts
@@ -146,7 +146,7 @@ try {
 ```javascript
 // Creating new rule
 const result = await ruleService.createRule(rule); // Server generates UUID
-setRuleData(prev => ({ ...prev, uuId: result.uuid }));
+setRuleData(prev => ({ ...prev, uuid: result.uuid }));
 
 // Updating existing rule  
 const result = await ruleService.updateRule(uuid, rule); // Preserves UUID, increments version

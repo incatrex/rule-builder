@@ -33,7 +33,7 @@ class ErrorCascadeFilterTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -67,7 +67,7 @@ class ErrorCascadeFilterTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -100,7 +100,7 @@ class ErrorCascadeFilterTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "bad-uuid",
+              "uuid": "bad-uuid",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -121,7 +121,7 @@ class ErrorCascadeFilterTest {
             "Should keep both independent errors");
 
         boolean hasUuidError = filtered.getFilteredErrors().stream()
-            .anyMatch(e -> e.getPath().contains("uuId"));
+            .anyMatch(e -> e.getPath().contains("uuid"));
         boolean hasTypeError = filtered.getFilteredErrors().stream()
             .anyMatch(e -> e.getPath().contains("definition"));
 
@@ -137,7 +137,7 @@ class ErrorCascadeFilterTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -170,7 +170,7 @@ class ErrorCascadeFilterTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -196,7 +196,7 @@ class ErrorCascadeFilterTest {
               "structure": "expression",
               "returnType": "INVALID",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -226,7 +226,7 @@ class ErrorCascadeFilterTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -261,7 +261,7 @@ class ErrorCascadeFilterTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Reporting",
-              "uuId": "a6ae5cf2-69f1-4877-9667-0e3b7391b40b",
+              "uuid": "a6ae5cf2-69f1-4877-9667-0e3b7391b40b",
               "version": 1,
               "metadata": {
                 "id": "",
@@ -303,7 +303,7 @@ class ErrorCascadeFilterTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Reporting",
-              "uuId": "g6ae5cf2-69f1-4877-9667-0e3b7391b40b",
+              "uuid": "g6ae5cf2-69f1-4877-9667-0e3b7391b40b",
               "version": 1,
               "metadata": {
                 "id": "",
@@ -328,7 +328,7 @@ class ErrorCascadeFilterTest {
         // Should have pattern error for UUID
         boolean hasPatternError = result.getErrors().stream()
             .anyMatch(e -> "pattern".equals(e.getType()) && 
-                          e.getPath().contains("uuId"));
+                          e.getPath().contains("uuid"));
         assertTrue(hasPatternError, "Should show UUID pattern error");
 
         // With schema v2.1.0, the typo "return2Type" generates additionalProperties error
@@ -349,7 +349,7 @@ class ErrorCascadeFilterTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Reporting",
-              "uuId": "e2c85da5-ff66-4718-b034-62b3badc13d6",
+              "uuid": "e2c85da5-ff66-4718-b034-62b3badc13d6",
               "version": 1,
               "metadata": {
                 "id": "",

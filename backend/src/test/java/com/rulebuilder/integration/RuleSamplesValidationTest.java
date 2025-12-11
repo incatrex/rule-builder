@@ -118,7 +118,7 @@ class RuleSamplesValidationTest {
             assertTrue(ruleNode.has("structure"), file.getName() + " should have 'structure' field");
             assertTrue(ruleNode.has("returnType"), file.getName() + " should have 'returnType' field");
             assertTrue(ruleNode.has("ruleType"), file.getName() + " should have 'ruleType' field");
-            assertTrue(ruleNode.has("uuId"), file.getName() + " should have 'uuId' field");
+            assertTrue(ruleNode.has("uuid"), file.getName() + " should have 'uuid' field");
             assertTrue(ruleNode.has("version"), file.getName() + " should have 'version' field");
             assertTrue(ruleNode.has("metadata"), file.getName() + " should have 'metadata' field");
             assertTrue(ruleNode.has("definition"), file.getName() + " should have 'definition' field");

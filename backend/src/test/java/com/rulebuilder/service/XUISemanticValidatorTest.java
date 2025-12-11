@@ -38,7 +38,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -74,7 +74,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -110,7 +110,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -153,7 +153,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -187,7 +187,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -228,7 +228,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -269,7 +269,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "date",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -313,7 +313,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -356,7 +356,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -397,7 +397,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -445,7 +445,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -496,7 +496,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "text",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -538,7 +538,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -582,7 +582,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -627,7 +627,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "text",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -680,7 +680,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -739,7 +739,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" }
             }
@@ -762,7 +762,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -793,7 +793,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -821,7 +821,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -863,7 +863,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -908,7 +908,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -942,7 +942,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -992,7 +992,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1039,7 +1039,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1089,7 +1089,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1134,7 +1134,7 @@ class XUISemanticValidatorTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1168,7 +1168,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1200,7 +1200,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1238,7 +1238,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1284,7 +1284,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1316,7 +1316,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1354,7 +1354,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -1401,7 +1401,7 @@ class XUISemanticValidatorTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+              "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {

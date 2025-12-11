@@ -2,7 +2,7 @@
   "structure": "condition",
   "returnType": "boolean",
   "ruleType": "Validation",
-  "uuId": "aaaaaaaa-1111-2222-3333-000000000001",
+  "uuid": "aaaaaaaa-1111-2222-3333-000000000001",
   "version": 1,
   "metadata": {
     "id": "SIMPLE_CONDITION",

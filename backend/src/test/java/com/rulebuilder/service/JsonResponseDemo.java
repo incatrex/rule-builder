@@ -27,7 +27,7 @@ public class JsonResponseDemo {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "SIMPLE_EXPR",
@@ -49,7 +49,7 @@ public class JsonResponseDemo {
             {
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -68,7 +68,7 @@ public class JsonResponseDemo {
               "structure": "invalid_structure",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -87,7 +87,7 @@ public class JsonResponseDemo {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "not-a-valid-uuid",
+              "uuid": "not-a-valid-uuid",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -110,7 +110,7 @@ public class JsonResponseDemo {
               "structure": "invalid",
               "returnType": "invalid",
               "ruleType": "Invalid",
-              "uuId": "not-valid",
+              "uuid": "not-valid",
               "version": "not-a-number",
               "metadata": {
                 "description": "Missing id field"

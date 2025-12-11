@@ -15,7 +15,7 @@ Rule
 ├── structure: "case" | "condition" | "expression"
 ├── returnType: "boolean" | "number" | "text" | "date"
 ├── ruleType: RuleType
-├── uuId: string (UUID)
+├── uuid: string (UUID)
 ├── version: integer
 ├── metadata: { id, description }
 └── definition: <varies by structure>

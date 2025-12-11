@@ -344,7 +344,7 @@ describe('Round-trip Integration Tests', () => {
         expect(sample).toHaveProperty('structure');
         expect(sample).toHaveProperty('returnType');
         expect(sample).toHaveProperty('ruleType');
-        expect(sample).toHaveProperty('uuId');
+        expect(sample).toHaveProperty('uuid');
         expect(sample).toHaveProperty('version');
         expect(sample).toHaveProperty('metadata');
         expect(sample).toHaveProperty('definition');

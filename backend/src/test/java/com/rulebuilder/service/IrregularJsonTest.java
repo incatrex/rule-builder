@@ -16,7 +16,7 @@ public class IrregularJsonTest {
               "structure": "expression",
                 "returnType": "string",
             "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": {
@@ -31,7 +31,7 @@ public class IrregularJsonTest {
         String json2 = """
             { "structure": "expression",
               "returnType": "string", "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012", "version": 1,
+              "uuid": "12345678-1234-1234-1234-123456789012", "version": 1,
               "metadata": { "id": "TEST", "description": "Test" },
               "definition": { "type": "value", "returnType": "number", "value": 1 }
             }
@@ -44,7 +44,7 @@ public class IrregularJsonTest {
               
               "returnType"   :   "string"  ,
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",

@@ -40,7 +40,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "SIMPLE_EXPR",
@@ -73,7 +73,7 @@ class RuleValidationServiceTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "SIMPLE_CONDITION",
@@ -115,7 +115,7 @@ class RuleValidationServiceTest {
               "structure": "case",
               "returnType": "text",
               "ruleType": "Transformation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "AGE_CATEGORY",
@@ -182,7 +182,7 @@ class RuleValidationServiceTest {
             {
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -206,7 +206,7 @@ class RuleValidationServiceTest {
     }
 
     @Test
-    @DisplayName("Missing required field 'uuId' should produce error")
+    @DisplayName("Missing required field 'uuid' should produce error")
     void testMissingUuid() throws IOException {
         String json = """
             {
@@ -243,7 +243,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "description": "Test"
@@ -276,7 +276,7 @@ class RuleValidationServiceTest {
               "structure": "invalid_structure",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -304,7 +304,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "string",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -336,7 +336,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "InvalidType",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -369,7 +369,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": "1",
               "metadata": {
                 "id": "TEST",
@@ -401,7 +401,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": ["invalid"],
               "definition": {
@@ -431,7 +431,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "not-a-valid-uuid",
+              "uuid": "not-a-valid-uuid",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -451,7 +451,7 @@ class RuleValidationServiceTest {
         assertTrue(result.getErrorCount() > 0);
         boolean hasPatternError = result.getErrors().stream()
             .anyMatch(err -> err.getType().equals("pattern") && 
-                           err.getPath().contains("uuId"));
+                           err.getPath().contains("uuid"));
         assertTrue(hasPatternError);
     }
 
@@ -463,7 +463,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -497,7 +497,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -537,7 +537,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -571,7 +571,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -606,7 +606,7 @@ class RuleValidationServiceTest {
               "structure": "case",
               "returnType": "text",
               "ruleType": "Transformation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -636,7 +636,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -677,7 +677,7 @@ class RuleValidationServiceTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -765,7 +765,7 @@ class RuleValidationServiceTest {
               "structure": "invalid",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "TEST",
@@ -798,7 +798,7 @@ class RuleValidationServiceTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "%s",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "CONDITION_RULE",
@@ -839,7 +839,7 @@ class RuleValidationServiceTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "%s",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "CONDITION_GROUP_RULE",
@@ -889,7 +889,7 @@ class RuleValidationServiceTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "CONDITION_WITH_RULEREF",
@@ -926,7 +926,7 @@ class RuleValidationServiceTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "CONDITION_WITH_WRONG_RULEREF",
@@ -971,7 +971,7 @@ class RuleValidationServiceTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "CONDITIONGROUP_WITH_RULEREF",
@@ -1008,7 +1008,7 @@ class RuleValidationServiceTest {
               "structure": "condition",
               "returnType": "boolean",
               "ruleType": "Validation",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "CONDITIONGROUP_WITH_WRONG_RULEREF",
@@ -1053,7 +1053,7 @@ class RuleValidationServiceTest {
               "structure": "expression",
               "returnType": "number",
               "ruleType": "Reporting",
-              "uuId": "12345678-1234-1234-1234-123456789012",
+              "uuid": "12345678-1234-1234-1234-123456789012",
               "version": 1,
               "metadata": {
                 "id": "EXPRESSION_WITH_RULEREF",

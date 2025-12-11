@@ -8,7 +8,7 @@
   "x-ui-settings": {
     "defaultValueSources": ["value", "field", "function", "ruleRef"]
   },
-  "required": ["structure", "returnType", "ruleType", "uuId", "version", "metadata", "definition"],
+  "required": ["structure", "returnType", "ruleType", "uuid", "version", "metadata", "definition"],
   "properties": {
     "structure": {
       "type": "string",
@@ -24,7 +24,7 @@
       "$ref": "#/definitions/RuleType",
       "description": "The business purpose of this rule"
     },
-    "uuId": {
+    "uuid": {
       "type": "string",
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       "description": "Unique identifier for the rule in UUID format (supports mixed case)"

@@ -67,7 +67,7 @@ class RuleService {
   async createRule(rule) {
     // Remove UUID and version if accidentally included - server controls these
     const cleanRule = { ...rule };
-    delete cleanRule.uuId;
+    delete cleanRule.uuid;
     delete cleanRule.version;
     
     const response = await this.http.post('/rules', cleanRule);
@@ -83,7 +83,7 @@ class RuleService {
   async updateRule(uuid, rule) {
     // Remove UUID and version - server handles these
     const cleanRule = { ...rule };
-    delete cleanRule.uuId;
+    delete cleanRule.uuid;
     delete cleanRule.version;
     
     const response = await this.http.put(`/rules/${uuid}`, cleanRule);

@@ -1056,7 +1056,7 @@ public interface RuleRepository {
   "structure": "condition",
   "returnType": "boolean",
   "ruleType": "Validation",
-  "uuId": "...",
+  "uuid": "...",
   "version": 1,
   "metadata": {
     "id": "LOAN_APPROVAL",

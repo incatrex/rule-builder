@@ -8,7 +8,7 @@ After analyzing the schema and sample files, here are the findings:
 
 **Answer: NO - They can be removed**
 
-- ✅ **Keep:** `uuId` (top-level UUID) - Required for rule versioning/storage
+- ✅ **Keep:** `uuid` (top-level UUID) - Required for rule versioning/storage
 - ✅ **Keep:** `metadata.id` (human-readable rule identifier)
 - ❌ **Remove:** `condition.id` (e.g., "1762894420423-ftrsyl022") - Only used for React keys
 
@@ -35,14 +35,14 @@ After analyzing the schema and sample files, here are the findings:
 
 ### Top-Level Identifiers
 
-#### ✅ `uuId` (UUID v4)
+#### ✅ `uuid` (UUID v4)
 **Location:** Root level  
 **Required:** Yes  
 **Purpose:** Unique database identifier for rule storage/versioning  
 **Examples:**
 ```json
-"uuId": "cccccccc-3333-4444-5555-000000000003"  // Sample
-"uuId": "b49ff230-c470-46a4-af1a-2613392c96b0"  // Blank (user created)
+"uuid": "cccccccc-3333-4444-5555-000000000003"  // Sample
+"uuid": "b49ff230-c470-46a4-af1a-2613392c96b0"  // Blank (user created)
 ```
 **Recommendation:** ✅ **KEEP** - Essential for data persistence
 
@@ -230,7 +230,7 @@ displayName = condition.name || `Condition ${index + 1}`;
 
 ### ✅ Properties to KEEP:
 
-1. **`uuId`** - Essential for database persistence
+1. **`uuid`** - Essential for database persistence
 2. **`metadata.id`** - Essential for human reference
 3. **`conditionGroup.name`** - Very useful for UI
 4. **`condition.name`** - Useful for debugging

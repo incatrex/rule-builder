@@ -20,7 +20,7 @@ These props are identical whether creating a new rule or loading an existing one
 | Aspect | New Rule | Loaded Rule |
 |--------|----------|-------------|
 | `selectedRuleUuid` | `null` | Actual UUID string (e.g., "123e4567-e89b-12d3-a456-426614174000") |
-| Internal `ruleData.uuId` | `null` | Actual UUID |
+| Internal `ruleData.uuid` | `null` | Actual UUID |
 | Internal `ruleData.version` | `1` | Loaded version number (e.g., 5) |
 | Internal `ruleData.metadata.id` | `''` (empty string) | Actual rule ID (e.g., "CUSTOMER_ELIGIBILITY") |
 | Internal `ruleData.metadata.description` | `''` (empty string) | Actual description |
@@ -61,7 +61,7 @@ const newRule = useCallback((data = {}) => {
     structure,
     returnType: data.returnType || 'boolean',
     ruleType: data.ruleType || 'Reporting',
-    uuId: null,                    // No UUID for new rules
+    uuid: null,                    // No UUID for new rules
     version: 1,                     // Always starts at version 1
     metadata: data.metadata || { id: '', description: '' },
     definition: null                // Initially null
@@ -174,7 +174,7 @@ const loadRuleData = useCallback((data) => {
     structure,
     returnType: data.returnType || 'boolean',
     ruleType: data.ruleType || 'Reporting',
-    uuId: data.uuId || null,           // Has actual UUID
+    uuid: data.uuid || null,           // Has actual UUID
     version: data.version || 1,         // Has actual version
     metadata: data.metadata || { id: '', description: '' },
     definition: content                 // Has actual definition
