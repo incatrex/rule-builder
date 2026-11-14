@@ -1,0 +1,19 @@
+{
+  "extensionId": "YangYangLeeLee.claude-code-context-add",
+  "sourceRepo": "https://github.com/FE-runner/claude-vscode-context-add.git",
+  "commit": "64081b88b77473e0c178139df1cd2258252b38fa",
+  "version": "1.0.0",
+  "vsixUrl": "https://YangYangLeeLee.gallerycdn.vsassets.io/extensions/yangyangleelee/claude-code-context-add/1.0.0/1776395146812/Microsoft.VisualStudio.Services.VSIXPackage",
+  "dateAdded": "2026-07-31",
+  "dateUpdated": "2026-07-31",
+  "review": {
+    "heuristics": {
+      "status": "pass",
+      "date": "2026-07-31"
+    },
+    "claude": {
+      "status": "reviewed",
+      "date": "2026-07-31"
+    }
+  }
+}

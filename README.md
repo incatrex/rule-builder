@@ -85,9 +85,9 @@ rule-builder/
 │   ├── start-backend.sh                           # Start backend server
 │   ├── start-frontend.sh                          # Start frontend dev server
 │   ├── test.sh                                    # Run unit tests
-│   ├── test-e2e.sh                                # Run E2E tests (interactive)
-│   ├── test-integration.sh                        # Run all E2E tests
-│   └── test-sql-api.sh                            # Test SQL API manually
+│   ├── test-e2e.sh                                # Run E2E tests (menu, or `all` / a spec name)
+│   ├── test-clean.sh                              # Delete TEST_* rule files left by tests
+│   └── verify.sh                                  # Check build/run/test scripts + npm audit, non-interactively
 ├── docs/                       # Documentation
 │   ├── COMPONENT_HIERARCHY_SCHEMA.md              # Schema visualization
 │   ├── COMPONENT_HIERARCHY_FRONTEND.md            # Frontend architecture
@@ -101,7 +101,7 @@ rule-builder/
 ### Local Development
 - Java 17 or higher
 - Maven 3.6 or higher
-- Node.js 20 or higher
+- Node.js 20.19 or higher (required by Vite 8)
 - npm 9 or higher
 
 ### VS Code Dev Container
@@ -224,13 +224,13 @@ Fast component tests that don't require backend:
 
 This runs:
 - **Backend tests**: Maven tests (Java)
-- **Frontend tests**: Vitest tests in `frontend/src/tests/`
+- **Frontend tests**: Vitest tests in `frontend/src/tests/` (`npm run test:run`, single run; `npm test` starts Vitest in watch mode)
 
 ### E2E Tests (Playwright)
 Complete workflow tests with backend and frontend running:
 
 ```bash
-./scripts/test-integration.sh
+./scripts/test-e2e.sh all
 ```
 
 This automatically:
@@ -268,14 +268,23 @@ Complete workflow tests with backend and frontend running:
 
 **Run E2E tests**:
 ```bash
-./scripts/test-e2e.sh
+./scripts/test-e2e.sh            # interactive menu
+./scripts/test-e2e.sh all        # run every spec, no prompts
+./scripts/test-e2e.sh <spec>.js  # run one spec (file name or menu number), no prompts
 ```
 
 The script automatically:
 1. Starts backend server (if not running)
 2. Starts frontend dev server (if not running)
-3. Runs Playwright tests in `frontend/e2e/`
-4. Cleans up any servers it started
+3. Installs Playwright Chromium and its system libraries if missing
+4. Runs Playwright tests in `frontend/e2e/`
+5. Cleans up any servers it started
+
+### Verify everything
+```bash
+./scripts/verify.sh [--skip-e2e] [--skip-audit]
+```
+Runs `install.sh`, checks the jar contains the freshly built frontend, runs `test.sh`, starts each server and checks it responds, runs `test-e2e.sh all` and `npm audit`, then prints a pass/fail summary. Logs go to `.verify-logs/`.
 
 **E2E Test Coverage**:
 - Rule versioning workflow (create, modify, view history, restore)
@@ -337,7 +346,7 @@ Edit `backend/src/main/resources/static/config.json` and modify the `operators` 
 ## Technologies Used
 
 ### Backend
-- **Spring Boot 3.2.0**: Application framework
+- **Spring Boot 3.5**: Application framework
 - **Java 17**: Programming language
 - **Maven**: Build tool and dependency management
 - **Jackson**: JSON processing
@@ -346,8 +355,8 @@ Edit `backend/src/main/resources/static/config.json` and modify the `operators` 
 - **JUnit 5**: Unit testing framework
 
 ### Frontend
-- **React 18.2**: UI framework
-- **Vite 5**: Build tool and dev server with HMR
+- **React 18.3**: UI framework
+- **Vite 8**: Build tool and dev server with HMR
 - **Ant Design 5**: UI component library
 - **@dnd-kit**: Drag and drop functionality
 - **React Flow**: Visual rule canvas

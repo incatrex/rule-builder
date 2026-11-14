@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 I Need a way to implement a generic configuration in the schema that UI can use to implement custom options for agurments and custom UI components for select functions.   
 
 1.  Custom options for a function argument that can be pulled from a backend API 

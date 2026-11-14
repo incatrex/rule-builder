@@ -11,5 +11,8 @@ echo "Press Ctrl+C to stop the server"
 echo "========================================="
 echo ""
 
-cd backend
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$ROOT/backend" || exit 1
 mvn spring-boot:run

@@ -1,3 +1,7 @@
+---
+status: reference
+---
+
 config:
 
 [x] widgetProps and opProps not used.

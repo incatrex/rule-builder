@@ -1,0 +1,14 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
+    "window.commandCenter": false,
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#e9ed0bcb",
+        "titleBar.activeForeground": "#ffffff",
+        "titleBar.border": "#ffffff",
+        "titleBar.inactiveBackground": "#e9ed0bcb",
+        "titleBar.inactiveForeground": "#ffffff",
+        "statusBar.background": "#e9ed0bcb",
+        "statusBar.foreground": "#ffffff"
+    }
+}

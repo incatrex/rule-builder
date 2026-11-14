@@ -59,6 +59,22 @@ async function robustClick(locator, options = {}) {
   }
 }
 
+// Click Save and wait for this save's own POST /api/v1/rules response.
+// (Waiting for any success toast could match the previous save's toast that
+// is still on screen, so a save that never happened went unnoticed.)
+async function saveNewRule(page) {
+  const [response] = await Promise.all([
+    page.waitForResponse(
+      r => r.request().method() === 'POST' && /\/api\/v1\/rules$/.test(new URL(r.url()).pathname),
+      { timeout: 10000 }
+    ),
+    page.getByTestId('rule-save-button').click(),
+  ]);
+  if (response.status() !== 201) {
+    throw new Error(`Saving rule failed: HTTP ${response.status()}`);
+  }
+}
+
 // Helper function to select source option using path-based test-id
 // Uses proper Ant Design dropdown handling
 async function selectSourceByPath(page, expansionPath, optionText) {
@@ -191,8 +207,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await page.waitForTimeout(300);
     
     // Save the first rule
-    await page.getByTestId('rule-save-button').click();
-    await page.waitForSelector('.ant-message-success, .ant-notification-notice-success', { timeout: 5000 });
+    await saveNewRule(page);
     console.log(`[beforeEach] ✓ ${testRuleIdCondition} saved`);
     await page.waitForTimeout(500);
     
@@ -215,8 +230,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await page.waitForTimeout(300);
     
     // Save the second rule
-    await page.getByTestId('rule-save-button').click();
-    await page.waitForSelector('.ant-message-success, .ant-notification-notice-success', { timeout: 5000 });
+    await saveNewRule(page);
     console.log(`[beforeEach] ✓ ${testRuleIdConditionGroup} saved`);
     await page.waitForTimeout(500);
     
@@ -239,8 +253,7 @@ test.describe('Condition Naming - Sequential Scenarios', () => {
     await page.waitForTimeout(300);
     
     // Save the third rule
-    await page.getByTestId('rule-save-button').click();
-    await page.waitForSelector('.ant-message-success, .ant-notification-notice-success', { timeout: 5000 });
+    await saveNewRule(page);
     console.log(`[beforeEach] ✓ ${testRuleIdTransformation} saved`);
     
     // Reload the page to clear any caches and create a fresh state

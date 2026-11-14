@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Unify Discriminator Field Naming: Change "source" to "type"
 
 ## Issue

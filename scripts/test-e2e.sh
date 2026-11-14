@@ -7,6 +7,12 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Usage: scripts/test-e2e.sh [all | <number> | <spec-file>]
+#   With no argument, shows an interactive menu of e2e/*.spec.js files.
+#   "all" (or 0) runs every spec; a number or file name runs one spec.
+#   Given an argument, the script never prompts, so it can run unattended.
+SELECTION="$1"
+
 # Get script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -52,7 +58,7 @@ start_backend() {
     
     echo -e "${YELLOW}Starting backend...${NC}"
     cd "$BACKEND_DIR"
-    mvn spring-boot:run > /tmp/rule-builder-backend.log 2>&1 &
+    setsid mvn spring-boot:run > /tmp/rule-builder-backend.log 2>&1 &
     local pid=$!
     echo $pid > "$BACKEND_PID_FILE"
     
@@ -78,14 +84,14 @@ start_backend() {
 start_frontend() {
     local port=$(get_frontend_port)
     if [ -n "$port" ]; then
-        echo -e "${GREEN}✓ Frontend already running on port $port${NC}"
+        echo -e "${GREEN}✓ Frontend already running on port $port${NC}" >&2
         echo "$port"
         return 0
     fi
     
-    echo -e "${YELLOW}Starting frontend...${NC}"
+    echo -e "${YELLOW}Starting frontend...${NC}" >&2
     cd "$FRONTEND_DIR"
-    npm run dev > /tmp/rule-builder-frontend.log 2>&1 &
+    setsid npm run dev > /tmp/rule-builder-frontend.log 2>&1 &
     local pid=$!
     echo $pid > "$FRONTEND_PID_FILE"
     
@@ -94,17 +100,17 @@ start_frontend() {
     while [ -z "$(get_frontend_port)" ] && [ $count -lt 30 ]; do
         sleep 1
         count=$((count + 1))
-        echo -n "."
+        echo -n "." >&2
     done
-    echo ""
+    echo "" >&2
     
     port=$(get_frontend_port)
     if [ -n "$port" ]; then
-        echo -e "${GREEN}✓ Frontend started successfully on port $port${NC}"
+        echo -e "${GREEN}✓ Frontend started successfully on port $port${NC}" >&2
         echo "$port"
         return 0
     else
-        echo -e "${RED}✗ Frontend failed to start${NC}"
+        echo -e "${RED}✗ Frontend failed to start${NC}" >&2
         return 1
     fi
 }
@@ -119,7 +125,7 @@ cleanup() {
         local pid=$(cat "$BACKEND_PID_FILE")
         if ps -p $pid > /dev/null 2>&1; then
             echo "Stopping backend (PID: $pid)..."
-            kill $pid 2>/dev/null
+            kill -- -$pid 2>/dev/null || kill $pid 2>/dev/null  # whole process group (npm -> vite, mvn -> java)
         fi
         rm -f "$BACKEND_PID_FILE"
     fi
@@ -128,7 +134,7 @@ cleanup() {
         local pid=$(cat "$FRONTEND_PID_FILE")
         if ps -p $pid > /dev/null 2>&1; then
             echo "Stopping frontend (PID: $pid)..."
-            kill $pid 2>/dev/null
+            kill -- -$pid 2>/dev/null || kill $pid 2>/dev/null
         fi
         rm -f "$FRONTEND_PID_FILE"
     fi
@@ -151,6 +157,14 @@ echo -e "${GREEN}✓ All services ready${NC}"
 echo "  - Backend:  http://localhost:8080"
 echo "  - Frontend: http://localhost:$FRONTEND_PORT"
 echo ""
+
+# Make sure Playwright's Chromium (and the OS libraries it needs) is installed.
+# A fresh devcontainer has neither; this is a no-op once they're present.
+cd "$FRONTEND_DIR"
+if ! node -e "require('@playwright/test').chromium.launch().then(b => b.close()).catch(() => process.exit(1))" 2>/dev/null; then
+    echo -e "${YELLOW}Installing Playwright Chromium and its system dependencies...${NC}"
+    npx playwright install --with-deps chromium || { echo -e "${RED}✗ Playwright browser install failed${NC}"; exit 1; }
+fi
 
 # Update playwright test files with correct port if needed
 echo -e "${YELLOW}Verifying Playwright test configuration...${NC}"
@@ -191,7 +205,20 @@ done
 
 echo ""
 echo "========================================="
-read -p "Enter your choice (0-${#TEST_FILES[@]}): " choice
+if [ -z "$SELECTION" ]; then
+    read -p "Enter your choice (0-${#TEST_FILES[@]}): " choice
+elif [ "$SELECTION" = "all" ]; then
+    choice=0
+elif [[ "$SELECTION" =~ ^[0-9]+$ ]]; then
+    choice="$SELECTION"
+else
+    choice=""
+    for i in "${!TEST_FILES[@]}"; do
+        [ "${TEST_FILES[$i]}" = "$(basename "$SELECTION")" ] && choice=$((i+1))
+    done
+    [ -z "$choice" ] && { echo -e "${RED}Unknown spec: $SELECTION${NC}"; exit 1; }
+    echo "Selected: $SELECTION"
+fi
 
 # Validate input
 if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
@@ -234,7 +261,9 @@ else
 fi
 echo "========================================="
 echo ""
-echo "Press Enter to exit..."
-read
+if [ -z "$SELECTION" ]; then
+    echo "Press Enter to exit..."
+    read
+fi
 
 exit $TEST_EXIT_CODE

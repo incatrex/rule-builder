@@ -1,0 +1,11 @@
+{
+  "extensions": [
+    {
+      "id": "YangYangLeeLee.claude-code-context-add",
+      "version": "1.0.0",
+      "commit": "64081b88b77473e0c178139df1cd2258252b38fa",
+      "dateAdded": "2026-07-31",
+      "dateUpdated": "2026-07-31"
+    }
+  ]
+}

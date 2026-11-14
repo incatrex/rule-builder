@@ -17,8 +17,9 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* One worker: the specs share one backend and rules folder and drive a heavy UI.
+     Parallel workers crashed Chromium ("Page crashed") in the devcontainer. */
+  workers: 1,
   
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',

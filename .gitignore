@@ -164,7 +164,8 @@ backend/src/main/resources/static/rules/*.json
 
 # IDEs
 .idea/
-.vscode/
+# .vscode/ is tracked (settings profiles, vendored extensions); .vscode/.gitignore ignores the generated settings.json
 *.iml
 *.ipr
 *.iws
+.verify-logs/

@@ -1,0 +1,162 @@
+{
+  "name": "claude-code-context-add",
+  "displayName": "Claude Code Context Add",
+  "description": "Add files and selections to Claude Code terminal/panel context via right-click menus and keyboard shortcuts. Forked from claude-code-context-plus.",
+  "version": "1.0.0",
+  "publisher": "YangYangLeeLee",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FE-runner/claude-vscode-context-add.git"
+  },
+  "internalRepository": {
+    "type": "git",
+    "url": "http://git.domob-inc.cn/yang.li12/claude-code-context-add.git"
+  },
+  "license": "MIT",
+  "forkedFrom": {
+    "name": "claude-code-context-plus",
+    "publisher": "jeffycyang",
+    "repository": "https://github.com/jeffycyang/claude-vscode-context-plus"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "anthropic",
+    "ai",
+    "context"
+  ],
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#D97706",
+    "theme": "dark"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "claudeContextAdd.addFileToContext",
+        "title": "Add to Claude Code",
+        "category": "Claude Code Context Add"
+      },
+      {
+        "command": "claudeContextAdd.sendSelectionToContext",
+        "title": "Send Selection to Claude Code",
+        "category": "Claude Code Context Add"
+      },
+      {
+        "command": "claudeContextAdd.setAsClaudeTerminal",
+        "title": "Set as Claude Code Terminal",
+        "category": "Claude Code Context Add"
+      },
+      {
+        "command": "claudeContextAdd.selectTerminal",
+        "title": "Select Claude Code Terminal",
+        "category": "Claude Code Context Add"
+      },
+      {
+        "command": "claudeContextAdd.selectTarget",
+        "title": "Select Target Mode",
+        "category": "Claude Code Context Add"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "claudeContextAdd.setAsClaudeTerminal",
+          "when": "config.claudeContextAdd.target != 'panel'"
+        },
+        {
+          "command": "claudeContextAdd.selectTerminal",
+          "when": "config.claudeContextAdd.target != 'panel'"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "claudeContextAdd.addFileToContext",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "claudeContextAdd.sendSelectionToContext",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "claudeContextAdd.addFileToContext",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "claudeContextAdd.addFileToContext",
+        "key": "ctrl+shift+.",
+        "mac": "cmd+shift+.",
+        "when": "editorFocus"
+      },
+      {
+        "command": "claudeContextAdd.sendSelectionToContext",
+        "key": "ctrl+shift+,",
+        "mac": "cmd+shift+,",
+        "when": "editorHasSelection"
+      }
+    ],
+    "configuration": {
+      "title": "Claude Code Context Add",
+      "properties": {
+        "claudeContextAdd.target": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "terminal",
+            "panel"
+          ],
+          "enumDescriptions": [
+            "Use terminal if a Claude Code terminal is found, otherwise fall back to the VS Code extension panel",
+            "Always send to the Claude Code terminal",
+            "Always send to the Claude Code VS Code extension panel"
+          ],
+          "default": "auto",
+          "description": "Where to send file and selection references"
+        },
+        "claudeContextAdd.terminalNamePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Additional terminal name patterns to match as Claude Code terminals (regex supported)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "build:prod": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "launch": "npm run build && code --extensionDevelopmentPath=.",
+    "watch": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "package": "npm run build:prod && npx @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "esbuild": "^0.24.0",
+    "vitest": "^2.0.0",
+    "@vscode/vsce": "^3.0.0"
+  }
+}
